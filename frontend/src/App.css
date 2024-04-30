@@ -1,0 +1,65 @@
+/* Estilo para o elemento com a classe .App */
+.App {
+  text-align: center; /* Alinha o texto ao centro */
+  margin-top: 100px; /* Define uma margem superior de 100px */
+  background-color: #D9FFEC;
+}
+
+/* Estilo para o elemento com a classe .body */
+body {
+  font-family: "Work Sans", sans-serif; /* Define a família de fontes */
+  font-optical-sizing: auto; /* Define o ajuste óptico da fonte como automático */
+  font-weight: auto; /* Define o peso da fonte como automático */
+  font-style: normal; /* Define o estilo da fonte como normal */
+  background-color: #D9FFEC;
+}
+
+/* Estilo para o elemento <h1> */
+h1 {
+  color: #006400; /* Define a cor do texto como verde escuro */
+  text-align: center; /* Alinha o texto ao centro */
+}
+
+/* Estilo para o elemento <form> */
+form {
+  max-width: 300px; /* Define a largura máxima do formulário como 400px */
+  margin: 0 auto; /* Centraliza o formulário na página */
+  padding: 30px 100px; /* Adiciona um espaçamento interno de 20px */
+  background-color: #f7f7f7; /* Define a cor de fundo como branco */
+  border-radius: 50px; /* Adiciona cantos arredondados */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adiciona uma sombra suave */
+}
+
+/* Estilo para o elemento <label> */
+label {
+  max-width: 300px;
+  display: block; /* Define o tipo de exibição como bloco */
+  margin-bottom: 0px; /* Adiciona uma margem inferior de 5px */
+  color: #006400; /* Define a cor do texto como verde escuro */
+  text-align: left; /* Alinha o texto à esquerda */
+}
+
+/* Estilo para o elemento <input> */
+input {
+  width: 100%; /* Define a largura como 100% */
+  padding: 8px; /* Adiciona preenchimento interno de 8px */
+  margin-bottom: 15px; /* Adiciona uma margem inferior de 15px */
+  border: 1px solid #cccccc; /* Define a borda como cinza claro */
+  border-radius: 4px; /* Adiciona cantos arredondados */
+  box-sizing: border-box; /* Adapta o tamanho da caixa de acordo com a borda e o preenchimento */
+}
+
+/* Estilo para o elemento <header> */
+header {
+  background-color: #f7f7f7; /* Define a cor de fundo como cinza escuro */
+  padding: 20px; /* Adiciona um espaçamento interno de 20px */
+  color: white; /* Define a cor do texto como branco */
+}
+
+/* Estilo para o elemento <main> */
+main {
+  margin-top: 20px; /* Adiciona uma margem superior de 20px */
+}
+
+
+

@@ -1,0 +1,37 @@
+button {
+    width: 300px;
+    /* Define a largura como 100% */
+    padding: 10px;
+    /* Adiciona preenchimento interno de 8px */
+    background-color: #006400;
+    /* Define a cor de fundo como verde escuro */
+    margin-bottom: 5px;
+    color: #ffffff;
+    /* Define a cor do texto como branco */
+    border: none;
+    /* Remove a borda */
+    border-radius: 5px;
+    /* Adiciona cantos arredondados */
+    cursor: pointer;
+    /* Define o cursor como ponteiro */
+}
+
+/* Estilo para o elemento <button> quando o cursor passa por cima */
+button:hover {
+    background-color: #004d00;
+    /* Altera a cor de fundo para um verde mais escuro */
+}
+
+.forgot-password-button {
+    background-color: transparent;
+    border: none;
+    color: #006400;
+    cursor: pointer;
+    text-decoration: underline;
+    text-align: left;
+    padding: 0px;
+}
+
+.forgot-password-button:hover {
+    background-color: transparent;
+}
