@@ -1,29 +1,37 @@
 /* Estilo para o elemento com a classe .App */
 .App {
-  text-align: center; /* Alinha o texto ao centro */
-  margin-top: 100px; /* Define uma margem superior de 100px */
   background-color: #D9FFEC;
 }
 
-/* Estilo para o elemento com a classe .body */
+.main-content {
+  margin-left: 270px; /* Espaço para a sidebar */
+  padding-left: 20px;
+  text-align: left;
+}
+
+/* Estilo para o elemento com a classe body */
 body {
   font-family: "Work Sans", sans-serif; /* Define a família de fontes */
   font-optical-sizing: auto; /* Define o ajuste óptico da fonte como automático */
   font-weight: auto; /* Define o peso da fonte como automático */
   font-style: normal; /* Define o estilo da fonte como normal */
   background-color: #D9FFEC;
+  margin: 0; /* Conteúdo sem margem */ 
+  padding-top: 140px; /* Espaço para a sidebar */
 }
 
 /* Estilo para o elemento <h1> */
 h1 {
   color: #006400; /* Define a cor do texto como verde escuro */
-  text-align: center; /* Alinha o texto ao centro */
 }
 
 /* Estilo para o elemento <form> */
 form {
-  max-width: 300px; /* Define a largura máxima do formulário como 400px */
-  margin: 0 auto; /* Centraliza o formulário na página */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 400px; /* Define a largura máxima do formulário como 300px */
+  margin: 0 auto 100px auto; /* top left bottom right Centraliza o formulário na página */
   padding: 30px 100px; /* Adiciona um espaçamento interno de 20px */
   background-color: #f7f7f7; /* Define a cor de fundo como branco */
   border-radius: 50px; /* Adiciona cantos arredondados */
@@ -32,34 +40,63 @@ form {
 
 /* Estilo para o elemento <label> */
 label {
-  max-width: 300px;
   display: block; /* Define o tipo de exibição como bloco */
-  margin-bottom: 0px; /* Adiciona uma margem inferior de 5px */
-  color: #006400; /* Define a cor do texto como verde escuro */
+  width: 100%; /* Define a largura como 100%*/
   text-align: left; /* Alinha o texto à esquerda */
+  color: #006400; /* Define a cor do texto como verde escuro */
+  margin-bottom: 4px;
 }
 
 /* Estilo para o elemento <input> */
 input {
+  display: block;
   width: 100%; /* Define a largura como 100% */
   padding: 8px; /* Adiciona preenchimento interno de 8px */
-  margin-bottom: 15px; /* Adiciona uma margem inferior de 15px */
+  margin-bottom: 10px; /* Adiciona uma margem inferior de 10px */
+  margin-top: 4px; /* Adiciona uma margem superior ao quadradinho do input de 4px */
   border: 1px solid #cccccc; /* Define a borda como cinza claro */
   border-radius: 4px; /* Adiciona cantos arredondados */
   box-sizing: border-box; /* Adapta o tamanho da caixa de acordo com a borda e o preenchimento */
 }
 
-/* Estilo para o elemento <header> */
-header {
-  background-color: #f7f7f7; /* Define a cor de fundo como cinza escuro */
-  padding: 20px; /* Adiciona um espaçamento interno de 20px */
-  color: white; /* Define a cor do texto como branco */
+select {
+  padding: 3px;
+  margin-left: 4px;
+  margin-bottom: 10px;
+  border: 1px solid #cccccc; /* Define a borda como cinza claro */
+  border-radius: 8px; /* Adiciona cantos arredondados */
 }
 
-/* Estilo para o elemento <main> */
-main {
-  margin-top: 20px; /* Adiciona uma margem superior de 20px */
+input:focus, textarea:focus, select:focus {
+  border-color: #006400;
+  outline: none;
 }
 
+button {
+  width: 300px; /* Define a largura como 300px */
+  padding: 10px; /* Adiciona preenchimento interno de 10px */
+  background-color: #006400; /* Define a cor de fundo como verde escuro */
+  margin-bottom: 5px;
+  color: #ffffff; /* Define a cor do texto como branco */
+  border: none; /* Remove a borda */
+  border-radius: 5px; /* Adiciona cantos arredondados */
+  cursor: pointer; /* Define o cursor como ponteiro */
+}
 
+/* Estilo para o elemento <button> quando o cursor passa por cima */
+button:hover {
+  background-color: #004d00; /* Altera a cor de fundo para um verde mais escuro */
+}
 
+a {
+  color: #006400; /* Define a cor do texto dos links e botões do menu como verde escuro */
+  text-decoration: none; /* Remove a decoração do texto (sublinhado) dos links do menu */
+  background: none; /* Remove o fundo dos botões do menu */
+  border: none; /* Remove a borda dos botões do menu */
+  margin-right: 20px; 
+}
+
+a:hover {
+  color: #000; /* Cor do texto dos links ao passar o mouse */
+  cursor: pointer; /* Muda o cursor para um ponteiro (mão) ao passar o mouse */
+}
