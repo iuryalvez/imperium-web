@@ -1,0 +1,12 @@
+:root {
+    --cinza-background: #F7F7F7;
+    --verde-fraco: #D9FFEC;
+    --verde-realce: #21BA45;
+    --verde-claro: #278F54;
+    --verde-medio: #006634;
+    --verde-escuro: #064420;
+}
+
+.sobre-content {
+    padding: 0 6.25rem 5rem 6.25rem;
+}

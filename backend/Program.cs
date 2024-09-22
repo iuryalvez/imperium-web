@@ -1,70 +1,93 @@
 using Microsoft.EntityFrameworkCore;
-using backend.Data;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
-var builder = WebApplication.CreateBuilder(args);
+using backend.Data;
+using backend.Services;
+using backend.Controllers;
 
-// Adiciona serviços ao contêiner.
-builder.Services.AddControllers();
+var builder = WebApplication.CreateBuilder(args);
 
 // Configura o DbContext para usar o Npgsql (PostgreSQL)
 builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Adiciona a geração de documentação Swagger
-builder.Services.AddSwaggerGen();
-
 // Configura o CORS para permitir requisições do frontend
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAllOrigins",
-        builder =>
-        {
-            // Permite qualquer origem, método e cabeçalho
-            builder.AllowAnyOrigin()
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
-        });
-});
+// builder.Services.AddCors(options =>
+// {
+//     options.AddPolicy("AllowSpecificOrigin",
+//         builder =>
+//         {
+//             builder.WithOrigins("http://localhost:3000")
+//                    .AllowAnyHeader()
+//                    .AllowAnyMethod();
+//         });
+// });
 
-var secret = builder.Configuration["JwtConfig:Secret"];
-var key = string.IsNullOrEmpty(secret) ? null : Encoding.ASCII.GetBytes(secret ?? string.Empty);
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = false;
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["JwtConfig:Issuer"],
-        ValidAudience = builder.Configuration["JwtConfig:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(key)
-    };
-});
+// Configuração do serviço de token
+// builder.Services.AddScoped<ITokenService, TokenService>();
+
+// Configuração da Autenticação JWT
+// builder.Services.AddAuthentication(options =>
+// {
+//     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+//     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+// })
+
+// .AddJwtBearer(options =>
+// {
+//     options.TokenValidationParameters = new TokenValidationParameters
+//     {
+//         ValidateIssuer = true,
+//         ValidateAudience = true,
+//         ValidateLifetime = true,
+//         ValidateIssuerSigningKey = true,
+//         ValidIssuer = builder.Configuration["Jwt:Issuer"],
+//         ValidAudience = builder.Configuration["Jwt:Audience"],
+//         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+//     };
+// });
+
+// Configuração da Autorização
+// builder.Services.AddAuthorization(options =>
+// {
+//     options.AddPolicy("Administrador", policy => policy.RequireRole("Administrador"));
+//     options.AddPolicy("Profissional", policy => policy.RequireRole("Profissional"));
+//     options.AddPolicy("Secretário", policy => policy.RequireRole("Secretário"));
+// });
+
+// Adiciona serviços ao contêiner.
+builder.Services.AddControllers();
+
+// Adiciona a geração de documentação Swagger
+// builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configura o pipeline de requisição HTTP
-if (app.Environment.IsDevelopment())
+// Popula o banco de dados com dados iniciais usando o seeder
+using (var scope = app.Services.CreateScope())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<AppDbContext>();
+
+    // Chama o seeder para popular o banco de dados
+    var seeder = new Seeder(context);
+    seeder.SeedData();
 }
 
-// Adiciona suporte ao CORS no pipeline
-app.UseCors("AllowAllOrigins");
+// Configura o pipeline de requisição HTTP
+// if (app.Environment.IsDevelopment())
+// {
+//     app.UseSwagger();
+//     app.UseSwaggerUI();
+// }
 
-app.UseAuthorization();
+// Adiciona suporte ao CORS no pipeline
+// app.UseCors("AllowAllOrigins");
+
+// app.UseAuthentication();
+// app.UseAuthorization();
 
 app.MapControllers();
 

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "5WGHwRyiTG8tqRcU0tTfhGu7u73yftRDmoyIglMq/OUA/0N65HqjO03z2wiVJbktrT6KGWYjOc8jrTUOvn7BGw==",
+  "dgSpecHash": "0wJa6dqyXsROi7XasvkDFLEsPNWJW7S9E4a/shVcdYi185PL6IIMLbRW4bMicCNL4gV2edf1WnK+Cwn6miV7bg==",
   "success": true,
-  "projectFilePath": "/home/iury/Documentos/Iniciação-Imperium/Projeto/imperium-web/backend/backend.csproj",
+  "projectFilePath": "/home/iury/Documentos/Iniciação - Imperium Web/projeto/imperium-web/backend/backend.csproj",
   "expectedPackageFiles": [
     "/home/iury/.nuget/packages/azure.core/1.35.0/azure.core.1.35.0.nupkg.sha512",
     "/home/iury/.nuget/packages/azure.identity/1.10.3/azure.identity.1.10.3.nupkg.sha512",

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/home/iury/Documentos/Iniciação-Imperium/Projeto/imperium-web/backend/backend.csproj": {}
+    "/home/iury/Documentos/Iniciação - Imperium Web/projeto/imperium-web/backend/backend.csproj": {}
   },
   "projects": {
-    "/home/iury/Documentos/Iniciação-Imperium/Projeto/imperium-web/backend/backend.csproj": {
+    "/home/iury/Documentos/Iniciação - Imperium Web/projeto/imperium-web/backend/backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/iury/Documentos/Iniciação-Imperium/Projeto/imperium-web/backend/backend.csproj",
+        "projectUniqueName": "/home/iury/Documentos/Iniciação - Imperium Web/projeto/imperium-web/backend/backend.csproj",
         "projectName": "backend",
-        "projectPath": "/home/iury/Documentos/Iniciação-Imperium/Projeto/imperium-web/backend/backend.csproj",
+        "projectPath": "/home/iury/Documentos/Iniciação - Imperium Web/projeto/imperium-web/backend/backend.csproj",
         "packagesPath": "/home/iury/.nuget/packages/",
-        "outputPath": "/home/iury/Documentos/Iniciação-Imperium/Projeto/imperium-web/backend/obj/",
+        "outputPath": "/home/iury/Documentos/Iniciação - Imperium Web/projeto/imperium-web/backend/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/iury/.nuget/NuGet/NuGet.Config"
@@ -98,7 +98,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.105/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.108/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

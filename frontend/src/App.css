@@ -1,41 +1,45 @@
 /* Estilo para o elemento com a classe .App */
+
+:root {
+  --cinza-background: #F7F7F7;
+  --verde-fraco: #D9FFEC;
+  --verde-realce: #21BA45;
+  --verde-claro: #278F54;
+  --verde-medio: #006634;
+  --verde-escuro: #064420;
+}
+
 .App {
-  background-color: #D9FFEC;
+  background-color: var(--verde-fraco);
 }
 
 .main-content {
-  margin-left: 270px; /* Espaço para a sidebar */
-  padding-left: 20px;
+  margin-left: 18rem; /* Espaço para a sidebar */
   text-align: left;
 }
 
 /* Estilo para o elemento com a classe body */
 body {
-  font-family: "Work Sans", sans-serif; /* Define a família de fontes */
+  font-family: "Work Sans"; /* Define a família de fontes */
   font-optical-sizing: auto; /* Define o ajuste óptico da fonte como automático */
   font-weight: auto; /* Define o peso da fonte como automático */
   font-style: normal; /* Define o estilo da fonte como normal */
-  background-color: #D9FFEC;
+  background-color: var(--verde-fraco);
   margin: 0; /* Conteúdo sem margem */ 
-  padding-top: 140px; /* Espaço para a sidebar */
+  padding-top: 6rem; /* Espaço para a headbar */
 }
 
 /* Estilo para o elemento <h1> */
 h1 {
-  color: #006400; /* Define a cor do texto como verde escuro */
+  color: var(--verde-escuro); /* Define a cor do texto como verde escuro */
+  font-weight: bold;
 }
 
-/* Estilo para o elemento <form> */
-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 400px; /* Define a largura máxima do formulário como 300px */
-  margin: 0 auto 100px auto; /* top left bottom right Centraliza o formulário na página */
-  padding: 30px 100px; /* Adiciona um espaçamento interno de 20px */
-  background-color: #f7f7f7; /* Define a cor de fundo como branco */
-  border-radius: 50px; /* Adiciona cantos arredondados */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adiciona uma sombra suave */
+h2 { /* simula h1 mas com margem para ajustar ao card cadastro */
+  color: var(--verde-escuro); /* Define a cor do texto como verde escuro */
+  font-weight: bold;
+  font-size: xx-large;
+  margin: 0.5rem 0 1.5rem 0;
 }
 
 /* Estilo para o elemento <label> */
@@ -44,19 +48,11 @@ label {
   width: 100%; /* Define a largura como 100%*/
   text-align: left; /* Alinha o texto à esquerda */
   color: #006400; /* Define a cor do texto como verde escuro */
-  margin-bottom: 4px;
 }
 
-/* Estilo para o elemento <input> */
-input {
-  display: block;
-  width: 100%; /* Define a largura como 100% */
-  padding: 8px; /* Adiciona preenchimento interno de 8px */
-  margin-bottom: 10px; /* Adiciona uma margem inferior de 10px */
-  margin-top: 4px; /* Adiciona uma margem superior ao quadradinho do input de 4px */
-  border: 1px solid #cccccc; /* Define a borda como cinza claro */
-  border-radius: 4px; /* Adiciona cantos arredondados */
-  box-sizing: border-box; /* Adapta o tamanho da caixa de acordo com a borda e o preenchimento */
+input:focus, textarea:focus, select:focus {
+  border-color: var(--verde-medio);
+  outline: none;
 }
 
 select {
@@ -72,24 +68,8 @@ input:focus, textarea:focus, select:focus {
   outline: none;
 }
 
-button {
-  width: 300px; /* Define a largura como 300px */
-  padding: 10px; /* Adiciona preenchimento interno de 10px */
-  background-color: #006400; /* Define a cor de fundo como verde escuro */
-  margin-bottom: 5px;
-  color: #ffffff; /* Define a cor do texto como branco */
-  border: none; /* Remove a borda */
-  border-radius: 5px; /* Adiciona cantos arredondados */
-  cursor: pointer; /* Define o cursor como ponteiro */
-}
-
-/* Estilo para o elemento <button> quando o cursor passa por cima */
-button:hover {
-  background-color: #004d00; /* Altera a cor de fundo para um verde mais escuro */
-}
-
 a {
-  color: #006400; /* Define a cor do texto dos links e botões do menu como verde escuro */
+  color: var(--verde-claro); /* Define a cor do texto dos links e botões do menu como verde escuro */
   text-decoration: none; /* Remove a decoração do texto (sublinhado) dos links do menu */
   background: none; /* Remove o fundo dos botões do menu */
   border: none; /* Remove a borda dos botões do menu */
@@ -97,6 +77,26 @@ a {
 }
 
 a:hover {
-  color: #000; /* Cor do texto dos links ao passar o mouse */
+  color: var(--verde-realce); /* Cor do texto dos links ao passar o mouse */
   cursor: pointer; /* Muda o cursor para um ponteiro (mão) ao passar o mouse */
+}
+
+.icone {
+  height: 1.3rem;
+  width: 1.3rem;
+  margin: 0 0.25rem;
+}
+
+.icone-botao {
+  fill: var(--cinza-background);
+  max-height: 0.9rem;
+  max-width: 0.9rem;
+  margin: 0 0.25rem;
+}
+
+.lado-a-lado {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }

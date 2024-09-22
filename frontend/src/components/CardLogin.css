@@ -1,0 +1,109 @@
+:root {
+    --cinza-background: #F7F7F7;
+    --verde-fraco: #D9FFEC;
+    --verde-realce: #21BA45;
+    --verde-claro: #278F54;
+    --verde-medio: #006634;
+    --verde-escuro: #064420;
+}
+
+.form-login {
+    display: flex;
+    width: 25rem;
+    margin: 0 auto 100px auto; /* top left bottom right Centraliza o formulário na página */
+    flex-direction: column;
+    align-items: center; 
+    padding: 2rem 3rem;
+    background-color: var(--cinza-background);
+    border-radius: 3rem;
+    box-shadow: 0 0.5rem 0.5rem rgba(0, 0, 0, 0.25);
+}
+
+.input-form {
+    display: flex;
+    background-color: var(--cinza-background);
+    width: 100%; /* Define a largura como 100% */
+    padding: 0.5rem; /* Adiciona preenchimento interno de 8px */
+    margin-bottom: 1rem;
+    border: 0px;
+    border-bottom: 2px solid var(--verde-escuro);
+    box-sizing: border-box; /* Adapta o tamanho da caixa de acordo com a borda e o preenchimento */
+}
+
+.input-form::placeholder {
+    color: var(--verde-medio);
+    opacity: 1;
+}
+
+.forgot-senha-button {
+    background-color: transparent;
+    border: none;
+    color: var(--verde-medio);
+    cursor: pointer;
+    text-decoration: underline;
+    text-align: left;
+    margin: 0;
+}
+
+.forgot-senha-button:hover {
+    background-color: transparent;
+    color: var(--verde-realce);
+}
+
+.aqui {
+    margin-left: 3px;
+
+    color: var(--verde-medio); /* Define a cor do texto dos links e botões do menu como verde escuro */
+    text-decoration: none; /* Remove a decoração do texto (sublinhado) dos links do menu */
+    background: none; /* Remove o fundo dos botões do menu */
+    border: none; /* Remove a borda dos botões do menu */ 
+    cursor: pointer;
+    text-align: left;
+    font-weight: bold;
+    margin: 0.2rem 0 0.2rem 0.3rem;
+
+    &:hover {
+        color: var(--verde-realce);
+    }
+}
+
+.button-login {
+    width: 10rem; /* Define a largura*/
+    padding: 0.6rem; /* Adiciona preenchimento interno*/
+    background-color: var(--verde-medio); /* Define a cor de fundo como verde escuro */
+    margin: 1rem 0;
+    color: var(--cinza-background); /* Define a cor do texto como branco */
+    font-weight: bold;
+    border: none; /* Remove a borda */
+    border-radius: 2rem; /* Adiciona cantos arredondados */
+    cursor: pointer; /* Define o cursor como ponteiro */
+    
+}
+
+.button-login:hover {
+    background-color: var(--verde-realce);
+    color: var(--cinza-background); /* Define a cor do texto como branco */
+}
+
+.texto-cadastrar {
+    text-align: left;
+    margin-bottom: 0.5rem;
+}
+
+.input-icon {
+    color: var(--verde-medio);
+    margin-right: 0.5rem;
+    font-size: 0.8rem;
+    transform: translateY(-50%);
+}
+
+.logo-login {
+    width: 150px; 
+    height: auto; 
+    padding: 0.5rem;
+}
+
+.logos {
+    margin-top: 1rem;
+    height: 50px;
+}

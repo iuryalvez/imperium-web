@@ -1,0 +1,39 @@
+:root {
+    --cinza-background: #F7F7F7;
+    --verde-fraco: #D9FFEC;
+    --verde-realce: #21BA45;
+    --verde-claro: #278F54;
+    --verde-medio: #006634;
+    --verde-escuro: #064420;
+}
+
+.icon-button-bar {
+    fill: var(--cinza-background);
+    max-height: 0.9rem;
+    max-width: 0.9rem;
+    margin: 0 0.25rem;
+}
+
+.titulo-animais {
+    display: flex;
+    justify-content: space-between;
+    margin-right: 10rem;
+}
+
+.button-bar {
+    display: flex;
+    width: auto;
+    padding: 0.6rem; /* Adiciona preenchimento interno*/
+    background-color: var(--verde-escuro); /* Define a cor de fundo como verde escuro */
+    margin: 1rem 0;
+    color: #ffffff; /* Define a cor do texto como branco */
+    font-weight: bold;
+    border: none; /* Remove a borda */
+    border-radius: 2rem; /* Adiciona cantos arredondados */
+    cursor: pointer; /* Define o cursor como ponteiro */
+}
+
+.button-bar:hover {
+    background-color: var(--verde-realce);
+    color: var(--cinza-background); /* Define a cor do texto como branco */
+}
