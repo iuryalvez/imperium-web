@@ -9,7 +9,7 @@ using backend.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configura o DbContext para usar o Npgsql (PostgreSQL)
+// configura o DbContext para usar o Npgsql (PostgreSQL) - pgAdmin
 builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -57,31 +57,32 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 //     options.AddPolicy("Secretário", policy => policy.RequireRole("Secretário"));
 // });
 
-// Adiciona serviços ao contêiner.
+// adiciona serviços ao contêiner
 builder.Services.AddControllers();
 
-// Adiciona a geração de documentação Swagger
-// builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 // Popula o banco de dados com dados iniciais usando o seeder
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<AppDbContext>();
+// using (var scope = app.Services.CreateScope())
+// {
+//     var services = scope.ServiceProvider;
+//     var context = services.GetRequiredService<AppDbContext>();
 
-    // Chama o seeder para popular o banco de dados
-    var seeder = new Seeder(context);
-    seeder.SeedData();
+//     // Chama o seeder para popular o banco de dados
+//     var seeder = new Seeder(context);
+//     seeder.SeedData();
+// }
+
+// "dotnet watch run" abre o swagger ao rodar a aplicação
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
-// Configura o pipeline de requisição HTTP
-// if (app.Environment.IsDevelopment())
-// {
-//     app.UseSwagger();
-//     app.UseSwaggerUI();
-// }
+app.UseHttpsRedirection();
 
 // Adiciona suporte ao CORS no pipeline
 // app.UseCors("AllowAllOrigins");
