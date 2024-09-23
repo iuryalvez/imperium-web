@@ -2,25 +2,27 @@
 
 ## Documentação da produção
 
-[Documentação do ASP.NET](https://learn.microsoft.com/pt-br/aspnet/core/?view=aspnetcore-8.0)
-[.NET API Web e Controladores](https://learn.microsoft.com/pt-br/training/modules/build-web-api-aspnet-core/)
-[Criar APIs Web com o ASP.NET Core](https://learn.microsoft.com/pt-br/aspnet/core/web-api/?view=aspnetcore-8.0&WT.mc_id=dotnet-35129-website)
-[Tutorial: criar uma API Web com o ASP.NET Core](https://learn.microsoft.com/pt-br/aspnet/core/tutorials/first-web-api?view=aspnetcore-8.0&tabs=visual-studio)
-[Create a new React App](https://legacy.reactjs.org/docs/create-a-new-react-app.html)
+- [.NET 8](https://dotnet.microsoft.com/en-us/download)
+- [Node.js 20.14](https://nodejs.org/en/download/package-manager)
+- [Documentação do ASP.NET](https://learn.microsoft.com/pt-br/aspnet/core/?view=aspnetcore-8.0)
+- [.NET API Web e Controladores](https://learn.microsoft.com/pt-br/training/modules/build-web-api-aspnet-core/)
+- [Criar APIs Web com o ASP.NET Core](https://learn.microsoft.com/pt-br/aspnet/core/web-api/?view=aspnetcore-8.0&WT.mc_id=dotnet-35129-website)
+- [Tutorial: criar uma API Web com o ASP.NET Core](https://learn.microsoft.com/pt-br/aspnet/core/tutorials/first-web-api?view=aspnetcore-8.0&tabs=visual-studio)
+- [Create a new React App](https://legacy.reactjs.org/docs/create-a-new-react-app.html)
 
-## Add your files
+<!-- ## Add your files
 
 - [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command: -->
 
-```
-cd existing_repo
-git remote add origin https://gitlab.com/evz-ufg-software-rural/imperium-web.git
-git branch -M main
-git push -uf origin main
-```
+## Comandos github
 
-## Integrate with your tools
+    cd existing_repo
+    git remote add origin https://gitlab.com/evz-ufg-software-rural/imperium-web.git
+    git branch -M main
+    git push -uf origin main
+
+<!-- ## Integrate with your tools
 
 - [ ] [Set up project integrations](https://gitlab.com/evz-ufg-software-rural/imperium-web/-/settings/integrations)
 
@@ -65,9 +67,10 @@ On some READMEs, you may see small images that convey metadata, such as whether 
 Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection. -->
 
-- [.NET 8](https://dotnet.microsoft.com/en-us/download)
+## Configuração do Ambiente .NET e React
+
 ```
 dotnet new webapi -n backend
 dotnet add package Microsoft.EntityFrameworkCore
@@ -83,19 +86,23 @@ dotnet tool update -g dotnet-aspnet-codegenerator
 dotnet tool install --global dotnet-ef --version 8.*
 dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
 dotnet aspnet-codegenerator controller -name ItemController -async -api -m DbItem -dc AppDbContext -outDir Controllers
-dotnet ef migrations add InitialCreate
-dotnet ef database update
 
-```
-- [Node.js 20.14](https://nodejs.org/en/download/package-manager)
-```
 npx create-react-app frontend
 cd frontend
 npm install
-npm start
 ```
 
-## Usage
+## Comandos dotnet e react
+
+    dotnet restore
+    dotnet ef migrations add InitialCreate
+    dotnet ef database update
+    dotnet build
+    dotnet run
+
+    npm start
+
+<!-- ## Usage
 Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
 ## Support
@@ -118,5 +125,5 @@ Show your appreciation to those who have contributed to the project.
 For open source projects, say how it is licensed.
 
 ## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers. -->
 
