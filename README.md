@@ -1,14 +1,18 @@
 # Imperium  Web
 
-## Documentação da produção
+## Máquina de desenvolvimento
 
+A máquina de desenvolvimento utilizada foi um Ubuntu 24.04.1 LTS x86_64
+
+## Tecnologias backend
+
+<!-- - [Playlist de criação de uma aplicação ASP.NET Web API .NET 8](https://www.youtube.com/playlist?list=PL82C6-O4XrHfrGOCPmKmwTO7M0avXyQKc) -->
 - [.NET 8](https://dotnet.microsoft.com/en-us/download)
-- [Node.js 20.14](https://nodejs.org/en/download/package-manager)
 - [Documentação do ASP.NET](https://learn.microsoft.com/pt-br/aspnet/core/?view=aspnetcore-8.0)
 - [.NET API Web e Controladores](https://learn.microsoft.com/pt-br/training/modules/build-web-api-aspnet-core/)
 - [Criar APIs Web com o ASP.NET Core](https://learn.microsoft.com/pt-br/aspnet/core/web-api/?view=aspnetcore-8.0&WT.mc_id=dotnet-35129-website)
 - [Tutorial: criar uma API Web com o ASP.NET Core](https://learn.microsoft.com/pt-br/aspnet/core/tutorials/first-web-api?view=aspnetcore-8.0&tabs=visual-studio)
-- [Create a new React App](https://legacy.reactjs.org/docs/create-a-new-react-app.html)
+- [pgAdmin4](https://www.pgadmin.org/download/pgadmin-4-apt/)
 
 <!-- ## Add your files
 
@@ -69,30 +73,26 @@ Depending on what you are making, it can be a good idea to include screenshots o
 ## Installation
 Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection. -->
 
-## Configuração do Ambiente .NET e React
+## Configuração do Ambiente .NET
 
-```
-dotnet new webapi -n backend
-dotnet add package Microsoft.EntityFrameworkCore
-dotnet add package Microsoft.EntityFrameworkCore.SqlServer
-dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
-dotnet add package Microsoft.EntityFrameworkCore.Design
-dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
-dotnet add package Microsoft.EntityFrameworkCore.Tools
-dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
-dotnet tool uninstall -g dotnet-aspnet-codegenerator
-dotnet tool install -g dotnet-aspnet-codegenerator
-dotnet tool update -g dotnet-aspnet-codegenerator
-dotnet tool install --global dotnet-ef --version 8.*
-dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
-dotnet aspnet-codegenerator controller -name ItemController -async -api -m DbItem -dc AppDbContext -outDir Controllers
+<!-- [Create Project + Install](https://www.youtube.com/watch?v=qBTe6uHJS_Y&list=PL82C6-O4XrHfrGOCPmKmwTO7M0avXyQKc&index=1) -->
 
-npx create-react-app frontend
-cd frontend
-npm install
-```
+    dotnet new webapi -n backend
+    dotnet add package Microsoft.EntityFrameworkCore
+    dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+    dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
+    dotnet add package Microsoft.EntityFrameworkCore.Design
+    dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
+    dotnet add package Microsoft.EntityFrameworkCore.Tools
+    dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+    dotnet tool uninstall -g dotnet-aspnet-codegenerator
+    dotnet tool install -g dotnet-aspnet-codegenerator
+    dotnet tool update -g dotnet-aspnet-codegenerator
+    dotnet tool install --global dotnet-ef --version 8.*
+    dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
+    dotnet aspnet-codegenerator controller -name ItemController -async -api -m DbItem -dc AppDbContext -outDir Controllers
 
-## Comandos dotnet e react
+## Comandos dotnet
 
     dotnet restore
     dotnet ef migrations add InitialCreate
@@ -100,7 +100,122 @@ npm install
     dotnet build
     dotnet run
 
+## Documentação do backend
+
+### Arquitetura em Camadas
+
+O sistema é dividido em camadas bem definidas, e cada camada é responsável por uma parte específica da aplicação
+
+Controllers: Interagem com a camada de apresentação ou de API, manipulando as requisições HTTP e retornando as respostas.
+DTOs: Objetos usados para transferir dados entre camadas, sem expor as entidades diretamente.
+Mappers: Utilizados para mapear entidades para DTOs e vice-versa.
+Interfaces: Definem contratos ou abstrações para classes concretas, facilitando a inversão de controle e a injeção de dependências.
+Repositories: Responsáveis pela persistência de dados e interações com o banco de dados.
+
+### 1. Models
+
+As models do nosso projeto foram criadas de acordo com este [diagrama de entidade-relacionamento](https://drive.google.com/file/d/1ewlbDLb5ggOYnSZO35JDM6wvF99qu__U/view?usp=sharing)
+
+<!-- [Models](https://www.youtube.com/watch?v=jMFaAc3sa04&list=PL82C6-O4XrHfrGOCPmKmwTO7M0avXyQKc&index=2) -->
+
+### 2. Application DB Context
+
+<!-- [Entity Framework](https://www.youtube.com/watch?v=SIQhe-yt3mA&list=PL82C6-O4XrHfrGOCPmKmwTO7M0avXyQKc&index=3) -->
+
+Entity Framework é o **object relational mapper** (ORM) de aplicações .NET Web Core API
+
+Depois de configurado o DB context, para utilizar postgreSQL devemos adicioná-lo ao program.cs com:
+
+    builder.Services.AddDbContext<AppDbContext>(opt =>
+    opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+E em appsettings.json:
+
+    "ConnectionStrings": {
+        "DefaultConnection": "Host=localhost;Database=seu_db;Username="seu usuario";Password="sua senha""
+    }
+
+Com isso podemos gerar a migration (Entity Framework) que irá construir o nosso banco de dados de acordo com o DBContext:
+
+    dotnet ef migrations add InitialCreate
+
+Criação do banco de dados:
+
+    dotnet ef database update
+
+### 3. Controllers
+
+<!-- [Controllers](https://www.youtube.com/watch?v=cSnoAGHKVus&list=PL82C6-O4XrHfrGOCPmKmwTO7M0avXyQKc&index=4) -->
+
+Os responsáveis por fazerem as requisições ao banco de dados através dos endpoints.
+
+    [Route("api/usuarios")] // ou api/[controller], mas o "[controller]" é capitalizado e isso não é aesthetic
+    [ApiController]
+    public class UsuarioController : ControllerBase // ControllerBase: padrão seguido
+    { // código do controlador 
+    }
+
+Em program.cs, adicione os controladores, o swagger e o mapeamento dos controladores para o swagger funcionar:
+
+    builder.Services.AddControllers(); 
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.UseHttpsRedirection();
+
+    app.MapControllers();
+
+Para acessar o swagger: http://localhost:"porta definida"/swagger.
+
+### 4. Data Transfer Objects (DTOs)
+
+<!-- [DTOs](https://www.youtube.com/watch?v=Mxm81T7waO8&list=PL82C6-O4XrHfrGOCPmKmwTO7M0avXyQKc&index=5) -->
+
+Responses vs Requests.
+
+Definição de quais dados das models serão transferidos entre as requisições.
+
+### 5. Requisições
+
+### 6. Repository Pattern / DI
+
+<!-- [Repository Pattern/DI](https://www.youtube.com/watch?v=6vsONJla1Fk&list=PL82C6-O4XrHfrGOCPmKmwTO7M0avXyQKc&index=10) -->
+
+Entity -> Code to an interface (abstraction).
+
+Envelopar as requisições em Find "Something" com Dependency Injection (DI).
+
+Precisa ter o código de construção pronto antes de realizar a DI.
+
+#### Interfaces
+
+Declaração das funções que são utilizadas em Repository.
+
+#### Repository
+
+Definição e implementação das funções encapsuladas do controlador. Usando Dependecy Injection. Refatoração dos controladores.
+
+## Tecnologias frontend
+
+- [Node.js 20.14](https://nodejs.org/en/download/package-manager)
+- [Create a new React App](https://legacy.reactjs.org/docs/create-a-new-react-app.html)
+
+## Configuração do ambiente React
+
+    npx create-react-app frontend
+    cd frontend
+    npm install
+
+## Comandos React
+
     npm start
+
+## Documentação do frontend
+
 
 <!-- ## Usage
 Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.

@@ -6,12 +6,11 @@ using Microsoft.IdentityModel.Tokens;
 using backend.Data;
 using backend.Services;
 using backend.Controllers;
+using backend.Interfaces;
+using backend.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// configura o DbContext para usar o Npgsql (PostgreSQL) - pgAdmin
-builder.Services.AddDbContext<AppDbContext>(opt =>
-    opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Configura o CORS para permitir requisições do frontend
 // builder.Services.AddCors(options =>
@@ -59,8 +58,14 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 
 // adiciona serviços ao contêiner
 builder.Services.AddControllers();
-
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// configura o DbContext para usar o Npgsql (PostgreSQL) - pgAdmin
+builder.Services.AddDbContext<AppDbContext>(opt =>
+    opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
 var app = builder.Build();
 
@@ -76,6 +81,13 @@ var app = builder.Build();
 // }
 
 // "dotnet watch run" abre o swagger ao rodar a aplicação
+
+// Adiciona suporte ao CORS no pipeline
+// app.UseCors("AllowAllOrigins");
+
+// app.UseAuthentication();
+// app.UseAuthorization();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -83,12 +95,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-// Adiciona suporte ao CORS no pipeline
-// app.UseCors("AllowAllOrigins");
-
-// app.UseAuthentication();
-// app.UseAuthorization();
 
 app.MapControllers();
 

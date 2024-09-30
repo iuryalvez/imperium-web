@@ -1,14 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using backend.Data;
 using backend.Mappers;
-using Microsoft.EntityFrameworkCore;
 using backend.Dtos.Usuario;
+using backend.Interfaces;
 
 namespace backend.Controllers
 {
     [Route("api/usuarios")] // ou api/[controller], mas o "[controller]" é capitalizado
-    [ApiController] // bring all this for us (?)
-    public class UsuarioController : ControllerBase // ControllerBase: way easier to bring atributes later
+    [ApiController]
+    public class UsuarioController : ControllerBase // ControllerBase: traz os atributos de controladores mais fácil dps
     {
         /* veio com o controlador 
         public IActionResult Index()
@@ -24,17 +24,20 @@ namespace backend.Controllers
         */
         private readonly ILogger<UsuarioController> _logger;
         private readonly AppDbContext _context;
-        public UsuarioController(AppDbContext context, ILogger<UsuarioController> logger)
+        private readonly IUsuarioRepository _usuarioRepo;
+        public UsuarioController(AppDbContext context, ILogger<UsuarioController> logger, IUsuarioRepository usuarioRepo)
         {
             _context = context;
             _logger = logger;
+            _usuarioRepo = usuarioRepo;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll() // async é um identificador, task é o que envolve a função (wrapper)
         {
-            var usuarios = (await _context.Usuarios.ToListAsync())
-                .Select(s => s.ToUsuarioDto());
+            var usuarios = await _usuarioRepo.GetAllAsync(); // await é o que faz a função ser async
+            
+            var usuarioDto = usuarios.Select(u => u.ToUsuarioDto());
             
             return Ok(usuarios);
         }
@@ -44,7 +47,7 @@ namespace backend.Controllers
         {
             try
             {
-                var usuario = await _context.Usuarios.FindAsync(id);
+                var usuario = await _usuarioRepo.GetByIdAsync(id);
                 if (usuario == null)
                 {
                     return NotFound();
@@ -59,13 +62,12 @@ namespace backend.Controllers
         }
         
         [HttpPost]
-        public IActionResult Create([FromBody] CreateUsuarioRequestDto usuarioDto)
+        public async Task<IActionResult> Create([FromBody] CreateUsuarioRequestDto usuarioDto)
         {
             try
             {
                 var usuarioModel = usuarioDto.ToUsuarioFromCreateDTO();
-                _context.Usuarios.Add(usuarioModel);
-                _context.SaveChanges();
+                await _usuarioRepo.CreateAsync(usuarioModel);
                 return CreatedAtAction(nameof(GetById), new { id = usuarioModel.Id}, usuarioModel.ToUsuarioDto());
             }
             catch (Exception ex)
@@ -76,23 +78,29 @@ namespace backend.Controllers
         }
 
         [HttpPut]
-        public IActionResult Update([FromRoute] int id, [FromBody] UpdateUsuarioRequestDto updateDto)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateUsuarioRequestDto updateDto)
         {
-            var usuarioModel = _context.Usuarios.FirstOrDefault(x => x.Id == id);
+            var usuarioModel = await _usuarioRepo.UpdateAsync(id, updateDto);
             if (usuarioModel == null)
             {
                 return NotFound();
             }
 
-            usuarioModel.Nome = updateDto.Nome;
-            usuarioModel.Email = updateDto.Email;
-            usuarioModel.Formacao = updateDto.Formacao;   
-            usuarioModel.Ativo = updateDto.Ativo;
-            usuarioModel.DataUltimoAcesso = updateDto.DataUltimoAcesso;
-
-            _context.SaveChanges();
-
             return Ok(usuarioModel.ToUsuarioDto());
+        }
+
+        [HttpDelete]
+        [Route("{id}")]
+        public async Task<ActionResult> Delete([FromRoute] int id)
+        {
+            var usuarioModel = await _usuarioRepo.DeleteAsync(id);
+
+            if(usuarioModel == null) 
+            {
+                return NotFound();
+            }
+
+            return NoContent(); // a success in delete method
         }
     }
 }
