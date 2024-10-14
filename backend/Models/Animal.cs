@@ -2,10 +2,10 @@ namespace backend.Models {
     public class Animal {
         public int Id { get; set; }
         public string Nome { get; set; } = string.Empty;
-        public byte Especie { get; set; } // 1-cao, 2-gato
+        public int Especie { get; set; } // 1-cao, 2-gato
         public DateTime Nascimento { get; set; } 
-        public DateTime DataCad { get; set; } = DateTime.UtcNow;
-        public DateTime DataCadModificado { get; set; } = DateTime.UtcNow;
+        public DateTime DataCad { get; set; }
+        public DateTime DataCadModificado { get; set; }
         public int Idade { get; set; } // derivado da data de nascimento
         public int FaseVida { get; set; } // derivado da idade
         public int Sexo { get; set; } // 1-macho, 2-fêmea
@@ -18,6 +18,6 @@ namespace backend.Models {
         public int SemanaLactacao { get; set; }
         public int SemanaGestacao { get; set; }
         public AcompanhamentoInd? AcompanhamentoInd { get; set; } // referência de navegação com o dependente
-        public ICollection<TutorAnimalClinica> TutoresAnimaisClinicas { get; set; } = new List<TutorAnimalClinica>(); // referência de navegação com o dependente
+        public ICollection<TutorAnimalClinica>? TutoresAnimaisClinicas { get; set; } // referência de navegação com o dependente
     }
 }

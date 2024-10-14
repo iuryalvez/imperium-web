@@ -1,6 +1,5 @@
 using backend.Dtos.Perfil;
 using backend.Models;
-using Npgsql.Internal;
 
 namespace backend.Mappers
 {
@@ -13,7 +12,8 @@ namespace backend.Mappers
                 Id = perfilModel.Id,
                 Nome = perfilModel.Nome,
                 Descricao = perfilModel.Descricao,
-                Tipo = perfilModel.Tipo
+                Tipo = perfilModel.Tipo,
+                UsuariosPerfisClinicas = perfilModel.UsuariosPerfisClinicas.Select(upc => upc.ToUsuarioPerfilClinicaDto()).ToList()
             };
         }
         public static Perfil ToPerfilFromCreateDTO (this CreatePerfilRequestDto perfilDto) 
@@ -22,7 +22,8 @@ namespace backend.Mappers
             {
                 Nome = perfilDto.Nome,
                 Descricao = perfilDto.Descricao,
-                Tipo = perfilDto.Tipo
+                Tipo = perfilDto.Tipo,
+                UsuariosPerfisClinicas = perfilDto.UsuariosPerfisClinicas.Select(upc => upc.ToUsuarioPerfilClinicaFromDto()).ToList()
             };
         }
     }

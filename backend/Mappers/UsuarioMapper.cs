@@ -1,6 +1,5 @@
 using backend.Dtos.Usuario;
 using backend.Models;
-using Npgsql.Internal;
 
 namespace backend.Mappers
 {
@@ -15,7 +14,8 @@ namespace backend.Mappers
                 Email = usuarioModel.Email,
                 DataUltimoAcesso = usuarioModel.DataUltimoAcesso,
                 Formacao = usuarioModel.Formacao,
-                Ativo = usuarioModel.Ativo
+                Ativo = usuarioModel.Ativo,
+                UsuariosPerfisClinicas = usuarioModel.UsuariosPerfisClinicas.Select(upc => upc.ToUsuarioPerfilClinicaDto()).ToList()
             };
         }
         public static Usuario ToUsuarioFromCreateDTO (this CreateUsuarioRequestDto usuarioDto) 
@@ -23,7 +23,8 @@ namespace backend.Mappers
             return new Usuario
             {
                 Nome = usuarioDto.Nome,
-                Email = usuarioDto.Email
+                Email = usuarioDto.Email,
+                UsuariosPerfisClinicas = usuarioDto.UsuariosPerfisClinicas.Select(upc => upc.ToUsuarioPerfilClinicaFromDto()).ToList()
             };
         }
     }

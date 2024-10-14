@@ -1,4 +1,4 @@
-using backend.Models;
+using backend.Dtos.UsuarioPerfilClinica;
 
 namespace backend.Dtos.Usuario
 {
@@ -12,6 +12,6 @@ namespace backend.Dtos.Usuario
         public bool Ativo { get; set; }
         public string Formacao { get; set; } = string.Empty;
         // public Senha? Senha { get; set; }
-        // public virtual ICollection<UsuarioPerfilClinica>? UsuariosPerfisClinicas { get; set; } = new List<UsuarioPerfilClinica>(); // referência de navegação com o dependente
+        public virtual ICollection<UsuarioPerfilClinicaDto>? UsuariosPerfisClinicas { get; set; }
     }
 }

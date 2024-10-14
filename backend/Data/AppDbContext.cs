@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using backend.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace backend.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<Usuario>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -18,7 +20,7 @@ namespace backend.Data
         public DbSet<Perfil> Perfis { get; set; }
         public DbSet<Racao> Racoes { get; set; }
         public DbSet<Relatorio> Relatorios { get; set; }
-        public DbSet<Senha> Senhas { get; set; }
+        // public DbSet<Senha> Senhas { get; set; }
         public DbSet<Tutor> Tutores { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<UsuarioPerfilClinica> UsuariosPerfisClinicas { get; set; }
@@ -26,6 +28,9 @@ namespace backend.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            base.OnModelCreating(modelBuilder);
+
             // AcompanhamentoInd
             modelBuilder.Entity<AcompanhamentoInd>()
                 .HasOne(ai => ai.Animal) 
@@ -34,16 +39,16 @@ namespace backend.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<AcompanhamentoInd>()
-                .HasOne(ai => ai.Consulta)
+                .HasMany(ai => ai.Consultas)
                 .WithOne(c => c.AcompanhamentoInd)
-                .HasForeignKey<AcompanhamentoInd>(ai => ai.ConsultaId)
+                .HasForeignKey(c => c.AcompanhamentoIndId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<AcompanhamentoInd>()
-                .HasOne(ai => ai.DietaPersonalizada)
+                .HasMany(ai => ai.DietasPersonalizadas)
                 .WithOne(dp => dp.AcompanhamentoInd)
-                .HasForeignKey<AcompanhamentoInd>(ai => ai.DietaPersonalizadaId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(dp => dp.AcompanhamentoIndId)
+                .OnDelete(DeleteBehavior.Restrict);                
 
             // Animal
             modelBuilder.Entity<Animal>()
@@ -148,14 +153,30 @@ namespace backend.Data
                 .HasForeignKey(tac => tac.ClinicaId) // a chave estrangeira de tac é animalId
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Usuario 1:1 Senha
-            modelBuilder.Entity<Usuario>()
-                .HasOne(u => u.Senha)
-                .WithOne(s => s.Usuario)
-                .HasForeignKey<Senha>(s => s.UsuarioId)
-                .OnDelete(DeleteBehavior.Cascade);
+            List<IdentityRole> roles = new List<IdentityRole> {
+                new IdentityRole {
+                    Name = "Admin",
+                    NormalizedName = "ADMIN"
+                },
+                new IdentityRole {
+                    Name = "Gestor",
+                    NormalizedName = "GESTOR"
+                },
+                new IdentityRole {
+                    Name = "Veterinário",
+                    NormalizedName = "VETERINÁRIO"
+                },
+                new IdentityRole {
+                    Name = "Secretário",
+                    NormalizedName = "SECRETÁRIO"
+                },
+                new IdentityRole {
+                    Name = "Técnico",
+                    NormalizedName = "TÉCNICO"
+                }
+            };
 
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<IdentityRole>().HasData(roles);
         }
     }
 }

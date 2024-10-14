@@ -8,7 +8,6 @@ namespace backend.Dtos.Usuario
         public DateTime DataUltimoAcesso { get; set; }
         public bool Ativo { get; set; }
         public string Formacao { get; set; } = string.Empty;
-        // public Senha? Senha { get; set; }
         // public virtual ICollection<UsuarioPerfilClinica>? UsuariosPerfisClinicas { get; set; } = new List<UsuarioPerfilClinica>(); // referência de navegação com o dependente
     }
 }

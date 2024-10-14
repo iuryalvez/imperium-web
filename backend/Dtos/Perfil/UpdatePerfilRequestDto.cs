@@ -1,5 +1,3 @@
-using backend.Models;
-
 namespace backend.Dtos.Perfil {
     public class UpdatePerfilRequestDto {
         public int Id { get; set; }

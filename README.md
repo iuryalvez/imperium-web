@@ -1,8 +1,34 @@
 # Imperium  Web
 
-## Máquina de desenvolvimento
+## Instalação para rodar a aplicação no Ubuntu 24.04.1 LTS x86_64
 
-A máquina de desenvolvimento utilizada foi um Ubuntu 24.04.1 LTS x86_64
+O Runtime do ASP.NET Core permite executar aplicativos feitos com o .NET que não forneceram o runtime. O comando a seguir instala o runtime do ASP.NET Core, que é o runtime mais compatível com o .NET. Em seu terminal, execute os seguintes comandos:
+
+    sudo apt-get update && \
+        sudo apt-get install -y aspnetcore-runtime-8.0
+
+## Instalação para desenvolvimento no Ubuntu 24.04.1 LTS x86_64
+
+O SDK do .NET permite que você desenvolva aplicativos com o .NET. Se você instalar o SDK do .NET, não será necessário instalar o runtime correspondente. Para instalar o SDK do .NET, execute os seguintes comandos:
+
+    sudo apt-get update && \
+        sudo apt-get install -y dotnet-sdk-8.0
+    
+Quando você faz a instalação com um gerenciador de pacotes, essas bibliotecas são instaladas automaticamente. Porém, se você instalar o .NET manualmente ou publicar um aplicativo autossuficiente, será necessário verificar se estas bibliotecas estão instaladas:
+
+- ca-certificates
+- libc6
+- libgcc-s1
+- libicu74
+- liblttng-ust1
+- libssl3
+- libstdc++6
+- libunwind8
+- zlib1g
+
+As dependências podem ser instaladas por meio do comando apt install. O snippet a seguir demonstra a instalação da biblioteca zlib1g:
+
+    sudo apt install zlib1g
 
 ## Tecnologias backend
 
