@@ -1,94 +1,129 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using backend.Data;
-using backend.Mappers;
 using backend.Dtos.Tutor;
-using backend.Interfaces;
+using backend.Data;
+using backend.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Controllers
 {
-    [Route("api/tutores")] // ou api/[controller], mas o "[controller]" é capitalizado
     [ApiController]
-    public class TutorController : ControllerBase // ControllerBase: traz os atributos de controladores mais fácil dps
+    [Route("api/tutores")]
+    public class TutorController : ControllerBase
     {
-        private readonly ILogger<TutorController> _logger;
         private readonly AppDbContext _context;
-        private readonly ITutorRepository _tutorRepo;
-        public TutorController(AppDbContext context, ILogger<TutorController> logger, ITutorRepository tutorRepo)
+
+        public TutorController(AppDbContext context)
         {
             _context = context;
-            _logger = logger;
-            _tutorRepo = tutorRepo;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll() // async é um identificador, task é o que envolve a função (wrapper)
+        [HttpGet("all")]
+        public async Task<ActionResult<IEnumerable<TutorDto>>> GetTutors()
         {
-            var tutores = await _tutorRepo.GetAllAsync(); // await é o que faz a função ser async
-            
-            var tutorDto = tutores.Select(u => u.ToTutorDto());
-            
-            return Ok(tutores);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById([FromRoute] int id)
-        {
-            try
-            {
-                var tutor = await _tutorRepo.GetByIdAsync(id);
-                if (tutor == null)
+            var tutors = await _context.Tutores
+                .Select(t => new TutorDto
                 {
-                    return NotFound();
-                }
-                return Ok(tutor);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ocorreu um erro ao obter o usuário com ID {Id}", id);
-                return StatusCode(500, "Ocorreu um erro no servidor.");
-            }
-        }
-        
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateTutorRequestDto tutorDto)
-        {
-            try
-            {
-                var tutorModel = tutorDto.ToTutorFromCreateDTO();
-                await _tutorRepo.CreateAsync(tutorModel);
-                return CreatedAtAction(nameof(GetById), new { id = tutorModel.Id}, tutorModel.ToTutorDto());
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ocorreu um erro ao criar o usuário.");
-                return StatusCode(500, "Ocorreu um erro no servidor.");
-            }
+                    Id = t.Id,
+                    Nome = t.Nome,
+                    Cpf = t.Cpf,
+                    Endereco = t.Endereco,
+                    Cep = t.Cep,
+                    Whatsapp = t.Whatsapp,
+                    Email = t.Email,
+                    DataCad = t.DataCad
+                })
+                .ToListAsync();
+
+            return Ok(tutors);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateTutorRequestDto updateDto)
+        [HttpGet("tutor-{id}")]
+        public async Task<ActionResult<TutorDto>> GetTutor(int id)
         {
-            var tutorModel = await _tutorRepo.UpdateAsync(id, updateDto);
-            if (tutorModel == null)
+            var tutor = await _context.Tutores
+                .Select(t => new TutorDto
+                {
+                    Id = t.Id,
+                    Nome = t.Nome,
+                    Cpf = t.Cpf,
+                    Endereco = t.Endereco,
+                    Cep = t.Cep,
+                    Whatsapp = t.Whatsapp,
+                    Email = t.Email,
+                    DataCad = t.DataCad
+                })
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (tutor == null)
             {
                 return NotFound();
             }
 
-            return Ok(tutorModel.ToTutorDto());
+            return Ok(tutor);
         }
 
-        [HttpDelete]
-        [Route("{id}")]
-        public async Task<ActionResult> Delete([FromRoute] int id)
+        [HttpPost("cria-tutor")]
+        [Authorize(Roles = "Admin,Secretario")]
+        public async Task<ActionResult<TutorDto>> CreateTutor(TutorDto tutorDto)
         {
-            var tutorModel = await _tutorRepo.DeleteAsync(id);
+            var tutor = new Tutor
+            {
+                Nome = tutorDto.Nome,
+                Cpf = tutorDto.Cpf,
+                Endereco = tutorDto.Endereco,
+                Cep = tutorDto.Cep,
+                Whatsapp = tutorDto.Whatsapp,
+                Email = tutorDto.Email,
+                DataCad = tutorDto.DataCad
+            };
 
-            if(tutorModel == null) 
+            _context.Tutores.Add(tutor);
+            await _context.SaveChangesAsync();
+
+            tutorDto.Id = tutor.Id;
+
+            return CreatedAtAction(nameof(GetTutor), new { id = tutorDto.Id }, tutorDto);
+        }
+
+        [HttpPut("{id}/editar")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateTutor(int id, TutorDto tutorDto)
+        {
+            var existingTutor = await _context.Tutores.FindAsync(id);
+            if (existingTutor == null)
             {
                 return NotFound();
             }
 
-            return NoContent(); // a success in delete method
+            existingTutor.Nome = tutorDto.Nome;
+            existingTutor.Cpf = tutorDto.Cpf;
+            existingTutor.Endereco = tutorDto.Endereco;
+            existingTutor.Cep = tutorDto.Cep;
+            existingTutor.Whatsapp = tutorDto.Whatsapp;
+            existingTutor.Email = tutorDto.Email;
+            existingTutor.DataCad = tutorDto.DataCad;
+
+            _context.Entry(existingTutor).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("apaga-tutor/{id}")]
+        [Authorize(Roles = "Admin,Secretario")]
+        public async Task<IActionResult> DeleteTutor(int id)
+        {
+            var tutor = await _context.Tutores.FindAsync(id);
+            if (tutor == null)
+            {
+                return NotFound();
+            }
+
+            _context.Tutores.Remove(tutor);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }

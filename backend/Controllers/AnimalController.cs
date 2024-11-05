@@ -1,94 +1,143 @@
-using backend.Data;
-using backend.Dtos.Animal;
-using backend.Interfaces;
-using backend.Mappers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+using backend.Dtos.Animal;
+using backend.Models;
+using backend.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/clinica/animais")]
     public class AnimalController : ControllerBase
     {
-        private readonly ILogger<AnimalController> _logger;
         private readonly AppDbContext _context;
-        private readonly IAnimalRepository _animalRepo;
-        public AnimalController(AppDbContext context, ILogger<AnimalController> logger, IAnimalRepository animalRepo)
+
+        public AnimalController(AppDbContext context)
         {
             _context = context;
-            _logger = logger;
-            _animalRepo = animalRepo;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll() // async é um identificador, task é o que envolve a função (wrapper)
+        // Cria um novo animal na clínica
+        [HttpPost("{clinicaId}/animais/tutor_{tutorId}-novo-animal")]
+        [Authorize("Admin,Veterinario")]
+        public async Task<IActionResult> CreateAnimal(int clinicaId, int tutorId, [FromBody] AnimalDto animalDto)
         {
-            var animais = await _animalRepo.GetAllAsync(); // await é o que faz a função ser async
-            
-            var animalDto = animais.Select(animal => animal.ToAnimalDto());
-            
+            var animal = new Animal
+            {
+                Nome = animalDto.Nome,
+                Especie = animalDto.Especie,
+                Nascimento = animalDto.Nascimento,
+                DataCad = DateTime.UtcNow,
+                DataCadModificado = DateTime.UtcNow,
+                Sexo = animalDto.Sexo,
+                Castrado = animalDto.Castrado,
+                Peso = animalDto.Peso,
+                CondicaoCorporal = animalDto.CondicaoCorporal,
+                GrauAtividade = animalDto.GrauAtividade,
+                Gestacao = animalDto.Gestacao,
+                Lactacao = animalDto.Lactacao,
+                SemanaLactacao = animalDto.SemanaLactacao,
+                SemanaGestacao = animalDto.SemanaGestacao
+            };
+
+            _context.Animais.Add(animal);
+            await _context.SaveChangesAsync();
+
+            // Cria a associação na tabela TutorAnimalClinica
+            var tutorAnimalClinica = new TutorAnimalClinica
+            {
+                TutorId = tutorId,
+                AnimalId = animal.Id,
+                ClinicaId = clinicaId
+            };
+
+            _context.TutoresAnimaisClinicas.Add(tutorAnimalClinica);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = "Animal criado com sucesso.", AnimalId = animal.Id });
+        }
+
+        // Obtém um animal por ID
+        [HttpGet("{clinicaId}/animais/{animalId}")]
+        [Authorize(Roles = "Admin,Gestor,Veterinario,Secretario,Tecnico")]
+        public async Task<IActionResult> GetAnimalById(int clinicaId, int animalId)
+        {
+            var animal = await _context.Animais.FindAsync(animalId);
+            if (animal == null)
+            {
+                return NotFound("Animal não encontrado.");
+            }
+            return Ok(animal);
+        }
+
+        // Obtém animais por tutorId
+        [HttpGet("{clinicaId}/animais/tutor_{tutorId}-animais")]
+        [Authorize(Roles = "Admin,Gestor,Veterinario,Secretario,Tecnico")]
+        public async Task<IActionResult> GetAnimaisByTutorId(int clinicaId, int tutorId)
+        {
+            var animais = await _context.TutoresAnimaisClinicas
+                .Where(tac => tac.TutorId == tutorId)
+                .Where(tac => tac.ClinicaId == clinicaId)
+                .Select(tac => tac.Animal)
+                .ToListAsync();
+
+            if (animais == null || !animais.Any())
+            {
+                return NotFound("Nenhum animal encontrado para o tutor especificado.");
+            }
+
             return Ok(animais);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById([FromRoute] int id)
+        // Atualiza um animal de uma clínica
+        [HttpPut("{clinicaId}/animais/{animalId}/editar")]
+        [Authorize(Roles = "Admin,Veterinario")]
+        public async Task<IActionResult> UpdateAnimal(int clinicaId, int animalId, [FromBody] AnimalDto animalDto)
         {
-            try
+            var animal = await _context.Animais.FindAsync(animalId);
+            if (animal == null)
             {
-                var animal = await _animalRepo.GetByIdAsync(id);
-                if (animal == null)
-                {
-                    return NotFound();
-                }
-                return Ok(animal.ToAnimalDto());
+                return NotFound("Animal não encontrado.");
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ocorreu um erro ao obter o usuário com ID {Id}", id);
-                return StatusCode(500, "Ocorreu um erro no servidor.");
-            }
-        }
-        
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateAnimalRequestDto animalDto)
-        {
-            try
-            {
-                var animalModel = animalDto.ToAnimalFromCreateDTO();
-                await _animalRepo.CreateAsync(animalModel);
-                return CreatedAtAction(nameof(GetById), new { id = animalModel.Id}, animalModel.ToAnimalDto());
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ocorreu um erro ao criar o usuário.");
-                return StatusCode(500, "Ocorreu um erro no servidor.");
-            }
+
+            // Atualiza os campos do animal
+            animal.Nome = animalDto.Nome;
+            animal.Especie = animalDto.Especie;
+            animal.Nascimento = animalDto.Nascimento;
+            animal.DataCadModificado = DateTime.UtcNow;
+            animal.Sexo = animalDto.Sexo;
+            animal.Castrado = animalDto.Castrado;
+            animal.Peso = animalDto.Peso;
+            animal.CondicaoCorporal = animalDto.CondicaoCorporal;
+            animal.GrauAtividade = animalDto.GrauAtividade;
+            animal.Gestacao = animalDto.Gestacao;
+            animal.Lactacao = animalDto.Lactacao;
+            animal.SemanaLactacao = animalDto.SemanaLactacao;
+            animal.SemanaGestacao = animalDto.SemanaGestacao;
+
+            _context.Animais.Update(animal);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = "Animal atualizado com sucesso." });
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateAnimalRequestDto updateDto)
+        // Deleta um animal em uma clínica
+        [HttpDelete("{clinicaId}/animais/{animalId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteAnimal(int clinicaId, int animalId)
         {
-            var animalModel = await _animalRepo.UpdateAsync(id, updateDto);
-            if (animalModel == null)
+            var animal = await _context.Animais.FindAsync(animalId);
+            if (animal == null)
             {
-                return NotFound();
+                return NotFound("Animal não encontrado.");
             }
 
-            return Ok(animalModel.ToAnimalDto());
-        }
+            _context.Animais.Remove(animal);
+            await _context.SaveChangesAsync();
 
-        [HttpDelete]
-        [Route("{id}")]
-        public async Task<ActionResult> Delete([FromRoute] int id)
-        {
-            var animalModel = await _animalRepo.DeleteAsync(id);
-
-            if(animalModel == null) 
-            {
-                return NotFound();
-            }
-
-            return NoContent(); // a success in delete method
+            return Ok(new { Message = "Animal deletado com sucesso." });
         }
     }
 }

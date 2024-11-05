@@ -17,10 +17,113 @@ namespace backend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.6")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
+                });
 
             modelBuilder.Entity("backend.Models.AcompanhamentoInd", b =>
                 {
@@ -33,27 +136,15 @@ namespace backend.Migrations
                     b.Property<int>("AnimalId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ConsultaId")
-                        .HasColumnType("integer");
-
                     b.Property<DateOnly>("DataFim")
                         .HasColumnType("date");
 
                     b.Property<DateOnly>("DataInicio")
                         .HasColumnType("date");
 
-                    b.Property<int>("DietaPersonalizadaId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AnimalId")
-                        .IsUnique();
-
-                    b.HasIndex("ConsultaId")
-                        .IsUnique();
-
-                    b.HasIndex("DietaPersonalizadaId")
                         .IsUnique();
 
                     b.ToTable("AcompanhamentosInds");
@@ -79,8 +170,8 @@ namespace backend.Migrations
                     b.Property<DateTime>("DataCadModificado")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<byte>("Especie")
-                        .HasColumnType("smallint");
+                    b.Property<int>("Especie")
+                        .HasColumnType("integer");
 
                     b.Property<int>("FaseVida")
                         .HasColumnType("integer");
@@ -185,7 +276,7 @@ namespace backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AcompanhamentoIndId")
+                    b.Property<int>("ClinicaId")
                         .HasColumnType("integer");
 
                     b.Property<DateOnly>("Date")
@@ -198,6 +289,8 @@ namespace backend.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ClinicaId");
 
                     b.HasIndex("TutorId");
 
@@ -240,6 +333,8 @@ namespace backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AcompanhamentoIndId");
+
                     b.HasIndex("RacaoId")
                         .IsUnique();
 
@@ -254,20 +349,83 @@ namespace backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text");
+
                     b.Property<string>("Descricao")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<int>("Tipo")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Perfis");
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex");
+
+                    b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Descricao = "Administrador do sistema",
+                            Name = "ADMIN",
+                            Tipo = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Descricao = "Gestor de clínica",
+                            Name = "GESTOR",
+                            Tipo = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Descricao = "Veterinário de clínica",
+                            Name = "VETERINARIO",
+                            Tipo = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Descricao = "Secretario de clínica",
+                            Name = "SECRETARIO",
+                            Tipo = 4
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Descricao = "Tecnico de clinica",
+                            Name = "TECNICO",
+                            Tipo = 5
+                        },
+                        new
+                        {
+                            Id = 98,
+                            Descricao = "Usuário pendente de ativação",
+                            Name = "PENDENTE",
+                            Tipo = 98
+                        },
+                        new
+                        {
+                            Id = 99,
+                            Descricao = "Usuário inativo",
+                            Name = "INATIVO",
+                            Tipo = 99
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.Racao", b =>
@@ -313,6 +471,9 @@ namespace backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AcompanhamentoIndId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("CondicaoCorporal")
                         .HasColumnType("integer");
 
@@ -326,8 +487,8 @@ namespace backend.Migrations
                     b.Property<int>("GrauAtividade")
                         .HasColumnType("integer");
 
-                    b.Property<byte>("Idade")
-                        .HasColumnType("smallint");
+                    b.Property<int>("Idade")
+                        .HasColumnType("integer");
 
                     b.Property<float>("Peso")
                         .HasColumnType("real");
@@ -338,37 +499,12 @@ namespace backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AcompanhamentoIndId");
+
                     b.HasIndex("ConsultaId")
                         .IsUnique();
 
                     b.ToTable("Relatorios");
-                });
-
-            modelBuilder.Entity("backend.Models.Senha", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Salt")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("SenhaHash")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UsuarioId")
-                        .IsUnique();
-
-                    b.ToTable("Senhas");
                 });
 
             modelBuilder.Entity("backend.Models.Tutor", b =>
@@ -382,9 +518,6 @@ namespace backend.Migrations
                     b.Property<string>("Cep")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("ClinicaId")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Cpf")
                         .IsRequired()
@@ -430,8 +563,6 @@ namespace backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClinicaId");
-
                     b.ToTable("Tutores");
                 });
 
@@ -466,8 +597,12 @@ namespace backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("Ativo")
-                        .HasColumnType("boolean");
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("DataCad")
                         .HasColumnType("timestamp with time zone");
@@ -476,20 +611,63 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Formacao")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Usuarios");
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex");
+
+                    b.ToTable("AspNetUsers", (string)null);
                 });
 
             modelBuilder.Entity("backend.Models.UsuarioPerfilClinica", b =>
@@ -515,6 +693,57 @@ namespace backend.Migrations
                     b.ToTable("UsuariosPerfisClinicas");
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
+                {
+                    b.HasOne("backend.Models.Perfil", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
+                {
+                    b.HasOne("backend.Models.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
+                {
+                    b.HasOne("backend.Models.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
+                {
+                    b.HasOne("backend.Models.Perfil", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend.Models.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
+                {
+                    b.HasOne("backend.Models.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("backend.Models.AcompanhamentoInd", b =>
                 {
                     b.HasOne("backend.Models.Animal", "Animal")
@@ -523,27 +752,17 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("backend.Models.Consulta", "Consulta")
-                        .WithOne("AcompanhamentoInd")
-                        .HasForeignKey("backend.Models.AcompanhamentoInd", "ConsultaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("backend.Models.DietaPersonalizada", "DietaPersonalizada")
-                        .WithOne("AcompanhamentoInd")
-                        .HasForeignKey("backend.Models.AcompanhamentoInd", "DietaPersonalizadaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("Animal");
-
-                    b.Navigation("Consulta");
-
-                    b.Navigation("DietaPersonalizada");
                 });
 
             modelBuilder.Entity("backend.Models.Consulta", b =>
                 {
+                    b.HasOne("backend.Models.Clinica", "Clinica")
+                        .WithMany("Consultas")
+                        .HasForeignKey("ClinicaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("backend.Models.Tutor", "Tutor")
                         .WithMany("Consultas")
                         .HasForeignKey("TutorId")
@@ -551,10 +770,12 @@ namespace backend.Migrations
                         .IsRequired();
 
                     b.HasOne("backend.Models.Usuario", "Usuario")
-                        .WithMany()
+                        .WithMany("Consultas")
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Clinica");
 
                     b.Navigation("Tutor");
 
@@ -563,46 +784,40 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.DietaPersonalizada", b =>
                 {
+                    b.HasOne("backend.Models.AcompanhamentoInd", "AcompanhamentoInd")
+                        .WithMany("DietasPersonalizadas")
+                        .HasForeignKey("AcompanhamentoIndId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("backend.Models.Racao", "Racao")
                         .WithOne("DietaPersonalizada")
                         .HasForeignKey("backend.Models.DietaPersonalizada", "RacaoId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("AcompanhamentoInd");
+
                     b.Navigation("Racao");
                 });
 
             modelBuilder.Entity("backend.Models.Relatorio", b =>
                 {
+                    b.HasOne("backend.Models.AcompanhamentoInd", "AcompanhamentoInd")
+                        .WithMany("Relatorios")
+                        .HasForeignKey("AcompanhamentoIndId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("backend.Models.Consulta", "Consulta")
                         .WithOne("Relatorio")
                         .HasForeignKey("backend.Models.Relatorio", "ConsultaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("AcompanhamentoInd");
+
                     b.Navigation("Consulta");
-                });
-
-            modelBuilder.Entity("backend.Models.Senha", b =>
-                {
-                    b.HasOne("backend.Models.Usuario", "Usuario")
-                        .WithOne("Senha")
-                        .HasForeignKey("backend.Models.Senha", "UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("backend.Models.Tutor", b =>
-                {
-                    b.HasOne("backend.Models.Clinica", "Clinica")
-                        .WithMany()
-                        .HasForeignKey("ClinicaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Clinica");
                 });
 
             modelBuilder.Entity("backend.Models.TutorAnimalClinica", b =>
@@ -659,6 +874,13 @@ namespace backend.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("backend.Models.AcompanhamentoInd", b =>
+                {
+                    b.Navigation("DietasPersonalizadas");
+
+                    b.Navigation("Relatorios");
+                });
+
             modelBuilder.Entity("backend.Models.Animal", b =>
                 {
                     b.Navigation("AcompanhamentoInd");
@@ -668,6 +890,8 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.Clinica", b =>
                 {
+                    b.Navigation("Consultas");
+
                     b.Navigation("TutoresAnimaisClinicas");
 
                     b.Navigation("UsuariosPerfisClinicas");
@@ -675,14 +899,7 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.Consulta", b =>
                 {
-                    b.Navigation("AcompanhamentoInd");
-
                     b.Navigation("Relatorio");
-                });
-
-            modelBuilder.Entity("backend.Models.DietaPersonalizada", b =>
-                {
-                    b.Navigation("AcompanhamentoInd");
                 });
 
             modelBuilder.Entity("backend.Models.Perfil", b =>
@@ -704,7 +921,7 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.Usuario", b =>
                 {
-                    b.Navigation("Senha");
+                    b.Navigation("Consultas");
 
                     b.Navigation("UsuariosPerfisClinicas");
                 });

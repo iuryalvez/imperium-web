@@ -1,11 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using backend.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 
 namespace backend.Data
 {
-    public class AppDbContext : IdentityDbContext<Usuario>
+    public class AppDbContext : IdentityDbContext<Usuario,Perfil,int>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -20,7 +19,6 @@ namespace backend.Data
         public DbSet<Perfil> Perfis { get; set; }
         public DbSet<Racao> Racoes { get; set; }
         public DbSet<Relatorio> Relatorios { get; set; }
-        // public DbSet<Senha> Senhas { get; set; }
         public DbSet<Tutor> Tutores { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<UsuarioPerfilClinica> UsuariosPerfisClinicas { get; set; }
@@ -31,72 +29,84 @@ namespace backend.Data
 
             base.OnModelCreating(modelBuilder);
 
-            // AcompanhamentoInd
+            // 1-1 Acompanhamento e Animal
             modelBuilder.Entity<AcompanhamentoInd>()
                 .HasOne(ai => ai.Animal) 
                 .WithOne(a => a.AcompanhamentoInd)
                 .HasForeignKey<AcompanhamentoInd>(ai => ai.AnimalId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // 1-N Acompanhamento e Consultas
             modelBuilder.Entity<AcompanhamentoInd>()
-                .HasMany(ai => ai.Consultas)
+                .HasMany(ai => ai.Relatorios)
                 .WithOne(c => c.AcompanhamentoInd)
                 .HasForeignKey(c => c.AcompanhamentoIndId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // 1-N Acompanhamento e Dietas
             modelBuilder.Entity<AcompanhamentoInd>()
                 .HasMany(ai => ai.DietasPersonalizadas)
                 .WithOne(dp => dp.AcompanhamentoInd)
                 .HasForeignKey(dp => dp.AcompanhamentoIndId)
                 .OnDelete(DeleteBehavior.Restrict);                
 
-            // Animal
+            // 1-N Animal e TACs
             modelBuilder.Entity<Animal>()
                 .HasMany(a => a.TutoresAnimaisClinicas)
                 .WithOne(tac => tac.Animal)
                 .HasForeignKey(tac => tac.AnimalId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Clinica
+            // 1-N Clinica e Consultas
+            modelBuilder.Entity<Clinica>()
+                .HasMany(cli => cli.Consultas)
+                .WithOne(con => con.Clinica)
+                .HasForeignKey(con => con.ClinicaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // 1-N Clinica e UPCs
             modelBuilder.Entity<Clinica>()
                 .HasMany(c => c.UsuariosPerfisClinicas)
                 .WithOne(upc => upc.Clinica)
                 .HasForeignKey(upc => upc.ClinicaId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // 1-N Clinica e TACs
             modelBuilder.Entity<Clinica>()
                 .HasMany(c => c.TutoresAnimaisClinicas)
                 .WithOne(tac => tac.Clinica)
                 .HasForeignKey(tac => tac.ClinicaId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Consulta
+            // N-1 Consultas e Usuario
             modelBuilder.Entity<Consulta>()
                 .HasOne(c => c.Usuario)
-                .WithMany()
+                .WithMany(u => u.Consultas)
                 .HasForeignKey(c => c.UsuarioId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // N-1 Consultas e Tutor
             modelBuilder.Entity<Consulta>()
                 .HasOne(c => c.Tutor) // consulta tem um tutor
                 .WithMany(t => t.Consultas) // tutor tem muitas consultas
                 .HasForeignKey(c => c.TutorId) // consulta tem a chave estrangeira do tutor
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // 1-1 Consulta e Relatorio
             modelBuilder.Entity<Consulta>()
                 .HasOne(c => c.Relatorio)
                 .WithOne(r => r.Consulta)
                 .HasForeignKey<Relatorio>(r => r.ConsultaId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // DietaPersonalizada
+            // 1-1 Dieta e Racao
             modelBuilder.Entity<DietaPersonalizada>()
                 .HasOne(dp => dp.Racao)
                 .WithOne(r => r.DietaPersonalizada)
                 .HasForeignKey<DietaPersonalizada>(dp => dp.RacaoId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Perfil
+            // 1-N Perfil e UPCs
             modelBuilder.Entity<Perfil>()
                 .HasMany(p => p.UsuariosPerfisClinicas)
                 .WithOne(upc => upc.Perfil)
@@ -148,35 +158,27 @@ namespace backend.Data
             
             // TutorAnimalClinica 1:N Clinica
             modelBuilder.Entity<TutorAnimalClinica>()
-                .HasOne(tac => tac.Clinica) // tac tem um animal
-                .WithMany(c => c.TutoresAnimaisClinicas) // um animal tem muitos tac
-                .HasForeignKey(tac => tac.ClinicaId) // a chave estrangeira de tac é animalId
+                .HasOne(tac => tac.Clinica) // tac tem uma consulta
+                .WithMany(c => c.TutoresAnimaisClinicas) // uma consulta tem muitos tac
+                .HasForeignKey(tac => tac.ClinicaId) // a chave estrangeira de tac é clinicaId
                 .OnDelete(DeleteBehavior.Restrict);
 
-            List<IdentityRole> roles = new List<IdentityRole> {
-                new IdentityRole {
-                    Name = "Admin",
-                    NormalizedName = "ADMIN"
-                },
-                new IdentityRole {
-                    Name = "Gestor",
-                    NormalizedName = "GESTOR"
-                },
-                new IdentityRole {
-                    Name = "Veterinário",
-                    NormalizedName = "VETERINÁRIO"
-                },
-                new IdentityRole {
-                    Name = "Secretário",
-                    NormalizedName = "SECRETÁRIO"
-                },
-                new IdentityRole {
-                    Name = "Técnico",
-                    NormalizedName = "TÉCNICO"
-                }
-            };
+            // Inserção de dados iniciais para Perfil
+            modelBuilder.Entity<Perfil>().HasData(
+                new Perfil { Id = 1, Name = "ADMIN", Tipo = 1, Descricao = "Administrador do sistema" },
+                new Perfil { Id = 2, Name = "GESTOR", Tipo = 2, Descricao = "Gestor de clínica" },
+                new Perfil { Id = 3, Name = "VETERINARIO", Tipo = 3, Descricao = "Veterinário de clínica" },
+                new Perfil { Id = 4, Name = "SECRETARIO", Tipo = 4, Descricao = "Secretario de clínica" },
+                new Perfil { Id = 5, Name = "TECNICO", Tipo = 5, Descricao = "Tecnico de clinica" },
+                new Perfil { Id = 98, Name = "PENDENTE", Tipo = 98, Descricao = "Usuário pendente de ativação" },
+                new Perfil { Id = 99, Name = "INATIVO", Tipo = 99, Descricao = "Usuário inativo" }
+            );
 
-            modelBuilder.Entity<IdentityRole>().HasData(roles);
+            // Dados iniciais para Clinica
+            // modelBuilder.Entity<Clinica>().HasData(
+            //     new Clinica { Id = 1, NomeFantasia = "Clinica Teste", NomeClinica = "Clinica Animais", Cnpj = "00000000000100"}
+            // );
+
         }
     }
 }
