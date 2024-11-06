@@ -1,33 +1,41 @@
-using backend.Data;
-using backend.Dtos.Auth;
-using backend.Models;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using backend.Services;
+using backend.Models;
+using backend.Data;
+using backend.Dtos.Usuario;
+
 namespace backend.Controllers
 {
     [ApiController]
-    [Route("api/clinica/usuarios")]
+    [Route("api/clinica")]
     public class UsuarioController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly AuthService _authService;
         private readonly UserManager<Usuario> _userManager;
 
-        public UsuarioController(AppDbContext context, UserManager<Usuario> userManager)
+        public UsuarioController(AppDbContext context, AuthService authService, UserManager<Usuario> userManager)
         {
             _context = context;
+            _authService = authService;
             _userManager = userManager;
         }
         
         
         // cria um novo usuário com perfil e associação à clínica
-        [HttpPost("novo-usuario/{perfilId}_{clinicaId}")]
-        [Authorize(Roles = "Admin,Gestor")]
-        public async Task<IActionResult> CreateUsuario(int perfilId, int clinicaId, [FromBody] UsuarioDto usuarioDto)
+        [HttpPost("{clinicaId}/usuarios/novo-usuario-{perfilId}")]
+        [Authorize(Policy = "GerenciaClinica")]
+        public async Task<IActionResult> CreateUsuario(int clinicaId, int perfilId, [FromBody] UsuarioDto usuarioDto)
         {
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+
             // Verifica se o perfil é válido
             var perfil = await _context.Perfis.FindAsync(perfilId);
             if (perfil == null)
@@ -88,15 +96,26 @@ namespace backend.Controllers
 
         // Obtém usuários por clinicaId
         [HttpGet("{clinicaId}/usuarios")]
-        [Authorize(Roles = "Admin,Gestor")]
+        [Authorize(Policy = "GerenciaClinica")]
         public async Task<IActionResult> GetUsuariosByClinicaId(int clinicaId)
         {
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+            
             var usuarios = await _context.UsuariosPerfisClinicas
                 .Where(upc => upc.ClinicaId == clinicaId)
-                .Select(upc => upc.Usuario)
+                .Select(upc => new GetUsuariosDto
+                {
+                    Id = upc.Usuario.Id,
+                    UserName = upc.Usuario.UserName,
+                    Email = upc.Usuario.Email,
+                    Nome = upc.Usuario.Nome
+                })
                 .ToListAsync();
 
-            if (usuarios == null || !usuarios.Any())
+            if (!usuarios.Any())
             {
                 return NotFound("Nenhum usuário encontrado na clínica.");
             }
@@ -104,20 +123,16 @@ namespace backend.Controllers
             return Ok(usuarios);
         }
 
-        // Obtém todos os usuários
-        [HttpGet]
-        [Authorize(Roles = "Admin,Gestor")]
-        public async Task<IActionResult> GetAllUsuarios()
-        {
-            var usuarios = await _context.Usuarios.ToListAsync();
-            return Ok(usuarios);
-        }
-
         // Obtém um usuário por ID
-        [HttpGet("{usuarioId}")]
-        [Authorize(Roles = "Admin,Gestor")]
-        public async Task<IActionResult> GetUsuarioById(int usuarioId)
+        [HttpGet("{clinicaId}/usuarios/{usuarioId}")]
+        [Authorize(Policy = "GerenciaClinica")]
+        public async Task<IActionResult> GetUsuarioById(int clinicaId, int usuarioId)
         {
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+
             var usuario = await _context.Usuarios.FindAsync(usuarioId);
             if (usuario == null)
             {
@@ -127,10 +142,15 @@ namespace backend.Controllers
         }
 
         // Atualiza um usuário
-        [HttpPut("{usuarioId}/editar")]
-        [Authorize(Roles = "Admin,Gestor")]
-        public async Task<IActionResult> UpdateUsuario(int usuarioId, [FromBody] UsuarioDto usuarioDto)
+        [HttpPut("{clinicaId}/usuarios/{usuarioId}/editar")]
+        [Authorize(Policy = "GerenciaClinica")]
+        public async Task<IActionResult> UpdateUsuario(int clinicaId, int usuarioId, [FromBody] UsuarioDto usuarioDto)
         {
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+
             var usuario = await _context.Usuarios.FindAsync(usuarioId);
             if (usuario == null)
             {
@@ -150,10 +170,15 @@ namespace backend.Controllers
         }
 
         // Deleta um usuário
-        [HttpDelete("{usuarioId}")]
-        [Authorize(Roles = "Admin,Gestor")]
-        public async Task<IActionResult> DeleteUsuario(int usuarioId)
+        [HttpDelete("{clinicaId}/usuarios/{usuarioId}")]
+        [Authorize(Policy = "GerenciaSistema")]
+        public async Task<IActionResult> DeleteUsuario(int clinicaId, int usuarioId)
         {
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+            
             var usuario = await _context.Usuarios.FindAsync(usuarioId);
             if (usuario == null)
             {

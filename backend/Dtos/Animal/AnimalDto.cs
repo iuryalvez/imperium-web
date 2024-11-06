@@ -4,7 +4,7 @@ namespace backend.Dtos.Animal
     {
         public int Id { get; set; }
         public string Nome { get; set; } = string.Empty;
-        public byte Especie { get; set; } // 1-cao, 2-gato
+        public int Especie { get; set; } // 1-cao, 2-gato
         public DateTime Nascimento { get; set; } 
         public DateTime DataCad { get; set; }
         public DateTime DataCadModificado { get; set; }

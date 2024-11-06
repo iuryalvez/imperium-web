@@ -95,6 +95,17 @@ internal class Program
             };
         });
 
+        builder.Services.AddAuthorization(options =>
+        {
+            // Define as policies para cada perfil
+            options.AddPolicy("GerenciaSistema", policy => policy.RequireRole("ADMIN"));
+            options.AddPolicy("GerenciaClinica", policy => policy.RequireRole("ADMIN,GESTOR"));
+            options.AddPolicy("GerenciaAnimais", policy => policy.RequireRole("ADMIN,VETERINARIO"));
+            options.AddPolicy("GerenciaTutores", policy => policy.RequireRole("ADMIN,VETERINARIO,SECRETARIO"));
+            options.AddPolicy("GerenciaConsultas", policy => policy.RequireRole("ADMIN,VETERINARIO,SECRETARIO"));
+            options.AddPolicy("VisualizaTudo", policy => policy.RequireRole("ADMIN,GESTOR,VETERINARIO,SECRETARIO,TECNICO"));
+        });
+
         builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
         {
             options.TokenLifespan = TimeSpan.FromMinutes(30); // Define a validade do token para 30 minutos
