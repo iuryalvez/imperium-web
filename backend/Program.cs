@@ -25,30 +25,29 @@ internal class Program
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "IMPERIUM WEB API", Version = "v1" });
 
             // Configura a segurança para JWT no Swagger
-            // c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            // {
-            //     Name = "Authorization",
-            //     Type = SecuritySchemeType.ApiKey,
-            //     Scheme = "Bearer",
-            //     BearerFormat = "JWT",
-            //     In = ParameterLocation.Header,
-            //     Description = "Insira 'Bearer' [espaço] e o token JWT no campo abaixo.\n\nExemplo: 'Bearer {token}'"
-            // });
-
-            // c.AddSecurityRequirement(new OpenApiSecurityRequirement
-            // {
-            //     {
-            //         new OpenApiSecurityScheme
-            //         {
-            //             Reference = new OpenApiReference
-            //             {
-            //                 Type = ReferenceType.SecurityScheme,
-            //                 Id = "Bearer"
-            //             }
-            //         },
-            //         Array.Empty<string>()
-            //     }
-            // });
+            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                 In = ParameterLocation.Header,
+                 Description = "Insira 'Bearer' [espaço] e o token JWT no campo abaixo.\n\nExemplo: 'Bearer {token}'",
+                 Name = "Authorization",
+                 Type = SecuritySchemeType.ApiKey,
+                 BearerFormat = "JWT",
+                 Scheme = "Bearer"
+             });
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
+             {
+                 {
+                     new OpenApiSecurityScheme
+                     {
+                         Reference = new OpenApiReference
+                         {
+                             Type = ReferenceType.SecurityScheme,
+                             Id = "Bearer"
+                         }
+                     },
+                     Array.Empty<string>()
+                 }
+             });
         });
 
         builder.Services.AddTransient<IEmailSender, EmailSender>();
@@ -189,7 +188,7 @@ internal class Program
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(c =>{c.SwaggerEndpoint("/swagger/v1/swagger.json", "IMPERIUM WEB API");});
         }
 
         // ambiente de produção inacessível

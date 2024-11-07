@@ -6,6 +6,8 @@ using backend.Dtos.Auth;
 using backend.Models;
 using backend.Services;
 using backend.Data;
+using System.IdentityModel.Tokens.Jwt;
+using backend.Dtos.UsuarioPerfilClinica;
 
 namespace backend.Controllers
 {
@@ -86,7 +88,11 @@ namespace backend.Controllers
             if (result.Succeeded)
             {
                 _logger.LogInformation("User logged in successfully.");
-                return Ok(new { Message = "Login realizado com sucesso!" });
+                var usuario = await _context.Usuarios
+                    .FirstOrDefaultAsync(u => u.Email == model.Email);
+                    
+                var tokenLogin = _tokenService.GenerateTokenLogin(usuario.Id.ToString(), model.Email);
+                return Ok(new { tokenLogin });
             }
 
             _logger.LogWarning("Invalid login attempt.");
@@ -121,7 +127,7 @@ namespace backend.Controllers
 
                 // Gera o token JWT para o usuário autenticado
                 var usuarioId = user.Id.ToString();
-                var token = _tokenService.GenerateTokenLogin(usuarioId, user.Email, "ADMIN");
+                var token = _tokenService.GenerateTokenLogin(usuarioId, user.Email);
 
                 _logger.LogInformation("User logged in successfully.");
                 
@@ -207,21 +213,55 @@ namespace backend.Controllers
             return Ok("E-mail enviado com sucesso");
         }
 
-        [HttpPost("token/{usuarioId}")]
-        public async Task<IActionResult> GenerateToken(int usuarioId)
+        [HttpGet("sistema")]
+        public async Task<IActionResult> GetPerfis()
         {
-            // Busca as entidades UsuarioPerfilClinica pelo usuarioId
-            var usuarioPerfilClinicas = await _context.UsuariosPerfisClinicas
-                .Where(upc => upc.UsuarioId == usuarioId)
+            var claimUsuarioId = User.FindFirst(JwtRegisteredClaimNames.Sub);
+            if (claimUsuarioId == null)
+            {
+                return Unauthorized("Token inválido!");
+            }
+            var usuarioId = int.Parse(claimUsuarioId.Value);
+
+            var perfis = await _context.UsuariosPerfisClinicas
+                .Where(p => p.UsuarioId == usuarioId)
+                .Include(p => p.Perfil)
+                .Include(p => p.Clinica)
                 .ToListAsync();
 
-            if (usuarioPerfilClinicas == null || !usuarioPerfilClinicas.Any())
+            if (!perfis.Any())
             {
-                return NotFound("O usuário não possui nenhum vínculo com nenhuma clínica ou tipo definido.");
+                return NotFound("Nenhum perfil encontrado para este usuário.");
+            }
+
+            var perfisDTO = perfis.Select(p => new UsuarioPerfilClinicaDto
+            {
+                Id = p.Id,
+                UsuarioId = p.UsuarioId,
+                PerfilId = p.PerfilId,
+                NomePerfil = p.Perfil.Name,
+                ClinicaId = p.ClinicaId,
+                NomeClinica = p.Clinica.NomeFantasia
+            }
+            ).ToList();
+
+            return Ok(perfis);
+        }
+
+
+        [HttpPost("sistema/{upcId}")]
+        public async Task<IActionResult> GenerateToken(int upcId)
+        {
+            // Busca as entidades UsuarioPerfilClinica pelo usuarioId
+            var usuarioPerfilClinica = await _context.UsuariosPerfisClinicas
+                .FirstOrDefaultAsync(upc => upc.Id == upcId);
+
+            if(usuarioPerfilClinica == null)
+            {
+                return NotFound("Esse perfil nessa clínica não existe!");
             }
 
             // Gera o token usando o serviço de token com as informações necessárias
-            var usuarioPerfilClinica = usuarioPerfilClinicas.First(); // Supondo que você queira usar a primeira associação encontrada
             var token = _tokenService.GenerateToken(usuarioPerfilClinica.Id.ToString());
 
             // Retorna o token gerado

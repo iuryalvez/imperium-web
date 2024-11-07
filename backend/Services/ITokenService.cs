@@ -8,7 +8,7 @@ namespace backend.Services
     public interface ITokenService
     {
         string GenerateToken(string usuarioPerfilClinicaId);
-        string GenerateTokenLogin(string usuarioId, string usuarioEmail, string role);
+        string GenerateTokenLogin(string usuarioId, string usuarioEmail);
     }
 
     public class TokenService : ITokenService
@@ -41,7 +41,7 @@ namespace backend.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
-        public string GenerateTokenLogin(string usuarioId, string usuarioEmail, string role)
+        public string GenerateTokenLogin(string usuarioId, string usuarioEmail)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]);
@@ -52,8 +52,7 @@ namespace backend.Services
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, usuarioId),
-                    new Claim(JwtRegisteredClaimNames.Email, usuarioEmail),
-                    new Claim(ClaimTypes.Role, role)
+                    new Claim(JwtRegisteredClaimNames.Email, usuarioEmail)
                 }),
                 Expires = now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpiresInMinutes"])),
                 NotBefore = now,
