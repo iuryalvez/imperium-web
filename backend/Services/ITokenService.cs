@@ -23,14 +23,15 @@ namespace backend.Services
         public string GenerateToken(string usuarioPerfilClinicaId)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
+            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]);
             var now = DateTime.UtcNow;
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim("UsuarioPerfilClinicaId", usuarioPerfilClinicaId)
+                    new Claim(ClaimTypes.NameIdentifier, usuarioPerfilClinicaId),
+                    new Claim("AcessoLogin", "true")
                 }),
                 Expires = now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpiresInMinutes"])),
                 NotBefore = now,
@@ -51,8 +52,9 @@ namespace backend.Services
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(JwtRegisteredClaimNames.Sub, usuarioId),
-                    new Claim(JwtRegisteredClaimNames.Email, usuarioEmail)
+                    new Claim(ClaimTypes.NameIdentifier, usuarioId),
+                    new Claim(ClaimTypes.Email, usuarioEmail),
+                    new Claim("AcessoLogin", "true")
                 }),
                 Expires = now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpiresInMinutes"])),
                 NotBefore = now,

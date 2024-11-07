@@ -8,6 +8,8 @@ using backend.Data;
 using System.IdentityModel.Tokens.Jwt;
 using backend.Dtos.UsuarioPerfilClinica;
 using backend.Dtos.Auth;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend.Controllers
 {
@@ -99,45 +101,6 @@ namespace backend.Controllers
             return Unauthorized(new { Message = "Login ou senha inválidos" });
         }
 
-        // [HttpPost("login-swagger")]
-        // public async Task<IActionResult> LoginSwagger([FromForm] LoginDto model)
-        // {
-        //     if (!ModelState.IsValid)
-        //     {
-        //         _logger.LogWarning("Invalid model state for Login.");
-        //         return BadRequest(ModelState);
-        //     }
-
-        //     var result = await _signInManager.PasswordSignInAsync(model.Email, model.Senha, model.RememberMe, false);
-        //     if (result.Succeeded)
-        //     {
-        //         var user = await _userManager.FindByEmailAsync(model.Email);
-        //         if (user == null)
-        //         {
-        //             _logger.LogWarning("User not found.");
-        //             return Unauthorized(new { Message = "Usuário não encontrado" });
-        //         }
-
-        //         var roles = await _userManager.GetRolesAsync(user);
-        //         if (!roles.Contains("ADMIN"))
-        //         {
-        //             _logger.LogWarning("User is not an Admin.");
-        //             return Forbid(); // Retorna um resultado de Forbid sem mensagem
-        //         }
-
-        //         // Gera o token JWT para o usuário autenticado
-        //         var usuarioId = user.Id.ToString();
-        //         var token = _tokenService.GenerateTokenLogin(usuarioId, user.Email, "ADMIN");
-
-        //         _logger.LogInformation("User logged in successfully.");
-                
-        //         return Ok(new { Token = token, Message = "Login realizado com sucesso!" });
-        //     }
-
-        //     _logger.LogWarning("Invalid login attempt.");
-        //     return Unauthorized(new { Message = "Login ou senha inválidos" });
-        // }
-
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto model)
         {
@@ -213,16 +176,46 @@ namespace backend.Controllers
             return Ok("E-mail enviado com sucesso");
         }
 
+        [Authorize(Policy = "AcessoLoginPolicy")]
         [HttpGet("sistema")]
         public async Task<IActionResult> GetPerfis()
         {
-            var claimUsuarioId = User.FindFirst(JwtRegisteredClaimNames.Sub);
-            if (claimUsuarioId == null)
-            {
-                return Unauthorized("Token inválido!");
-            }
-            var usuarioId = int.Parse(claimUsuarioId.Value);
+            // // Verifica se a identidade do usuário foi definida
+            // var claimsIdentity = User.Identity as ClaimsIdentity;
+            // if (claimsIdentity == null)
+            // {
+            //     _logger.LogWarning("ClaimsIdentity é null. Usuário não autenticado.");
+            //     return Unauthorized("Token inválido ou claims ausentes.");
+            // }
 
+            // // Log para inspecionar as claims atuais
+            // _logger.LogInformation("Claims encontradas no token:");
+            // foreach (var claim in claimsIdentity.Claims)
+            // {
+            //     _logger.LogInformation("Tipo de Claim: {Type}, Valor: {Value}", claim.Type, claim.Value);
+            // }
+
+            // // Verifica a claim específica para o ID do usuário
+            // var claimUsuarioId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            // if (claimUsuarioId == null)
+            // {
+            //     _logger.LogWarning("Claim 'NameId' não encontrada no token.");
+            //     return Unauthorized("Token inválido!");
+            // }
+
+            // // Tenta parsear o ID do usuário
+            // if (!int.TryParse(claimUsuarioId.Value, out var usuarioId))
+            // {
+            //     _logger.LogWarning("Falha ao converter o valor da claim 'NameId' para int. Valor: {Value}", claimUsuarioId.Value);
+            //     return Unauthorized("Token inválido!");
+            // }
+
+            // _logger.LogInformation("Usuário autenticado com ID: {UsuarioId}", usuarioId);
+            
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            var claimUsuarioId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            var usuarioId = int.Parse(claimUsuarioId.Value);
+            // Recupera perfis para o usuário
             var perfis = await _context.UsuariosPerfisClinicas
                 .Where(p => p.UsuarioId == usuarioId)
                 .Include(p => p.Perfil)
@@ -231,9 +224,11 @@ namespace backend.Controllers
 
             if (!perfis.Any())
             {
+                _logger.LogWarning("Nenhum perfil encontrado para o usuário com ID: {UsuarioId}", usuarioId);
                 return NotFound("Nenhum perfil encontrado para este usuário.");
             }
 
+            // Mapeia os perfis para DTOs
             var perfisDTO = perfis.Select(p => new UsuarioPerfilClinicaDto
             {
                 Id = p.Id,
@@ -242,13 +237,15 @@ namespace backend.Controllers
                 NomePerfil = p.Perfil.Name,
                 ClinicaId = p.ClinicaId,
                 NomeClinica = p.Clinica.NomeFantasia
-            }
-            ).ToList();
+            }).ToList();
 
-            return Ok(perfis);
+            _logger.LogInformation("Perfis retornados para o usuário com ID: {UsuarioId}", usuarioId);
+            
+            return Ok(perfisDTO);
         }
 
 
+        [Authorize(Policy = "AcessoLoginPolicy")]
         [HttpPost("sistema/{upcId}")]
         public async Task<IActionResult> GenerateToken(int upcId)
         {
@@ -262,7 +259,7 @@ namespace backend.Controllers
             }
 
             // Gera o token usando o serviço de token com as informações necessárias
-            var token = _tokenService.GenerateToken(usuarioPerfilClinica.Id.ToString());
+            var token = _tokenService.GenerateToken(upcId.ToString());
 
             // Retorna o token gerado
             return Ok(new { token });

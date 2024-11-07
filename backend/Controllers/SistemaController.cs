@@ -64,7 +64,7 @@ namespace backend.Controllers
 
         // criar clinica pelo sistema
         [HttpPost("clinicas/nova-clinica")]
-        [Authorize(Roles = "ADMIN")]
+        //[Authorize(Roles = "ADMIN")]
         public async Task<ActionResult<ClinicaDto>> CreateClinica([FromBody] ClinicaDto clinicaDto)
         {
             var clinica = new Clinica
