@@ -1,59 +1,59 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using backend.Dtos.Tutor;
-using backend.Data;
-using backend.Models;
 using Microsoft.EntityFrameworkCore;
+
+using backend.Services;
+using backend.Models;
+using backend.Data;
+using backend.Dtos.Tutor;
 
 namespace backend.Controllers
 {
     [ApiController]
-    [Route("api/tutores")]
+    [Route("api/clinica")]
     public class TutorController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly AuthService _authService;
 
-        public TutorController(AppDbContext context)
+        public TutorController(AppDbContext context, AuthService authService)
         {
             _context = context;
+            _authService = authService;
         }
 
-        [HttpGet("all")]
-        public async Task<ActionResult<IEnumerable<TutorDto>>> GetTutors()
+        [HttpGet("{clinicaId}/tutores")]
+        [Authorize(Roles = "ADMIN,SECRETARIO")]
+        public async Task<IActionResult> GetTutoresByClinica(int clinicaId)
         {
-            var tutors = await _context.Tutores
-                .Select(t => new TutorDto
-                {
-                    Id = t.Id,
-                    Nome = t.Nome,
-                    Cpf = t.Cpf,
-                    Endereco = t.Endereco,
-                    Cep = t.Cep,
-                    Whatsapp = t.Whatsapp,
-                    Email = t.Email,
-                    DataCad = t.DataCad
-                })
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+
+            var tutores = await _context.TutoresAnimaisClinicas
+                .Where(tac => tac.ClinicaId == clinicaId)
+                .Select(tac => tac.Tutor)
                 .ToListAsync();
 
-            return Ok(tutors);
+            if (tutores == null || !tutores.Any())
+            {
+                return NotFound("Nenhuma consulta encontrada para a clínica.");
+            }
+
+            return Ok(tutores);
         }
 
-        [HttpGet("tutor-{id}")]
-        public async Task<ActionResult<TutorDto>> GetTutor(int id)
+        [HttpGet("{clinicaId}/tutores/{tutorId}")]
+        [Authorize(Policy = "GerenciaTutores")]
+        public async Task<IActionResult> GetTutorById(int clinicaId, int tutorId)
         {
-            var tutor = await _context.Tutores
-                .Select(t => new TutorDto
-                {
-                    Id = t.Id,
-                    Nome = t.Nome,
-                    Cpf = t.Cpf,
-                    Endereco = t.Endereco,
-                    Cep = t.Cep,
-                    Whatsapp = t.Whatsapp,
-                    Email = t.Email,
-                    DataCad = t.DataCad
-                })
-                .FirstOrDefaultAsync(t => t.Id == id);
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+            
+            var tutor = await _context.Tutores.FindAsync(tutorId);
 
             if (tutor == null)
             {
@@ -63,10 +63,15 @@ namespace backend.Controllers
             return Ok(tutor);
         }
 
-        [HttpPost("cria-tutor")]
-        [Authorize(Roles = "Admin,Secretario")]
-        public async Task<ActionResult<TutorDto>> CreateTutor(TutorDto tutorDto)
+        [HttpPost("{clinicaId}/tutores/criar_tutor")]
+        [Authorize(Policy = "GerenciaTutores")]
+        public async Task<IActionResult> CreateTutor(int clinicaId, [FromBody] TutorDto tutorDto)
         {
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+
             var tutor = new Tutor
             {
                 Nome = tutorDto.Nome,
@@ -83,26 +88,32 @@ namespace backend.Controllers
 
             tutorDto.Id = tutor.Id;
 
-            return CreatedAtAction(nameof(GetTutor), new { id = tutorDto.Id }, tutorDto);
+            // return CreatedAtAction(nameof(GetTutorById), new { id = tutorDto.Id }, tutorDto);
+            return Ok(new { Message = "Tutor cadastrado com sucesso.", TutorId = tutor.Id });
         }
 
-        [HttpPut("{id}/editar")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateTutor(int id, TutorDto tutorDto)
+        [HttpPut("{clinicaId}/tutores/{tutorId}/editar")]
+        [Authorize(Roles = "GerenciaSistema")]
+        public async Task<IActionResult> UpdateTutor(int clinicaId, int tutorId, [FromBody] UpdateTutorDto updateTutorDto)
         {
-            var existingTutor = await _context.Tutores.FindAsync(id);
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+
+            var existingTutor = await _context.Tutores.FindAsync(tutorId);
             if (existingTutor == null)
             {
                 return NotFound();
             }
 
-            existingTutor.Nome = tutorDto.Nome;
-            existingTutor.Cpf = tutorDto.Cpf;
-            existingTutor.Endereco = tutorDto.Endereco;
-            existingTutor.Cep = tutorDto.Cep;
-            existingTutor.Whatsapp = tutorDto.Whatsapp;
-            existingTutor.Email = tutorDto.Email;
-            existingTutor.DataCad = tutorDto.DataCad;
+            existingTutor.Nome = updateTutorDto.Nome;
+            existingTutor.Cpf = updateTutorDto.Cpf;
+            existingTutor.Endereco = updateTutorDto.Endereco;
+            existingTutor.Cep = updateTutorDto.Cep;
+            existingTutor.Whatsapp = updateTutorDto.Whatsapp;
+            existingTutor.Email = updateTutorDto.Email;
+            existingTutor.DataCad = updateTutorDto.DataCad;
 
             _context.Entry(existingTutor).State = EntityState.Modified;
             await _context.SaveChangesAsync();
@@ -110,11 +121,16 @@ namespace backend.Controllers
             return NoContent();
         }
 
-        [HttpDelete("apaga-tutor/{id}")]
-        [Authorize(Roles = "Admin,Secretario")]
-        public async Task<IActionResult> DeleteTutor(int id)
+        [HttpDelete("{clinicaId}/tutores/{tutorId}")]
+        [Authorize(Policy = "GerenciaSistema")]
+        public async Task<IActionResult> DeleteTutor(int clinicaId, int tutorId)
         {
-            var tutor = await _context.Tutores.FindAsync(id);
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+            
+            var tutor = await _context.Tutores.FindAsync(tutorId);
             if (tutor == null)
             {
                 return NotFound();

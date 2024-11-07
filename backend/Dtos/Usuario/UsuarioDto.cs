@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace backend.Dtos.Auth
+namespace backend.Dtos.Usuario
 {
     public class UsuarioDto : IdentityUser<int>
     {

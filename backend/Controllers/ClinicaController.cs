@@ -1,16 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 
+using backend.Services;
 using backend.Data;
-using backend.Models;
-
 using backend.Dtos.Clinica;
-using backend.Dtos.UsuarioPerfilClinica;
-using backend.Dtos.Auth;
-using backend.Dtos.Animal;
-using backend.Dtos.Consulta;
 
 namespace backend.Controllers
 {
@@ -19,17 +13,24 @@ namespace backend.Controllers
     public class ClinicaController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly AuthService _authService;
 
-        public ClinicaController(AppDbContext context)
+        public ClinicaController(AppDbContext context, AuthService authService)
         {
             _context = context;
+            _authService = authService;
         }
 
         // atualizar clinica
         [HttpPut("{clinicaId}/dados")]
-        [Authorize(Roles = "Admin,Gestor")]
+        [Authorize(Policy = "GerenciaClinica")]
         public async Task<IActionResult> UpdateClinica(int clinicaId, [FromBody] UpdateClinicaDto updateClinicaDto)
         {
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+
             var clinica = await _context.Clinicas.FindAsync(clinicaId);
             if (clinica == null)
             {

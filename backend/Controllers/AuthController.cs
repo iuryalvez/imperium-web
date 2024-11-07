@@ -2,12 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-using backend.Dtos.Auth;
-using backend.Models;
 using backend.Services;
+using backend.Models;
 using backend.Data;
 using System.IdentityModel.Tokens.Jwt;
 using backend.Dtos.UsuarioPerfilClinica;
+using backend.Dtos.Auth;
 
 namespace backend.Controllers
 {
@@ -99,44 +99,44 @@ namespace backend.Controllers
             return Unauthorized(new { Message = "Login ou senha inválidos" });
         }
 
-        [HttpPost("login-swagger")]
-        public async Task<IActionResult> LoginSwagger([FromForm] LoginDto model)
-        {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid model state for Login.");
-                return BadRequest(ModelState);
-            }
+        // [HttpPost("login-swagger")]
+        // public async Task<IActionResult> LoginSwagger([FromForm] LoginDto model)
+        // {
+        //     if (!ModelState.IsValid)
+        //     {
+        //         _logger.LogWarning("Invalid model state for Login.");
+        //         return BadRequest(ModelState);
+        //     }
 
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Senha, model.RememberMe, false);
-            if (result.Succeeded)
-            {
-                var user = await _userManager.FindByEmailAsync(model.Email);
-                if (user == null)
-                {
-                    _logger.LogWarning("User not found.");
-                    return Unauthorized(new { Message = "Usuário não encontrado" });
-                }
+        //     var result = await _signInManager.PasswordSignInAsync(model.Email, model.Senha, model.RememberMe, false);
+        //     if (result.Succeeded)
+        //     {
+        //         var user = await _userManager.FindByEmailAsync(model.Email);
+        //         if (user == null)
+        //         {
+        //             _logger.LogWarning("User not found.");
+        //             return Unauthorized(new { Message = "Usuário não encontrado" });
+        //         }
 
-                var roles = await _userManager.GetRolesAsync(user);
-                if (!roles.Contains("ADMIN"))
-                {
-                    _logger.LogWarning("User is not an Admin.");
-                    return Forbid(); // Retorna um resultado de Forbid sem mensagem
-                }
+        //         var roles = await _userManager.GetRolesAsync(user);
+        //         if (!roles.Contains("ADMIN"))
+        //         {
+        //             _logger.LogWarning("User is not an Admin.");
+        //             return Forbid(); // Retorna um resultado de Forbid sem mensagem
+        //         }
 
-                // Gera o token JWT para o usuário autenticado
-                var usuarioId = user.Id.ToString();
-                var token = _tokenService.GenerateTokenLogin(usuarioId, user.Email);
+        //         // Gera o token JWT para o usuário autenticado
+        //         var usuarioId = user.Id.ToString();
+        //         var token = _tokenService.GenerateTokenLogin(usuarioId, user.Email, "ADMIN");
 
-                _logger.LogInformation("User logged in successfully.");
+        //         _logger.LogInformation("User logged in successfully.");
                 
-                return Ok(new { Token = token, Message = "Login realizado com sucesso!" });
-            }
+        //         return Ok(new { Token = token, Message = "Login realizado com sucesso!" });
+        //     }
 
-            _logger.LogWarning("Invalid login attempt.");
-            return Unauthorized(new { Message = "Login ou senha inválidos" });
-        }
+        //     _logger.LogWarning("Invalid login attempt.");
+        //     return Unauthorized(new { Message = "Login ou senha inválidos" });
+        // }
 
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto model)

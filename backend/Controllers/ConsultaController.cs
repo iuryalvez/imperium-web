@@ -2,28 +2,36 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 
-using backend.Dtos.Consulta;
+using backend.Services;
 using backend.Models;
 using backend.Data;
+using backend.Dtos.Consulta;
 
 namespace backend.Controllers
 {
     [ApiController]
-    [Route("api/clinica/consultas")]
+    [Route("api/clinica")]
     public class ConsultaController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly AuthService _authService;
 
-        public ConsultaController(AppDbContext context)
+        public ConsultaController(AppDbContext context, AuthService authService)
         {
             _context = context;
+            _authService = authService;
         }
 
         // Cria uma nova consulta
         [HttpPost("{clinicaId}/nova-consulta")]
-        [Authorize(Roles = "Admin,Secretario")]
+        [Authorize(Policy = "GerenciaConsultas")]
         public async Task<IActionResult> CreateConsulta(int clinicaId, [FromBody] ConsultaDto consultaDto)
         {
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+
             var consulta = new Consulta
             {
                 ClinicaId = clinicaId, 
@@ -39,10 +47,15 @@ namespace backend.Controllers
         }
 
         // Obtém todas as consultas por clinicaId
-        [HttpGet("consulta-clinica")]
-        [Authorize(Roles = "Veterinario,Secretario")]
-        public async Task<IActionResult> GetAllConsultas([FromQuery] int clinicaId)
+        [HttpGet("{clinicaId}/consultas")]
+        [Authorize(Policy = "VisualizaTudo")]
+        public async Task<IActionResult> GetAllConsultas(int clinicaId)
         {
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+
             var consultas = await _context.Consultas
                 .Where(c => c.ClinicaId == clinicaId)
                 .ToListAsync();
@@ -56,24 +69,37 @@ namespace backend.Controllers
         }
 
         // Obtém uma consulta por ID
-        [HttpGet]
-        [Authorize(Roles = "Secretario")]
-        public async Task<IActionResult> GetConsultaById([FromQuery] int consultaId)
+        [HttpGet("{clinicaId}/consultas/{consultaId}")]
+        [Authorize(Policy = "GerenciaConsultas")]
+        public async Task<IActionResult> GetConsultaById(int clinicaId, int consultaId)
         {
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+
             var consulta = await _context.Consultas.FindAsync(consultaId);
+            
             if (consulta == null)
             {
                 return NotFound("Consulta não encontrada.");
             }
+
             return Ok(consulta);
         }
 
         // Atualiza uma consulta
-        [HttpPut("{consultaId}/editar")]
-        [Authorize(Roles = "Secretario")]
-        public async Task<IActionResult> UpdateConsulta(int consultaId, [FromBody] ConsultaDto consultaDto)
+        [HttpPut("{clinicaId}/consultas/{consultaId}/editar")]
+        [Authorize(Policy = "GerenciaConsultas")]
+        public async Task<IActionResult> UpdateConsulta(int clinicaId, int consultaId, [FromBody] ConsultaDto consultaDto)
         {
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+
             var consulta = await _context.Consultas.FindAsync(consultaId);
+            
             if (consulta == null)
             {
                 return NotFound("Consulta não encontrada.");
@@ -91,10 +117,15 @@ namespace backend.Controllers
         }
 
         // Deleta uma consulta
-        [HttpDelete("{consultaId}")]
-        [Authorize(Roles = "Secretario")]
-        public async Task<IActionResult> DeleteConsulta(int consultaId)
+        [HttpDelete("{clinicaId}/consultas/{consultaId}")]
+        [Authorize(Policy = "GerenciaConsultas")]
+        public async Task<IActionResult> DeleteConsulta(int clinicaId, int consultaId)
         {
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+
             var consulta = await _context.Consultas.FindAsync(consultaId);
             if (consulta == null)
             {

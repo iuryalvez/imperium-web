@@ -5,8 +5,9 @@ using Microsoft.AspNetCore.Identity;
 
 using backend.Data;
 using backend.Models;
-
 using backend.Dtos.Clinica;
+using backend.Dtos.Animal;
+using backend.Dtos.Usuario;
 
 namespace backend.Controllers
 {
@@ -25,7 +26,8 @@ namespace backend.Controllers
 
         // get all clinicas
         [HttpGet("clinicas")]
-        public async Task<ActionResult<IEnumerable<ClinicaDto>>> GetClinicas()
+        [Authorize(Roles = "ADMIN")]
+        public async Task<ActionResult<IEnumerable<ClinicaDto>>> GetAllClinicas()
         {
             var clinicas = await _context.Clinicas
                 .Select(c => new ClinicaDto
@@ -38,12 +40,13 @@ namespace backend.Controllers
             return Ok(clinicas);
         }
 
-        // get clinica by id
-        [HttpGet("clinica/{id}")]
-        public async Task<ActionResult<ClinicaDto>> GetClinica(int id)
+        // get clinica by clinicaId
+        [HttpGet("clinicas/{clinicaId}")]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<ActionResult<ClinicaDto>> GetClinica(int clinicaId)
         {
             var clinica = await _context.Clinicas
-                .Where(c => c.Id == id)
+                .Where(c => c.Id == clinicaId)
                 .Select(c => new ClinicaDto
                 {
                     Id = c.Id,
@@ -60,8 +63,8 @@ namespace backend.Controllers
         }
 
         // criar clinica pelo sistema
-        [HttpPost("nova-clinica")]
-        [Authorize(Roles = "Admin")]
+        [HttpPost("clinicas/nova-clinica")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult<ClinicaDto>> CreateClinica([FromBody] ClinicaDto clinicaDto)
         {
             var clinica = new Clinica
@@ -72,15 +75,15 @@ namespace backend.Controllers
             _context.Clinicas.Add(clinica);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetClinica), new { id = clinica.Id }, clinicaDto);
+            return CreatedAtAction(nameof(GetClinica), new { clinicaId = clinica.Id }, clinicaDto);
         }
 
         // deleta clínica
-        [HttpDelete("apaga-clinica/{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteClinica(int id)
+        [HttpDelete("clinicas/{clinicaId}")]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> DeleteClinica(int clinicaId)
         {
-            var clinica = await _context.Clinicas.FindAsync(id);
+            var clinica = await _context.Clinicas.FindAsync(clinicaId);
             if (clinica == null)
             {
                 return NotFound();
@@ -93,11 +96,39 @@ namespace backend.Controllers
         }
 
         // Obtém todos os animais cadastrados
-        [HttpGet("animais/all")]
-        public async Task<IActionResult> GetAllAnimais()
+        [HttpGet("animais")]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<ActionResult<IEnumerable<GetAnimaisDto>>> GetAllAnimais()
         {
-            var animais = await _context.Animais.ToListAsync();
+            var animais = await _context.Animais
+                .Select(a => new GetAnimaisDto
+                {
+                    Id = a.Id,
+                    Nome = a.Nome,
+                    Especie = a.Especie,
+                    Sexo = a.Sexo
+                })
+                .ToListAsync();
+
             return Ok(animais);
+        }
+        
+        // Obtém todos os usuários
+        [HttpGet("usuarios")]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> GetAllUsuarios()
+        {
+            var usuarios = await _context.Usuarios
+                .Select(u => new GetUsuariosDto
+                {
+                    Id = u.Id,
+                    UserName = u.UserName,
+                    Email = u.Email,
+                    Nome = u.Nome
+                })
+                .ToListAsync();
+
+            return Ok(usuarios);
         }
     }
 }
