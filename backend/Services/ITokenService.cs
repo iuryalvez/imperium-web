@@ -51,6 +51,7 @@ namespace backend.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
+                // Comentário aqui só pra pegar o nameidentifier no commit
                 {
                     new Claim(ClaimTypes.NameIdentifier, usuarioId),
                     new Claim(ClaimTypes.Email, usuarioEmail),
