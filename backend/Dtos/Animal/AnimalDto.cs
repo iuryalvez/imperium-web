@@ -2,7 +2,6 @@ namespace backend.Dtos.Animal
 {
     public class AnimalDto
     {
-        public int Id { get; set; }
         public string Nome { get; set; } = string.Empty;
         public int Especie { get; set; } // 1-cao, 2-gato
         public DateTime Nascimento { get; set; } 

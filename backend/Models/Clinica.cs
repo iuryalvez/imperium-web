@@ -13,6 +13,7 @@ namespace backend.Models {
         public string Whatsapp { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public virtual ICollection<Consulta>? Consultas { get; set; }
+        public virtual ICollection<Racao>? Racoes { get; set; }
         public virtual ICollection<UsuarioPerfilClinica>? UsuariosPerfisClinicas { get; set; }
         public virtual ICollection<TutorAnimalClinica>? TutoresAnimaisClinicas { get; set; }
     }

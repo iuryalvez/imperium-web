@@ -436,7 +436,10 @@ namespace backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<float>("Eea")
+                    b.Property<int>("ClinicaId")
+                        .HasColumnType("integer");
+
+                    b.Property<float>("Ee")
                         .HasColumnType("real");
 
                     b.Property<float>("Fb")
@@ -459,6 +462,8 @@ namespace backend.Migrations
                         .HasColumnType("real");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ClinicaId");
 
                     b.ToTable("Racoes");
                 });
@@ -801,6 +806,17 @@ namespace backend.Migrations
                     b.Navigation("Racao");
                 });
 
+            modelBuilder.Entity("backend.Models.Racao", b =>
+                {
+                    b.HasOne("backend.Models.Clinica", "Clinica")
+                        .WithMany("Racoes")
+                        .HasForeignKey("ClinicaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Clinica");
+                });
+
             modelBuilder.Entity("backend.Models.Relatorio", b =>
                 {
                     b.HasOne("backend.Models.AcompanhamentoInd", "AcompanhamentoInd")
@@ -891,6 +907,8 @@ namespace backend.Migrations
             modelBuilder.Entity("backend.Models.Clinica", b =>
                 {
                     b.Navigation("Consultas");
+
+                    b.Navigation("Racoes");
 
                     b.Navigation("TutoresAnimaisClinicas");
 

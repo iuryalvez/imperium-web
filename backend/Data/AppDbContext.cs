@@ -77,6 +77,13 @@ namespace backend.Data
                 .WithOne(tac => tac.Clinica)
                 .HasForeignKey(tac => tac.ClinicaId)
                 .OnDelete(DeleteBehavior.Restrict);
+            
+            // 1-N Clinica e TACs
+            modelBuilder.Entity<Clinica>()
+                .HasMany(c => c.Racoes)
+                .WithOne(r => r.Clinica)
+                .HasForeignKey(r => r.ClinicaId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // N-1 Consultas e Usuario
             modelBuilder.Entity<Consulta>()

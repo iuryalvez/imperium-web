@@ -6,6 +6,7 @@ using backend.Services;
 using backend.Models;
 using backend.Data;
 using backend.Dtos.Consulta;
+using backend.Dtos.Relatorio;
 
 namespace backend.Controllers
 {
@@ -136,6 +137,116 @@ namespace backend.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { Message = "Consulta deletada com sucesso." });
+        }
+
+        [HttpGet("{clinicaId}/consultas/{consultaId}/relatorio")]
+        [Authorize(Policy = "GerenciaClinica")]
+        public async Task<IActionResult> GetRelatorio(int clinicaId, int consultaId)
+        {
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+
+            var relatorio = await _context.Relatorios
+                .Where(r => r.ConsultaId == consultaId)
+                .Select(r => new RelatorioDto
+                {
+                    Id = r.Id,
+                    ConsultaId = r.ConsultaId,
+                    AcompanhamentoIndId = r.AcompanhamentoIndId,
+                    Idade = r.Idade,
+                    Peso = r.Peso,
+                    CondicaoCorporal = r.CondicaoCorporal,
+                    GrauAtividade = r.GrauAtividade,
+                    Racao = r.Racao,
+                    DescDieta = r.DescDieta
+                })
+                .FirstOrDefaultAsync();
+
+            if (relatorio == null)
+            {
+                return NotFound("Relatório não encontrado para a consulta especificada.");
+            }
+
+            return Ok(relatorio);
+        }
+
+        [HttpPost("{clinicaId}/consultas/{consultaId}/relatorio")]
+        [Authorize(Policy = "GerenciaClinica")]
+        public async Task<IActionResult> CreateRelatorio(int clinicaId, int consultaId, [FromBody] RelatorioDto relatorioDto)
+        {
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+
+            var relatorio = new Relatorio
+            {
+                ConsultaId = consultaId,
+                AcompanhamentoIndId = relatorioDto.AcompanhamentoIndId,
+                Idade = relatorioDto.Idade,
+                Peso = relatorioDto.Peso,
+                CondicaoCorporal = relatorioDto.CondicaoCorporal,
+                GrauAtividade = relatorioDto.GrauAtividade,
+                Racao = relatorioDto.Racao,
+                DescDieta = relatorioDto.DescDieta
+            };
+
+            _context.Relatorios.Add(relatorio);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetRelatorio), new { clinicaId, consultaId }, relatorioDto);
+        }
+
+        [HttpPut("{clinicaId}/consultas/{consultaId}/relatorio")]
+        [Authorize(Policy = "GerenciaClinica")]
+        public async Task<IActionResult> UpdateRelatorio(int clinicaId, int consultaId, [FromBody] RelatorioDto relatorioDto)
+        {
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+
+            var relatorio = await _context.Relatorios.FirstOrDefaultAsync(r => r.ConsultaId == consultaId);
+            if (relatorio == null)
+            {
+                return NotFound("Relatório não encontrado para a consulta especificada.");
+            }
+
+            relatorio.AcompanhamentoIndId = relatorioDto.AcompanhamentoIndId;
+            relatorio.Idade = relatorioDto.Idade;
+            relatorio.Peso = relatorioDto.Peso;
+            relatorio.CondicaoCorporal = relatorioDto.CondicaoCorporal;
+            relatorio.GrauAtividade = relatorioDto.GrauAtividade;
+            relatorio.Racao = relatorioDto.Racao;
+            relatorio.DescDieta = relatorioDto.DescDieta;
+
+            _context.Relatorios.Update(relatorio);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{clinicaId}/consultas/{consultaId}/relatorio")]
+        [Authorize(Policy = "GerenciaClinica")]
+        public async Task<IActionResult> DeleteRelatorio(int clinicaId, int consultaId)
+        {
+            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            {
+                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            }
+
+            var relatorio = await _context.Relatorios.FirstOrDefaultAsync(r => r.ConsultaId == consultaId);
+            if (relatorio == null)
+            {
+                return NotFound("Relatório não encontrado para a consulta especificada.");
+            }
+
+            _context.Relatorios.Remove(relatorio);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
