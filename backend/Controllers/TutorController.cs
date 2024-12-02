@@ -22,10 +22,15 @@ namespace backend.Controllers
             _authService = authService;
         }
 
-        [HttpGet("{clinicaId}/tutores")]
+        [HttpGet("tutores")]
         [Authorize(Roles = "ADMIN,SECRETARIO")]
-        public async Task<IActionResult> GetTutoresByClinica(int clinicaId)
+        public async Task<IActionResult> GetTutoresByClinica()
         {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId == 0) {
+                return BadRequest("Acesso não permitido a esta clínica.");
+            }
+
             if (!await _authService.VerificarPermissaoClinica(clinicaId))
             {
                 return Forbid("Usuário não tem permissão para acessar essa clínica.");
@@ -44,10 +49,15 @@ namespace backend.Controllers
             return Ok(tutores);
         }
 
-        [HttpGet("{clinicaId}/tutores/{tutorId}")]
+        [HttpGet("tutor_{tutorId}")]
         [Authorize(Policy = "GerenciaTutores")]
-        public async Task<IActionResult> GetTutorById(int clinicaId, int tutorId)
+        public async Task<IActionResult> GetTutorById(int tutorId)
         {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId == 0) {
+                return BadRequest("Acesso não permitido a esta clínica.");
+            }
+
             if (!await _authService.VerificarPermissaoClinica(clinicaId))
             {
                 return Forbid("Usuário não tem permissão para acessar essa clínica.");
@@ -63,10 +73,15 @@ namespace backend.Controllers
             return Ok(tutor);
         }
 
-        [HttpPost("{clinicaId}/tutores/criar_tutor")]
+        [HttpPost("tutores/cadastrar")]
         [Authorize(Policy = "GerenciaTutores")]
-        public async Task<IActionResult> CreateTutor(int clinicaId, [FromBody] TutorDto tutorDto)
+        public async Task<IActionResult> CreateTutor([FromBody] TutorDto tutorDto)
         {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId == 0) {
+                return BadRequest("Acesso não permitido a esta clínica.");
+            }
+
             if (!await _authService.VerificarPermissaoClinica(clinicaId))
             {
                 return Forbid("Usuário não tem permissão para acessar essa clínica.");
@@ -92,10 +107,15 @@ namespace backend.Controllers
             return Ok(new { Message = "Tutor cadastrado com sucesso.", TutorId = tutor.Id });
         }
 
-        [HttpPut("{clinicaId}/tutores/{tutorId}/editar")]
+        [HttpPut("tutores/{tutorId}")]
         [Authorize(Roles = "GerenciaSistema")]
-        public async Task<IActionResult> UpdateTutor(int clinicaId, int tutorId, [FromBody] UpdateTutorDto updateTutorDto)
+        public async Task<IActionResult> UpdateTutor(int tutorId, [FromBody] UpdateTutorDto updateTutorDto)
         {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId == 0) {
+                return BadRequest("Acesso não permitido a esta clínica.");
+            }
+
             if (!await _authService.VerificarPermissaoClinica(clinicaId))
             {
                 return Forbid("Usuário não tem permissão para acessar essa clínica.");
@@ -121,10 +141,15 @@ namespace backend.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{clinicaId}/tutores/{tutorId}")]
+        [HttpDelete("tutores/tutor_{tutorId}")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> DeleteTutor(int clinicaId, int tutorId)
+        public async Task<IActionResult> DeleteTutor(int tutorId)
         {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId == 0) {
+                return BadRequest("Acesso não permitido a esta clínica.");
+            }
+
             if (!await _authService.VerificarPermissaoClinica(clinicaId))
             {
                 return Forbid("Usuário não tem permissão para acessar essa clínica.");

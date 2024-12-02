@@ -9,45 +9,43 @@
   --verde-escuro: #064420;
 }
 
+/*
 .App {
   background-color: var(--verde-fraco);
 }
 
 .main-content {
-  margin-left: 18rem; /* Espaço para a sidebar */
+  margin-left: 18rem; Espaço para a sidebar
   text-align: left;
 }
 
-/* Estilo para o elemento com a classe body */
 body {
-  font-family: "Work Sans"; /* Define a família de fontes */
-  font-optical-sizing: auto; /* Define o ajuste óptico da fonte como automático */
-  font-weight: auto; /* Define o peso da fonte como automático */
-  font-style: normal; /* Define o estilo da fonte como normal */
+  font-family: "Work Sans"; 
+  font-optical-sizing: auto;
+  font-weight: auto; 
+  font-style: normal;
   background-color: var(--verde-fraco);
-  margin: 0; /* Conteúdo sem margem */ 
-  padding-top: 6rem; /* Espaço para a headbar */
+  margin: 0; Conteúdo sem margem 
+  padding-top: 6rem; Espaço para a headbar
 }
 
-/* Estilo para o elemento <h1> */
 h1 {
-  color: var(--verde-escuro); /* Define a cor do texto como verde escuro */
+  color: var(--verde-escuro);
   font-weight: bold;
 }
 
-h2 { /* simula h1 mas com margem para ajustar ao card cadastro */
-  color: var(--verde-escuro); /* Define a cor do texto como verde escuro */
+h2 { simula h1 mas com margem para ajustar ao card cadastro
+  color: var(--verde-escuro);
   font-weight: bold;
   font-size: xx-large;
   margin: 0.5rem 0 1.5rem 0;
 }
 
-/* Estilo para o elemento <label> */
 label {
-  display: block; /* Define o tipo de exibição como bloco */
-  width: 100%; /* Define a largura como 100%*/
-  text-align: left; /* Alinha o texto à esquerda */
-  color: #006400; /* Define a cor do texto como verde escuro */
+  display: block;
+  width: 100%; 
+  text-align: left;
+  color: #006400;
 }
 
 input:focus, textarea:focus, select:focus {
@@ -59,8 +57,8 @@ select {
   padding: 3px;
   margin-left: 4px;
   margin-bottom: 10px;
-  border: 1px solid #cccccc; /* Define a borda como cinza claro */
-  border-radius: 8px; /* Adiciona cantos arredondados */
+  border: 1px solid #cccccc; 
+  border-radius: 8px;
 }
 
 input:focus, textarea:focus, select:focus {
@@ -69,17 +67,19 @@ input:focus, textarea:focus, select:focus {
 }
 
 a {
-  color: var(--verde-claro); /* Define a cor do texto dos links e botões do menu como verde escuro */
-  text-decoration: none; /* Remove a decoração do texto (sublinhado) dos links do menu */
-  background: none; /* Remove o fundo dos botões do menu */
-  border: none; /* Remove a borda dos botões do menu */
+  color: var(--verde-claro); Define a cor do texto dos links e botões do menu como verde escuro
+  text-decoration: none; Remove a decoração do texto (sublinhado) dos links do menu
+  background: none; Remove o fundo dos botões do menu
+  border: none; Remove a borda dos botões do menu
   margin-right: 20px; 
 }
 
 a:hover {
-  color: var(--verde-realce); /* Cor do texto dos links ao passar o mouse */
-  cursor: pointer; /* Muda o cursor para um ponteiro (mão) ao passar o mouse */
+  color: var(--verde-realce); Cor do texto dos links ao passar o mouse
+  cursor: pointer; Muda o cursor para um ponteiro (mão) ao passar o mouse
 }
+
+*/
 
 .icone {
   height: 1.3rem;

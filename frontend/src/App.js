@@ -1,40 +1,63 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './services/AuthContext';
+import { NotificationProvider } from './services/NotificationContext';
 
-import Home from './pages/Home';
-import Sobre from './pages/Sobre';
+import PrivateRoute from './components/servicesComponents/PrivateRoute';
+import LoggedRoute from './components/servicesComponents/LoggedRoute';
+
+import Header from './components/organisms/Header';
+
 import Login from './pages/Login';
-import Cadastro from './pages/Cadastro';
-import Dashboard from './pages/Dashboard';
-import Tutores from './pages/Tutores';
-import Animais from './pages/Animais';
-import CadastrarAnimal from './pages/CadastrarAnimal';
-import Consultas from './pages/Consultas';
-import Gerenciamento from './pages/Gerenciamento';
+import Cadastro from './pages/AutoCadastro';
+import Sobre from './pages/Sobre';
+import Clinica from './pages/Clinica';
 import Usuarios from './pages/Usuarios';
-import Perfil from './pages/Perfil';
+import ListaVinculos from './pages/ListaVinculos';
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route exact path="/" Component={Login} />
-        <Route path="/cadastro" Component={Cadastro} />
-        <Route path="/login" Component={Login} />
-        <Route path="/sobre" Component={Sobre} />
-        <Route path="/home" Component={Home} />
-        <Route path="/dashboard" Component={Dashboard} />
-        <Route path="/tutores" Component={Tutores} />
-        <Route path="/animais" Component={Animais} />
-        <Route path="/animais/cadastrar" Component={CadastrarAnimal} />
-        <Route path="/consultas" Component={Consultas} />
-        <Route path="/gerenciamento" Component={Gerenciamento} />
-        <Route path="/gerenciamento/usuarios" Component={Usuarios} />
-        <Route path="/gerenciamento/perfil" Component={Perfil} />
-      </Routes>
-    </BrowserRouter>
+    <Router>
+      <NotificationProvider>
+        <AuthProvider>
+          <Header />
+            <Routes>
+              {/* Rotas públicas */}
+              <Route exact path='/' element={<Login />} />
+              <Route path='/login' element={<Login />} />
+              <Route path="/sobre" Component={Sobre} />
+              <Route path="/cadastro" Component={Cadastro} />
+              {/* <Route path='/teste'element={<Teste/>} /> */}
+              
+              {/* Rotas protegidas por isLogged */}
+              <Route element={<LoggedRoute />}>
+                <Route path='/sistema/vinculos' element={<ListaVinculos />} />
+              </Route>
+
+              {/* Rotas protegidas dentro da PrivateRoute*/}
+              <Route element={<PrivateRoute />}>
+                <Route path='/clinica' element={<Clinica />} />
+                <Route path='/clinica/usuarios' element={<Usuarios />} />
+              </Route>
+            </Routes>
+        </AuthProvider>
+      </NotificationProvider>
+      
+        {/* Rotas a ser implementadas
+          <Route exact path="/" Component={Login} />
+          <Route path="/dashboard" Component={Dashboard} /> 
+          <Route path="/login" Component={Login} />
+          <Route path="/tutores" Component={Tutores} />
+          <Route path="/animais" Component={Animais} />
+          <Route path="/animais/cadastrar" Component={CadastrarAnimal} />
+          <Route path="/consultas" Component={Consultas} />
+          <Route path="/gerenciamento" Component={Gerenciamento} />
+          <Route path="/gerenciamento/usuarios" Component={Usuarios} />
+          <Route path="/gerenciamento/perfil" Component={Perfil} /> 
+        */}
+      
+    </Router>
   );
 };
 

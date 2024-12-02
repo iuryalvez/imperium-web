@@ -6,6 +6,8 @@ using backend.Services;
 using backend.Models;
 using backend.Data;
 using backend.Dtos.Animal;
+using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace backend.Controllers
 {
@@ -22,16 +24,18 @@ namespace backend.Controllers
             _authService = authService;
         }
 
-        // Cria um novo animal na clínica
-        [HttpPost("{clinicaId}/animais/tutor_{tutorId}-novo-animal")]
+        /// <summary>
+        /// Cria um novo animal e associa com um tutor e uma clínica.
+        /// </summary>
+        /// <param name="tutorId">The ID of the tutor.</param>
+        /// <param name="animalDto">The data transfer object containing animal details.</param>
+        /// <returns>An IActionResult indicating the result of the operation.</returns>
+        /// <response code="200">Returns a success message and the ID of the created animal.</response>
+        /// <response code="403">If the user does not have permission to access the clinic.</response>
+        [HttpPost("animais/tutor_{tutorId}-novo-animal")]
         [Authorize(Policy = "GerenciaAnimal")]
-        public async Task<IActionResult> CreateAnimal(int clinicaId, int tutorId, [FromBody] AnimalDto animalDto)
+        public async Task<IActionResult> CreateAnimal(int tutorId, [FromBody] AnimalDto animalDto)
         {
-            if (!await _authService.VerificarPermissaoClinica(clinicaId))
-            {
-                return Forbid("Usuário não tem permissão para acessar essa clínica.");
-            }
-
             var animal = new Animal
             {
                 Nome = animalDto.Nome,
@@ -53,6 +57,16 @@ namespace backend.Controllers
             _context.Animais.Add(animal);
             await _context.SaveChangesAsync();
 
+            // Obter o valor da claim como inteiro
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+
+            if (clinicaId == 0) // Considerando 0 como default para int
+            {
+                return BadRequest("Claim 'clinicaId' não encontrada ou inválida.");
+            }
+
+            Console.WriteLine($"Acesso permitido à clínica {clinicaId}");
+
             var tutorAnimalClinica = new TutorAnimalClinica
             {
                 TutorId = tutorId,
@@ -67,15 +81,10 @@ namespace backend.Controllers
         }
 
         // Obtém um animal por ID
-        [HttpGet("{clinicaId}/animais/{animalId}")]
+        [HttpGet("animais/{animalId}")]
         [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> GetAnimalById(int clinicaId, int animalId)
+        public async Task<IActionResult> GetAnimalById(int animalId)
         {
-            if (!await _authService.VerificarPermissaoClinica(clinicaId))
-            {
-                return Forbid("Usuário não tem permissão para acessar essa clínica.");
-            }
-
             var animal = await _context.Animais.FindAsync(animalId);
             if (animal == null)
             {
@@ -86,15 +95,20 @@ namespace backend.Controllers
         }
 
         // Obtém animais por tutorId
-        [HttpGet("{clinicaId}/animais/tutor_{tutorId}/animais")]
+        [HttpGet("animais/tutor_{tutorId}/animais")]
         [Authorize(Policy = "VisualizaTudo")]
-        public async Task<ActionResult<IEnumerable<GetAnimaisDto>>> GetAnimaisByTutorId(int clinicaId, int tutorId)
+        public async Task<ActionResult<IEnumerable<GetAnimaisDto>>> GetAnimaisByTutorId(int tutorId)
         {
-            if (!await _authService.VerificarPermissaoClinica(clinicaId))
+            // Obter o valor da claim como inteiro
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+
+            if (clinicaId == 0) // Considerando 0 como default para int
             {
-                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+                return BadRequest("Claim 'clinicaId' não encontrada ou inválida.");
             }
 
+            Console.WriteLine($"Acesso permitido à clínica {clinicaId}");
+            
             var animais = await _context.TutoresAnimaisClinicas
                 .Where(tac => tac.TutorId == tutorId && tac.ClinicaId == clinicaId)
                 .Select(tac => new GetAnimaisDto
@@ -115,15 +129,10 @@ namespace backend.Controllers
         }
 
         // Atualiza um animal de uma clínica
-        [HttpPut("{clinicaId}/animais/{animalId}/editar")]
+        [HttpPut("animais/{animalId}/editar")]
         [Authorize(Policy = "GerenciaAnimais")]
-        public async Task<IActionResult> UpdateAnimal(int clinicaId, int animalId, [FromBody] AnimalDto animalDto)
+        public async Task<IActionResult> UpdateAnimal(int animalId, [FromBody] AnimalDto animalDto)
         {
-            if (!await _authService.VerificarPermissaoClinica(clinicaId))
-            {
-                return Forbid("Usuário não tem permissão para acessar essa clínica.");
-            }
-
             var animal = await _context.Animais.FindAsync(animalId);
             if (animal == null)
             {
@@ -151,15 +160,10 @@ namespace backend.Controllers
         }
 
         // Deleta um animal em uma clínica
-        [HttpDelete("{clinicaId}/animais/{animalId}")]
+        [HttpDelete("animais/{animalId}")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> DeleteAnimal(int clinicaId, int animalId)
+        public async Task<IActionResult> DeleteAnimal(int animalId)
         {
-            if (!await _authService.VerificarPermissaoClinica(clinicaId))
-            {
-                return Forbid("Usuário não tem permissão para acessar essa clínica.");
-            }
-
             var animal = await _context.Animais.FindAsync(animalId);
             if (animal == null)
             {

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import Navsidebar from '../components/Navsidebar';
+import Navsidebar from '../components/organisms/Navsidebar';
 
 import '../App.css';
-import './CadastrarAnimal.css';
+import '../components/styles/CadastrarAnimal.css';
 
 function CadastrarAnimal() {
   // Estado para armazenar os dados do formulário

@@ -177,6 +177,7 @@ namespace backend.Data
                 new Perfil { Id = 3, Name = "VETERINARIO", Tipo = 3, Descricao = "Veterinário de clínica" },
                 new Perfil { Id = 4, Name = "SECRETARIO", Tipo = 4, Descricao = "Secretario de clínica" },
                 new Perfil { Id = 5, Name = "TECNICO", Tipo = 5, Descricao = "Tecnico de clinica" },
+                new Perfil { Id = 6, Name = "VISUALIZADOR", Tipo = 6, Descricao = "Usuário apenas visualizador" },
                 new Perfil { Id = 98, Name = "PENDENTE", Tipo = 98, Descricao = "Usuário pendente de ativação" },
                 new Perfil { Id = 99, Name = "INATIVO", Tipo = 99, Descricao = "Usuário inativo" }
             );

@@ -18,13 +18,13 @@ namespace backend.Controllers {
             _authService = authService;
         }
 
-        [HttpPost("{clinicaId}/racoes/nova-racao")]
+        [HttpPost("racoes/nova-racao")]
         [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> CreateRacao(int clinicaId, [FromBody] CreateRacaoDto racaoDto)
+        public async Task<IActionResult> CreateRacao([FromBody] CreateRacaoDto racaoDto)
         {
-            if (!await _authService.VerificarPermissaoClinica(clinicaId))
-            {
-                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId == 0) {
+                return BadRequest("Acesso não permitido a esta clínica.");
             }
 
             var racao = new Racao
@@ -45,13 +45,13 @@ namespace backend.Controllers {
             return CreatedAtAction(nameof(GetRacaoById), new { clinicaId, racaoId = racao.Id }, racaoDto);
         }
 
-        [HttpGet("{clinicaId}/racoes")]
+        [HttpGet("racoes")]
         [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> GetAllRacoes(int clinicaId)
+        public async Task<IActionResult> GetAllRacoes()
         {
-            if (!await _authService.VerificarPermissaoClinica(clinicaId))
-            {
-                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId == 0) {
+                return BadRequest("Acesso não permitido a esta clínica.");
             }
 
             var racoes = await _context.Racoes
@@ -66,13 +66,13 @@ namespace backend.Controllers {
             return Ok(racoes);
         }
 
-        [HttpGet("{clinicaId}/racoes/{racaoId}")]
+        [HttpGet("racoes/{racaoId}")]
         [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> GetRacaoById(int clinicaId, int racaoId)
+        public async Task<IActionResult> GetRacaoById(int racaoId)
         {
-            if (!await _authService.VerificarPermissaoClinica(clinicaId))
-            {
-                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId == 0) {
+                return BadRequest("Acesso não permitido a esta clínica.");
             }
 
             var racao = await _context.Racoes
@@ -97,13 +97,13 @@ namespace backend.Controllers {
             return Ok(racao);
         }
 
-        [HttpPut("{clinicaId}/racoes/{racaoId}/editar")]
+        [HttpPut("racoes/{racaoId}/editar")]
         [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> UpdateRacao(int clinicaId, int racaoId, [FromBody] UpdateRacaoDto racaoDto)
+        public async Task<IActionResult> UpdateRacao(int racaoId, [FromBody] UpdateRacaoDto racaoDto)
         {
-            if (!await _authService.VerificarPermissaoClinica(clinicaId))
-            {
-                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId == 0) {
+                return BadRequest("Acesso não permitido a esta clínica.");
             }
 
             var racao = await _context.Racoes.FirstOrDefaultAsync(r => r.Id == racaoId && r.ClinicaId == clinicaId);
@@ -127,13 +127,13 @@ namespace backend.Controllers {
             return NoContent();
         }
 
-        [HttpDelete("{clinicaId}/racoes/{racaoId}")]
+        [HttpDelete("racoes/{racaoId}")]
         [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> DeleteRacao(int clinicaId, int racaoId)
+        public async Task<IActionResult> DeleteRacao(int racaoId)
         {
-            if (!await _authService.VerificarPermissaoClinica(clinicaId))
-            {
-                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId == 0) {
+                return BadRequest("Acesso não permitido a esta clínica.");
             }
 
             var racao = await _context.Racoes.FirstOrDefaultAsync(r => r.Id == racaoId && r.ClinicaId == clinicaId);

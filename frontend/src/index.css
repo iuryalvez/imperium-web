@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+html, body, #root {
+    @apply font-sans;
+    font-optical-sizing: auto; /* Define o ajuste óptico da fonte como automático */
+    font-weight: auto; /* Define o peso da fonte como automático */
+    font-style: normal; /* Define o estilo da fonte como normal */
+    height: auto; /* Permite que o tamanho seja definido com base no conteúdo */
+    min-height: 100%; /* Garante altura mínima caso o conteúdo seja pequeno */
+    margin: 0;
+    padding-top: 6rem;
+    background-color: #D9FFEC; /* Substitua pela sua cor de fundo */
+}
+  
+#root {
+    @apply pt-16 px-16; /* 4rem de padding no topo e laterais (16 Tailwind = 4rem) */
+    box-sizing: border-box; /* Garante que o padding não afete o cálculo da largura total */
+    --cinza-background: #F7F7F7;
+    --verde-fraco: #D9FFEC;
+    --verde-realce: #21BA45;
+    --verde-claro: #278F54;
+    --verde-medio: #006634;
+    --verde-escuro: #064420;
+}
+  

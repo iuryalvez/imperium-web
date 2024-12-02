@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
 
-import Navsidebar from "../components/Navsidebar";
 import CardAnimal from "../components/CardAnimal";
-import api from '../services/api';
+import api from './services/api';
 
 import '../App.css';
-import './Listas.css'
+import '../components/styles/Listas.css';
+import Header from "../components/organisms/Header";
 
 function Animais() {
     
@@ -18,7 +18,7 @@ function Animais() {
     useEffect(() => {
         const fetchAnimais = async () => {
         try {
-            const response = await api.get('http://localhost:5432/api/Animais');
+            const response = await api.get('http://localhost:5050/api/clinica/animais');
             setAnimais(response.data);
         } catch (error) {
             console.error('Erro ao buscar os dados dos animais:', error);
@@ -36,7 +36,7 @@ function Animais() {
     return (
         <div>    
             <div>
-                <Navsidebar />
+                <Header />
             </div>
             <main className='main-content'>
                 <div className="titulo-animais">

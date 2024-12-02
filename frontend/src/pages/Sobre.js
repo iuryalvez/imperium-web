@@ -1,14 +1,15 @@
 import React from 'react';
 
 import '../App.css';
-import './Sobre.css';
-import HeadbarLogin from '../components/HeadbarLogin';
+import '../components/styles/Sobre.css';
+
 import Logos from '../components/Logos';
+import Header from '../components/organisms/Header';
 
 function Sobre() {
   return (
     <div>
-      <HeadbarLogin/> 
+      <Header /> 
       <div className='sobre-content'>
         <h2>Imperium canis et feles</h2>
           <p>Lorem ipsum dolor sit amet. Est quia ducimus aut pariatur praesentium et sunt voluptas et aliquam quod et praesentium praesentium. Vel maiores galisum est eaque reprehenderit aut fugit natus ut nulla voluptatem ex doloribus eveniet qui quidem facilis et explicabo rerum. Et nesciunt dolorum aut excepturi omnis ut possimus eligendi aut ullam aspernatur 33 quidem ipsum et saepe reiciendis At cumque nihil. Est quam itaque hic omnis blanditiis et dignissimos quod et corporis obcaecati. </p>

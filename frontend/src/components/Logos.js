@@ -7,7 +7,6 @@ import logoInf from "../assets/INF_UFG.svg";
 
 const Logos = () => {
     return (
-
         <div>
             <img className='logos' src={logoUfg} alt='Logo da Universidade Federal de Goiás'/>
             <img className='logos' src={logoEvz} alt='Logo da Escola de Veterinária e Zootecnia'/>

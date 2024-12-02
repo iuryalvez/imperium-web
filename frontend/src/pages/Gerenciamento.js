@@ -2,8 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import '../App.css';
-import './Gerenciamento.css';
-import Navsidebar from '../components/Navsidebar';
+import '../components/styles/Gerenciamento.css';
+import Navsidebar from '../components/organisms/Navsidebar';
 
 
 function Gerenciamento() {

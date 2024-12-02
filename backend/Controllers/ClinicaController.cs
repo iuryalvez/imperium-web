@@ -22,13 +22,13 @@ namespace backend.Controllers
         }
 
         // atualizar clinica
-        [HttpPut("{clinicaId}/dados")]
+        [HttpPut("dados")]
         [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> UpdateClinica(int clinicaId, [FromBody] UpdateClinicaDto updateClinicaDto)
+        public async Task<IActionResult> UpdateClinica([FromBody] UpdateClinicaDto updateClinicaDto)
         {
-            if (!await _authService.VerificarPermissaoClinica(clinicaId))
-            {
-                return Forbid("Usuário não tem permissão para acessar essa clínica.");
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId == 0) {
+                return BadRequest("Acesso não permitido a esta clínica.");
             }
 
             var clinica = await _context.Clinicas.FindAsync(clinicaId);

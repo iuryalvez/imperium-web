@@ -1,0 +1,16 @@
+/* LabeledInput.css */
+.labeled-input {
+    margin-bottom: 1rem;
+  }
+  
+  .input-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.3rem;
+  }
+  
+  .input-icon {
+    margin-right: 0.5rem;
+    font-size: 1.2rem;
+  }
+  

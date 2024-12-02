@@ -1,33 +1,32 @@
-import axios from 'axios';
+const API_BASE_URL = 'http://localhost:5050';
 
-const api = axios.create({
-    baseURL: 'http://localhost:5432/api',
-});
+const api = {
+  post: async (endpoint, body) => {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      credentials: 'include', // Inclui os cookies na requisição
+    });
+    return handleResponse(response);
+  },
+  
+  get: async (endpoint) => {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'GET',
+      credentials: 'include', // Inclui os cookies na requisição
+    });
+    return handleResponse(response);
+  },
 
-// interceptor
-api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('jwtToken');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
+  // Outros métodos HTTP (PUT, DELETE) podem ser adicionados aqui
+};
 
-// interceptor para tratamento de erros
-api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response && error.response.status === 401) {
-            // Redireciona para a página de login
-            window.location.href = '/login';
-        }
-        return Promise.reject(error);
-    }
-);
+const handleResponse = async (response) => {
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return response.json();
+};
 
 export default api;
