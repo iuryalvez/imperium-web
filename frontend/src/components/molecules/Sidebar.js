@@ -1,46 +1,100 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { FaTachometerAlt, FaPaw, FaCalendarAlt, FaUserFriends, FaCog, FaHome } from 'react-icons/fa';
-import '../styles/Sidebar.css';
+
+import ClinicaIcon from '../../assets/animal/pet-care-service-pet-grooming-service-svgrepo-com.png';
+import AnimaisIcon from '../../assets/animal/pet-14-svgrepo-com.png';
+import ConsultasIcon from '../../assets/document/consultation-consulting-laptop-doctor-healthy-medical-care-svgrepo-com.png';
+import TutoresIcon from '../../assets/client/client-profile-svgrepo-com.png';
+import UsuariosIcon from '../../assets/user/user-group-svgrepo-com.png';
+import RacoesIcon from '../../assets/animal/dog-food-pet-svgrepo-com.png';
 
 function Sidebar() {
   return (
-    <aside className='sidebar'>
-      <ul className='sidebar-menu'>
-        <li className='menu-item'>
-          <NavLink to="/home" activeClassName="active">
-            <FaHome className="menu-icon" />
-            Home
+    <aside className="bg-green-600 h-screen -mt-8 w-64 text-white flex flex-col">
+      {/* Cabeçalho */}
+      <div className="p-4 border-b border-green-700">
+        <h2 className="text-xl font-bold">Marcos Ceron</h2>
+        <p className="text-sm text-green-200">Clínica Teste</p>
+      </div>
+
+      {/* Menu */}
+      <ul className="flex flex-col mt-4 space-y-2">
+        <li>
+          <NavLink
+            to="/clinica/editar"
+            className={({ isActive }) =>
+              `flex items-center px-4 py-2 text-white hover:bg-green-700 transition ${
+                isActive ? 'bg-green-700' : ''
+              }`
+            }
+          >
+            <img src={ClinicaIcon} alt="Clinica" className="mr-2 w-[22px] h-[22px]" />
+            Clínica
           </NavLink>
         </li>
-        <li className='menu-item'>
-          <NavLink to="/dashboard" activeClassName="active">
-            <FaTachometerAlt className="menu-icon" />
-            Dashboard
-          </NavLink>
-        </li>
-        <li className='menu-item'>
-          <NavLink to="/tutores" activeClassName="active">
-            <FaUserFriends className="menu-icon" />
-            Tutores
-          </NavLink>
-        </li>
-        <li className='menu-item'>
-          <NavLink to="/animais" activeClassName="active">
-            <FaPaw className="menu-icon" />
+        <li>
+          <NavLink
+            to="/clinica/animais"
+            className={({ isActive }) =>
+              `flex items-center px-4 py-2 text-white hover:bg-green-700 transition ${
+                isActive ? 'bg-green-700' : ''
+              }`
+            }
+          >
+            <img src={AnimaisIcon} alt="Animais" className="mr-2 w-[22px] h-[22px]" />
             Animais
           </NavLink>
         </li>
-        <li className='menu-item'>
-          <NavLink to="/consultas" activeClassName="active">
-            <FaCalendarAlt className="menu-icon" />
+        <li>
+          <NavLink
+            to="/clinica/consultas"
+            className={({ isActive }) =>
+              `flex items-center px-4 py-2 text-white hover:bg-green-700 transition ${
+                isActive ? 'bg-green-700' : ''
+              }`
+            }
+          >
+            <img src={ConsultasIcon} alt="Consultas" className="mr-2 w-[22px] h-[22px]" />
             Consultas
           </NavLink>
         </li>
-        <li className='menu-item'>
-          <NavLink to="/gerenciamento" activeClassName="active">
-            <FaCog className="menu-icon" />
-            Gerenciamento
+        <li>
+          <NavLink
+            to="/clinica/tutores"
+            className={({ isActive }) =>
+              `flex items-center px-4 py-2 text-white hover:bg-green-700 transition ${
+                isActive ? 'bg-green-700' : ''
+              }`
+            }
+          >
+            <img src={TutoresIcon} alt="Tutores" className="mr-2 w-[22px] h-[22px]" />
+            Tutores
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
+            to="/clinica/usuarios"
+            className={({ isActive }) =>
+              `flex items-center px-4 py-2 text-white hover:bg-green-700 transition ${
+                isActive ? 'bg-green-700' : ''
+              }`
+            }
+          >
+            <img src={UsuariosIcon} alt="Usuários" className="mr-2 w-[22px] h-[22px]" />
+            Usuários
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
+            to="/clinica/racoes"
+            className={({ isActive }) =>
+              `flex items-center px-4 py-2 text-white hover:bg-green-700 transition ${
+                isActive ? 'bg-green-700' : ''
+              }`
+            }
+          >
+            <img src={RacoesIcon} alt="Rações" className="mr-2 w-[22px] h-[22px]" />
+            Rações
           </NavLink>
         </li>
       </ul>

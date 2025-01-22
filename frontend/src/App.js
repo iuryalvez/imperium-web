@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './services/AuthContext';
 import { NotificationProvider } from './services/NotificationContext';
 
-import PrivateRoute from './components/servicesComponents/PrivateRoute';
+import AuthenticatedRoute from './components/servicesComponents/AuthenticatedRoute';
 import LoggedRoute from './components/servicesComponents/LoggedRoute';
 
 import Header from './components/organisms/Header';
@@ -15,6 +15,7 @@ import Sobre from './pages/Sobre';
 import Clinica from './pages/Clinica';
 import Usuarios from './pages/Usuarios';
 import ListaVinculos from './pages/ListaVinculos';
+import Home from './pages/Home';
 
 const App = () => {
   return (
@@ -36,8 +37,9 @@ const App = () => {
               </Route>
 
               {/* Rotas protegidas dentro da PrivateRoute*/}
-              <Route element={<PrivateRoute />}>
-                <Route path='/clinica' element={<Clinica />} />
+              <Route element={<AuthenticatedRoute />}>
+                <Route path='/clinica/home' element={<Home />} />
+                <Route path='/clinica/editar' element={<Clinica />} />
                 <Route path='/clinica/usuarios' element={<Usuarios />} />
               </Route>
             </Routes>

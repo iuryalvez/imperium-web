@@ -6,14 +6,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Microsoft.Extensions.Logging;
 
 using backend.Data;
 using backend.Interfaces;
 using backend.Models;
 using backend.Services;
-using Microsoft.Build.Logging;
 using Microsoft.Extensions.Logging.Console;
+using NuGet.Protocol;
 
 
 internal class Program
@@ -124,6 +123,7 @@ internal class Program
             options.Password.RequireLowercase = true;
             options.Password.RequireUppercase = true;
             options.Password.RequireNonAlphanumeric = true;
+            options.User.RequireUniqueEmail = true; // Garante que o email seja único
         })
         .AddEntityFrameworkStores<AppDbContext>()
         .AddDefaultTokenProviders();
@@ -173,37 +173,12 @@ internal class Program
                 // Evento chamado após o token ser validado com sucesso
                 OnTokenValidated = async context =>
                 {
+                    var authService = context.HttpContext.RequestServices.GetRequiredService<IAuthService>();
+                    var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
 
-                    // Verifica se o token está presente
-                    var token = context.SecurityToken;
-                    if (token == null)
-                    {
-                        Console.WriteLine("Token inválido: objeto de segurança nulo.");
-                        context.Fail("Token inválido!");
-                        return;
-                    }
-
-                    Console.WriteLine("Token validado com sucesso. Verificando renovação e consistência...");
-
-                    try
-                    {
-                        // Validações adicionais de consistência (IP e User-Agent)
-                        var authService = context.HttpContext.RequestServices.GetRequiredService<IAuthService>();
-                        var principal = authService.ValidateTokenFromCookie(context.Request.Cookies["auth_token"]);
-
-                        authService.ValidateUserClaims(principal, context.HttpContext);
-
-                        var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
-                        
-                        tokenService.RenovaToken(context);
-                        
-                        Console.WriteLine("Validações de consistência concluídas com sucesso.");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Erro durante a validação do token ou renovações.");
-                        context.Fail("Erro durante a validação ou renovação do token.");
-                    }
+                    // Valida os dados do token
+                    await authService.ValidaContext(context);
+                    await tokenService.RenovaToken(context);
                 }
             };
         });

@@ -1,6 +1,6 @@
 using backend.Data;
 using backend.Interfaces;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -13,14 +13,14 @@ namespace backend.Services
     public class AuthService : IAuthService
     {
         private readonly IConfiguration _configuration;
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _dbContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<AuthService> _logger;
 
-        public AuthService(IConfiguration configuration, AppDbContext context, IHttpContextAccessor httpContextAccessor, ILogger<AuthService> logger)
+        public AuthService(IConfiguration configuration, AppDbContext dbContext, IHttpContextAccessor httpContextAccessor, ILogger<AuthService> logger)
         {
             _configuration = configuration;
-            _context = context;
+            _dbContext = dbContext;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
         }
@@ -32,7 +32,7 @@ namespace backend.Services
                 // Obter o ID do vínculo do usuário com a clínica a partir do token JWT
                 var tokenUpcId = int.Parse(_httpContextAccessor.HttpContext?.User.FindFirst("UsuarioPerfilClinicaId")?.Value);
 
-                var usuarioPerfilClinica = await _context.UsuariosPerfisClinicas
+                var usuarioPerfilClinica = await _dbContext.UsuariosPerfisClinicas
                     .FirstOrDefaultAsync(upc => upc.Id == tokenUpcId);
 
                 // Verifica se o usuário está associado à clínica
@@ -86,7 +86,7 @@ namespace backend.Services
                 }
 
                 // Verifica se o vínculo ainda existe no banco
-                var vinculo = await _context.UsuariosPerfisClinicas
+                var vinculo = await _dbContext.UsuariosPerfisClinicas
                     .FirstOrDefaultAsync(upc => upc.Id == usuarioPerfilClinicaId);
 
                 if (vinculo == null)
@@ -144,63 +144,59 @@ namespace backend.Services
             }
         }
 
-        /// <summary>
-        /// Valida o usuário com base nas claims do token e adiciona perfil ao contexto da requisição.
-        /// </summary>
-        /// <param name="principal">ClaimsPrincipal extraído do token.</param>
-        /// <param name="httpContext">Contexto HTTP para validações adicionais.</param>
-        /// <exception cref="SecurityTokenException">Lança exceção se a validação falhar.</exception>
-        public async Task ValidateUserClaims(ClaimsPrincipal principal, HttpContext httpContext)
+        // Valida as informações do usuário contidas no context
+        public async Task ValidaContext(TokenValidatedContext context)
         {
-            if (principal == null || !principal.Identity.IsAuthenticated)
-            {
-                throw new SecurityTokenException("Usuário não autenticado.");
-            }
+            Console.WriteLine($"\n\ntoken na ValidaContext:{context.SecurityToken}\n");
 
-            var currentIp = httpContext.Connection.RemoteIpAddress?.ToString();
-            var currentUserAgent = httpContext.Request.Headers["User-Agent"].ToString();
-            var acessoLogin = principal.FindFirst("acessoLogin")?.Value;
+            var acessoLogin = context.Principal.FindFirst("AcessoLogin")?.Value;
 
-            var tokenIpClaim = principal.FindFirst("UsuarioIP")?.Value;
-            var tokenUserAgentClaim = principal.FindFirst("UsuarioAgent")?.Value;
-            var upcIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            // Pula a validação se o usuário acabou de fazer login está escolhendo o vínculo ainda
+            if (string.IsNullOrEmpty(acessoLogin)){
 
-            // Valida se o ID do vinculo é um valor numérico válido
-            if (!int.TryParse(upcIdClaim, out int upcId)){
-                throw new SecurityTokenException("O Id contido no token não é um valor numérico válido!");
-            }
+                // Valida se o Ip e o Agent da requisição são iguais aos presentes no token
+                var currentIp = context.HttpContext.Connection.RemoteIpAddress?.ToString();
+                var currentUserAgent = context.HttpContext.Request.Headers["User-Agent"].ToString();
+                var tokenIpClaim = context.Principal.FindFirst("UserIP")?.Value;
+                var tokenUserAgentClaim = context.Principal.FindFirst("UserAgent")?.Value;
 
-            if (tokenIpClaim != currentIp || tokenUserAgentClaim != currentUserAgent)
-            {
-                throw new SecurityTokenException("IP ou navegador não correspondem ao token.");
-            }
-            
-            // Valida se o vínculo ainda existe no banco e se sim define sua Role no contexto da requisição
-            if (string.IsNullOrEmpty(acessoLogin)) {
+                if (tokenIpClaim != currentIp || tokenUserAgentClaim != currentUserAgent)
+                {
+                    context.Fail("IP ou navegador não correspondentes com a geração do token.");
+                }
+
+                var vinculoIdClaim = context.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                // Valida se o ID do vinculo é um valor numérico válido
+                if (!int.TryParse(vinculoIdClaim, out int vinculoId)){
+                    context.Fail("O Id contido no token não é um valor numérico válido!");
+                }
+
+                // Valida se o vínculo ainda existe no banco e se sim define sua Role no contexto da requisição
                 try
                 {
-                    var upc = await _context.UsuariosPerfisClinicas
-                    .Include(upc => upc.Perfil)
-                    .Include(upc => upc.Clinica)
-                    .FirstOrDefaultAsync(upc => upc.Id == upcId);
-    
-                    if (upc == null)
+                    var vinculo = await _dbContext.UsuariosPerfisClinicas
+                    .Include(v => v.Perfil)
+                    .FirstOrDefaultAsync(v => v.Id == vinculoId);
+
+                    if (vinculo == null)
                     {
-                        Console.WriteLine($"Erro: Vínculo com ID {upcId} não encontrado.");
-                        Console.WriteLine("Id do vínculo presente no token não existe no banco de dados!");
+                        Console.WriteLine($"Erro: Vínculo com ID {vinculoId} não encontrado.");
+                        context.Fail("Id do vínculo presente no token não existe no banco de dados!");
                     }
                     else
                     {
-                        var identity = principal.Identity as ClaimsIdentity;
-                        identity?.AddClaim(new Claim(ClaimTypes.Role, upc.Perfil.Name));
-                        identity?.AddClaim(new Claim("clinicaId", upc.ClinicaId.ToString()));
-                        Console.WriteLine($"\nRole do usuário adicionada ao contexto: {upc.Perfil.Name}");
+                        var identity = context.Principal.Identity as ClaimsIdentity;
+                        identity?.AddClaim(new Claim(ClaimTypes.Role, vinculo.Perfil.Name));
+                        Console.WriteLine($"\nRole do usuário adicionada ao contexto: {vinculo.Perfil.Name}");
+                        Console.WriteLine($"vinculoIdClaim: {vinculoIdClaim}");
                     }
+
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Erro ao validar vínculo no banco de dados: {ex.Message}");
-                    throw new SecurityTokenException("Erro interno ao validar o vínculo.");
+                    context.Fail("Erro interno ao validar o vínculo.");
                 }
             }
         }        

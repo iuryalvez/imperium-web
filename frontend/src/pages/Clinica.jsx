@@ -1,14 +1,14 @@
 import React from 'react';
 
 import '../App.css'
+import Sidebar from '../components/molecules/Sidebar';
 
 function Clinica() {
   return (
     <div>
-      <main className='main-content'>
+        <Sidebar />
         <h1>Bem-vindo ao sistema de gerenciamento da clínica veterinária!</h1>
-        <p className='texto-home'>Aqui você pode gerenciar todas as operações da clínica.</p>
-      </main>
+        <p>Aqui você pode gerenciar todas as operações da clínica.</p>
     </div>
   );
 }

@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }) => {
       if (response.status === 200) {
         abrirNotificacao('success', 'Vínculo selecionado!', 'Você escolheu seu vínculo com sucesso.');
         await checkAuth();
-        navigate('/clinica');
+        navigate('/clinica/home');
       }
     } catch (error) {
       abrirNotificacao('error', 'Erro ao selecionar vínculo', 'Não foi possível selecionar o vínculo.');

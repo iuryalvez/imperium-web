@@ -14,7 +14,7 @@ namespace backend.Services {
             context.Response.Cookies.Append("auth_token", token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true, // Caso esteja em produção com HTTPS
+                Secure = false, // Caso esteja em produção com HTTPS
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["JWT:ExpiresInMinutes"]))
             });

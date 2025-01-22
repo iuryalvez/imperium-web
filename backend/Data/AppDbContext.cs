@@ -170,22 +170,7 @@ namespace backend.Data
                 .HasForeignKey(tac => tac.ClinicaId) // a chave estrangeira de tac é clinicaId
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Inserção de dados iniciais para Perfil
-            modelBuilder.Entity<Perfil>().HasData(
-                new Perfil { Id = 1, Name = "ADMIN", Tipo = 1, Descricao = "Administrador do sistema" },
-                new Perfil { Id = 2, Name = "GESTOR", Tipo = 2, Descricao = "Gestor de clínica" },
-                new Perfil { Id = 3, Name = "VETERINARIO", Tipo = 3, Descricao = "Veterinário de clínica" },
-                new Perfil { Id = 4, Name = "SECRETARIO", Tipo = 4, Descricao = "Secretario de clínica" },
-                new Perfil { Id = 5, Name = "TECNICO", Tipo = 5, Descricao = "Tecnico de clinica" },
-                new Perfil { Id = 6, Name = "VISUALIZADOR", Tipo = 6, Descricao = "Usuário apenas visualizador" },
-                new Perfil { Id = 98, Name = "PENDENTE", Tipo = 98, Descricao = "Usuário pendente de ativação" },
-                new Perfil { Id = 99, Name = "INATIVO", Tipo = 99, Descricao = "Usuário inativo" }
-            );
-
-            // Dados iniciais para Clinica
-            // modelBuilder.Entity<Clinica>().HasData(
-            //     new Clinica { Id = 1, NomeFantasia = "Clinica Teste", NomeClinica = "Clinica Animais", Cnpj = "00000000000100"}
-            // );
+            DatabaseSeeder.Seed(modelBuilder);
 
         }
     }

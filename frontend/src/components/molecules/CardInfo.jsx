@@ -72,7 +72,7 @@ const CardInfo = ({ tipoEntidade, entidade }) => {
             )}
           </>
         );
-      case 'Vinculo':
+      case 'Vínculo':
         return (
           <>
             <p className="text-green-dark">
@@ -94,7 +94,7 @@ const CardInfo = ({ tipoEntidade, entidade }) => {
     <div className="flex items-center justify-between p-4 mb-4 bg-white shadow-lg rounded-lg w-full">
       <div className="flex flex-col space-y-2">
         <h3 className="font-bold text-lg text-green-dark">
-          {tipoEntidade} - ID: {entidade.id}
+          {tipoEntidade}
         </h3>
         <div className="pl-4">{renderCardContent()}</div>
       </div>
