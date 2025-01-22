@@ -91,40 +91,7 @@ namespace backend.Controllers
                 return BadRequest(ModelState);
             }
 
-            var userDebug = await _userManager.FindByEmailAsync(model.Email);
-            if (userDebug == null)
-            {
-                Console.WriteLine("Usuário não encontrado.");
-                return Unauthorized(new { Message = "Usuário não existe." });
-            }
-            Console.WriteLine($"Usuário encontrado: {userDebug.UserName}");
-
-            var isPasswordValid = await _signInManager.UserManager.CheckPasswordAsync(userDebug, model.Senha);
-            if (!isPasswordValid)
-            {
-                Console.WriteLine("Senha inválida.");
-                return Unauthorized(new { Message = "Senha inválida." });
-            }
-
             var result = await _signInManager.PasswordSignInAsync(model.Email, model.Senha, model.RememberMe, false);
-
-            // if (result.IsLockedOut)
-            // {
-            //     Console.WriteLine("A conta está bloqueada.");
-            // }
-            // if (result.IsNotAllowed)
-            // {
-            //     Console.WriteLine("A conta não tem permissão para fazer login (verifique se o email foi confirmado).");
-            // }
-            // if (result.RequiresTwoFactor)
-            // {
-            //     Console.WriteLine("A autenticação de dois fatores é necessária.");
-            // }
-            // if (!result.Succeeded)
-            // {
-            //     Console.WriteLine("Falha na autenticação.");
-            // }
-
             if (result.Succeeded)
             {
                 _logger.LogInformation("Usuário logado com sucesso!.");
@@ -251,89 +218,36 @@ namespace backend.Controllers
         [HttpGet("sistema")]
         public async Task<IActionResult> GetVinculos()
         {
-            try
-            {
-                Console.WriteLine("Entrou na getVinculos");
-                // Obtém o ID do usuário ou vínculo do token
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-                if (string.IsNullOrEmpty(userIdClaim))
-                {
-                    return Unauthorized("Token inválido. (Id na claim do token é null)");
-                }
-
-                // Verifica se é um token de acesso ou de vínculo
-                var isAcessoLogin = User.HasClaim("AcessoLogin", "true");
-
-                if (isAcessoLogin)
-                {
-                    // Token de acesso: trabalhar com usuário
-                    Console.WriteLine("Token de acesso detectado.");
-                    var usuarioId = int.Parse(userIdClaim);
-
-                    // Busca os vínculos associados ao usuário
-                    var vinculos = await _context.UsuariosPerfisClinicas
-                        .Where(v => v.UsuarioId == usuarioId)
-                        .Include(v => v.Clinica)
-                        .Include(v => v.Perfil)
-                        .ToListAsync();
-
-                    if (!vinculos.Any())
-                    {
-                        return NotFound("Nenhum vínculo encontrado para este usuário.");
-                    }
-
-                    var vinculosDto = vinculos.Select(v => new UsuarioPerfilClinicaDto
-                    {
-                        Id = v.Id,
-                        NomePerfil = v.Perfil?.Name ?? "!!! Perfil não definido !!!",
-                        NomeClinica = v.Clinica?.NomeClinica,
-                    }).ToList();
-
-                    return Ok(vinculosDto);
-                }
-                else
-                {
-                    // Token de vínculo: trabalhar com vínculo específico
-                    Console.WriteLine("Token de vínculo detectado.");
-                    var vinculoId = int.Parse(userIdClaim);
-
-                    // Busca o vínculo atual
-                    var vinculoAtual = await _context.UsuariosPerfisClinicas
-                        .FirstOrDefaultAsync(v => v.Id == vinculoId);
-
-                    if (vinculoAtual == null)
-                    {
-                        return NotFound("Vínculo atual não encontrado.");
-                    }
-
-                    // Busca os outros vínculos do mesmo usuário
-                    var usuarioId = vinculoAtual.UsuarioId;
-                    var vinculos = await _context.UsuariosPerfisClinicas
-                        .Where(v => v.UsuarioId == usuarioId)
-                        .Include(v => v.Clinica)
-                        .Include(v => v.Perfil)
-                        .ToListAsync();
-
-                    if (!vinculos.Any())
-                    {
-                        return NotFound("Nenhum outro vínculo encontrado para este usuário.");
-                    }
-
-                    var vinculosDto = vinculos.Select(v => new UsuarioPerfilClinicaDto
-                    {
-                        Id = v.Id,
-                        NomePerfil = v.Perfil?.Name ?? "!!! Perfil não definido !!!",
-                        NomeClinica = v.Clinica?.NomeClinica,
-                    }).ToList();
-
-                    return Ok(vinculosDto);
-                }
+            var usuarioId = User.GetClaimValue<int>(ClaimTypes.NameIdentifier);
+            if (usuarioId == 0) {
+                return BadRequest("Claim 'usuarioId' não encontrada ou inválida.");
             }
-            catch (Exception ex)
+
+            var perfis = await _context.UsuariosPerfisClinicas
+                .Where(p => p.UsuarioId == usuarioId)
+                .Include(p => p.Perfil)
+                .Include(p => p.Clinica)
+                .ToListAsync();
+
+            if (!perfis.Any())
             {
-                return StatusCode(500, "Erro ao buscar vínculos: " + ex.Message);
+                _logger.LogWarning("Nenhum perfil encontrado para o usuário com ID: {UsuarioId}", usuarioId);
+                return NotFound("Nenhum perfil encontrado para este usuário.");
             }
+
+            var perfisDTO = perfis.Select(p => new UsuarioPerfilClinicaDto
+            {
+                Id = p.Id,
+                UsuarioId = p.UsuarioId,
+                PerfilId = p.PerfilId,
+                NomePerfil = p.Perfil.Name,
+                ClinicaId = p.ClinicaId,
+                NomeClinica = p.Clinica.NomeFantasia
+            }).ToList();
+
+            _logger.LogInformation("Perfis retornados para o usuário com ID: {UsuarioId}", usuarioId);
+            
+            return Ok(perfisDTO);
         }
 
         [Authorize(Policy = "AcessoLoginOuTodosUsuarios")]
@@ -459,31 +373,22 @@ namespace backend.Controllers
         {
             try
             {
-                foreach (var claim in User.Claims)
-                {
-                    Console.WriteLine($"Claim: {claim.Type} = {claim.Value}");
-                }
-
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
-
-                Console.WriteLine("userIdClaim: " + userIdClaim);
-                Console.WriteLine("roleClaim: " + roleClaim);
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                 if (string.IsNullOrEmpty(userIdClaim))
                 {
-                    Console.WriteLine("Usuário não autenticado.");
                     return Unauthorized(new { status = "invalido" });
                 }
 
+                // Verificando se o token contém a claim "acessoLogin"
                 var acessoLoginClaim = User.FindFirst("acessoLogin");
                 if (acessoLoginClaim != null)
                 {
-                    Console.WriteLine("Usuário logado.");
                     return Ok(new { status = "logado" });
                 }
 
-                Console.WriteLine("Usuário autenticado com role: " + roleClaim);
+                // Caso contrário, o token é considerado um token de vínculo
                 return Ok(new
                 {
                     status = "autenticado",
@@ -492,7 +397,6 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erro ao verificar status: " + ex.Message);
                 return StatusCode(500, new
                 {
                     status = "erro",

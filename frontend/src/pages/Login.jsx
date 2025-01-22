@@ -11,7 +11,7 @@ const Login = () => {
   };
 
   return (
-    <div> 
+    <div className='login-content'> 
       <TemplateLogin handleLogin={handleLogin} />
     </div>
   );

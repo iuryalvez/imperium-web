@@ -9,15 +9,29 @@
   --verde-escuro: #064420;
 }
 
+.clinica-content {
+  margin-top: 4rem;
+  margin-right: 4rem;
+  text-align: left;
+}
+
+.login-content {
+  margin-left: 4rem;
+  margin-right: 4rem;
+  text-align: left;
+}
+
+.cadastro-content {
+  margin-top: 3rem;
+  margin-left: 4rem;
+  margin-right: 4rem;
+}
+
 /*
 .App {
   background-color: var(--verde-fraco);
 }
 
-.main-content {
-  margin-left: 18rem; Espaço para a sidebar
-  text-align: left;
-}
 
 body {
   font-family: "Work Sans"; 

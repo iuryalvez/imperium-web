@@ -9,7 +9,6 @@ module.exports = {
         green: {
           DEFAULT: '#21BA45', // Verde de realce
           //DEFAULT: '#4CAF50', // Verde secundario
-          weak: '#D9FFEC',
           light: '#278F54',  // Verde claro
           dark: '#064420',   // Verde escuro
         },

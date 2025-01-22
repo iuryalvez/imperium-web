@@ -3,10 +3,6 @@ import InputSemBordaComLabel from '../molecules/InputSemBordaComLabel';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import BotaoPrimario from '../atoms/BotaoPrimario';
 
-import logoUfg from "../../assets/UFG_logo.png";
-import logoEvz from "../../assets/EVZ_UFG.svg";
-import logoInf from "../../assets/INF_UFG.svg";
-
 const FormLogin = ({ handleLogin }) => {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -17,7 +13,7 @@ const FormLogin = ({ handleLogin }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center bg-white rounded-3xl shadow-lg py-12 px-12 w-1/3">
+    <div className="flex flex-col items-center justify-center bg-white rounded-3xl shadow-lg py-12 px-12 w-full">
       <h2 className="text-green-dark text-3xl font-bold mb-4">LOGIN</h2>
       <form className="w-full" onSubmit={onSubmit}>
         <InputSemBordaComLabel
@@ -53,11 +49,6 @@ const FormLogin = ({ handleLogin }) => {
       <div className="text-center mt-4">
         <a href="/recuperar-senha" className="text-green-dark hover:text-green-light">Esqueceu sua senha?</a>
       </div>
-      <div className="flex gap-4 mt-4 pb-10">
-          <img src={logoUfg} alt="Logo UFG" className="h-16" />
-          <img src={logoEvz} alt="Logo EVZ" className="h-16" />
-          <img src={logoInf} alt="Logo INF" className="h-16" />
-        </div>
     </div>
   );
 };

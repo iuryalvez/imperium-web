@@ -68,7 +68,7 @@ export const autenticacao = {
     verificarAutenticacao: async () => {
         try {
             const response = await api.get(endpoints.autenticacao.checarStatus);
-            console.log("response.data: ", response.data)
+            console.log(response.data)
             return response.data;
             // response.data tem o seguinte formato:
             // {status = logado}, para usuários que só têm token de login

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
+import '../App.css';
+import Navsidebar from '../components/organisms/Navsidebar';
 import ListaCards from '../components/organisms/ListaCards';
 import FormUsuario from '../components/organisms/FormUsuarios';
 
 import { Modal, Button } from 'antd'; // Usando Ant Design
-import Sidebar from '../components/molecules/Sidebar';
 
 function Usuarios() {
   const [usuarios, setUsuarios] = useState([]);
@@ -42,7 +43,8 @@ function Usuarios() {
 
   return (
     <div>
-      <Sidebar />
+      <Navsidebar />
+      <main className='main-content'>
         <Button type="primary" onClick={() => handleOpenModal()}>
           Criar Novo Usuário
         </Button>
@@ -67,6 +69,7 @@ function Usuarios() {
             closeModal={handleCloseModal}
           />
         </Modal>
+      </main>
     </div>
   );
 }

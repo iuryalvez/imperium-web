@@ -7,7 +7,7 @@ const Header = () => {
   const { isLogged, isAuthenticated, logout } = useAuth(); // isAuthenticated indica se o usuário está logado
 
   return (
-    <header className="fixed top-0 left-0 w-full flex justify-between items-center px-8 py-2 border-b border-gray-300 bg-gray-light shadow-md z-50">
+    <header className="fixed top-0 left-0 w-full flex justify-between items-center px-8 py-2 border-b border-gray-300 bg-[var(--cinza-background)] shadow-md z-50">
         <div className="flex items-center">
             <img src={logo} alt="Logo" className="h-12" />
         </div>
@@ -16,16 +16,16 @@ const Header = () => {
                 {isAuthenticated && isLogged ? (
                     <>
                         <li>
-                            <Link to="/clinica/usuarios" className="text-green-dark font-bold hover:text-green-light">Início</Link>
+                            <Link to="/home" className="text-green-dark font-bold hover:text-green-light">Início</Link>
                         </li>
                         <li className="text-green-dark">|</li>
                         <li>
                             <Link to="/perfil" className="text-green-dark font-bold hover:text-green-light">Perfil</Link>
                         </li>
-                        <li className="text-green-dark">|</li>
+                        {/* <li className="text-green-dark">|</li>
                         <li>
                             <Link to="/sistema/vinculos" className="text-green-dark font-bold hover:text-green-light">Trocar vínculo</Link>
-                        </li>
+                        </li> */}
                         <li className="text-green-dark">|</li>
                         <li>
                             <button onClick={logout} className="text-green-dark font-bold hover:text-green-light">

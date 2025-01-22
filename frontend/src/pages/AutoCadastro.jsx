@@ -24,7 +24,11 @@ const AutoCadastro = () => {
     }
   };
 
-  return <TemplateAutoCadastro handleAutoCadastro={handleAutoCadastro} />;
+  return (
+    <div className='cadastro-content'>
+      <TemplateAutoCadastro handleAutoCadastro={handleAutoCadastro} />;
+    </div>
+  );
 };
 
 export default AutoCadastro;

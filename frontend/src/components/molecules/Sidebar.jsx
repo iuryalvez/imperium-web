@@ -10,7 +10,7 @@ import RacoesIcon from '../../assets/animal/dog-food-pet-svgrepo-com.png';
 
 function Sidebar() {
   return (
-    <aside className="bg-green-600 h-screen -mt-8 w-64 text-white flex flex-col">
+    <aside className="bg-green-600 h-screen w-64 text-white flex flex-col">
       {/* Cabeçalho */}
       <div className="p-4 border-b border-green-700">
         <h2 className="text-xl font-bold">Marcos Ceron</h2>

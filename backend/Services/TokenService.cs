@@ -26,6 +26,7 @@ namespace backend.Services
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]);
+                var now = DateTime.UtcNow;
 
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
@@ -35,8 +36,8 @@ namespace backend.Services
                         new Claim("UsuarioIP", usuarioIp),
                         new Claim("UsuarioAgent", usuarioAgent)
                     }),
-                    Expires = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpiresInMinutes"])),
-
+                    Expires = now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpiresInMinutes"])),
+                    NotBefore = now,
                     Issuer = _configuration["Jwt:Issuer"],
                     Audience = _configuration["Jwt:Audience"],
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -59,6 +60,7 @@ namespace backend.Services
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]);
+                var now = DateTime.UtcNow;
 
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
@@ -69,8 +71,8 @@ namespace backend.Services
                         new Claim("UsuarioAgent", usuarioAgent),
                         new Claim("AcessoLogin", "true")
                     }),
-                    Expires = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpiresInMinutes"])),
-
+                    Expires = now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpiresInMinutes"])),
+                    NotBefore = now,
                     Issuer = _configuration["Jwt:Issuer"],
                     Audience = _configuration["Jwt:Audience"],
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

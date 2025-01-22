@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace backend.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class initialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -459,47 +459,11 @@ namespace backend.Migrations
                     { 1, null, "Administrador do sistema", "ADMIN", null, 1 },
                     { 2, null, "Gestor de clínica", "GESTOR", null, 2 },
                     { 3, null, "Veterinário de clínica", "VETERINARIO", null, 3 },
-                    { 4, null, "Secretário de clínica", "SECRETARIO", null, 4 },
-                    { 5, null, "Técnico de clínica", "TECNICO", null, 5 },
+                    { 4, null, "Secretario de clínica", "SECRETARIO", null, 4 },
+                    { 5, null, "Tecnico de clinica", "TECNICO", null, 5 },
                     { 6, null, "Usuário apenas visualizador", "VISUALIZADOR", null, 6 },
                     { 98, null, "Usuário pendente de ativação", "PENDENTE", null, 98 },
                     { 99, null, "Usuário inativo", "INATIVO", null, 99 }
-                });
-
-            migrationBuilder.InsertData(
-                table: "AspNetUsers",
-                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "DataCad", "DataUltimoAcesso", "Email", "EmailConfirmed", "Formacao", "LockoutEnabled", "LockoutEnd", "Nome", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[,]
-                {
-                    { 1, 0, "32839425-6db5-4771-ba47-9191424a9ece", new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(1955), new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(1970), "admin@gmail.com", false, "Administrador do sistema", false, null, "Administrador", "ADMIN@GMAIL.COM", "ADMIN@GMAIL.COM", "AQAAAAIAAYagAAAAEP2CoFVKaqbk1KMPUE4cRQgg2pOoYTwE8Ne/kPU2eE7mJ9IqduxguvQefkQ54ZrszQ==", null, false, "576ae5f5-4dcc-4543-9749-2cda6d01e939", false, "admin@gmail.com" },
-                    { 2, 0, "1d970fee-09d4-4349-82d1-1e9c80641c5c", new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(2013), new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(2023), "gestor@gmail.com", false, "Gestão Clínica", false, null, "Gestor da Clínica", "GESTOR@GMAIL.COM", "GESTOR@GMAIL.COM", "AQAAAAIAAYagAAAAEIGG0e4Qnrb/4k6gb7eZTUC0nuWKtawVNIFgeTg5harA6CJdZHzJWEdZ7etrgLZ0FA==", null, false, "1bb225d3-647f-4e21-8dd9-84d0a98c0a2a", false, "gestor@gmail.com" },
-                    { 3, 0, "bd37b6f2-af08-4a3d-b551-50a9903281ff", new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(2066), new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(2076), "veterinario@gmail.com", false, "Medicina Veterinária", false, null, "Veterinário", "VETERINARIO@GMAIL.COM", "VETERINARIO@GMAIL.COM", "AQAAAAIAAYagAAAAEA4I3GVermS1SKTTJSXMP1i02THRiWudJsHuuiTpwdlX5kz+ZKFkSvyNqwgCNmm5qw==", null, false, "b923f838-c162-478b-a5e1-a78612a640d8", false, "veterinario@gmail.com" },
-                    { 4, 0, "a5373f68-3025-4d37-84c0-77e62ae82b69", new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(2128), new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(2143), "secretario@gmail.com", false, "Secretariado", false, null, "Secretário", "SECRETARIO@GMAIL.COM", "SECRETARIO@GMAIL.COM", "AQAAAAIAAYagAAAAEO77Pei/152j8keN+/GOwgTnnWYftFBQpPR1YpLiFyS98WFZDo67glfLwQFc8Kivvw==", null, false, "c31a9b8c-1183-4bff-bc3e-a87c995151bd", false, "secretario@gmail.com" },
-                    { 5, 0, "4d2dbdd6-fdd8-47cd-a822-cf168ef052db", new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(2185), new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(2195), "tecnico@gmail.com", false, "Técnico Veterinário", false, null, "Técnico", "TECNICO@GMAIL.COM", "TECNICO@GMAIL.COM", "AQAAAAIAAYagAAAAEIkeecukotglkU3R27I/eRSIzuf2wY79RrrP7UsRphy36ndAHOoo7oUagsvD81+wAQ==", null, false, "9c99e3ea-437f-4539-b8ff-7c06384d7a20", false, "tecnico@gmail.com" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Clinicas",
-                columns: new[] { "Id", "Cep", "Cnpj", "Email", "EndCidade", "EndEstado", "EndNumero", "Endereco", "NomeClinica", "NomeFantasia", "Telefone1", "Whatsapp" },
-                values: new object[,]
-                {
-                    { 1, "", "00000000000100", "", "", "", 0, "", "Clinica Animais 1", "Clinica Teste 1", "", "" },
-                    { 2, "", "00000000000200", "", "", "", 0, "", "Clinica Animais 2", "Clinica Teste 2", "", "" },
-                    { 3, "", "00000000000300", "", "", "", 0, "", "Clinica Animais 3", "Clinica Teste 3", "", "" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "UsuariosPerfisClinicas",
-                columns: new[] { "ClinicaId", "PerfilId", "UsuarioId", "Id" },
-                values: new object[,]
-                {
-                    { 1, 1, 1, 1 },
-                    { 1, 2, 2, 2 },
-                    { 2, 2, 2, 3 },
-                    { 3, 2, 2, 4 },
-                    { 2, 3, 3, 5 },
-                    { 2, 4, 4, 6 },
-                    { 3, 5, 5, 7 }
                 });
 
             migrationBuilder.CreateIndex(

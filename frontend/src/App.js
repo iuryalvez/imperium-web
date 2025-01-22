@@ -4,8 +4,9 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './services/AuthContext';
 import { NotificationProvider } from './services/NotificationContext';
 
-import AuthenticatedRoute from './components/servicesComponents/AuthenticatedRoute';
+
 import LoggedRoute from './components/servicesComponents/LoggedRoute';
+import AuthenticatedRoute from './components/servicesComponents/AuthenticatedRoute';
 
 import Header from './components/organisms/Header';
 
@@ -39,7 +40,7 @@ const App = () => {
               {/* Rotas protegidas dentro da PrivateRoute*/}
               <Route element={<AuthenticatedRoute />}>
                 <Route path='/clinica/home' element={<Home />} />
-                <Route path='/clinica/editar' element={<Clinica />} />
+                <Route path='/clinica' element={<Clinica />} />
                 <Route path='/clinica/usuarios' element={<Usuarios />} />
               </Route>
             </Routes>

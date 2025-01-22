@@ -12,8 +12,8 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241223184419_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250107224933_Seeder")]
+    partial class Seeder
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -269,53 +269,6 @@ namespace backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Clinicas");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Cep = "",
-                            Cnpj = "00000000000100",
-                            Email = "",
-                            EndCidade = "",
-                            EndEstado = "",
-                            EndNumero = 0,
-                            Endereco = "",
-                            NomeClinica = "Clinica Animais 1",
-                            NomeFantasia = "Clinica Teste 1",
-                            Telefone1 = "",
-                            Whatsapp = ""
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Cep = "",
-                            Cnpj = "00000000000200",
-                            Email = "",
-                            EndCidade = "",
-                            EndEstado = "",
-                            EndNumero = 0,
-                            Endereco = "",
-                            NomeClinica = "Clinica Animais 2",
-                            NomeFantasia = "Clinica Teste 2",
-                            Telefone1 = "",
-                            Whatsapp = ""
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Cep = "",
-                            Cnpj = "00000000000300",
-                            Email = "",
-                            EndCidade = "",
-                            EndEstado = "",
-                            EndNumero = 0,
-                            Endereco = "",
-                            NomeClinica = "Clinica Animais 3",
-                            NomeFantasia = "Clinica Teste 3",
-                            Telefone1 = "",
-                            Whatsapp = ""
-                        });
                 });
 
             modelBuilder.Entity("backend.Models.Consulta", b =>
@@ -451,14 +404,14 @@ namespace backend.Migrations
                         new
                         {
                             Id = 4,
-                            Descricao = "Secretário de clínica",
+                            Descricao = "Secretario de clínica",
                             Name = "SECRETARIO",
                             Tipo = 4
                         },
                         new
                         {
                             Id = 5,
-                            Descricao = "Técnico de clínica",
+                            Descricao = "Tecnico de clinica",
                             Name = "TECNICO",
                             Tipo = 5
                         },
@@ -730,108 +683,6 @@ namespace backend.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "32839425-6db5-4771-ba47-9191424a9ece",
-                            DataCad = new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(1955),
-                            DataUltimoAcesso = new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(1970),
-                            Email = "admin@gmail.com",
-                            EmailConfirmed = false,
-                            Formacao = "Administrador do sistema",
-                            LockoutEnabled = false,
-                            Nome = "Administrador",
-                            NormalizedEmail = "ADMIN@GMAIL.COM",
-                            NormalizedUserName = "ADMIN@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEP2CoFVKaqbk1KMPUE4cRQgg2pOoYTwE8Ne/kPU2eE7mJ9IqduxguvQefkQ54ZrszQ==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "576ae5f5-4dcc-4543-9749-2cda6d01e939",
-                            TwoFactorEnabled = false,
-                            UserName = "admin@gmail.com"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "1d970fee-09d4-4349-82d1-1e9c80641c5c",
-                            DataCad = new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(2013),
-                            DataUltimoAcesso = new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(2023),
-                            Email = "gestor@gmail.com",
-                            EmailConfirmed = false,
-                            Formacao = "Gestão Clínica",
-                            LockoutEnabled = false,
-                            Nome = "Gestor da Clínica",
-                            NormalizedEmail = "GESTOR@GMAIL.COM",
-                            NormalizedUserName = "GESTOR@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEIGG0e4Qnrb/4k6gb7eZTUC0nuWKtawVNIFgeTg5harA6CJdZHzJWEdZ7etrgLZ0FA==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "1bb225d3-647f-4e21-8dd9-84d0a98c0a2a",
-                            TwoFactorEnabled = false,
-                            UserName = "gestor@gmail.com"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "bd37b6f2-af08-4a3d-b551-50a9903281ff",
-                            DataCad = new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(2066),
-                            DataUltimoAcesso = new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(2076),
-                            Email = "veterinario@gmail.com",
-                            EmailConfirmed = false,
-                            Formacao = "Medicina Veterinária",
-                            LockoutEnabled = false,
-                            Nome = "Veterinário",
-                            NormalizedEmail = "VETERINARIO@GMAIL.COM",
-                            NormalizedUserName = "VETERINARIO@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEA4I3GVermS1SKTTJSXMP1i02THRiWudJsHuuiTpwdlX5kz+ZKFkSvyNqwgCNmm5qw==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "b923f838-c162-478b-a5e1-a78612a640d8",
-                            TwoFactorEnabled = false,
-                            UserName = "veterinario@gmail.com"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "a5373f68-3025-4d37-84c0-77e62ae82b69",
-                            DataCad = new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(2128),
-                            DataUltimoAcesso = new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(2143),
-                            Email = "secretario@gmail.com",
-                            EmailConfirmed = false,
-                            Formacao = "Secretariado",
-                            LockoutEnabled = false,
-                            Nome = "Secretário",
-                            NormalizedEmail = "SECRETARIO@GMAIL.COM",
-                            NormalizedUserName = "SECRETARIO@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEO77Pei/152j8keN+/GOwgTnnWYftFBQpPR1YpLiFyS98WFZDo67glfLwQFc8Kivvw==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "c31a9b8c-1183-4bff-bc3e-a87c995151bd",
-                            TwoFactorEnabled = false,
-                            UserName = "secretario@gmail.com"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "4d2dbdd6-fdd8-47cd-a822-cf168ef052db",
-                            DataCad = new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(2185),
-                            DataUltimoAcesso = new DateTime(2024, 12, 23, 18, 44, 17, 850, DateTimeKind.Utc).AddTicks(2195),
-                            Email = "tecnico@gmail.com",
-                            EmailConfirmed = false,
-                            Formacao = "Técnico Veterinário",
-                            LockoutEnabled = false,
-                            Nome = "Técnico",
-                            NormalizedEmail = "TECNICO@GMAIL.COM",
-                            NormalizedUserName = "TECNICO@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEIkeecukotglkU3R27I/eRSIzuf2wY79RrrP7UsRphy36ndAHOoo7oUagsvD81+wAQ==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "9c99e3ea-437f-4539-b8ff-7c06384d7a20",
-                            TwoFactorEnabled = false,
-                            UserName = "tecnico@gmail.com"
-                        });
                 });
 
             modelBuilder.Entity("backend.Models.UsuarioPerfilClinica", b =>
@@ -855,57 +706,6 @@ namespace backend.Migrations
                     b.HasIndex("PerfilId");
 
                     b.ToTable("UsuariosPerfisClinicas");
-
-                    b.HasData(
-                        new
-                        {
-                            UsuarioId = 1,
-                            PerfilId = 1,
-                            ClinicaId = 1,
-                            Id = 1
-                        },
-                        new
-                        {
-                            UsuarioId = 2,
-                            PerfilId = 2,
-                            ClinicaId = 1,
-                            Id = 2
-                        },
-                        new
-                        {
-                            UsuarioId = 2,
-                            PerfilId = 2,
-                            ClinicaId = 2,
-                            Id = 3
-                        },
-                        new
-                        {
-                            UsuarioId = 2,
-                            PerfilId = 2,
-                            ClinicaId = 3,
-                            Id = 4
-                        },
-                        new
-                        {
-                            UsuarioId = 3,
-                            PerfilId = 3,
-                            ClinicaId = 2,
-                            Id = 5
-                        },
-                        new
-                        {
-                            UsuarioId = 4,
-                            PerfilId = 4,
-                            ClinicaId = 2,
-                            Id = 6
-                        },
-                        new
-                        {
-                            UsuarioId = 5,
-                            PerfilId = 5,
-                            ClinicaId = 3,
-                            Id = 7
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
