@@ -1,5 +1,16 @@
 # Imperium  Web
 
+## Instalação com o docker-compose
+
+ Passos:
+- Instale o docker-compose (sudo apt install docker-compose)
+- Baixe o projeto Imperium Web do Gitlab (git clone ...URL...)
+- Entre na pasta do Imperium Web (cd imperium-web)
+- Se for a primeira instalação, rode: ./setup.sh
+- Crie o container com o Banco de Dados (sudo docker-compose -f docker-compose.db.yml up)
+- Crie os containers da aplicação backend e frontend (sudo docker-compose up)
+
+
 ## Instalação para rodar a aplicação no Ubuntu 24.04.1 LTS x86_64
 
 O Runtime do ASP.NET Core permite executar aplicativos feitos com o .NET que não forneceram o runtime. O comando a seguir instala o runtime do ASP.NET Core, que é o runtime mais compatível com o .NET. Em seu terminal, execute os seguintes comandos:

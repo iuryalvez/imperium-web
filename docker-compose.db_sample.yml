@@ -1,0 +1,52 @@
+services:
+  # Serviço para o banco de dados PostgreSQL
+  db:
+    image: postgres:15.7
+    container_name: software_rural_db
+    environment:
+      #POSTGRES_USER: ${POSTGRES_USER}
+      #POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      #POSTGRES_DB: ${POSTGRES_DB}
+      #USER_BRIS: ${USER_BRIS}
+      #PASSWORD_BRIS: ${PASSWORD_BRIS}
+      #USER_IMPERIUM: ${USER_IMPERIUM}
+      #PASSWORD_IMPERIUM: ${PASSWORD_IMPERIUM}
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: imperium_db
+      USER_BRIS: bris
+      PASSWORD_BRIS: bris123!!
+      USER_IMPERIUM: admin
+      PASSWORD_IMPERIUM: admin
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      #- ./init.sh:/docker-entrypoint-initdb.d/init.sh
+      #- ${DATA_VOLUME_PATH}:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - software-rural-net
+      
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com  # Email de login do pgAdmin
+      PGADMIN_DEFAULT_PASSWORD: admin123!  # Senha de login do pgAdmin
+    ports:
+      - "5050:80"  # Mapeia a porta 5050 do host para a porta 80 do container (pgAdmin)
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin  # Persistência de dados
+    networks:
+      - software-rural-net
+    depends_on:
+      - db  # Espera o banco de dados estar disponível antes de iniciar
+
+volumes:
+  pgdata:  # Volume para o banco de dados PostgreSQL
+  pgadmin_data:  # Volume para os dados do pgAdmin
+
+networks:
+  software-rural-net:
+    driver: bridge
+    name: software-rural-net
