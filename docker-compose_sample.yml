@@ -1,0 +1,41 @@
+services:
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5001:80" 
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production  # ambiente para a api
+      - ASPNETCORE_URLS=http://+:80
+    networks:
+      - software-rural-net
+
+  # Serviço para o Frontend React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "444:443"
+    volumes:
+      - ./ssl:/etc/nginx/ssl:ro  # :ro significa read-only por segurança
+    environment:
+      - NODE_ENV=production # ambiente para o frontend
+    networks:
+      - software-rural-net
+
+# Serviço de migrations
+  migrations:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.migrations  # Especifica o Dockerfile para migrations
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production # ambiente para as migrations
+    networks:
+      - software-rural-net
+
+networks:
+  software-rural-net:
+    external: true  # Usa a rede criada pelo arquivo docker-compose.db.yml (que monta o banco de dados)
