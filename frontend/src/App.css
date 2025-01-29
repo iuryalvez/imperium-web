@@ -27,10 +27,23 @@
   margin-right: 4rem;
 }
 
+/* Estilo para o conteúdo principal */
 .main-content {
-  margin-top: 4rem;
-  margin-left: 4rem;
-  text-align: left;
+  display: flex;
+  text-align: left; /* Alinha o texto à esquerda */
+  max-height: calc(100vh - 4rem); /* Limita a altura do conteúdo para não ultrapassar a tela */
+  overflow: hidden;
+}
+
+/* Estilo para o conteúdo principal */
+.usuarios-content {
+  display: flex;
+  flex-direction: column;
+  margin-top: 2rem;
+  padding-left: 4rem;
+  padding-right: 4rem;
+  text-align: left; /* Alinha o texto à esquerda */
+  width: 100%;
 }
 
 /*

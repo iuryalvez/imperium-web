@@ -13,14 +13,14 @@ namespace backend.Services
     public class AuthService : IAuthService
     {
         private readonly IConfiguration _configuration;
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<AuthService> _logger;
 
-        public AuthService(IConfiguration configuration, AppDbContext context, IHttpContextAccessor httpContextAccessor, ILogger<AuthService> logger)
+        public AuthService(IConfiguration configuration, IDbContextFactory<AppDbContext> contextFactory, IHttpContextAccessor httpContextAccessor, ILogger<AuthService> logger)
         {
             _configuration = configuration;
-            _context = context;
+            _contextFactory = contextFactory;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
         }
@@ -29,6 +29,8 @@ namespace backend.Services
         {
             try
             {
+                using var _context = _contextFactory.CreateDbContext();
+
                 // Obter o ID do vínculo do usuário com a clínica a partir do token JWT
                 var tokenUpcId = int.Parse(_httpContextAccessor.HttpContext?.User.FindFirst("UsuarioPerfilClinicaId")?.Value);
 
@@ -57,6 +59,7 @@ namespace backend.Services
         {
             try
             {
+                using var _context = _contextFactory.CreateDbContext();
                 // Extrai informações do token
                 var handler = new JwtSecurityTokenHandler();
                 var jwtToken = handler.ReadToken(token) as JwtSecurityToken;
@@ -179,6 +182,7 @@ namespace backend.Services
             if (string.IsNullOrEmpty(acessoLogin)) {
                 try
                 {
+                    using var _context = _contextFactory.CreateDbContext();
                     var upc = await _context.UsuariosPerfisClinicas
                     .Include(upc => upc.Perfil)
                     .Include(upc => upc.Clinica)

@@ -6,8 +6,7 @@ using backend.Services;
 using backend.Models;
 using backend.Data;
 using backend.Dtos.Animal;
-using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using backend.Interfaces;
 
 namespace backend.Controllers
 {
@@ -16,9 +15,9 @@ namespace backend.Controllers
     public class AnimalController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
 
-        public AnimalController(AppDbContext context, AuthService authService)
+        public AnimalController(AppDbContext context, IAuthService authService)
         {
             _context = context;
             _authService = authService;

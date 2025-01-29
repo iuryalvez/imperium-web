@@ -7,6 +7,7 @@ using backend.Services;
 using backend.Models;
 using backend.Data;
 using backend.Dtos.Usuario;
+using backend.Interfaces;
 
 namespace backend.Controllers
 {
@@ -15,10 +16,10 @@ namespace backend.Controllers
     public class UsuarioController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
         private readonly UserManager<Usuario> _userManager;
 
-        public UsuarioController(AppDbContext context, AuthService authService, UserManager<Usuario> userManager)
+        public UsuarioController(AppDbContext context, IAuthService authService, UserManager<Usuario> userManager)
         {
             _context = context;
             _authService = authService;
@@ -94,33 +95,53 @@ namespace backend.Controllers
         }
 
 
-        // Obtém usuários por clinica
+        // Obtém usuários por clínica
         [HttpGet("usuarios")]
-        [Authorize(Policy = "GerenciaClinica")]
+        // [Authorize(Policy = "GerenciaClinica")]
         public async Task<IActionResult> GetUsuariosByClinicaId()
         {
-            var clinicaId = User.GetClaimValue<int>("clinicaId");
-            if (clinicaId == 0) {
-                return BadRequest("Acesso não permitido a esta clínica.");
-            }
-
-            var usuarios = await _context.UsuariosPerfisClinicas
-                .Where(upc => upc.ClinicaId == clinicaId)
-                .Select(upc => new GetUsuariosDto
-                {
-                    Id = upc.Usuario.Id,
-                    UserName = upc.Usuario.UserName,
-                    Email = upc.Usuario.Email,
-                    Nome = upc.Usuario.Nome
-                })
-                .ToListAsync();
-
-            if (!usuarios.Any())
+            try
             {
-                return NotFound("Nenhum usuário encontrado na clínica.");
-            }
+                // Obtém o ID da clínica a partir do token do usuário
+                var clinicaId = User.GetClaimValue<int>("clinicaId");
+                if (clinicaId <= 0)
+                {
+                    return BadRequest("Acesso não permitido ou clínica inválida.");
+                }
 
-            return Ok(usuarios);
+                // Realiza a consulta com as devidas inclusões e mapeia para o DTO
+                var usuarios = await _context.UsuariosPerfisClinicas
+                    .AsNoTracking() // Melhora o desempenho em consultas somente leitura
+                    .Include(upc => upc.Usuario) // Inclui os dados do usuário
+                    .Where(upc => upc.ClinicaId == clinicaId)
+                    .Select(upc => new GetUsuariosDto
+                    {
+                        Id = upc.Usuario.Id,
+                        UserName = upc.Usuario.UserName,
+                        Email = upc.Usuario.Email,
+                        Nome = upc.Usuario.Nome ?? string.Empty, // Garante que Nome nunca seja nulo
+                        Perfil = upc.Perfil.Name ?? string.Empty,
+                        DataCadastro = upc.Usuario.DataCad,
+                        DataUltimoAcesso = upc.Usuario.DataUltimoAcesso,
+                        Habilitado = true
+                    })
+                    .ToListAsync();
+
+                // Verifica se a consulta retornou resultados
+                if (!usuarios.Any())
+                {
+                    return NotFound("Nenhum usuário encontrado na clínica.");
+                }
+                
+                await Task.Delay(1000); // Só pra testar se é uma questão de tempo/concorrência
+                // Retorna a lista de usuários
+                return Ok(usuarios);
+            }
+            catch (Exception ex)
+            {
+                // Retorna um erro genérico com a mensagem da exceção para diagnóstico
+                return StatusCode(500, $"Erro ao buscar usuários da clínica: {ex.Message}");
+            }
         }
 
         [HttpGet("usuarios/{usuarioId}")]

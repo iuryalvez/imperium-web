@@ -6,14 +6,15 @@ using backend.Services;
 using backend.Models;
 using backend.Data;
 using backend.Dtos.Racao;
+using backend.Interfaces;
 
 namespace backend.Controllers {
     [ApiController]
     [Route("api/clinica")]
     public class RacaoController : ControllerBase {
         private readonly AppDbContext _context;
-        private readonly AuthService _authService;
-        public RacaoController(AppDbContext context, AuthService authService) {
+        private readonly IAuthService _authService;
+        public RacaoController(AppDbContext context, IAuthService authService) {
             _context = context;
             _authService = authService;
         }

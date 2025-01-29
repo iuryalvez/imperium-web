@@ -214,8 +214,8 @@ namespace backend.Controllers
             return Ok("E-mail enviado com sucesso");
         }
 
-        [Authorize(Policy = "AcessoLoginOuTodosUsuarios")]
         [HttpGet("sistema")]
+        [Authorize(Policy = "AcessoLoginOuTodosUsuarios")]
         public async Task<IActionResult> GetVinculos()
         {
             var usuarioId = User.GetClaimValue<int>(ClaimTypes.NameIdentifier);

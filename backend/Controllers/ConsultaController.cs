@@ -7,6 +7,7 @@ using backend.Models;
 using backend.Data;
 using backend.Dtos.Consulta;
 using backend.Dtos.Relatorio;
+using backend.Interfaces;
 
 namespace backend.Controllers
 {
@@ -15,9 +16,9 @@ namespace backend.Controllers
     public class ConsultaController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
 
-        public ConsultaController(AppDbContext context, AuthService authService)
+        public ConsultaController(AppDbContext context, IAuthService authService)
         {
             _context = context;
             _authService = authService;

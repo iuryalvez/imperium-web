@@ -6,6 +6,7 @@ using backend.Services;
 using backend.Models;
 using backend.Data;
 using backend.Dtos.Tutor;
+using backend.Interfaces;
 
 namespace backend.Controllers
 {
@@ -14,9 +15,9 @@ namespace backend.Controllers
     public class TutorController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
 
-        public TutorController(AppDbContext context, AuthService authService)
+        public TutorController(AppDbContext context, IAuthService authService)
         {
             _context = context;
             _authService = authService;

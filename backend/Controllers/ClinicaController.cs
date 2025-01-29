@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using backend.Services;
 using backend.Data;
 using backend.Dtos.Clinica;
+using backend.Interfaces;
 
 namespace backend.Controllers
 {
@@ -13,9 +14,9 @@ namespace backend.Controllers
     public class ClinicaController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
 
-        public ClinicaController(AppDbContext context, AuthService authService)
+        public ClinicaController(AppDbContext context, IAuthService authService)
         {
             _context = context;
             _authService = authService;

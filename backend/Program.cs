@@ -26,10 +26,10 @@ internal class Program
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         
-        builder.Services.AddTransient<IEmailService, EmailService>();
-        builder.Services.AddTransient<ITokenService, TokenService>();
-        builder.Services.AddTransient<ICookieService, CookieService>();
-        builder.Services.AddTransient<IAuthService, AuthService>();
+        builder.Services.AddScoped<IEmailService, EmailService>();
+        builder.Services.AddScoped<ITokenService, TokenService>();
+        builder.Services.AddScoped<ICookieService, CookieService>();
+        builder.Services.AddScoped<IAuthService, AuthService>();
 
         // configuração do CORS
         builder.Services.AddCors(options =>
@@ -50,8 +50,12 @@ internal class Program
         });
 
         // configura o DbContext para usar o Npgsql (PostgreSQL) - pgAdmin
-        builder.Services.AddDbContext<AppDbContext>(opt =>
-            opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+        // builder.Services.AddDbContext<AppDbContext>(opt =>
+        //     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+        // Configura o DbContext para PostgreSQL
+        builder.Services.AddDbContextFactory<AppDbContext>(options =>
+            options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
         builder.Services.AddIdentity<Usuario, Perfil>(options =>
         {
@@ -104,7 +108,7 @@ internal class Program
                         Console.WriteLine("Token encontrado no cookie.");
                     }
                     return Task.CompletedTask;
-                },
+                },  
 
                 // evento chamado após o token ser validado com sucesso
                 OnTokenValidated = async context =>

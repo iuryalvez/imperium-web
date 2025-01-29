@@ -1,77 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import TemplateListaUsuarios from '../components/template/TemplateListaUsuarios';
+import { usuario } from '../api/usuariosAPI';
 
-import '../App.css';
-import Navsidebar from '../components/organisms/Navsidebar';
-import ListaCards from '../components/organisms/ListaCards';
-import FormUsuario from '../components/organisms/FormUsuarios';
-
-import { Modal, Button } from 'antd'; // Usando Ant Design
-
-function Usuarios() {
+const ListaUsuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
-
-  const fetchUsuarios = async () => {
-    try {
-      const response = await axios.get('http://localhost:5050/api/clinica/usuarios', {
-        withCredentials: true,
-      });
-      setUsuarios(response.data);
-    } catch (error) {
-      console.error('Erro ao buscar usuários:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
+    const fetchUsuarios = async () => {
+      try {
+        const response = await usuario.listar();
+        console.log('Usuários na Page: ', response);
+        setUsuarios(response);
+      } catch (err) {
+        setError('Erro ao carregar os usuários.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchUsuarios();
   }, []);
 
-  const handleOpenModal = (usuario = null) => {
-    setUsuarioSelecionado(usuario);
-    setIsModalOpen(true);
-  };
+  if (loading) {
+    return <p>Carregando usuários...</p>;
+  }
 
-  const handleCloseModal = () => {
-    setUsuarioSelecionado(null);
-    setIsModalOpen(false);
-  };
+  if (error) {
+    return <p className="text-red-500">{error}</p>;
+  }
 
-  return (
-    <div>
-      <Navsidebar />
-      <main className='main-content'>
-        <Button type="primary" onClick={() => handleOpenModal()}>
-          Criar Novo Usuário
-        </Button>
-        {isLoading ? (
-          <p>Carregando...</p>
-        ) : (
-          <ListaCards
-            tipoEntidade="usuario"
-            lista={usuarios}
-            onEdit={handleOpenModal} // Passa a função para editar
-          />
-        )}
-        <Modal
-          title={usuarioSelecionado ? 'Editar Usuário' : 'Criar Usuário'}
-          open={isModalOpen}
-          onCancel={handleCloseModal}
-          footer={null}
-        >
-          <FormUsuario
-            usuario={usuarioSelecionado}
-            onSubmitSuccess={fetchUsuarios}
-            closeModal={handleCloseModal}
-          />
-        </Modal>
-      </main>
-    </div>
-  );
-}
+  return <TemplateListaUsuarios usuarios={usuarios} />;
+};
 
-export default Usuarios;
+export default ListaUsuarios;
