@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
 
-import CardAnimal from "../components/CardAnimal";
-import api from './services/api';
+import api from '../services/api';
 
 import '../App.css';
 import '../components/styles/Listas.css';
-import Header from "../components/organisms/Header";
+import Navsidebar from "../components/organisms/Navsidebar";
+import CardInfo from "../components/molecules/CardInfo";
 
 function Animais() {
     
@@ -35,9 +35,7 @@ function Animais() {
 
     return (
         <div>    
-            <div>
-                <Header />
-            </div>
+            <Navsidebar></Navsidebar>
             <main className='main-content'>
                 <div className="titulo-animais">
                     <h2>Lista de animais</h2>
@@ -50,7 +48,7 @@ function Animais() {
                 </div>
                 {animais.map(animal => (
                     <div key={animal.id}>
-                        <CardAnimal
+                        <CardInfo
                             id={animal.id}
                             info={animal.info}
                             onEdit={() => handleEdit(animal.id)}

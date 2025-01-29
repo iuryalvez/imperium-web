@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import TemplateAutoCadastro from '../components/template/TemplateAutoCadastro';
 import { autenticacao } from '../api/autenticacaoAPI';
 
-const AutoCadastro = () => {
+function AutoCadastro() {
   const navigate = useNavigate();
 
   const handleAutoCadastro = async (formData) => {
@@ -26,9 +26,9 @@ const AutoCadastro = () => {
 
   return (
     <div className='cadastro-content'>
-      <TemplateAutoCadastro handleAutoCadastro={handleAutoCadastro} />;
+      <TemplateAutoCadastro handleAutoCadastro={handleAutoCadastro} />
     </div>
   );
-};
+}
 
 export default AutoCadastro;

@@ -10,13 +10,17 @@ import AuthenticatedRoute from './components/servicesComponents/AuthenticatedRou
 
 import Header from './components/organisms/Header';
 
-import Login from './pages/Login';
+import Login from './pages/Login.jsx';
 import Cadastro from './pages/AutoCadastro';
 import Sobre from './pages/Sobre';
-import Clinica from './pages/Clinica';
-import Usuarios from './pages/Usuarios';
+import Clinica from './pages/Clinica.jsx';
+import Usuarios from './pages/Usuarios.jsx';
+import Tutores from './pages/Tutores.jsx';
+import Gerenciamento from './pages/Gerenciamento.jsx';
+import Consultas from './pages/Consultas.jsx';
 import ListaVinculos from './pages/ListaVinculos';
-import Home from './pages/Home';
+import Home from './pages/Home.jsx';
+import Animais from './pages/Animais.jsx';
 
 const App = () => {
   return (
@@ -28,8 +32,8 @@ const App = () => {
               {/* Rotas públicas */}
               <Route exact path='/' element={<Login />} />
               <Route path='/login' element={<Login />} />
-              <Route path="/sobre" Component={Sobre} />
-              <Route path="/cadastro" Component={Cadastro} />
+              <Route path="/sobre" element={<Sobre />} />
+              <Route path="/cadastro" element={<Cadastro />} />
               {/* <Route path='/teste'element={<Teste/>} /> */}
               
               {/* Rotas protegidas por isLogged */}
@@ -37,11 +41,15 @@ const App = () => {
                 <Route path='/sistema/vinculos' element={<ListaVinculos />} />
               </Route>
 
-              {/* Rotas protegidas dentro da PrivateRoute*/}
+              {/* Rotas protegidas dentro da AuthenticatedRoute */}
               <Route element={<AuthenticatedRoute />}>
                 <Route path='/clinica/home' element={<Home />} />
                 <Route path='/clinica' element={<Clinica />} />
+                <Route path="/clinica/editar" element={<Gerenciamento />} />
                 <Route path='/clinica/usuarios' element={<Usuarios />} />
+                <Route path="/clinica/tutores" element={<Tutores />} />
+                <Route path="/clinica/consultas" element={<Consultas />} />
+                <Route path="/clinica/animais" element={<Animais />} />
               </Route>
             </Routes>
         </AuthProvider>
@@ -51,11 +59,8 @@ const App = () => {
           <Route exact path="/" Component={Login} />
           <Route path="/dashboard" Component={Dashboard} /> 
           <Route path="/login" Component={Login} />
-          <Route path="/tutores" Component={Tutores} />
           <Route path="/animais" Component={Animais} />
           <Route path="/animais/cadastrar" Component={CadastrarAnimal} />
-          <Route path="/consultas" Component={Consultas} />
-          <Route path="/gerenciamento" Component={Gerenciamento} />
           <Route path="/gerenciamento/usuarios" Component={Usuarios} />
           <Route path="/gerenciamento/perfil" Component={Perfil} /> 
         */}

@@ -15,12 +15,12 @@ const Header = () => {
             <ul className="flex space-x-6">
                 {isAuthenticated && isLogged ? (
                     <>
-                        <li>
-                            <Link to="/home" className="text-green-dark font-bold hover:text-green-light">Início</Link>
+                        {/* <li>
+                            <Link to="/clinica/home" className="text-green-dark font-bold hover:text-green-light">Início</Link>
                         </li>
-                        <li className="text-green-dark">|</li>
+                        <li className="text-green-dark">|</li> */}
                         <li>
-                            <Link to="/perfil" className="text-green-dark font-bold hover:text-green-light">Perfil</Link>
+                            <Link to="/clinica/perfil" className="text-green-dark font-bold hover:text-green-light">Perfil</Link>
                         </li>
                         {/* <li className="text-green-dark">|</li>
                         <li>

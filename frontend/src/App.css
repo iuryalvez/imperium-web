@@ -27,6 +27,12 @@
   margin-right: 4rem;
 }
 
+.main-content {
+  margin-top: 4rem;
+  margin-left: 4rem;
+  text-align: left;
+}
+
 /*
 .App {
   background-color: var(--verde-fraco);
