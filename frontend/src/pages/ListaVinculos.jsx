@@ -31,7 +31,9 @@ const ListaVinculos = () => {
         return <p className="text-red-500">{error}</p>;
     }
 
-    return <TemplateListaVinculos vinculos={vinculos} />;
+    return (
+        <TemplateListaVinculos vinculos={vinculos} />
+    );
 };
 
 export default ListaVinculos;

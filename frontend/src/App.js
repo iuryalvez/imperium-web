@@ -21,6 +21,7 @@ import Consultas from './pages/Consultas.jsx';
 import ListaVinculos from './pages/ListaVinculos';
 import Home from './pages/Home.jsx';
 import Animais from './pages/Animais.jsx';
+import Sistema from './pages/Sistema.jsx';
 
 const App = () => {
   return (
@@ -38,6 +39,7 @@ const App = () => {
               
               {/* Rotas protegidas por isLogged */}
               <Route element={<LoggedRoute />}>
+                <Route path='/sistema' element={<Sistema />} />
                 <Route path='/sistema/vinculos' element={<ListaVinculos />} />
               </Route>
 
