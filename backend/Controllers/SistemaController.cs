@@ -52,7 +52,7 @@ namespace backend.Controllers
 
         // get clinica by clinicaId
         [HttpGet("clinicas/{clinicaId}")]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Policy = "GerenciaSistema")]
         public async Task<ActionResult<ClinicaDto>> GetClinica(int clinicaId)
         {
             var clinica = await _context.Clinicas
@@ -74,7 +74,7 @@ namespace backend.Controllers
 
         // criar clinica pelo sistema
         [HttpPost("clinicas/nova-clinica")]
-        // [Authorize(Policy = "GerenciaSistema")]
+        [Authorize(Policy = "GerenciaSistema")]
         public async Task<ActionResult<ClinicaDto>> CreateClinica([FromBody] ClinicaDto clinicaDto)
         {
             var clinica = new Clinica
@@ -105,12 +105,13 @@ namespace backend.Controllers
             return NoContent();
         }
 
-        // Obtém todos os animais cadastrados
+        // obtém todos os animais cadastrados
         [HttpGet("animais")]
-        // [Authorize(Policy = "GerenciaSistema")]
+        [Authorize(Policy = "GerenciaSistema")]
         public async Task<ActionResult<IEnumerable<GetAnimaisDto>>> GetAllAnimais()
         {
-            var animais = await _context.Animais
+            try {
+                var animais = await _context.Animais
                 .Select(a => new GetAnimaisDto
                 {
                     Id = a.Id,
@@ -120,15 +121,22 @@ namespace backend.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(animais);
+                return Ok(animais);
+            }
+            catch (Exception ex) {
+                _logger.LogError(ex, "Erro ao buscar animais");
+                return StatusCode(500, "Erro interno ao buscar animais.");
+            }
         }
         
-        // Obtém todos os usuários
+        // obtém todos os usuários
         [HttpGet("usuarios")]
-        // [Authorize(Policy = "GerenciaSistema")]
+        [Authorize(Policy = "GerenciaSistema")]
         public async Task<IActionResult> GetAllUsuarios()
         {
-            var usuarios = await _context.Usuarios
+            try
+            {
+                var usuarios = await _context.Usuarios
                 .Select(u => new GetUsuariosDto
                 {
                     Id = u.Id,
@@ -138,7 +146,13 @@ namespace backend.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(usuarios);
+                return Ok(usuarios);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar usuários");
+                return StatusCode(500, "Erro interno ao buscar usuários.");
+            }
         }
     }
 }

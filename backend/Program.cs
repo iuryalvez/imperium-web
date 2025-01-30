@@ -152,12 +152,12 @@ internal class Program
         builder.Services.AddAuthorization(options =>
         {
             // define as policies para cada perfil
-            options.AddPolicy("GerenciaSistema", policy => policy.RequireClaim("IsAdmin", "true"));
+            options.AddPolicy("VisualizaTudo", policy => policy.RequireRole("ADMIN","GESTOR","VETERINARIO","SECRETARIO","TECNICO"));
             options.AddPolicy("GerenciaClinica", policy => policy.RequireRole("ADMIN","GESTOR"));
             options.AddPolicy("GerenciaAnimais", policy => policy.RequireRole("ADMIN","VETERINARIO"));
             options.AddPolicy("GerenciaTutores", policy => policy.RequireRole("ADMIN","VETERINARIO","SECRETARIO"));
             options.AddPolicy("GerenciaConsultas", policy => policy.RequireRole("ADMIN","VETERINARIO","SECRETARIO"));
-            options.AddPolicy("VisualizaTudo", policy => policy.RequireRole("ADMIN","GESTOR","VETERINARIO","SECRETARIO","TECNICO"));
+            options.AddPolicy("GerenciaSistema", policy => policy.RequireClaim("IsAdmin", "true"));
             options.AddPolicy("AcessoLoginPolicy", policy => policy.RequireClaim("AcessoLogin", "true"));
             
             // policy de operação OU entre AcessoLogin e TodosUsuarios (para as listas de vinculos) 
