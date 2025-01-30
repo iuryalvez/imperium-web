@@ -25,35 +25,6 @@ namespace backend.Services
             _logger = logger;
         }
 
-        public async Task<bool> VerificarPermissaoClinica(int clinicaId)
-        {
-            try
-            {
-                using var _context = _contextFactory.CreateDbContext();
-
-                // Obter o ID do vínculo do usuário com a clínica a partir do token JWT
-                var tokenUpcId = int.Parse(_httpContextAccessor.HttpContext?.User.FindFirst("UsuarioPerfilClinicaId")?.Value);
-
-                var usuarioPerfilClinica = await _context.UsuariosPerfisClinicas
-                    .FirstOrDefaultAsync(upc => upc.Id == tokenUpcId);
-
-                // Verifica se o usuário está associado à clínica
-                if (usuarioPerfilClinica != null && usuarioPerfilClinica.ClinicaId == clinicaId)
-                {
-                    _logger.LogInformation("Usuário com ID de vínculo {TokenUpcId} tem permissão para acessar a clínica com ID {ClinicaId}.", tokenUpcId, clinicaId);
-                    return true;
-                }
-
-                _logger.LogWarning("Usuário com ID de vínculo {TokenUpcId} não tem permissão para acessar a clínica com ID {ClinicaId}.", tokenUpcId, clinicaId);
-                return false;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao verificar permissão para a clínica com ID {ClinicaId}.", clinicaId);
-                return false;
-            }
-        }
-
         // Valida as informações do usuário contidas no token
         public async Task<bool> ValidaUsuario(string token)
         {

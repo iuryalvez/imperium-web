@@ -95,31 +95,31 @@ namespace backend.Controllers
         }
 
 
-        // Obtém usuários por clínica
+        // obtém usuários por clínica
         [HttpGet("usuarios")]
         [Authorize(Policy = "GerenciaClinica")]
         public async Task<IActionResult> GetUsuariosByClinicaId()
         {
             try
             {
-                // Obtém o ID da clínica a partir do token do usuário
+                // obtém o ID da clínica a partir do token do usuário
                 var clinicaId = User.GetClaimValue<int>("clinicaId");
                 if (clinicaId <= 0)
                 {
                     return BadRequest("Acesso não permitido ou clínica inválida.");
                 }
 
-                // Realiza a consulta com as devidas inclusões e mapeia para o DTO
+                // realiza a consulta com as devidas inclusões e mapeia para o DTO
                 var usuarios = await _context.UsuariosPerfisClinicas
-                    .AsNoTracking() // Melhora o desempenho em consultas somente leitura
-                    .Include(upc => upc.Usuario) // Inclui os dados do usuário
+                    .AsNoTracking() // melhora o desempenho em consultas somente leitura
+                    .Include(upc => upc.Usuario) // inclui os dados do usuário
                     .Where(upc => upc.ClinicaId == clinicaId)
                     .Select(upc => new GetUsuariosDto
                     {
                         Id = upc.Usuario.Id,
                         UserName = upc.Usuario.UserName,
                         Email = upc.Usuario.Email,
-                        Nome = upc.Usuario.Nome ?? string.Empty, // Garante que Nome nunca seja nulo
+                        Nome = upc.Usuario.Nome ?? string.Empty, // garante que Nome nunca seja nulo
                         Perfil = upc.Perfil.Name ?? string.Empty,
                         DataCadastro = upc.Usuario.DataCad,
                         DataUltimoAcesso = upc.Usuario.DataUltimoAcesso,
@@ -127,12 +127,7 @@ namespace backend.Controllers
                     })
                     .ToListAsync();
 
-                // Verifica se a consulta retornou resultados
-                if (!usuarios.Any())
-                {
-                    return NotFound("Nenhum usuário encontrado na clínica.");
-                }
-                // Retorna a lista de usuários
+                // retorna a lista de usuários (pode ser vazia)
                 return Ok(usuarios);
             }
             catch (Exception ex)

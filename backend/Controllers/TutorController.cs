@@ -32,11 +32,6 @@ namespace backend.Controllers
                 return BadRequest("Acesso não permitido a esta clínica.");
             }
 
-            if (!await _authService.VerificarPermissaoClinica(clinicaId))
-            {
-                return Forbid("Usuário não tem permissão para acessar essa clínica.");
-            }
-
             var tutores = await _context.TutoresAnimaisClinicas
                 .Where(tac => tac.ClinicaId == clinicaId)
                 .Select(tac => tac.Tutor)
@@ -58,11 +53,6 @@ namespace backend.Controllers
             if (clinicaId == 0) {
                 return BadRequest("Acesso não permitido a esta clínica.");
             }
-
-            if (!await _authService.VerificarPermissaoClinica(clinicaId))
-            {
-                return Forbid("Usuário não tem permissão para acessar essa clínica.");
-            }
             
             var tutor = await _context.Tutores.FindAsync(tutorId);
 
@@ -81,11 +71,6 @@ namespace backend.Controllers
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId == 0) {
                 return BadRequest("Acesso não permitido a esta clínica.");
-            }
-
-            if (!await _authService.VerificarPermissaoClinica(clinicaId))
-            {
-                return Forbid("Usuário não tem permissão para acessar essa clínica.");
             }
 
             var tutor = new Tutor
@@ -117,11 +102,6 @@ namespace backend.Controllers
                 return BadRequest("Acesso não permitido a esta clínica.");
             }
 
-            if (!await _authService.VerificarPermissaoClinica(clinicaId))
-            {
-                return Forbid("Usuário não tem permissão para acessar essa clínica.");
-            }
-
             var existingTutor = await _context.Tutores.FindAsync(tutorId);
             if (existingTutor == null)
             {
@@ -149,11 +129,6 @@ namespace backend.Controllers
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId == 0) {
                 return BadRequest("Acesso não permitido a esta clínica.");
-            }
-
-            if (!await _authService.VerificarPermissaoClinica(clinicaId))
-            {
-                return Forbid("Usuário não tem permissão para acessar essa clínica.");
             }
             
             var tutor = await _context.Tutores.FindAsync(tutorId);
