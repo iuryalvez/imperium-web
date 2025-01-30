@@ -193,13 +193,13 @@ namespace backend.Services
                         Console.WriteLine($"Erro: Vínculo com ID {upcId} não encontrado.");
                         Console.WriteLine("Id do vínculo presente no token não existe no banco de dados!");
                     }
-                    else
-                    {
-                        var identity = principal.Identity as ClaimsIdentity;
-                        identity?.AddClaim(new Claim(ClaimTypes.Role, upc.Perfil.Name));
-                        identity?.AddClaim(new Claim("clinicaId", upc.ClinicaId.ToString()));
-                        Console.WriteLine($"\nRole do usuário adicionada ao contexto: {upc.Perfil.Name}");
-                    }
+
+                    // tirei a definição da role no contexto que estava aqui e 
+                    // coloquei na geração do token de vínculo
+                    // porque na verdade não estava sendo adicionada e 
+                    // não estava validando o authorize corretamente.
+                    
+                    Console.WriteLine($"\nRole do usuário: {upc.Perfil.Name}");
                 }
                 catch (Exception ex)
                 {
@@ -207,6 +207,6 @@ namespace backend.Services
                     throw new SecurityTokenException("Erro interno ao validar o vínculo.");
                 }
             }
-        }        
+        }
     }
 }

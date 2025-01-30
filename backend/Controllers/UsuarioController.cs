@@ -97,7 +97,7 @@ namespace backend.Controllers
 
         // Obtém usuários por clínica
         [HttpGet("usuarios")]
-        // [Authorize(Policy = "GerenciaClinica")]
+        [Authorize(Policy = "GerenciaClinica")]
         public async Task<IActionResult> GetUsuariosByClinicaId()
         {
             try
@@ -132,8 +132,6 @@ namespace backend.Controllers
                 {
                     return NotFound("Nenhum usuário encontrado na clínica.");
                 }
-                
-                await Task.Delay(1000); // Só pra testar se é uma questão de tempo/concorrência
                 // Retorna a lista de usuários
                 return Ok(usuarios);
             }
@@ -208,6 +206,13 @@ namespace backend.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { Message = "Usuário deletado com sucesso." });
+        }
+
+        [HttpGet("debug-claims")]
+        public IActionResult DebugClaims()
+        {
+            var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
+            return Ok(claims);
         }
     }
 }

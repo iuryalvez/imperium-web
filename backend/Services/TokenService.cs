@@ -29,10 +29,17 @@ namespace backend.Services
             try
             {
                 using var _context = _contextFactory.CreateDbContext();
-                // busca o clinicaId associado ao usuarioPerfilClinicaId no banco de dados
+                
+                if (!int.TryParse(usuarioPerfilClinicaId, out int idVinculo))
+                {
+                    _logger.LogError("ID do vínculo inválido: {UsuarioPerfilClinicaId}", usuarioPerfilClinicaId);
+                    throw new ArgumentException("ID do vínculo deve ser um número inteiro válido.");
+                }
+
                 var vinculo = _context.UsuariosPerfisClinicas
                     .AsNoTracking()
-                    .FirstOrDefault(upc => upc.Id.ToString() == usuarioPerfilClinicaId);
+                    .Include(upc => upc.Perfil) // garantindo perfil
+                    .FirstOrDefault(upc => upc.Id == idVinculo);
 
                 if (vinculo == null)
                 {
@@ -42,8 +49,18 @@ namespace backend.Services
 
                 var clinicaId = vinculo.ClinicaId;
 
+                var roleName = vinculo.Perfil?.Name ?? throw new Exception("Perfil não encontrado para o usuário.");
+
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]);
+                
+                // validação da chave JWT
+                var secret = _configuration["JWT:Secret"];
+                if (string.IsNullOrWhiteSpace(secret))
+                {
+                    throw new InvalidOperationException("A chave secreta do JWT não foi configurada.");
+                }
+                var key = Encoding.UTF8.GetBytes(secret);
+                
                 var now = DateTime.UtcNow;
 
                 var tokenDescriptor = new SecurityTokenDescriptor
@@ -51,6 +68,7 @@ namespace backend.Services
                     Subject = new ClaimsIdentity(new Claim[]
                     {
                         new Claim(ClaimTypes.NameIdentifier, usuarioPerfilClinicaId),
+                        new Claim(ClaimTypes.Role, roleName), // adiciona a claim de Role
                         new Claim("UsuarioIP", usuarioIp),
                         new Claim("UsuarioAgent", usuarioAgent),
                         new Claim("clinicaId", clinicaId.ToString()) // adiciona a claim de clinicaId
@@ -66,10 +84,15 @@ namespace backend.Services
                 _logger.LogInformation("Token de vínculo gerado com sucesso para o vínculo {UsuarioPerfilClinicaId}, associado à clínica {ClinicaId}.", usuarioPerfilClinicaId, clinicaId);
                 return tokenHandler.WriteToken(token);
             }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, "Erro de entrada ao gerar token de vínculo: {Message}", ex.Message);
+                throw new BadHttpRequestException("Requisição inválida: " + ex.Message);
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao gerar token de vínculo para o vínculo {UsuarioPerfilClinicaId}.", usuarioPerfilClinicaId);
-                throw;
+                _logger.LogError(ex, "Erro ao gerar token de vínculo para o ID {UsuarioPerfilClinicaId}.", usuarioPerfilClinicaId);
+                throw new Exception("Erro interno ao gerar token. Tente novamente mais tarde.");
             }
         }
 
@@ -79,7 +102,15 @@ namespace backend.Services
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]);
+                
+                // validação da chave JWT
+                var secret = _configuration["JWT:Secret"];
+                if (string.IsNullOrWhiteSpace(secret))
+                {
+                    throw new InvalidOperationException("A chave secreta do JWT não foi configurada.");
+                }
+                var key = Encoding.UTF8.GetBytes(secret);
+
                 var now = DateTime.UtcNow;
 
                 var tokenDescriptor = new SecurityTokenDescriptor
@@ -108,7 +139,7 @@ namespace backend.Services
                 throw;
             }
         }
-        public async Task RenovaToken(TokenValidatedContext context) 
+        public Task RenovaToken(TokenValidatedContext context) 
         {
             var token = context.SecurityToken;
             var timeToExpire = token.ValidTo - DateTime.UtcNow;
@@ -129,6 +160,8 @@ namespace backend.Services
                 _cookie.SetCookieToken(context.HttpContext, newToken);
                 Console.WriteLine($"Token renovado com sucesso para o usuário: {userId}");
             }
+
+            return Task.CompletedTask;
         }
     }
 }

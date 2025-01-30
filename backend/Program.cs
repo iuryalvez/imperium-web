@@ -87,6 +87,7 @@ internal class Program
                 ValidateAudience = true, // valida o público do token
                 ValidAudience = builder.Configuration["JWT:Audience"], // público esperado
                 ValidateLifetime = true, // valida a expiração do token
+                RoleClaimType = ClaimTypes.Role, // define a claim de role
                 ClockSkew = TimeSpan.Zero // remove tolerância padrão de 5 minutos para expiração
             };
             
@@ -152,11 +153,11 @@ internal class Program
         {
             // define as policies para cada perfil
             options.AddPolicy("GerenciaSistema", policy => policy.RequireRole("ADMIN"));
-            options.AddPolicy("GerenciaClinica", policy => policy.RequireRole("ADMIN,GESTOR"));
-            options.AddPolicy("GerenciaAnimais", policy => policy.RequireRole("ADMIN,VETERINARIO"));
-            options.AddPolicy("GerenciaTutores", policy => policy.RequireRole("ADMIN,VETERINARIO,SECRETARIO"));
-            options.AddPolicy("GerenciaConsultas", policy => policy.RequireRole("ADMIN,VETERINARIO,SECRETARIO"));
-            options.AddPolicy("VisualizaTudo", policy => policy.RequireRole("ADMIN,GESTOR,VETERINARIO,SECRETARIO,TECNICO"));
+            options.AddPolicy("GerenciaClinica", policy => policy.RequireRole("ADMIN","GESTOR"));
+            options.AddPolicy("GerenciaAnimais", policy => policy.RequireRole("ADMIN","VETERINARIO"));
+            options.AddPolicy("GerenciaTutores", policy => policy.RequireRole("ADMIN","VETERINARIO","SECRETARIO"));
+            options.AddPolicy("GerenciaConsultas", policy => policy.RequireRole("ADMIN","VETERINARIO","SECRETARIO"));
+            options.AddPolicy("VisualizaTudo", policy => policy.RequireRole("ADMIN","GESTOR","VETERINARIO","SECRETARIO","TECNICO"));
             options.AddPolicy("AcessoLoginPolicy", policy => policy.RequireClaim("AcessoLogin", "true"));
             
             // policy de operação OU entre AcessoLogin e TodosUsuarios (para as listas de vinculos) 
