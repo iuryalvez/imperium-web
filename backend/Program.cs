@@ -152,7 +152,7 @@ internal class Program
         builder.Services.AddAuthorization(options =>
         {
             // define as policies para cada perfil
-            options.AddPolicy("GerenciaSistema", policy => policy.RequireRole("ADMIN"));
+            options.AddPolicy("GerenciaSistema", policy => policy.RequireClaim("IsAdmin", "true"));
             options.AddPolicy("GerenciaClinica", policy => policy.RequireRole("ADMIN","GESTOR"));
             options.AddPolicy("GerenciaAnimais", policy => policy.RequireRole("ADMIN","VETERINARIO"));
             options.AddPolicy("GerenciaTutores", policy => policy.RequireRole("ADMIN","VETERINARIO","SECRETARIO"));

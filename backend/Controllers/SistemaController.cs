@@ -17,27 +17,37 @@ namespace backend.Controllers
     {
         private readonly AppDbContext _context;
         private readonly UserManager<Usuario> _userManager;
+        private readonly ILogger<SistemaController> _logger;
 
-        public SistemaController(AppDbContext context, UserManager<Usuario> userManager)
+        public SistemaController(AppDbContext context, UserManager<Usuario> userManager, ILogger<SistemaController> logger)
         {
             _context = context;
             _userManager = userManager;
+            _logger = logger;
         }
 
-        // get all clinicas
+        // obtém todas as clínicas cadastradas
         [HttpGet("clinicas")]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Policy = "GerenciaSistema")]
         public async Task<ActionResult<IEnumerable<ClinicaDto>>> GetAllClinicas()
         {
-            var clinicas = await _context.Clinicas
-                .Select(c => new ClinicaDto
-                {
-                    Id = c.Id,
-                    NomeClinica = c.NomeClinica
-                })
-                .ToListAsync();
+            try
+            {
+                var clinicas = await _context.Clinicas
+                    .Select(c => new ClinicaDto
+                    {
+                        Id = c.Id,
+                        NomeClinica = c.NomeClinica
+                    })
+                    .ToListAsync();
 
-            return Ok(clinicas);
+                return Ok(clinicas); // retorna lista vazia (200) se não houver clínicas
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar clínicas");
+                return StatusCode(500, "Erro interno ao buscar clínicas.");
+            }
         }
 
         // get clinica by clinicaId
@@ -64,7 +74,7 @@ namespace backend.Controllers
 
         // criar clinica pelo sistema
         [HttpPost("clinicas/nova-clinica")]
-        //[Authorize(Roles = "ADMIN")]
+        // [Authorize(Policy = "GerenciaSistema")]
         public async Task<ActionResult<ClinicaDto>> CreateClinica([FromBody] ClinicaDto clinicaDto)
         {
             var clinica = new Clinica
@@ -80,7 +90,7 @@ namespace backend.Controllers
 
         // deleta clínica
         [HttpDelete("clinicas/{clinicaId}")]
-        [Authorize(Roles = "ADMIN")]
+        // [Authorize(Policy = "GerenciaSistema")]
         public async Task<IActionResult> DeleteClinica(int clinicaId)
         {
             var clinica = await _context.Clinicas.FindAsync(clinicaId);
@@ -97,7 +107,7 @@ namespace backend.Controllers
 
         // Obtém todos os animais cadastrados
         [HttpGet("animais")]
-        [Authorize(Roles = "ADMIN")]
+        // [Authorize(Policy = "GerenciaSistema")]
         public async Task<ActionResult<IEnumerable<GetAnimaisDto>>> GetAllAnimais()
         {
             var animais = await _context.Animais
@@ -115,7 +125,7 @@ namespace backend.Controllers
         
         // Obtém todos os usuários
         [HttpGet("usuarios")]
-        [Authorize(Roles = "ADMIN")]
+        // [Authorize(Policy = "GerenciaSistema")]
         public async Task<IActionResult> GetAllUsuarios()
         {
             var usuarios = await _context.Usuarios

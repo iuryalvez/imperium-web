@@ -101,6 +101,27 @@ namespace backend.Services
         {
             try
             {
+                using var _context = _contextFactory.CreateDbContext();
+                
+                if (!int.TryParse(usuarioId, out int idUsuario))
+                {
+                    _logger.LogError("ID do usuário inválido: {usuarioId}", usuarioId);
+                    throw new ArgumentException("ID do usuário deve ser um número inteiro válido.");
+                }
+
+                var role = _context.UsuariosPerfisClinicas
+                    .AsNoTracking()
+                    .Include(upc => upc.Perfil) // garantindo perfil
+                    .FirstOrDefault(upc => upc.UsuarioId == idUsuario);
+
+                if (role == null)
+                {
+                    _logger.LogError("Perfil de usuário não encontrado para ID {role}.", role);
+                    throw new Exception("Perfil de usuário não encontrado.");
+                }
+
+                var roleName = role.Perfil?.Name ?? throw new Exception("Perfil não encontrado para o usuário.");
+
                 var tokenHandler = new JwtSecurityTokenHandler();
                 
                 // validação da chave JWT
@@ -113,15 +134,23 @@ namespace backend.Services
 
                 var now = DateTime.UtcNow;
 
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, usuarioId),
+                    new Claim("UsuarioIP", usuarioIp),
+                    new Claim("UsuarioAgent", usuarioAgent),
+                    new Claim("AcessoLogin", "true")
+                };
+
+                // Se o usuário for ADMIN, adiciona a claim extra
+                if (roleName == "ADMIN")
+                {
+                    claims.Add(new Claim("IsAdmin", "true"));
+                }
+
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
-                    Subject = new ClaimsIdentity(new Claim[]
-                    {
-                        new Claim(ClaimTypes.NameIdentifier, usuarioId),
-                        new Claim("UsuarioIP", usuarioIp),
-                        new Claim("UsuarioAgent", usuarioAgent),
-                        new Claim("AcessoLogin", "true")
-                    }),
+                    Subject = new ClaimsIdentity(claims),
                     Expires = now.AddMinutes(Convert.ToDouble(_configuration["JWT:ExpiresInMinutes"])),
                     NotBefore = now,
                     Issuer = _configuration["JWT:Issuer"],
@@ -139,6 +168,7 @@ namespace backend.Services
                 throw;
             }
         }
+
         public Task RenovaToken(TokenValidatedContext context) 
         {
             var token = context.SecurityToken;
