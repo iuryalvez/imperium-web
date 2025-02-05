@@ -72,7 +72,7 @@ const CardInfo = ({ tipoEntidade, entidade }) => {
             )}
           </>
         );
-      case 'Vinculo':
+      case 'Vínculo':
         return (
           <>
             <p className="text-green-dark">

@@ -112,6 +112,7 @@ namespace backend.Services
                 var role = _context.UsuariosPerfisClinicas
                     .AsNoTracking()
                     .Include(upc => upc.Perfil) // garantindo perfil
+                    .Include(upc => upc.Usuario) // garantindo perfil
                     .FirstOrDefault(upc => upc.UsuarioId == idUsuario);
 
                 if (role == null)
@@ -121,6 +122,8 @@ namespace backend.Services
                 }
 
                 var roleName = role.Perfil?.Name ?? throw new Exception("Perfil não encontrado para o usuário.");
+
+                var userName = role.Usuario.Nome ?? throw new Exception("Nome não encontrado para o usuário.");
 
                 var tokenHandler = new JwtSecurityTokenHandler();
                 
@@ -137,6 +140,7 @@ namespace backend.Services
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, usuarioId),
+                    new Claim("Nome", userName),
                     new Claim("UsuarioIP", usuarioIp),
                     new Claim("UsuarioAgent", usuarioAgent),
                     new Claim("AcessoLogin", "true")

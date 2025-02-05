@@ -4,9 +4,9 @@ import { useAuth } from '../../services/AuthContext';
 import BotaoMenu from '../atoms/BotaoMenu';
 import BotaoOff from '../atoms/BotaoOff';
 
-const TemplateSistema = ({ userType }) => {
+const TemplateSistema = ({ isAdmin }) => {
     const navigate = useNavigate();
-    const { user } = useAuth(); 
+    const { userName } = useAuth(); 
 
     const botoesAdmin = [
         { texto: 'Clínicas', rota: '/sistema/clinicas', ativo: true },
@@ -22,7 +22,7 @@ const TemplateSistema = ({ userType }) => {
     const renderBotoes = () => {
         let botoes = [...botoesGerais];
 
-        if (userType === 'ADMIN') {
+        if (isAdmin === true) {
             botoes = [...botoes, ...botoesAdmin];
         }
 
@@ -38,9 +38,9 @@ const TemplateSistema = ({ userType }) => {
     return (
         <div className="sistema-content">
             <h1 className="text-2xl font-bold mb-4 text-green-dark">
-                Bem-vindo, {user?.nome || 'Usuário'}!
+                Bem-vindo, {userName || 'Usuário'}!
             </h1>
-            <div className="flex flex-wrap justify-center gap-4 pt-8">
+            <div className="flex flex-wrap justify-center gap-10 pt-8">
                 {renderBotoes()}
             </div>
         </div>

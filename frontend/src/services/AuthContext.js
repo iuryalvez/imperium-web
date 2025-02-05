@@ -12,10 +12,11 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [isLogged, setIsLogged] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userType, setUserType] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(null);
+  const [userName, setUserName] = useState(""); // Estado para armazenar o nome do usuário
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const abrirNotificacao = useNotification(); // Acessando o contexto de notificações
+  const abrirNotificacao = useNotification(); // Contexto de notificação
 
   const checkAuth = useCallback(async () => {
     try {
@@ -26,21 +27,26 @@ export const AuthProvider = ({ children }) => {
         case 'autenticado':
           setIsLogged(true);
           setIsAuthenticated(true);
-          setUserType(resposta.role);
+          setUserName(resposta.nome || ""); // Define o nome do usuário
           break;
         case 'logado':
           setIsLogged(true);
           setIsAuthenticated(false);
+          setIsAdmin(resposta.isAdmin);
+          setUserName(resposta.nome || ""); // Define o nome do usuário
+          // console.log("Nome do usuário:", userName);
           break;
         default:
           setIsLogged(false);
           setIsAuthenticated(false);
+          setUserName("");
           break;
       }
     } catch (error) {
       abrirNotificacao('error', 'Erro de autenticação', 'Não foi possível verificar a autenticação.');
       setIsAuthenticated(false);
       setIsLogged(false);
+      setUserName("");
     } finally {
       setLoading(false);
     }
@@ -48,8 +54,11 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (loading) checkAuth();
-    if (isLogged && !isAuthenticated) navigate('/sistema/vinculos');
-  }, [loading, isAuthenticated, isLogged, navigate, checkAuth]);
+    if (isLogged && !isAuthenticated) {
+      if (isAdmin) navigate('/sistema');
+      else navigate('/sistema/vinculos');
+    }
+  }, [loading, isAuthenticated, isLogged, isAdmin, navigate, checkAuth]);
   
   const login = async ({ email, senha }) => {
     try {
@@ -57,7 +66,8 @@ export const AuthProvider = ({ children }) => {
       if (response.status === 200) {
         abrirNotificacao('success', 'Login bem-sucedido!', 'Você foi autenticado com sucesso.');
         await checkAuth();
-        navigate('/sistema/vinculos');
+        if (isAdmin) navigate('/sistema');
+        else navigate('/sistema/vinculos');
       }
     } catch (error) {
       console.log("Erro completo:", error);
@@ -107,7 +117,8 @@ export const AuthProvider = ({ children }) => {
       value={{
         isLogged,
         isAuthenticated,
-        userType,
+        isAdmin,
+        userName,
         loading,
         login,
         escolherVinculo,

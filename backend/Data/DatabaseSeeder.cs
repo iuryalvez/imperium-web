@@ -14,7 +14,7 @@ namespace backend.Data
 
             // Perfis de Usuário
             modelBuilder.Entity<Perfil>().HasData(
-                new Perfil { Id = 1, Name = "ADMIN", Tipo = 1, Descricao = "Administrador do sistema" },
+                new Perfil { Id = 1, Name = "ADMIN", Tipo = 1, Descricao = "Administrador do sistema"},
                 new Perfil { Id = 2, Name = "GESTOR", Tipo = 2, Descricao = "Gestor de clínica" },
                 new Perfil { Id = 3, Name = "VETERINARIO", Tipo = 3, Descricao = "Veterinário de clínica" },
                 new Perfil { Id = 4, Name = "SECRETARIO", Tipo = 4, Descricao = "Secretário de clínica" },
@@ -111,20 +111,14 @@ namespace backend.Data
             // Relacionamentos Usuário-Perfil-Clínica
             modelBuilder.Entity<UsuarioPerfilClinica>().HasData(
                 new UsuarioPerfilClinica { Id = 1, UsuarioId = 1, PerfilId = 1, ClinicaId = 1},
-                new UsuarioPerfilClinica { Id = 2, UsuarioId = 2, PerfilId = 2, ClinicaId = 1},
-                new UsuarioPerfilClinica { Id = 3, UsuarioId = 2, PerfilId = 2, ClinicaId = 2},
-                new UsuarioPerfilClinica { Id = 4, UsuarioId = 2, PerfilId = 2, ClinicaId = 3},
-                new UsuarioPerfilClinica { Id = 5, UsuarioId = 3, PerfilId = 3, ClinicaId = 2},
-                new UsuarioPerfilClinica { Id = 6, UsuarioId = 4, PerfilId = 4, ClinicaId = 2},
-                new UsuarioPerfilClinica { Id = 7, UsuarioId = 5, PerfilId = 5, ClinicaId = 3}
-                
-                // new UsuarioPerfilClinicaDto { Id = 1, UsuarioId = 1, PerfilId = 1, NomePerfil = "ADMIN", NomeClinica = "Clinica Teste 1" },
-                // new UsuarioPerfilClinicaDto { Id = 2, UsuarioId = 2, PerfilId = 2, NomePerfil = "GESTOR", ClinicaId = 1, NomeClinica = "Clinica Teste 1" },
-                // new UsuarioPerfilClinicaDto { Id = 3, UsuarioId = 2, PerfilId = 2, NomePerfil = "GESTOR", ClinicaId = 2, NomeClinica = "Clinica Teste 2" },
-                // new UsuarioPerfilClinicaDto { Id = 4, UsuarioId = 2, PerfilId = 2, NomePerfil = "GESTOR", ClinicaId = 3, NomeClinica = "Clinica Teste 3" },
-                // new UsuarioPerfilClinicaDto { Id = 5, UsuarioId = 3, PerfilId = 3, NomePerfil = "VETERINARIO", ClinicaId = 2, NomeClinica = "Clinica Teste 2" },
-                // new UsuarioPerfilClinicaDto { Id = 6, UsuarioId = 4, PerfilId = 4, NomePerfil = "SECRETARIO", ClinicaId = 2, NomeClinica = "Clinica Teste 2" },
-                // new UsuarioPerfilClinicaDto { Id = 7, UsuarioId = 5, PerfilId = 5, NomePerfil = "TECNICO", ClinicaId = 3, NomeClinica = "Clinica Teste 3" }
+                new UsuarioPerfilClinica { Id = 2, UsuarioId = 1, PerfilId = 1, ClinicaId = 2},
+                new UsuarioPerfilClinica { Id = 3, UsuarioId = 1, PerfilId = 1, ClinicaId = 3},
+                new UsuarioPerfilClinica { Id = 4, UsuarioId = 2, PerfilId = 2, ClinicaId = 1},
+                new UsuarioPerfilClinica { Id = 5, UsuarioId = 2, PerfilId = 2, ClinicaId = 2},
+                new UsuarioPerfilClinica { Id = 6, UsuarioId = 2, PerfilId = 2, ClinicaId = 3},
+                new UsuarioPerfilClinica { Id = 7, UsuarioId = 3, PerfilId = 3, ClinicaId = 2},
+                new UsuarioPerfilClinica { Id = 8, UsuarioId = 4, PerfilId = 4, ClinicaId = 2},
+                new UsuarioPerfilClinica { Id = 9, UsuarioId = 5, PerfilId = 5, ClinicaId = 3}
             );
         }
     }

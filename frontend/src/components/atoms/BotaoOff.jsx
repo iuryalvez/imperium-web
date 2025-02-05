@@ -10,7 +10,7 @@ const BotaoOff = ({ texto }) => {
                 onClick={() =>
                     abrirNotificacao('error', 'Erro de acesso', 'Esta função ainda não está disponível')
                 }
-                className="bg-gray-400 text-white px-10 h-28 w-80 rounded-md cursor-not-allowed"
+                className="bg-gray-400 text-2xl font-bold text-white px-20 h-20 w-50 rounded-md cursor-not-allowed"
             >
                 {texto}
             </button>

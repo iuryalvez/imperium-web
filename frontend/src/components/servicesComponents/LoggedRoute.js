@@ -5,7 +5,9 @@ import { useAuth } from '../../services/AuthContext';
 const LoggedRoute = () => {
   const { isLogged, loading } = useAuth();
 
-  if (loading) return <div>Carregando...</div>;
+  if (loading) return ( 
+    <div>Carregando...</div> 
+  );
 
   return isLogged ? <Outlet /> : <Navigate to="/login" />;
 };

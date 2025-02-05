@@ -41,6 +41,8 @@ const App = () => {
               <Route element={<LoggedRoute />}>
                 <Route path='/sistema' element={<Sistema />} />
                 <Route path='/sistema/vinculos' element={<ListaVinculos />} />
+                <Route path='/sistema/clinicas' element={<Sistema />} />
+                <Route path='/sistema/usuarios' element={<Sistema />} />
               </Route>
 
               {/* Rotas protegidas dentro da AuthenticatedRoute */}

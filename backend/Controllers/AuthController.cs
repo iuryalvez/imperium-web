@@ -375,24 +375,34 @@ namespace backend.Controllers
             {
                 var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
                 var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var isAdminClaim = User.FindFirst("IsAdmin")?.Value;
+                var nomeUsuarioClaim = User.FindFirst("Nome")?.Value;
+
+                Console.WriteLine("Nome do usuário no contexto: ", nomeUsuarioClaim);
 
                 if (string.IsNullOrEmpty(userIdClaim))
                 {
                     return Unauthorized(new { status = "invalido" });
                 }
 
-                // Verificando se o token contém a claim "acessoLogin"
+                bool IsAdmin = !string.IsNullOrEmpty(isAdminClaim) && bool.TryParse(isAdminClaim, out var parsedValue) && parsedValue;
+
                 var acessoLoginClaim = User.FindFirst("acessoLogin");
                 if (acessoLoginClaim != null)
                 {
-                    return Ok(new { status = "logado" });
+                    return Ok(new
+                    {
+                        status = "logado",
+                        isAdmin = IsAdmin,
+                        nome = nomeUsuarioClaim
+                    });
                 }
 
-                // Caso contrário, o token é considerado um token de vínculo
                 return Ok(new
                 {
                     status = "autenticado",
-                    role = roleClaim
+                    role = roleClaim,
+                    nome = nomeUsuarioClaim
                 });
             }
             catch (Exception ex)

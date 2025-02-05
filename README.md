@@ -216,25 +216,23 @@ Responses vs Requests.
 
 Definição de quais dados das models serão transferidos entre as requisições.
 
-### 5. Requisições
+<!-- ### 6. Repository Pattern / DI
 
-### 6. Repository Pattern / DI
-
-<!-- [Repository Pattern/DI](https://www.youtube.com/watch?v=6vsONJla1Fk&list=PL82C6-O4XrHfrGOCPmKmwTO7M0avXyQKc&index=10) -->
+[Repository Pattern/DI](https://www.youtube.com/watch?v=6vsONJla1Fk&list=PL82C6-O4XrHfrGOCPmKmwTO7M0avXyQKc&index=10)
 
 Entity -> Code to an interface (abstraction).
 
 Envelopar as requisições em Find "Something" com Dependency Injection (DI).
 
-Precisa ter o código de construção pronto antes de realizar a DI.
+Precisa ter o código de construção pronto antes de realizar a DI. -->
 
 #### Interfaces
 
-Declaração das funções que são utilizadas em Repository.
+Declaração das funções que são utilizadas.
 
-#### Repository
+<!-- #### Repository
 
-Definição e implementação das funções encapsuladas do controlador. Usando Dependecy Injection. Refatoração dos controladores.
+Definição e implementação das funções encapsuladas do controlador. Usando Dependecy Injection. Refatoração dos controladores. -->
 
 ## Tecnologias frontend
 
@@ -249,7 +247,21 @@ Definição e implementação das funções encapsuladas do controlador. Usando 
 
 ## Comandos React
 
-    npm start
+<!--  Informações do REACT - index.html
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`. -->
+
+<!-- You can add webfonts, meta tags, or analytics to this file.
+    The build step will place the bundled scripts into the <body> tag. -->
+
+    To begin the development, run `npm start` or `yarn start`.
+    To create a production bundle, use `npm run build` or `yarn build`.
+
 
 ## Documentação do frontend
 

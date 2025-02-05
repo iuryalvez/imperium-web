@@ -733,9 +733,9 @@ namespace backend.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "edb70cdb-a404-4a5c-b0d7-bcfade249e73",
-                            DataCad = new DateTime(2025, 1, 7, 22, 52, 27, 879, DateTimeKind.Utc).AddTicks(5965),
-                            DataUltimoAcesso = new DateTime(2025, 1, 7, 22, 52, 27, 879, DateTimeKind.Utc).AddTicks(5979),
+                            ConcurrencyStamp = "1eccb193-562c-44a8-bfcd-c8343a4a6b95",
+                            DataCad = new DateTime(2025, 2, 3, 19, 8, 26, 567, DateTimeKind.Utc).AddTicks(2272),
+                            DataUltimoAcesso = new DateTime(2025, 2, 3, 19, 8, 26, 567, DateTimeKind.Utc).AddTicks(2286),
                             Email = "admin@gmail.com",
                             EmailConfirmed = false,
                             Formacao = "Administrador do sistema",
@@ -743,9 +743,9 @@ namespace backend.Migrations
                             Nome = "Administrador",
                             NormalizedEmail = "ADMIN@GMAIL.COM",
                             NormalizedUserName = "ADMIN@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEFJrVIR2h5CespazX1J/RrN5Sbr1xQta+DhcNhhz9GMp35+L5dNw7yElaqoaS7NYgg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEO2agAEIfmth7Wm8BIcWRr4XHwmNLvyu/5a74lcjvhmNQyNxDcvF02Q3JmB6iRNEyQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "cba05c24-2084-4d45-a713-27ce5be3192f",
+                            SecurityStamp = "e0c355e2-9977-4c6b-a8be-744dad88ccdd",
                             TwoFactorEnabled = false,
                             UserName = "admin@gmail.com"
                         },
@@ -753,9 +753,9 @@ namespace backend.Migrations
                         {
                             Id = 2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "6e4bf261-2fe7-431e-a1ad-79512baf36d2",
-                            DataCad = new DateTime(2025, 1, 7, 22, 52, 27, 879, DateTimeKind.Utc).AddTicks(6027),
-                            DataUltimoAcesso = new DateTime(2025, 1, 7, 22, 52, 27, 879, DateTimeKind.Utc).AddTicks(6041),
+                            ConcurrencyStamp = "1fda7b85-c6ec-4b57-a751-a4b788d94a35",
+                            DataCad = new DateTime(2025, 2, 3, 19, 8, 26, 567, DateTimeKind.Utc).AddTicks(2315),
+                            DataUltimoAcesso = new DateTime(2025, 2, 3, 19, 8, 26, 567, DateTimeKind.Utc).AddTicks(2324),
                             Email = "gestor@gmail.com",
                             EmailConfirmed = false,
                             Formacao = "Gestão Clínica",
@@ -763,9 +763,9 @@ namespace backend.Migrations
                             Nome = "Gestor da Clínica",
                             NormalizedEmail = "GESTOR@GMAIL.COM",
                             NormalizedUserName = "GESTOR@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEPssqgjmVfUKKc+dF0TO0v52aqOSBuMNYzJL+94sikuZc1uvh+520+OuFqklbZg50w==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDweCq4rJKFHX8dLIVBZhUB9Lqv6nla61bRTiolP7Tb/9zk+VZISpJAnDe2PyiJf+w==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "51df7511-3264-4c55-b659-040a587b7973",
+                            SecurityStamp = "34be0bd3-6142-4eb4-b652-92ba29548cbb",
                             TwoFactorEnabled = false,
                             UserName = "gestor@gmail.com"
                         },
@@ -773,9 +773,9 @@ namespace backend.Migrations
                         {
                             Id = 3,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "ef03c35f-2a7c-4f99-af06-5aac4dc89e18",
-                            DataCad = new DateTime(2025, 1, 7, 22, 52, 27, 879, DateTimeKind.Utc).AddTicks(6084),
-                            DataUltimoAcesso = new DateTime(2025, 1, 7, 22, 52, 27, 879, DateTimeKind.Utc).AddTicks(6094),
+                            ConcurrencyStamp = "87e751fb-c48a-4090-9dbc-dcde26f70722",
+                            DataCad = new DateTime(2025, 2, 3, 19, 8, 26, 567, DateTimeKind.Utc).AddTicks(2352),
+                            DataUltimoAcesso = new DateTime(2025, 2, 3, 19, 8, 26, 567, DateTimeKind.Utc).AddTicks(2362),
                             Email = "veterinario@gmail.com",
                             EmailConfirmed = false,
                             Formacao = "Medicina Veterinária",
@@ -783,9 +783,9 @@ namespace backend.Migrations
                             Nome = "Veterinário",
                             NormalizedEmail = "VETERINARIO@GMAIL.COM",
                             NormalizedUserName = "VETERINARIO@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDjFg443m+Bu7hLUxUmWsL7XBgbKaBlmKC/4F8v55cdS2OHdNk9SXVTUCK2yijXDBQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEG2nucriM+/v2hrGVVqHmMQXP88QMJsM6AQYq4pD1cBq6+iLjTTo8enMB65WfIqkCg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "f9cf95ea-0b56-4c94-b807-ea2a3634e8a4",
+                            SecurityStamp = "f1926567-9719-4d3a-b551-1d0f9bdeb84c",
                             TwoFactorEnabled = false,
                             UserName = "veterinario@gmail.com"
                         },
@@ -793,9 +793,9 @@ namespace backend.Migrations
                         {
                             Id = 4,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "85a9f739-4ec0-4f4d-99a6-b5610acf66e2",
-                            DataCad = new DateTime(2025, 1, 7, 22, 52, 27, 879, DateTimeKind.Utc).AddTicks(6142),
-                            DataUltimoAcesso = new DateTime(2025, 1, 7, 22, 52, 27, 879, DateTimeKind.Utc).AddTicks(6152),
+                            ConcurrencyStamp = "23d09245-b0a9-4d57-8b78-52e756ec5d7c",
+                            DataCad = new DateTime(2025, 2, 3, 19, 8, 26, 567, DateTimeKind.Utc).AddTicks(2410),
+                            DataUltimoAcesso = new DateTime(2025, 2, 3, 19, 8, 26, 567, DateTimeKind.Utc).AddTicks(2419),
                             Email = "secretario@gmail.com",
                             EmailConfirmed = false,
                             Formacao = "Secretariado",
@@ -803,9 +803,9 @@ namespace backend.Migrations
                             Nome = "Secretário",
                             NormalizedEmail = "SECRETARIO@GMAIL.COM",
                             NormalizedUserName = "SECRETARIO@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEHqCO5lwmWZ+UoKOXstUGUF9zFwG6jEgcIjYODUFvtMMEuWr8g4H1z4TCQDYJC5YGA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEE8d4zBt3GxbPxj9C9VHT1gR+2s9WcIB/eQNgWRBtWtoJxR2cWM4oeEUB92Xm5fi0A==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "4c6c7e8d-2a28-42e1-9060-74e648e50e57",
+                            SecurityStamp = "624e585c-0acc-4a05-936d-5ff040d48798",
                             TwoFactorEnabled = false,
                             UserName = "secretario@gmail.com"
                         },
@@ -813,9 +813,9 @@ namespace backend.Migrations
                         {
                             Id = 5,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "82842c66-6e19-4f1d-b49a-c4c7623c62eb",
-                            DataCad = new DateTime(2025, 1, 7, 22, 52, 27, 879, DateTimeKind.Utc).AddTicks(6199),
-                            DataUltimoAcesso = new DateTime(2025, 1, 7, 22, 52, 27, 879, DateTimeKind.Utc).AddTicks(6214),
+                            ConcurrencyStamp = "214e5df9-6b3a-4b92-af3d-461fa2210ef4",
+                            DataCad = new DateTime(2025, 2, 3, 19, 8, 26, 567, DateTimeKind.Utc).AddTicks(2449),
+                            DataUltimoAcesso = new DateTime(2025, 2, 3, 19, 8, 26, 567, DateTimeKind.Utc).AddTicks(2463),
                             Email = "tecnico@gmail.com",
                             EmailConfirmed = false,
                             Formacao = "Técnico Veterinário",
@@ -823,9 +823,9 @@ namespace backend.Migrations
                             Nome = "Técnico",
                             NormalizedEmail = "TECNICO@GMAIL.COM",
                             NormalizedUserName = "TECNICO@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEEFBcjlinY/7gT78Xdym3rtCncCBnZoEbe3OSnH4OgAspVQjulJg1c9l45kY8Gz+gQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEIMqNDV90jsMBSgA2ZrCoCqpf0EIkfcm2qnMfUxIhFeFz1sdkdwhLEBA/jEwn41f3A==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "d3ee448a-bf3a-40e7-83e3-24a7a33e0e07",
+                            SecurityStamp = "538d9714-bdb5-4417-a782-2013e4039826",
                             TwoFactorEnabled = false,
                             UserName = "tecnico@gmail.com"
                         });
@@ -863,45 +863,59 @@ namespace backend.Migrations
                         },
                         new
                         {
-                            UsuarioId = 2,
-                            PerfilId = 2,
-                            ClinicaId = 1,
+                            UsuarioId = 1,
+                            PerfilId = 1,
+                            ClinicaId = 2,
                             Id = 2
                         },
                         new
                         {
-                            UsuarioId = 2,
-                            PerfilId = 2,
-                            ClinicaId = 2,
+                            UsuarioId = 1,
+                            PerfilId = 1,
+                            ClinicaId = 3,
                             Id = 3
                         },
                         new
                         {
                             UsuarioId = 2,
                             PerfilId = 2,
-                            ClinicaId = 3,
+                            ClinicaId = 1,
                             Id = 4
+                        },
+                        new
+                        {
+                            UsuarioId = 2,
+                            PerfilId = 2,
+                            ClinicaId = 2,
+                            Id = 5
+                        },
+                        new
+                        {
+                            UsuarioId = 2,
+                            PerfilId = 2,
+                            ClinicaId = 3,
+                            Id = 6
                         },
                         new
                         {
                             UsuarioId = 3,
                             PerfilId = 3,
                             ClinicaId = 2,
-                            Id = 5
+                            Id = 7
                         },
                         new
                         {
                             UsuarioId = 4,
                             PerfilId = 4,
                             ClinicaId = 2,
-                            Id = 6
+                            Id = 8
                         },
                         new
                         {
                             UsuarioId = 5,
                             PerfilId = 5,
                             ClinicaId = 3,
-                            Id = 7
+                            Id = 9
                         });
                 });
 
