@@ -25,60 +25,6 @@ namespace backend.Services
             _logger = logger;
         }
 
-        // Valida as informações do usuário contidas no token
-        public async Task<bool> ValidaUsuario(string token)
-        {
-            try
-            {
-                using var _context = _contextFactory.CreateDbContext();
-                // Extrai informações do token
-                var handler = new JwtSecurityTokenHandler();
-                var jwtToken = handler.ReadToken(token) as JwtSecurityToken;
-
-                if (jwtToken == null)
-                {
-                    _logger.LogWarning("Token inválido na validação de usuário.");
-                    return false;
-                }
-
-                // Obtém os valores das claims no token
-                var acessoLogin = jwtToken.Claims.FirstOrDefault(c => c.Type == "AcessoLogin")?.Value;
-                var usuarioPerfilClinicaClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-
-                // Verifica se o token é de um usuário que acabou de fazer login (pula a validação)
-                if (string.IsNullOrEmpty(acessoLogin))
-                {
-                    _logger.LogInformation("Token de login detectado, pulando validação.");
-                    return true;
-                }
-
-                // Valida se o ID do vinculo é um valor numérico válido
-                if (!int.TryParse(usuarioPerfilClinicaClaim, out int usuarioPerfilClinicaId))
-                {
-                    _logger.LogWarning("Falha ao converter o valor da claim 'NameIdentifier' para int. Valor: {Value}", usuarioPerfilClinicaClaim);
-                    return false;
-                }
-
-                // Verifica se o vínculo ainda existe no banco
-                var vinculo = await _context.UsuariosPerfisClinicas
-                    .FirstOrDefaultAsync(upc => upc.Id == usuarioPerfilClinicaId);
-
-                if (vinculo == null)
-                {
-                    _logger.LogWarning("Vínculo não encontrado para o ID {UsuarioPerfilClinicaId}.", usuarioPerfilClinicaId);
-                    return false;
-                }
-
-                _logger.LogInformation("Token válido para o vínculo com ID {UsuarioPerfilClinicaId}.", usuarioPerfilClinicaId);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao validar o token.");
-                return false;
-            }
-        }
-
         /// <summary>
         /// Valida o token JWT contido no cookie e retorna o ClaimsPrincipal.
         /// </summary>

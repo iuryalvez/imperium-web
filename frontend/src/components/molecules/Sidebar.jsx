@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAuth } from '../../services/AuthContext'; 
 import { NavLink } from 'react-router-dom';
 
 import ClinicaIcon from '../../assets/animal/pet-care-service-pet-grooming-service-svgrepo-com.png';
@@ -9,12 +10,13 @@ import UsuariosIcon from '../../assets/user/user-group-svgrepo-com.png';
 import RacoesIcon from '../../assets/animal/dog-food-pet-svgrepo-com.png';
 
 function Sidebar() {
+  const { userName, clinicaNome } = useAuth(); 
   return (
     <aside className="bg-green-600 h-screen w-64 text-white flex flex-col">
       {/* Cabeçalho */}
       <div className="p-4 border-b border-green-700">
-        <h2 className="text-xl font-bold">Marcos Ceron</h2>
-        <p className="text-sm text-green-200">Clínica Teste</p>
+        <h2 className="text-xl font-bold">{userName || 'Usuário'}</h2>
+        <p className="text-sm text-green-200">{clinicaNome || 'Clínica'}</p>
       </div>
 
       {/* Menu */}

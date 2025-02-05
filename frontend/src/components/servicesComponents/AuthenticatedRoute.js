@@ -3,15 +3,21 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../services/AuthContext';
 
 const AuthenticatedRoute = () => {
-  const { isAuthenticated, isLogged, loading } = useAuth();
+  const { isAuthenticated, isLogged, isAdmin, loading } = useAuth();
 
-  if (loading) return <div>Carregando...</div>;
+  if (loading) return (
+    <div>Carregando...</div> 
+  );
 
-  return isAuthenticated 
-  ? <Outlet /> 
-  : isLogged 
-    ? <Navigate to="/sistema/vinculos" />
-    : <Navigate to="/login" />;
+  if (isAuthenticated) {
+    return <Outlet></Outlet>
+  }
+  if (isLogged) {
+    return isAdmin ? <Navigate to="/sistema" /> 
+    : <Navigate to="/sistema/vinculos" />
+  }
+
+  return <Navigate to="/login" />;
 
 };
 

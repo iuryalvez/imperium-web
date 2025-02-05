@@ -264,7 +264,7 @@ namespace backend.Controllers
                 }
 
                 // Verifica o tipo de token pela presença da claim "acessoLogin"
-                var isAcessoLogin = User.HasClaim("AcessoLogin", "true");
+                var isAcessoLogin = User.HasClaim("acessoLogin", "true");
 
                 int usuarioId;
 
@@ -373,12 +373,11 @@ namespace backend.Controllers
         {
             try
             {
-                var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
                 var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var isAdminClaim = User.FindFirst("IsAdmin")?.Value;
-                var nomeUsuarioClaim = User.FindFirst("Nome")?.Value;
-
-                Console.WriteLine("Nome do usuário no contexto: ", nomeUsuarioClaim);
+                var userNameClaim = User.FindFirst(ClaimTypes.Name)?.Value;
+                var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+                var clinicaNomeClaim = User.FindFirst("clinicaNome")?.Value;
+                var isAdminClaim = User.FindFirst("isAdmin")?.Value;
 
                 if (string.IsNullOrEmpty(userIdClaim))
                 {
@@ -394,7 +393,7 @@ namespace backend.Controllers
                     {
                         status = "logado",
                         isAdmin = IsAdmin,
-                        nome = nomeUsuarioClaim
+                        name = userNameClaim
                     });
                 }
 
@@ -402,7 +401,8 @@ namespace backend.Controllers
                 {
                     status = "autenticado",
                     role = roleClaim,
-                    nome = nomeUsuarioClaim
+                    name = userNameClaim,
+                    clinicaNome = clinicaNomeClaim
                 });
             }
             catch (Exception ex)

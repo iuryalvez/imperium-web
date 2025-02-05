@@ -4,27 +4,20 @@ import { useAuth } from '../../services/AuthContext';
 import BotaoMenu from '../atoms/BotaoMenu';
 import BotaoOff from '../atoms/BotaoOff';
 
-const TemplateSistema = ({ isAdmin }) => {
+const TemplateSistema = () => {
     const navigate = useNavigate();
     const { userName } = useAuth(); 
-
-    const botoesAdmin = [
+    
+    const botoesGerais = [
+        { texto: 'Vínculos', rota: '/sistema/vinculos', ativo: true },
         { texto: 'Clínicas', rota: '/sistema/clinicas', ativo: true },
         { texto: 'Usuários', rota: '/sistema/usuarios', ativo: true },
         { texto: 'Animais', rota: '/sistema/animais', ativo: false },
         { texto: 'Perfis', rota: '/sistema/perfis', ativo: false }
     ];
 
-    const botoesGerais = [
-        { texto: 'Vínculos', rota: '/sistema/vinculos', ativo: true }
-    ];
-
     const renderBotoes = () => {
         let botoes = [...botoesGerais];
-
-        if (isAdmin === true) {
-            botoes = [...botoes, ...botoesAdmin];
-        }
 
         return botoes.map(({ texto, rota, ativo }) =>
             ativo ? (

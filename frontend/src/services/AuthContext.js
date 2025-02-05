@@ -14,6 +14,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(null);
   const [userName, setUserName] = useState(""); // Estado para armazenar o nome do usuário
+  const [clinicaNome, setClinicaNome] = useState(""); // Estado para armazenar o nome da clínica
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const abrirNotificacao = useNotification(); // Contexto de notificação
@@ -27,13 +28,14 @@ export const AuthProvider = ({ children }) => {
         case 'autenticado':
           setIsLogged(true);
           setIsAuthenticated(true);
-          setUserName(resposta.nome || ""); // Define o nome do usuário
+          setUserName(resposta.name || ""); // Define o nome do usuário
+          setClinicaNome(resposta.clinicaNome || ""); // Define o nome do usuário
           break;
         case 'logado':
           setIsLogged(true);
           setIsAuthenticated(false);
           setIsAdmin(resposta.isAdmin);
-          setUserName(resposta.nome || ""); // Define o nome do usuário
+          setUserName(resposta.name || ""); // Define o nome do usuário
           // console.log("Nome do usuário:", userName);
           break;
         default:
@@ -119,6 +121,7 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated,
         isAdmin,
         userName,
+        clinicaNome,
         loading,
         login,
         escolherVinculo,

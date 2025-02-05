@@ -157,15 +157,15 @@ internal class Program
             options.AddPolicy("GerenciaAnimais", policy => policy.RequireRole("ADMIN","VETERINARIO"));
             options.AddPolicy("GerenciaTutores", policy => policy.RequireRole("ADMIN","VETERINARIO","SECRETARIO"));
             options.AddPolicy("GerenciaConsultas", policy => policy.RequireRole("ADMIN","VETERINARIO","SECRETARIO"));
-            options.AddPolicy("GerenciaSistema", policy => policy.RequireClaim("IsAdmin", "true"));
-            options.AddPolicy("AcessoLoginPolicy", policy => policy.RequireClaim("AcessoLogin", "true"));
+            options.AddPolicy("GerenciaSistema", policy => policy.RequireClaim("isAdmin", "true"));
+            options.AddPolicy("AcessoLoginPolicy", policy => policy.RequireClaim("acessoLogin", "true"));
             
             // policy de operação OU entre AcessoLogin e TodosUsuarios (para as listas de vinculos) 
             options.AddPolicy("AcessoLoginOuTodosUsuarios", policy =>
             {
                 policy.RequireAssertion(context =>
                     // verifica se o token é de login
-                    context.User.HasClaim(c => c.Type == "AcessoLogin" && c.Value == "true")
+                    context.User.HasClaim(c => c.Type == "acessoLogin" && c.Value == "true")
                     ||
                     // se não é de login, verifica se o token tem qualquer valor na claim "role"
                     context.User.HasClaim(c => c.Type == ClaimTypes.Role && !string.IsNullOrEmpty(c.Value))

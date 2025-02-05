@@ -36,20 +36,26 @@ namespace backend.Services
                     throw new ArgumentException("ID do vínculo deve ser um número inteiro válido.");
                 }
 
-                var vinculo = _context.UsuariosPerfisClinicas
+                var upc = _context.UsuariosPerfisClinicas
                     .AsNoTracking()
-                    .Include(upc => upc.Perfil) // garantindo perfil
+                    .Include(upc => upc.Perfil)
+                    .Include(upc => upc.Usuario)
+                    .Include(upc => upc.Clinica)
                     .FirstOrDefault(upc => upc.Id == idVinculo);
 
-                if (vinculo == null)
+                if (upc == null)
                 {
                     _logger.LogError("Vínculo de usuário não encontrado para ID {UsuarioPerfilClinicaId}.", usuarioPerfilClinicaId);
                     throw new Exception("Vínculo de usuário não encontrado.");
                 }
 
-                var clinicaId = vinculo.ClinicaId;
+                var clinicaId = upc.ClinicaId;
 
-                var roleName = vinculo.Perfil?.Name ?? throw new Exception("Perfil não encontrado para o usuário.");
+                var clinicaNome = upc.Clinica?.NomeClinica ?? throw new Exception("Clínica não encontrada para o usuário.");
+
+                var roleName = upc.Perfil?.Name ?? throw new Exception("Perfil não encontrado para o usuário.");
+
+                var userName = upc.Usuario?.Nome ?? throw new Exception("Nome não encontrado para o usuário.");
 
                 var tokenHandler = new JwtSecurityTokenHandler();
                 
@@ -69,8 +75,10 @@ namespace backend.Services
                     {
                         new Claim(ClaimTypes.NameIdentifier, usuarioPerfilClinicaId),
                         new Claim(ClaimTypes.Role, roleName), // adiciona a claim de Role
+                        new Claim(ClaimTypes.Name, userName), // adiciona a claim de clinicaId
                         new Claim("UsuarioIP", usuarioIp),
                         new Claim("UsuarioAgent", usuarioAgent),
+                        new Claim("clinicaNome", clinicaNome), // adiciona a claim de clinicaId
                         new Claim("clinicaId", clinicaId.ToString()) // adiciona a claim de clinicaId
                     }),
                     Expires = now.AddMinutes(Convert.ToDouble(_configuration["JWT:ExpiresInMinutes"])),
@@ -109,21 +117,21 @@ namespace backend.Services
                     throw new ArgumentException("ID do usuário deve ser um número inteiro válido.");
                 }
 
-                var role = _context.UsuariosPerfisClinicas
+                var upc = _context.UsuariosPerfisClinicas
                     .AsNoTracking()
-                    .Include(upc => upc.Perfil) // garantindo perfil
-                    .Include(upc => upc.Usuario) // garantindo perfil
+                    .Include(upc => upc.Perfil)
+                    .Include(upc => upc.Usuario)
                     .FirstOrDefault(upc => upc.UsuarioId == idUsuario);
 
-                if (role == null)
+                if (upc == null)
                 {
-                    _logger.LogError("Perfil de usuário não encontrado para ID {role}.", role);
+                    _logger.LogError("Perfil de usuário não encontrado para ID {upc}.", upc);
                     throw new Exception("Perfil de usuário não encontrado.");
                 }
 
-                var roleName = role.Perfil?.Name ?? throw new Exception("Perfil não encontrado para o usuário.");
+                var roleName = upc.Perfil?.Name ?? throw new Exception("Perfil não encontrado para o usuário.");
 
-                var userName = role.Usuario.Nome ?? throw new Exception("Nome não encontrado para o usuário.");
+                var userName = upc.Usuario?.Nome ?? throw new Exception("Nome não encontrado para o usuário.");
 
                 var tokenHandler = new JwtSecurityTokenHandler();
                 
@@ -140,16 +148,16 @@ namespace backend.Services
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, usuarioId),
-                    new Claim("Nome", userName),
+                    new Claim(ClaimTypes.Name, userName),
                     new Claim("UsuarioIP", usuarioIp),
                     new Claim("UsuarioAgent", usuarioAgent),
-                    new Claim("AcessoLogin", "true")
+                    new Claim("acessoLogin", "true")
                 };
 
                 // Se o usuário for ADMIN, adiciona a claim extra
                 if (roleName == "ADMIN")
                 {
-                    claims.Add(new Claim("IsAdmin", "true"));
+                    claims.Add(new Claim("isAdmin", "true"));
                 }
 
                 var tokenDescriptor = new SecurityTokenDescriptor
@@ -184,7 +192,7 @@ namespace backend.Services
                 var userId = context.Principal.FindFirst(ClaimTypes.NameIdentifier).Value;
                 var userIp = context.Principal.FindFirst("UserIP").Value;
                 var userAgent = context.Principal.FindFirst("UserAgent").Value;
-                var acessoLogin = context.Principal.FindFirst("AcessoLogin")?.Value;
+                var acessoLogin = context.Principal.FindFirst("acessoLogin")?.Value;
 
                 // gera o token correspondente ao que existia anteriormente
                 string newToken = string.IsNullOrEmpty(acessoLogin)
