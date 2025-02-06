@@ -23,16 +23,18 @@ const ListaVinculos = () => {
         fetchVinculos();
     }, []);
 
-    if (loading) {
-        return <p>Carregando vínculos...</p>;
-    }
-
-    if (error) {
-        return <p className="text-red-500">{error}</p>;
-    }
+    const renderStatus = (message, className = "") => (
+        <div className="container mx-auto my-8">
+            <h1 className="text-2xl font-bold mb-4 text-green-dark">Lista de Vínculos</h1>
+            <p className={className}>{message}</p>
+        </div>
+    );
+    
+    if (loading) return renderStatus("Carregando vínculos...");
+    if (error) return renderStatus(error, "text-red-500");
 
     return (
-        <TemplateListaVinculos vinculos={vinculos} />
+        renderStatus(<TemplateListaVinculos vinculos={vinculos} />)
     );
 };
 

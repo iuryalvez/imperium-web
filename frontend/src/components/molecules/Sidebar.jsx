@@ -14,7 +14,7 @@ function Sidebar() {
   return (
     <aside className="bg-green-600 h-screen w-64 text-white flex flex-col">
       {/* Cabeçalho */}
-      <div className="p-4 border-b border-green-700">
+      <div className="w-full p-4 border-b border-green-700">
         <h2 className="text-xl font-bold">{userName || 'Usuário'}</h2>
         <p className="text-sm text-green-200">{clinicaNome || 'Clínica'}</p>
       </div>
@@ -25,7 +25,7 @@ function Sidebar() {
           <NavLink
             to="/clinica/editar"
             className={({ isActive }) =>
-              `flex items-center px-4 py-2 text-white hover:bg-green-700 transition ${
+              `flex items-center pl-10 pr-4 py-2 text-white hover:bg-green-700 transition ${
                 isActive ? 'bg-green-700' : ''
               }`
             }
@@ -38,7 +38,7 @@ function Sidebar() {
           <NavLink
             to="/clinica/animais"
             className={({ isActive }) =>
-              `flex items-center px-4 py-2 text-white hover:bg-green-700 transition ${
+              `flex items-center pl-10 pr-4 py-2 text-white hover:bg-green-700 transition ${
                 isActive ? 'bg-green-700' : ''
               }`
             }
@@ -51,7 +51,7 @@ function Sidebar() {
           <NavLink
             to="/clinica/consultas"
             className={({ isActive }) =>
-              `flex items-center px-4 py-2 text-white hover:bg-green-700 transition ${
+              `flex items-center pl-10 pr-4 py-2 text-white hover:bg-green-700 transition ${
                 isActive ? 'bg-green-700' : ''
               }`
             }
@@ -64,7 +64,7 @@ function Sidebar() {
           <NavLink
             to="/clinica/tutores"
             className={({ isActive }) =>
-              `flex items-center px-4 py-2 text-white hover:bg-green-700 transition ${
+              `flex items-center pl-10 pr-4 py-2 text-white hover:bg-green-700 transition ${
                 isActive ? 'bg-green-700' : ''
               }`
             }
@@ -77,7 +77,7 @@ function Sidebar() {
           <NavLink
             to="/clinica/usuarios"
             className={({ isActive }) =>
-              `flex items-center px-4 py-2 text-white hover:bg-green-700 transition ${
+              `flex items-center pl-10 pr-4 py-2 text-white hover:bg-green-700 transition ${
                 isActive ? 'bg-green-700' : ''
               }`
             }
@@ -90,7 +90,7 @@ function Sidebar() {
           <NavLink
             to="/clinica/racoes"
             className={({ isActive }) =>
-              `flex items-center px-4 py-2 text-white hover:bg-green-700 transition ${
+              `flex items-center pl-10 pr-4 py-2 text-white hover:bg-green-700 transition ${
                 isActive ? 'bg-green-700' : ''
               }`
             }

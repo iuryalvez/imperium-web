@@ -8,6 +8,7 @@ using backend.Models;
 using backend.Dtos.Clinica;
 using backend.Dtos.Animal;
 using backend.Dtos.Usuario;
+using System.Security.Claims;
 
 namespace backend.Controllers
 {
@@ -110,7 +111,8 @@ namespace backend.Controllers
         [Authorize(Policy = "GerenciaSistema")]
         public async Task<ActionResult<IEnumerable<GetAnimaisDto>>> GetAllAnimais()
         {
-            try {
+            try
+            {
                 var animais = await _context.Animais
                 .Select(a => new GetAnimaisDto
                 {
@@ -123,12 +125,13 @@ namespace backend.Controllers
 
                 return Ok(animais);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 _logger.LogError(ex, "Erro ao buscar animais");
                 return StatusCode(500, "Erro interno ao buscar animais.");
             }
         }
-        
+
         // obtém todos os usuários
         [HttpGet("usuarios")]
         [Authorize(Policy = "GerenciaSistema")]
@@ -136,15 +139,18 @@ namespace backend.Controllers
         {
             try
             {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
                 var usuarios = await _context.Usuarios
-                .Select(u => new GetUsuariosDto
-                {
-                    Id = u.Id,
-                    UserName = u.UserName,
-                    Email = u.Email,
-                    Nome = u.Nome
-                })
-                .ToListAsync();
+                    .Where(u => u.Id.ToString() != userId) // exclui o próprio usuário da lista
+                    .Select(u => new GetUsuariosDto
+                    {
+                        Id = u.Id,
+                        UserName = u.UserName,
+                        Email = u.Email,
+                        Nome = u.Nome
+                    })
+                    .ToListAsync();
 
                 return Ok(usuarios);
             }
@@ -154,5 +160,80 @@ namespace backend.Controllers
                 return StatusCode(500, "Erro interno ao buscar usuários.");
             }
         }
+
+        [HttpPut("usuarios/{usuarioId}/desabilitar")]
+        [Authorize(Policy = "GerenciaSistema")]
+        public async Task<IActionResult> DesabilitarTodosVinculos(int usuarioId)
+        {
+            try
+            {
+                // Verifica se há vínculos antes de buscá-los completamente
+                bool existeVinculo = await _context.UsuariosPerfisClinicas
+                    .AnyAsync(v => v.UsuarioId == usuarioId && v.Habilitado);
+
+                if (!existeVinculo)
+                {
+                    return NotFound(new { Message = "Nenhum vínculo ativo encontrado para desabilitar." });
+                }
+
+                // Busca e desabilita todos os vínculos do usuário
+                var vinculos = await _context.UsuariosPerfisClinicas
+                    .Where(v => v.UsuarioId == usuarioId)
+                    .ToListAsync();
+
+                vinculos.ForEach(v => v.Habilitado = false);
+
+                // Atualiza em lote para melhor performance
+                _context.UsuariosPerfisClinicas.UpdateRange(vinculos);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Todos os vínculos do usuário {UsuarioId} foram desabilitados com sucesso.", usuarioId);
+
+                return Ok(new { Message = "Todos os vínculos foram desabilitados com sucesso." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao desabilitar vínculos do usuário {UsuarioId}.", usuarioId);
+                return StatusCode(500, new { Message = "Erro interno ao desabilitar os vínculos." });
+            }
+        }
+
+        [HttpPut("usuarios/{usuarioId}/habilitar-todos")]
+        [Authorize(Policy = "GerenciaSistema")]
+        public async Task<IActionResult> HabilitarTodosVinculos(int usuarioId)
+        {
+            try
+            {
+                // Verifica se há vínculos desabilitados antes de buscá-los completamente
+                bool existeVinculo = await _context.UsuariosPerfisClinicas
+                    .AnyAsync(v => v.UsuarioId == usuarioId && !v.Habilitado);
+
+                if (!existeVinculo)
+                {
+                    return NotFound(new { Message = "Nenhum vínculo desabilitado encontrado para habilitar." });
+                }
+
+                // Busca e habilita todos os vínculos desabilitados do usuário
+                var vinculos = await _context.UsuariosPerfisClinicas
+                    .Where(v => v.UsuarioId == usuarioId && !v.Habilitado)
+                    .ToListAsync();
+
+                vinculos.ForEach(v => v.Habilitado = true);
+
+                // Atualiza em lote para melhor performance
+                _context.UsuariosPerfisClinicas.UpdateRange(vinculos);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Todos os vínculos do usuário {UsuarioId} foram habilitados com sucesso.", usuarioId);
+
+                return Ok(new { Message = "Todos os vínculos foram habilitados com sucesso." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao habilitar vínculos do usuário {UsuarioId}.", usuarioId);
+                return StatusCode(500, new { Message = "Erro interno ao habilitar os vínculos." });
+            }
+        }
+
     }
 }

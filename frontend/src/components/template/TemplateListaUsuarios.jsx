@@ -1,78 +1,107 @@
-import React from 'react';
-import { Table, Button, Tag } from 'antd'; // Usando Ant Design para tabela
-import Navsidebar from '../organisms/Navsidebar.jsx';
+import { useState } from "react";
+import { Table, Button, Tag, Space } from "antd";
+import { usuario as usuarioAPI } from "../../api/usuariosAPI";
 
-const TemplateListaUsuarios = ({ usuarios }) => {
-  const handleDesabilitar = (id) => {
-    // Função de desabilitar usuário (pode chamar a API aqui)
-    console.log(`Usuário com ID ${id} será desabilitado.`);
+const TemplateListaUsuarios = ({ usuarios, onEditarUsuario, onAdicionarUsuario }) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleDesabilitar = async (id) => {
+    try {
+      setLoading(true);
+      await usuarioAPI.desabilitar(id);
+      console.log(`Usuário com ID ${id} foi desabilitado.`);
+    } catch (error) {
+      console.error("Erro ao desabilitar usuário:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleHabilitar = async (id) => {
+    try {
+      setLoading(true);
+      await usuarioAPI.habilitar(id);
+      console.log(`Usuário com ID ${id} foi habilitado.`);
+    } catch (error) {
+      console.error("Erro ao habilitar usuário:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditar = (usuario) => {
+    onEditarUsuario(usuario);
   };
 
   const columns = [
     {
-      title: 'Nome',
-      dataIndex: 'nome',
-      key: 'nome',
+      title: "Nome",
+      dataIndex: "nome",
+      key: "nome",
     },
     {
-      title: 'Habilitado',
-      dataIndex: 'habilitado',
-      key: 'habilitado',
+      title: "Habilitado",
+      dataIndex: "habilitado",
+      key: "habilitado",
       render: (habilitado) => (
-        <Tag color={habilitado ? 'green' : 'red'}>
-          {habilitado ? 'Sim' : 'Não'}
+        <Tag color={habilitado ? "green" : "red"}>
+          {habilitado ? "Sim" : "Não"}
         </Tag>
       ),
     },
     {
-      title: 'Perfil',
-      dataIndex: 'perfil',
-      key: 'perfil',
-      sorter: (a, b) => a.cargo.localeCompare(b.cargo), // Ordenação alfabética
+      title: "Perfil",
+      dataIndex: "perfil",
+      key: "perfil",
+      sorter: (a, b) => a.perfil.localeCompare(b.perfil),
     },
     {
-      title: 'Data de Cadastro',
-      dataIndex: 'dataCadastro',
-      key: 'dataCadastro',
-      sorter: (a, b) => new Date(a.dataCadastro) - new Date(b.dataCadastro), // Ordenação por data
-      render: (data) => new Date(data).toLocaleDateString('pt-BR'), // Formata a data
+      title: "Data de Cadastro",
+      dataIndex: "dataCadastro",
+      key: "dataCadastro",
+      sorter: (a, b) => new Date(a.dataCadastro) - new Date(b.dataCadastro),
+      render: (data) => new Date(data).toLocaleDateString("pt-BR"),
     },
     {
-      title: 'Data Último Acesso',
-      dataIndex: 'dataUltimoAcesso',
-      key: 'dataUltimoAcesso',
-      sorter: (a, b) => new Date(a.dataUltimoAcesso) - new Date(b.dataUltimoAcesso), // Ordenação por data
-      render: (data) => new Date(data).toLocaleDateString('pt-BR'), // Formata a data
+      title: "Último Acesso",
+      dataIndex: "dataUltimoAcesso",
+      key: "dataUltimoAcesso",
+      sorter: (a, b) => new Date(a.dataUltimoAcesso) - new Date(b.dataUltimoAcesso),
+      render: (data) => new Date(data).toLocaleDateString("pt-BR"),
     },
     {
-      title: 'Ações',
-      key: 'acoes',
+      title: "Ações",
+      key: "acoes",
       render: (_, record) => (
-        <Button
-          type="primary"
-          danger
-          onClick={() => handleDesabilitar(record.id)}
-        >
-          Desabilitar
-        </Button>
+        <Space>
+          <Button type="default" onClick={() => handleEditar(record)}>
+            Editar
+          </Button>
+          {record.habilitado ? (
+            <Button type="primary" danger loading={loading} onClick={() => handleDesabilitar(record.id)}>
+              Desabilitar
+            </Button>
+          ) : (
+            <Button type="primary" loading={loading} onClick={() => handleHabilitar(record.id)}>
+              Habilitar
+            </Button>
+          )}
+        </Space>
       ),
     },
   ];
 
   return (
-    <div className='main-content'>
-      <Navsidebar></Navsidebar>
-      <div className='usuarios-content'>
-        <h1 className="text-2xl font-bold mb-4 text-green-dark">
-            Lista de Usuários
-        </h1>
-        <Table
-          dataSource={usuarios}
-          columns={columns}
-          rowKey="id" // garante que cada linha tenha um ID único
-          pagination={{ pageSize: 10 }} // paginação com 10 registros por página
-          />
-      </div>
+    <div>
+      <Button type="primary" onClick={onAdicionarUsuario} style={{ marginBottom: 16 }}>
+        Adicionar Usuário
+      </Button>
+      <Table
+        dataSource={usuarios}
+        columns={columns}
+        rowKey="id"
+        pagination={{ pageSize: 10 }}
+      />
     </div>
   );
 };

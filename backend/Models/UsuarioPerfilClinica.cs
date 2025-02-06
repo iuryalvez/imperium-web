@@ -7,5 +7,6 @@ namespace backend.Models {
         public Perfil? Perfil { get; set; }
         public int ClinicaId { get; set; }
         public Clinica? Clinica { get; set; }
+        public bool Habilitado { get; set; }
     }
 }

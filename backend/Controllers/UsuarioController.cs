@@ -8,6 +8,8 @@ using backend.Models;
 using backend.Data;
 using backend.Dtos.Usuario;
 using backend.Interfaces;
+using backend.Dtos.Vinculo;
+using System.Security.Claims;
 
 namespace backend.Controllers
 {
@@ -18,12 +20,14 @@ namespace backend.Controllers
         private readonly AppDbContext _context;
         private readonly IAuthService _authService;
         private readonly UserManager<Usuario> _userManager;
+        private readonly ILogger<UsuarioController> _logger;
 
-        public UsuarioController(AppDbContext context, IAuthService authService, UserManager<Usuario> userManager)
+        public UsuarioController(AppDbContext context, IAuthService authService, UserManager<Usuario> userManager, ILogger<UsuarioController> logger)
         {
             _context = context;
             _authService = authService;
             _userManager = userManager;
+            _logger = logger;
         }
         
         // cria um novo usuário com perfil e associação à clínica
@@ -31,10 +35,6 @@ namespace backend.Controllers
         [Authorize(Policy = "GerenciaClinica")]
         public async Task<IActionResult> CreateUsuario(int perfilId, [FromBody] UsuarioDto usuarioDto)
         {
-            var clinicaId = User.GetClaimValue<int>("clinicaId");
-            if (clinicaId == 0) {
-                return BadRequest("Acesso não permitido a esta clínica.");
-            }
 
             // Verifica se o perfil é válido
             var perfil = await _context.Perfis.FindAsync(perfilId);
@@ -80,6 +80,8 @@ namespace backend.Controllers
                 return BadRequest(roleResult.Errors);
             }
 
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+
             // Associa o usuário à clínica
             var usuarioPerfilClinica = new UsuarioPerfilClinica
             {
@@ -102,18 +104,15 @@ namespace backend.Controllers
         {
             try
             {
-                // obtém o ID da clínica a partir do token do usuário
                 var clinicaId = User.GetClaimValue<int>("clinicaId");
-                if (clinicaId <= 0)
-                {
-                    return BadRequest("Acesso não permitido ou clínica inválida.");
-                }
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                 // realiza a consulta com as devidas inclusões e mapeia para o DTO
                 var usuarios = await _context.UsuariosPerfisClinicas
                     .AsNoTracking() // melhora o desempenho em consultas somente leitura
                     .Include(upc => upc.Usuario) // inclui os dados do usuário
                     .Where(upc => upc.ClinicaId == clinicaId)
+                    .Where(u => u.UsuarioId.ToString() != userId)
                     .Select(upc => new GetUsuariosDto
                     {
                         Id = upc.Usuario.Id,
@@ -122,8 +121,7 @@ namespace backend.Controllers
                         Nome = upc.Usuario.Nome ?? string.Empty, // garante que Nome nunca seja nulo
                         Perfil = upc.Perfil.Name ?? string.Empty,
                         DataCadastro = upc.Usuario.DataCad,
-                        DataUltimoAcesso = upc.Usuario.DataUltimoAcesso,
-                        Habilitado = true
+                        DataUltimoAcesso = upc.Usuario.DataUltimoAcesso
                     })
                     .ToListAsync();
 
@@ -141,10 +139,6 @@ namespace backend.Controllers
         [Authorize(Policy = "GerenciaClinica")]
         public async Task<IActionResult> GetUsuarioById(int usuarioId)
         {
-            var clinicaId = User.GetClaimValue<int>("clinicaId");
-            if (clinicaId == 0) {
-                return BadRequest("Acesso não permitido a esta clínica.");
-            }
 
             var usuario = await _context.Usuarios.FindAsync(usuarioId);
             if (usuario == null)
@@ -158,10 +152,6 @@ namespace backend.Controllers
         [Authorize(Policy = "GerenciaClinica")]
         public async Task<IActionResult> UpdateUsuario(int usuarioId, [FromBody] UsuarioDto usuarioDto)
         {
-            var clinicaId = User.GetClaimValue<int>("clinicaId");
-            if (clinicaId == 0) {
-                return BadRequest("Acesso não permitido a esta clínica.");
-            }
 
             var usuario = await _context.Usuarios.FindAsync(usuarioId);
             if (usuario == null)
@@ -181,14 +171,62 @@ namespace backend.Controllers
             return Ok(new { Message = "Usuário atualizado com sucesso." });
         }
 
+        [HttpPut("usuarios/{upcId}/desabilitar")]
+        [Authorize(Policy = "GerenciaClinica")]
+        public async Task<IActionResult> DesabilitarVinculo(int upcId)
+        {
+            var vinculo = await _context.UsuariosPerfisClinicas
+                .FirstOrDefaultAsync(v => v.Id == upcId);
+            
+            if (vinculo == null)
+            {
+                return NotFound(new { Message = "Vínculo não encontrado." });
+            }
+
+            vinculo.Habilitado = false;
+
+            // Persistir alteração no banco
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Vínculo {VinculoId} desabilitado com sucesso.", upcId);
+
+            return Ok(new 
+            { 
+                Message = "Vínculo desabilitado com sucesso.", 
+                VinculoId = upcId 
+            });
+        }
+
+        [HttpPut("usuarios/{upcId}/habilitar")]
+        [Authorize(Policy = "GerenciaClinica")]
+        public async Task<IActionResult> HabilitarVinculo(int upcId)
+        {
+            var vinculo = await _context.UsuariosPerfisClinicas
+                .FirstOrDefaultAsync(v => v.Id == upcId);
+            
+            if (vinculo == null)
+            {
+                return NotFound(new { Message = "Vínculo não encontrado." });
+            }
+
+            vinculo.Habilitado = true;
+
+            // persistir alteração no banco
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Vínculo {VinculoId} habilitado com sucesso.", upcId);
+
+            return Ok(new 
+            { 
+                Message = "Vínculo habilitado com sucesso.", 
+                VinculoId = upcId 
+            });
+        }
+
         [HttpDelete("usuarios/{usuarioId}")]
         [Authorize(Policy = "GerenciaSistema")]
         public async Task<IActionResult> DeleteUsuario(int usuarioId)
         {
-            var clinicaId = User.GetClaimValue<int>("clinicaId");
-            if (clinicaId == 0) {
-                return BadRequest("Acesso não permitido a esta clínica.");
-            }
 
             var usuario = await _context.Usuarios.FindAsync(usuarioId);
             if (usuario == null)
@@ -204,6 +242,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("debug-claims")]
+        [Authorize(Policy = "GerenciaSistema")]
         public IActionResult DebugClaims()
         {
             var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();

@@ -3,7 +3,6 @@ import React from 'react';
 import '../App.css';
 import '../components/styles/Sobre.css';
 
-import Logos from '../components/Logos';
 import Header from '../components/organisms/Header';
 
 function Sobre() {

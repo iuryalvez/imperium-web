@@ -7,7 +7,7 @@
     --verde-escuro: #064420;
 }
 
-.login-content {
+.inicio-content {
     display: flex;
     flex-direction: column;
     padding: 0 6.25rem 5rem 6.25rem;

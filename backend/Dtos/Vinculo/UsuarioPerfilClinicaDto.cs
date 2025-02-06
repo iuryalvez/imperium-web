@@ -1,6 +1,6 @@
-namespace backend.Dtos.UsuarioPerfilClinica
+namespace backend.Dtos.Vinculo
 {
-    public class UsuarioPerfilClinicaDto
+    public class VinculoDto
     {
         public int Id { get; set; }
         public int UsuarioId { get; set; }
@@ -8,5 +8,6 @@ namespace backend.Dtos.UsuarioPerfilClinica
         public string? NomePerfil { get; set; }
         public int ClinicaId { get; set; }
         public string? NomeClinica { get; set; }
+        public bool Habilitado { get; set; }
     }
 }

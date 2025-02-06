@@ -1,4 +1,4 @@
-using backend.Dtos.UsuarioPerfilClinica;
+using backend.Dtos.Vinculo;
 using backend.Models;
 
 namespace backend.Dtos.Perfil {

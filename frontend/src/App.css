@@ -9,11 +9,12 @@
   --verde-escuro: #064420;
 }
 
-.clinica-content {
-  margin-top: 4rem;
+.inicio-content {
+  margin-left: 4rem;
   margin-right: 4rem;
   text-align: left;
 }
+
 
 .sistema-content {
   margin-top: 2rem;
@@ -22,104 +23,24 @@
   text-align: left;
 }
 
-.login-content {
-  margin-left: 4rem;
-  margin-right: 4rem;
-  text-align: left;
-}
-
-.cadastro-content {
-  margin-top: 3rem;
-  margin-left: 4rem;
-  margin-right: 4rem;
-}
-
-/* Estilo para o conteúdo principal */
+/* Estilo para o conteúdo principal da clínica */
 .main-content {
   display: flex;
-  text-align: left; /* Alinha o texto à esquerda */
+  text-align: left;
   max-height: calc(100vh - 4rem); /* Limita a altura do conteúdo para não ultrapassar a tela */
   overflow: hidden;
 }
 
-/* Estilo para o conteúdo principal */
-.usuarios-content {
+/* Estilo para o conteúdo principal das informações da clínica */
+.info-content {
   display: flex;
   flex-direction: column;
   margin-top: 2rem;
   padding-left: 4rem;
   padding-right: 4rem;
-  text-align: left; /* Alinha o texto à esquerda */
+  text-align: left;
   width: 100%;
 }
-
-/*
-.App {
-  background-color: var(--verde-fraco);
-}
-
-
-body {
-  font-family: "Work Sans"; 
-  font-optical-sizing: auto;
-  font-weight: auto; 
-  font-style: normal;
-  background-color: var(--verde-fraco);
-  margin: 0; Conteúdo sem margem 
-  padding-top: 6rem; Espaço para a headbar
-}
-
-h1 {
-  color: var(--verde-escuro);
-  font-weight: bold;
-}
-
-h2 { simula h1 mas com margem para ajustar ao card cadastro
-  color: var(--verde-escuro);
-  font-weight: bold;
-  font-size: xx-large;
-  margin: 0.5rem 0 1.5rem 0;
-}
-
-label {
-  display: block;
-  width: 100%; 
-  text-align: left;
-  color: #006400;
-}
-
-input:focus, textarea:focus, select:focus {
-  border-color: var(--verde-medio);
-  outline: none;
-}
-
-select {
-  padding: 3px;
-  margin-left: 4px;
-  margin-bottom: 10px;
-  border: 1px solid #cccccc; 
-  border-radius: 8px;
-}
-
-input:focus, textarea:focus, select:focus {
-  border-color: #006400;
-  outline: none;
-}
-
-a {
-  color: var(--verde-claro); Define a cor do texto dos links e botões do menu como verde escuro
-  text-decoration: none; Remove a decoração do texto (sublinhado) dos links do menu
-  background: none; Remove o fundo dos botões do menu
-  border: none; Remove a borda dos botões do menu
-  margin-right: 20px; 
-}
-
-a:hover {
-  color: var(--verde-realce); Cor do texto dos links ao passar o mouse
-  cursor: pointer; Muda o cursor para um ponteiro (mão) ao passar o mouse
-}
-
-*/
 
 .icone {
   height: 1.3rem;

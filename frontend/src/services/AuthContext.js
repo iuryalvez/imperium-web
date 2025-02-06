@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { autenticacao } from '../api/autenticacaoAPI';
-import { useNotification } from './NotificationContext'; // Importando o contexto de notificação
+import { useNotification } from './NotificationContext';
 
 const AuthContext = createContext();
 
@@ -13,8 +13,8 @@ export const AuthProvider = ({ children }) => {
   const [isLogged, setIsLogged] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(null);
-  const [userName, setUserName] = useState(""); // Estado para armazenar o nome do usuário
-  const [clinicaNome, setClinicaNome] = useState(""); // Estado para armazenar o nome da clínica
+  const [userName, setUserName] = useState("");
+  const [clinicaNome, setClinicaNome] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const abrirNotificacao = useNotification(); // Contexto de notificação
@@ -28,15 +28,14 @@ export const AuthProvider = ({ children }) => {
         case 'autenticado':
           setIsLogged(true);
           setIsAuthenticated(true);
-          setUserName(resposta.name || ""); // Define o nome do usuário
-          setClinicaNome(resposta.clinicaNome || ""); // Define o nome do usuário
+          setUserName(resposta.name || "");
+          setClinicaNome(resposta.clinicaNome || "");
           break;
         case 'logado':
           setIsLogged(true);
           setIsAuthenticated(false);
           setIsAdmin(resposta.isAdmin);
-          setUserName(resposta.name || ""); // Define o nome do usuário
-          // console.log("Nome do usuário:", userName);
+          setUserName(resposta.name || "");
           break;
         default:
           setIsLogged(false);
@@ -56,9 +55,8 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (loading) checkAuth();
-    if (isLogged && !isAuthenticated) {
-      if (isAdmin) navigate('/sistema');
-      else navigate('/sistema/vinculos');
+    if (isLogged && !isAuthenticated && !isAdmin) {
+      navigate('/sistema/vinculos');
     }
   }, [loading, isAuthenticated, isLogged, isAdmin, navigate, checkAuth]);
   

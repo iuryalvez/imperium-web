@@ -7,11 +7,11 @@ const Login = () => {
   const { login } = useAuth();
 
   const handleLogin = async ({ email, senha }) => {
-    login({ email, senha });  // Chama a função login do contexto
+    login({ email, senha });  // chama a função login do contexto
   };
 
   return (
-    <div className='login-content'> 
+    <div className='inicio-content'> 
       <TemplateLogin handleLogin={handleLogin} />
     </div>
   );

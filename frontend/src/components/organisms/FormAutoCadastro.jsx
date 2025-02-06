@@ -5,7 +5,7 @@ import { MailOutlined, LockOutlined, UserOutlined, PhoneOutlined, IdcardOutlined
 
 const FormAutoCadastro = () => {
   return (
-    <div className="bg-white shadow-lg pt-12 px-20 flex flex-col items-start">
+    <div className="flex flex-col items-center bg-white rounded-3xl shadow-lg py-12 px-12 w-full">
       <h2 className="text-green-dark text-3xl font-bold mb-4">CADASTRO</h2>
       <form className="w-full">
         <InputSemBordaComLabel

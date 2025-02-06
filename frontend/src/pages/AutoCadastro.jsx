@@ -25,7 +25,7 @@ function AutoCadastro() {
   };
 
   return (
-    <div className='cadastro-content'>
+    <div className='inicio-content'>
       <TemplateAutoCadastro handleAutoCadastro={handleAutoCadastro} />
     </div>
   );

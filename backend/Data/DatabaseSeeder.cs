@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using backend.Models;
 using backend.Dtos.Usuario;
-using backend.Dtos.UsuarioPerfilClinica;
+using backend.Dtos.Vinculo;
 using Microsoft.AspNetCore.Identity;
 
 namespace backend.Data
@@ -26,9 +26,9 @@ namespace backend.Data
 
             // Clínicas
             modelBuilder.Entity<Clinica>().HasData(
-                new Clinica { Id = 1, NomeFantasia = "Clinica Teste 1", NomeClinica = "Clinica Animais 1", Cnpj = "00000000000100" },
-                new Clinica { Id = 2, NomeFantasia = "Clinica Teste 2", NomeClinica = "Clinica Animais 2", Cnpj = "00000000000200" },
-                new Clinica { Id = 3, NomeFantasia = "Clinica Teste 3", NomeClinica = "Clinica Animais 3", Cnpj = "00000000000300" }
+                new Clinica { Id = 1, NomeFantasia = "Clinica EVZ / UFG", NomeClinica = "Clinica EVZ LTDA", Cnpj = "00000000000100" },
+                new Clinica { Id = 2, NomeFantasia = "Clinica Ceron", NomeClinica = "Clinica Ceron Empreendimentos", Cnpj = "00000000000200" },
+                new Clinica { Id = 3, NomeFantasia = "Clinica Nascimento", NomeClinica = "Clinica HADN S.A.", Cnpj = "00000000000300" }
             );
 
             // Usuários
@@ -110,15 +110,15 @@ namespace backend.Data
 
             // Relacionamentos Usuário-Perfil-Clínica
             modelBuilder.Entity<UsuarioPerfilClinica>().HasData(
-                new UsuarioPerfilClinica { Id = 1, UsuarioId = 1, PerfilId = 1, ClinicaId = 1},
-                new UsuarioPerfilClinica { Id = 2, UsuarioId = 1, PerfilId = 1, ClinicaId = 2},
-                new UsuarioPerfilClinica { Id = 3, UsuarioId = 1, PerfilId = 1, ClinicaId = 3},
-                new UsuarioPerfilClinica { Id = 4, UsuarioId = 2, PerfilId = 2, ClinicaId = 1},
-                new UsuarioPerfilClinica { Id = 5, UsuarioId = 2, PerfilId = 2, ClinicaId = 2},
-                new UsuarioPerfilClinica { Id = 6, UsuarioId = 2, PerfilId = 2, ClinicaId = 3},
-                new UsuarioPerfilClinica { Id = 7, UsuarioId = 3, PerfilId = 3, ClinicaId = 2},
-                new UsuarioPerfilClinica { Id = 8, UsuarioId = 4, PerfilId = 4, ClinicaId = 2},
-                new UsuarioPerfilClinica { Id = 9, UsuarioId = 5, PerfilId = 5, ClinicaId = 3}
+                new UsuarioPerfilClinica { Id = 1, UsuarioId = 1, PerfilId = 1, ClinicaId = 1, Habilitado = true},
+                new UsuarioPerfilClinica { Id = 2, UsuarioId = 1, PerfilId = 1, ClinicaId = 2, Habilitado = true},
+                new UsuarioPerfilClinica { Id = 3, UsuarioId = 1, PerfilId = 1, ClinicaId = 3, Habilitado = true},
+                new UsuarioPerfilClinica { Id = 4, UsuarioId = 2, PerfilId = 2, ClinicaId = 1, Habilitado = true},
+                new UsuarioPerfilClinica { Id = 5, UsuarioId = 2, PerfilId = 2, ClinicaId = 2, Habilitado = true},
+                new UsuarioPerfilClinica { Id = 6, UsuarioId = 2, PerfilId = 2, ClinicaId = 3, Habilitado = true},
+                new UsuarioPerfilClinica { Id = 7, UsuarioId = 3, PerfilId = 3, ClinicaId = 2, Habilitado = true},
+                new UsuarioPerfilClinica { Id = 8, UsuarioId = 4, PerfilId = 4, ClinicaId = 2, Habilitado = true},
+                new UsuarioPerfilClinica { Id = 9, UsuarioId = 5, PerfilId = 5, ClinicaId = 3, Habilitado = true}
             );
         }
     }

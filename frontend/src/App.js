@@ -14,7 +14,7 @@ import Login from './pages/Login.jsx';
 import Cadastro from './pages/AutoCadastro';
 import Sobre from './pages/Sobre';
 import Clinica from './pages/Clinica.jsx';
-import Usuarios from './pages/Usuarios.jsx';
+import Usuarios from './pages/ListaUsuarios.jsx';
 import Tutores from './pages/Tutores.jsx';
 import Gerenciamento from './pages/Gerenciamento.jsx';
 import Consultas from './pages/Consultas.jsx';

@@ -13,7 +13,7 @@ const Header = () => {
         </div>
         <nav>
             <ul className="flex space-x-6">
-                {isAuthenticated && isLogged ? (
+                {isAuthenticated ? (
                     <>
                         {/* <li>
                             <Link to="/clinica/home" className="text-green-dark font-bold hover:text-green-light">Início</Link>

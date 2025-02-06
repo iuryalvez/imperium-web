@@ -1,13 +1,13 @@
 import React from 'react';
 
 import '../App.css'
-import Sidebar from '../components/molecules/Sidebar';
+import Navsidebar from '../components/organisms/Navsidebar';
 
 function Home() {
   return (
-    <div>
-        <Sidebar />
-        <div className='main-content'>
+    <div className='main-content'>
+        <Navsidebar />
+        <div className='info-content'>
             <h1>Bem-vindo ao sistema de gerenciamento da clínica veterinária!</h1>
             <p>Aqui você pode gerenciar todas as operações da clínica.</p>
         </div>

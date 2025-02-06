@@ -1,5 +1,5 @@
 using backend.Data;
-using backend.Dtos.UsuarioPerfilClinica;
+using backend.Dtos.Vinculo;
 using backend.Dtos.Auth;
 using backend.Interfaces;
 using backend.Models;
@@ -95,15 +95,28 @@ namespace backend.Controllers
             if (result.Succeeded)
             {
                 _logger.LogInformation("Usuário logado com sucesso!.");
-                var usuario = await _context.Usuarios
-                    .FirstOrDefaultAsync(u => u.Email == model.Email);
-                
-                // Obtém informações da requisição
+
+                var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == model.Email);
+                if (usuario == null)
+                {
+                    return Unauthorized(new { Message = "Usuário não encontrado." });
+                }
+
+                // atualiza a data do último acesso
+                usuario.DataUltimoAcesso = DateTime.UtcNow;
+
+                // obtém informações da requisição
                 var usuarioIp = HttpContext.Connection.RemoteIpAddress?.ToString();
                 var usuarioAgent = Request.Headers["User-Agent"].ToString();
 
+                // gera o token de login
                 var tokenLogin = _tokenService.GenerateTokenLogin(usuario.Id.ToString(), usuarioIp, usuarioAgent);
-                
+
+                // atualiza o banco de dados com a nova data de acesso
+                _context.Usuarios.Update(usuario);
+                await _context.SaveChangesAsync();
+
+                // define o token no cookie
                 _cookieService.SetCookieToken(HttpContext, tokenLogin);
 
                 return Ok(new { tokenLogin });
@@ -114,7 +127,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("logout")]
-        public async Task<IActionResult> Logout()
+        public IActionResult Logout()
         {
             try
             {
@@ -225,6 +238,7 @@ namespace backend.Controllers
 
             var perfis = await _context.UsuariosPerfisClinicas
                 .Where(p => p.UsuarioId == usuarioId)
+                .Where(p => p.Habilitado != false)
                 .Include(p => p.Perfil)
                 .Include(p => p.Clinica)
                 .ToListAsync();
@@ -235,7 +249,7 @@ namespace backend.Controllers
                 return NotFound("Nenhum perfil encontrado para este usuário.");
             }
 
-            var perfisDTO = perfis.Select(p => new UsuarioPerfilClinicaDto
+            var perfisDTO = perfis.Select(p => new VinculoDto
             {
                 Id = p.Id,
                 UsuarioId = p.UsuarioId,

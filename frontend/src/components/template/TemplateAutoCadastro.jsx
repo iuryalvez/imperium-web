@@ -8,7 +8,7 @@ const TemplateAutoCadastro = () => {
   return (
     <div className="h-full flex">
       {/* Lado esquerdo - informações */}
-      <div className="w-1/2 flex flex-col items-start text-green-dark">
+      <div className="w-1/2 flex flex-col items-start text-green-dark pt-20 pr-10">
         <h1 className="text-4xl font-bold mb-4">Se cadastrando? Saiba os próximos passos!</h1>
         <p className="text-lg mb-8">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer purus arcu, lacinia ultricies nisl et, aliquam iaculis dui. Proin vulputate mollis turpis sed cursus. Curabitur suscipit justo nec vulputate tincidunt. Nulla tincidunt est nibh. Vivamus quis leo non nibh porta imperdiet sed egestas magna. Mauris rhoncus nisi eget purus sodales, ac elementum urna finibus. Etiam dignissim facilisis elit a hendrerit. In eu diam metus. 
@@ -25,7 +25,7 @@ const TemplateAutoCadastro = () => {
       </div>
 
       {/* Lado direito - formulário */}
-      <div className='w-1/2'>
+      <div className='w-1/2 h-full flex pt-12 items-start justify-center'>
         <FormAutoCadastro />
       </div>
     </div>
