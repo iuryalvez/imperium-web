@@ -1,0 +1,28 @@
+.custom-table {
+    background-color: var(--cinza-background);
+  }
+  
+  .custom-table .ant-table-thead > tr > th {
+    background-color: var(--verde-medio);
+    color: white;
+  }
+  
+  .custom-table .ant-table-thead > tr:hover > th:hover {
+    background-color: var(--verde-claro);
+    color: white;
+  }
+  
+  .custom-table .ant-table-tbody > tr:nth-child(odd) {
+    background-color: var(--cinza-background);
+  }
+  
+  .custom-table .ant-checkbox-checked .ant-checkbox-inner {
+    background-color: var(--verde-medio);
+    border-color: var(--verde-escuro);
+  }
+  
+  .custom-table .ant-checkbox-inner {
+    border-color: var(--verde-medio);
+  }
+
+  
