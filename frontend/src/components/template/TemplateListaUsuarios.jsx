@@ -5,11 +5,11 @@ import { usuario as usuarioAPI } from "../../api/usuariosAPI";
 const TemplateListaUsuarios = ({ usuarios, onEditarUsuario, onAdicionarUsuario }) => {
   const [loading, setLoading] = useState(false);
 
-  const handleDesabilitar = async (id) => {
+  const handleDesabilitar = async (upcId) => {
     try {
       setLoading(true);
-      await usuarioAPI.desabilitar(id);
-      console.log(`Usuário com ID ${id} foi desabilitado.`);
+      await usuarioAPI.desabilitar(upcId);
+      console.log(`Vínculo de id ${upcId} foi desabilitado.`);
     } catch (error) {
       console.error("Erro ao desabilitar usuário:", error);
     } finally {
@@ -17,11 +17,11 @@ const TemplateListaUsuarios = ({ usuarios, onEditarUsuario, onAdicionarUsuario }
     }
   };
 
-  const handleHabilitar = async (id) => {
+  const handleHabilitar = async (upcId) => {
     try {
       setLoading(true);
-      await usuarioAPI.habilitar(id);
-      console.log(`Usuário com ID ${id} foi habilitado.`);
+      await usuarioAPI.habilitar(upcId);
+      console.log(`Vínculo de id ${upcId} foi habilitado.`);
     } catch (error) {
       console.error("Erro ao habilitar usuário:", error);
     } finally {
@@ -78,11 +78,11 @@ const TemplateListaUsuarios = ({ usuarios, onEditarUsuario, onAdicionarUsuario }
             Editar
           </Button>
           {record.habilitado ? (
-            <Button type="primary" danger loading={loading} onClick={() => handleDesabilitar(record.id)}>
+            <Button type="primary" danger loading={loading} onClick={() => handleDesabilitar(record.upcId)}>
               Desabilitar
             </Button>
           ) : (
-            <Button type="primary" loading={loading} onClick={() => handleHabilitar(record.id)}>
+            <Button type="primary" loading={loading} onClick={() => handleHabilitar(record.upcId)}>
               Habilitar
             </Button>
           )}

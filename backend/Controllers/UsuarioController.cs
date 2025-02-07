@@ -113,15 +113,17 @@ namespace backend.Controllers
                     .Include(upc => upc.Usuario) // inclui os dados do usuário
                     .Where(upc => upc.ClinicaId == clinicaId)
                     .Where(u => u.UsuarioId.ToString() != userId)
-                    .Select(upc => new GetUsuariosDto
+                    .Select(upc => new GetUsuariosByClinicaDto
                     {
                         Id = upc.Usuario.Id,
+                        UpcId = upc.Id,
                         UserName = upc.Usuario.UserName,
                         Email = upc.Usuario.Email,
                         Nome = upc.Usuario.Nome ?? string.Empty, // garante que Nome nunca seja nulo
                         Perfil = upc.Perfil.Name ?? string.Empty,
                         DataCadastro = upc.Usuario.DataCad,
-                        DataUltimoAcesso = upc.Usuario.DataUltimoAcesso
+                        DataUltimoAcesso = upc.Usuario.DataUltimoAcesso,
+                        Habilitado = upc.Habilitado
                     })
                     .ToListAsync();
 
@@ -247,6 +249,21 @@ namespace backend.Controllers
         {
             var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
             return Ok(claims);
+        }
+
+        [HttpGet("vinculos")]
+        public async Task<IActionResult> GetAllVinculos()
+        {
+            var vinculos = await _context.UsuariosPerfisClinicas
+                .AsNoTracking()
+                .ToListAsync();
+
+            if (!vinculos.Any())
+            {
+                return NotFound(new { Message = "Nenhum vínculo encontrado." });
+            }
+
+            return Ok(vinculos);
         }
     }
 }
