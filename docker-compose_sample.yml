@@ -1,6 +1,6 @@
 services:
 
-  api:
+  backend-imperium: 
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -13,12 +13,12 @@ services:
       - software-rural-net
 
   # Serviço para o Frontend React
-  frontend:
+  frontend-imperium:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "444:443"
+      - "3001:443"
     volumes:
       - ./ssl:/etc/nginx/ssl:ro  # :ro significa read-only por segurança
     environment:
@@ -27,7 +27,7 @@ services:
       - software-rural-net
 
 # Serviço de migrations
-  migrations:
+  migrations-imperium:
     build:
       context: ./backend
       dockerfile: Dockerfile.migrations  # Especifica o Dockerfile para migrations

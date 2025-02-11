@@ -37,7 +37,7 @@ internal class Program
             options.AddPolicy("AllowSpecificOrigin",
                 builder =>
                 {
-                    builder.WithOrigins("http://localhost:3000", "http://localhost:5050")
+                    builder.WithOrigins("https://frontend-imperium:443", "http://localhost:3000")
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();
@@ -198,13 +198,15 @@ internal class Program
 
         app.UseCors("AllowSpecificOrigin");
 
-        // app.UseHttpsRedirection();
-
         app.UseAuthentication();
 
         app.UseAuthorization();
 
         app.MapControllers();
+
+        app.UseSwagger();
+        
+        app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1"); });
 
         app.Run();
     }

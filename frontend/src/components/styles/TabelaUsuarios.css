@@ -9,7 +9,6 @@
   
   .custom-table .ant-table-thead > tr:hover > th:hover {
     background-color: var(--verde-claro);
-    color: white;
   }
   
   .custom-table .ant-table-tbody > tr:nth-child(odd) {

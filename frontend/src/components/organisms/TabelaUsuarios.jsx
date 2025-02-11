@@ -83,12 +83,9 @@ const TabelaUsuarios = ({ usuarios: propUsuarios, onEditarUsuario, onAdicionarUs
             style={{
               backgroundColor: "var(--verde-medio)",
               borderColor: "var(--verde-medio)",
-              color: "white",
+              color: "white"
             }}
-            hover={{
-              backgroundColor: "var(--verde-escuro)",
-              borderColor: "var(--verde-escuro)",
-            }}
+            hover={{ backgroundColor: "var(--verde-realce)", borderColor: "var(--verde-realce)" }}
           >
             Editar
           </Button>

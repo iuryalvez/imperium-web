@@ -27,6 +27,7 @@ yarn-error.log*
 *.user
 *.userosscache
 *.sln.docstates
+/ssl
 
 # Mono auto generated files
 mono_crash.*

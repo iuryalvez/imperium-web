@@ -14,7 +14,8 @@ import Login from './pages/Login.jsx';
 import Cadastro from './pages/AutoCadastro';
 import Sobre from './pages/Sobre';
 import Clinica from './pages/Clinica.jsx';
-import Usuarios from './pages/ListaUsuarios.jsx';
+import ListaUsuarios from './pages/ListaUsuarios.jsx';
+import ListaUsuariosSistema from './pages/ListaUsuariosSistema.jsx';
 import Tutores from './pages/Tutores.jsx';
 import Gerenciamento from './pages/Gerenciamento.jsx';
 import Consultas from './pages/Consultas.jsx';
@@ -42,7 +43,7 @@ const App = () => {
                 <Route path='/sistema' element={<Sistema />} />
                 <Route path='/sistema/vinculos' element={<ListaVinculos />} />
                 <Route path='/sistema/clinicas' element={<Sistema />} />
-                <Route path='/sistema/usuarios' element={<Sistema />} />
+                <Route path='/sistema/usuarios' element={<ListaUsuariosSistema />} />
               </Route>
 
               {/* Rotas protegidas dentro da AuthenticatedRoute */}
@@ -50,7 +51,7 @@ const App = () => {
                 <Route path='/clinica/home' element={<Home />} />
                 <Route path='/clinica' element={<Clinica />} />
                 <Route path="/clinica/editar" element={<Gerenciamento />} />
-                <Route path='/clinica/usuarios' element={<Usuarios />} />
+                <Route path='/clinica/usuarios' element={<ListaUsuarios />} />
                 <Route path="/clinica/tutores" element={<Tutores />} />
                 <Route path="/clinica/consultas" element={<Consultas />} />
                 <Route path="/clinica/animais" element={<Animais />} />
