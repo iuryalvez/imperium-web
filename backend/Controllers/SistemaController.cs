@@ -141,14 +141,22 @@ namespace backend.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                var usuarios = await _context.Usuarios
-                    .Where(u => u.Id.ToString() != userId) // exclui o próprio usuário da lista
-                    .Select(u => new GetUsuariosDto
+                var usuarios = await _context.UsuariosPerfisClinicas
+                    .AsNoTracking() // melhora o desempenho em consultas somente leitura
+                    .Include(upc => upc.Usuario) // inclui os dados do usuário
+                    .Where(u => u.UsuarioId.ToString() != userId)
+                    .Select(upc => new GetUsuariosDto
                     {
-                        Id = u.Id,
-                        UserName = u.UserName,
-                        Email = u.Email,
-                        Nome = u.Nome
+                        Id = upc.Usuario.Id,
+                        UpcId = upc.Id,
+                        UserName = upc.Usuario.UserName,
+                        NomeClinica = upc.Clinica.NomeClinica,
+                        Email = upc.Usuario.Email,
+                        Nome = upc.Usuario.Nome ?? string.Empty, // garante que Nome nunca seja nulo
+                        Perfil = upc.Perfil.Name ?? string.Empty,
+                        DataCadastro = upc.Usuario.DataCad,
+                        DataUltimoAcesso = upc.Usuario.DataUltimoAcesso,
+                        Habilitado = upc.Habilitado
                     })
                     .ToListAsync();
 
@@ -158,6 +166,64 @@ namespace backend.Controllers
             {
                 _logger.LogError(ex, "Erro ao buscar usuários");
                 return StatusCode(500, "Erro interno ao buscar usuários.");
+            }
+        }
+
+        [HttpPut("usuarios/{upcId}/editar")]
+        [Authorize(Policy = "GerenciaSistema")]
+        public async Task<IActionResult> EditarUsuario(int upcId, [FromBody] EditarUsuarioDto dto)
+        {
+            try
+            {
+                if (dto == null || upcId != dto.UpcId)
+                {
+                    return BadRequest("Dados inválidos para edição.");
+                }
+
+                // Busca o vínculo do usuário na tabela UsuariosPerfisClinicas
+                var vinculo = await _context.UsuariosPerfisClinicas
+                    .Include(upc => upc.Usuario) // Inclui os dados do usuário
+                    .FirstOrDefaultAsync(upc => upc.Id == upcId);
+
+                if (vinculo == null)
+                {
+                    return NotFound("Vínculo do usuário não encontrado.");
+                }
+
+                var usuario = vinculo.Usuario;
+                if (usuario == null)
+                {
+                    return NotFound("Usuário associado ao vínculo não encontrado.");
+                }
+
+                // Atualiza os dados do usuário
+                usuario.UserName = dto.UserName;
+                usuario.Email = dto.Email;
+                usuario.Nome = dto.Nome;
+                _context.Usuarios.Update(usuario);
+
+                // Atualiza o estado de habilitação
+                vinculo.Habilitado = dto.Habilitado;
+
+                // Busca o perfil pelo nome e atualiza o vínculo
+                var perfil = await _context.Perfis.FirstOrDefaultAsync(p => p.Name == dto.Perfil);
+                if (perfil == null)
+                {
+                    return NotFound("Perfil não encontrado.");
+                }
+
+                vinculo.PerfilId = perfil.Id;
+                _context.UsuariosPerfisClinicas.Update(vinculo);
+
+                // Salva todas as alterações
+                await _context.SaveChangesAsync();
+
+                return Ok("Usuário e vínculo atualizados com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Erro ao editar usuário com vínculo ID {upcId}");
+                return StatusCode(500, "Erro interno ao editar usuário.");
             }
         }
 

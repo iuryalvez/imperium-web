@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { sistema } from "../api/sistemaAPI.js";
-import TabelaUsuarios from "../components/organisms/TabelaUsuarios.jsx";
+import { usuario } from "../api/sistema/usuariosAPI.js";
+import TemplateListaSistemaUsuarios from "../components/template/listagem/TemplateListaSistemaUsuarios.jsx";
 
-const ListaUsuariosSistema = () => {
+const ListaSistemaUsuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -10,7 +10,7 @@ const ListaUsuariosSistema = () => {
   useEffect(() => {
     const fetchUsuarios = async () => {
       try {
-        const response = await sistema.listarUsuarios();
+        const response = await usuario.listar();
         console.log("Usuários na Page: ", response);
         setUsuarios(response);
       } catch (err) {
@@ -29,7 +29,7 @@ const ListaUsuariosSistema = () => {
         <h1 className="text-2xl font-bold mb-4 text-green-dark">
           Lista de Usuários
         </h1>
-        <p className={className}>{message}</p>
+        <div className={className}>{message}</div>
       </div>
     </div>
   );
@@ -37,7 +37,7 @@ const ListaUsuariosSistema = () => {
   if (loading) return renderStatus("Carregando usuários...");
   if (error) return renderStatus(error, "text-red-500");
 
-  return renderStatus(<TabelaUsuarios usuarios={usuarios} />);
+  return renderStatus(<TemplateListaSistemaUsuarios usuarios={usuarios} api={usuario} />);
 };
 
-export default ListaUsuariosSistema;
+export default ListaSistemaUsuarios;

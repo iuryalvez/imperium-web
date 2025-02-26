@@ -21,7 +21,7 @@ const DetalhesEntidade = ({ entidade, tipoEntidade }) => {
             <p><strong>CNPJ:</strong> {entidade.CNPJ}</p>
           </>
         );
-      case 'Usuario':
+      case 'Usuário':
         return (
           <>
             <p><strong>Nome:</strong> {entidade.Nome}</p>

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { usuario } from "../api/usuariosAPI.js";
+
+import { usuario } from "../api/clinica/usuariosAPI.js";
+
 import Navsidebar from "../components/organisms/Navsidebar.jsx";
-import TabelaUsuarios from "../components/organisms/TabelaUsuarios.jsx";
+import TemplateListaUsuarios from "../components/template/listagem/TemplateListaUsuarios.jsx";
 
 const ListaUsuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -31,7 +33,7 @@ const ListaUsuarios = () => {
         <h1 className="text-2xl font-bold mb-4 text-green-dark">
           Lista de Usuários
         </h1>
-        <p className={className}>{message}</p>
+        <div className={className}>{message}</div>
       </div>
     </div>
   );
@@ -39,7 +41,7 @@ const ListaUsuarios = () => {
   if (loading) return renderStatus("Carregando usuários...");
   if (error) return renderStatus(error, "text-red-500");
 
-  return renderStatus(<TabelaUsuarios usuarios={usuarios} />);
+  return renderStatus(<TemplateListaUsuarios usuarios={usuarios} api={usuario} />);
 };
 
 export default ListaUsuarios;

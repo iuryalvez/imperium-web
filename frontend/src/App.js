@@ -15,7 +15,7 @@ import Cadastro from './pages/AutoCadastro';
 import Sobre from './pages/Sobre';
 import Clinica from './pages/Clinica.jsx';
 import ListaUsuarios from './pages/ListaUsuarios.jsx';
-import ListaUsuariosSistema from './pages/ListaUsuariosSistema.jsx';
+import ListaSistemaUsuarios from './pages/ListaSistemaUsuarios.jsx';
 import Tutores from './pages/Tutores.jsx';
 import Gerenciamento from './pages/Gerenciamento.jsx';
 import Consultas from './pages/Consultas.jsx';
@@ -43,7 +43,7 @@ const App = () => {
                 <Route path='/sistema' element={<Sistema />} />
                 <Route path='/sistema/vinculos' element={<ListaVinculos />} />
                 <Route path='/sistema/clinicas' element={<Sistema />} />
-                <Route path='/sistema/usuarios' element={<ListaUsuariosSistema />} />
+                <Route path='/sistema/usuarios' element={<ListaSistemaUsuarios />} />
               </Route>
 
               {/* Rotas protegidas dentro da AuthenticatedRoute */}

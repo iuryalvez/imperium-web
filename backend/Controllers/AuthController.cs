@@ -232,36 +232,33 @@ namespace backend.Controllers
         public async Task<IActionResult> GetVinculos()
         {
             var usuarioId = User.GetClaimValue<int>(ClaimTypes.NameIdentifier);
-            if (usuarioId == 0) {
-                return BadRequest("Claim 'usuarioId' não encontrada ou inválida.");
+            if (usuarioId == 0)
+            {
+                return BadRequest("Erro ao identificar usuário.");
             }
 
-            var perfis = await _context.UsuariosPerfisClinicas
-                .Where(p => p.UsuarioId == usuarioId)
-                .Where(p => p.Habilitado != false)
-                .Include(p => p.Perfil)
-                .Include(p => p.Clinica)
+            var vinculos = await _context.UsuariosPerfisClinicas
+                .Where(p => p.UsuarioId == usuarioId && p.Habilitado)
+                .Select(p => new VinculoDto
+                {
+                    Id = p.Id,
+                    UsuarioId = p.UsuarioId,
+                    PerfilId = p.PerfilId,
+                    NomePerfil = p.Perfil.Name,
+                    ClinicaId = p.ClinicaId,
+                    NomeClinica = p.Clinica.NomeFantasia
+                })
                 .ToListAsync();
 
-            if (!perfis.Any())
+            if (!vinculos.Any())
             {
-                _logger.LogWarning("Nenhum perfil encontrado para o usuário com ID: {UsuarioId}", usuarioId);
-                return NotFound("Nenhum perfil encontrado para este usuário.");
+                _logger.LogWarning("Nenhum vínculo encontrado para o usuário {UsuarioId}", usuarioId);
+                return NotFound("Nenhum vínculo disponível.");
             }
 
-            var perfisDTO = perfis.Select(p => new VinculoDto
-            {
-                Id = p.Id,
-                UsuarioId = p.UsuarioId,
-                PerfilId = p.PerfilId,
-                NomePerfil = p.Perfil.Name,
-                ClinicaId = p.ClinicaId,
-                NomeClinica = p.Clinica.NomeFantasia
-            }).ToList();
-
-            _logger.LogInformation("Perfis retornados para o usuário com ID: {UsuarioId}", usuarioId);
+            _logger.LogInformation("Retornando {Count} vínculos para usuário {UsuarioId}", vinculos.Count, usuarioId);
             
-            return Ok(perfisDTO);
+            return Ok(vinculos);
         }
 
         [Authorize(Policy = "AcessoLoginOuTodosUsuarios")]

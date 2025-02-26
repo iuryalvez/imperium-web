@@ -112,6 +112,7 @@ namespace backend.Controllers
                     .AsNoTracking() // melhora o desempenho em consultas somente leitura
                     .Include(upc => upc.Usuario) // inclui os dados do usuário
                     .Where(upc => upc.ClinicaId == clinicaId)
+                    .Where(upc => upc.Perfil.Name != "ADMIN")
                     .Where(u => u.UsuarioId.ToString() != userId)
                     .Select(upc => new GetUsuariosByClinicaDto
                     {
@@ -148,29 +149,6 @@ namespace backend.Controllers
                 return NotFound("Usuário não encontrado.");
             }
             return Ok(usuario);
-        }
-
-        [HttpPut("usuarios/{usuarioId}/editar")]
-        [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> UpdateUsuario(int usuarioId, [FromBody] UsuarioDto usuarioDto)
-        {
-
-            var usuario = await _context.Usuarios.FindAsync(usuarioId);
-            if (usuario == null)
-            {
-                return NotFound("Usuário não encontrado.");
-            }
-
-            // Atualiza os campos do usuário
-            usuario.UserName = usuarioDto.Email;
-            usuario.Email = usuarioDto.Email;
-            usuario.Nome = usuarioDto.Nome;
-
-            // Atualiza o usuário no banco de dados
-            _context.Usuarios.Update(usuario);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { Message = "Usuário atualizado com sucesso." });
         }
 
         [HttpPut("usuarios/{upcId}/desabilitar")]

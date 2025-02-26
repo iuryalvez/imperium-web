@@ -4,7 +4,7 @@ import endpoints from '../services/Endpoints'; // endpoints
 export const autenticacao = {
     signup: async (userData) => {
         try {
-            const response = await api.post(endpoints.autenticacao.signup, userData);
+            const response = await api.post(endpoints.clinica.autenticacao.signup, userData);
             return response.data;
         } catch (error) {
             console.error('Erro ao cadastrar o usuário:', error);
@@ -16,7 +16,7 @@ export const autenticacao = {
         console.log("---------------------------Entrou na api---------------------------");
         console.log("\nemail na api: ", email, "\nsenha na api: ", senha);
         try {
-            const response = await api.post(endpoints.autenticacao.login, { email, senha, rememberMe });
+            const response = await api.post(endpoints.clinica.autenticacao.login, { email, senha, rememberMe });
             return response;
         } catch (error) {
             console.error('Erro ao fazer login:', error);
@@ -26,7 +26,7 @@ export const autenticacao = {
 
     logout: async () => {
         try {
-            const response = await api.get(endpoints.autenticacao.logout);
+            const response = await api.get(endpoints.clinica.autenticacao.logout);
             return response.data;
         } catch (error) {
             console.error('Erro ao fazer logout:', error);
@@ -36,7 +36,7 @@ export const autenticacao = {
 
     escolherVinculo: async (id) => {
         try {
-            const response = await api.post(endpoints.autenticacao.escolherVinculo(id));
+            const response = await api.post(endpoints.clinica.autenticacao.escolherVinculo(id));
             return response;
         } catch (error) {
             console.error('Erro ao escolher vínculo:', error);
@@ -46,7 +46,7 @@ export const autenticacao = {
 
     recuperarSenha: async (email) => {
         try {
-            const response = await api.post(endpoints.autenticacao.recuperarSenha, { email });
+            const response = await api.post(endpoints.clinica.autenticacao.recuperarSenha, { email });
             return response.data;
         } catch (error) {
             console.error('Erro ao recuperar senha:', error);
@@ -56,7 +56,7 @@ export const autenticacao = {
 
     listarVinculos: async () => {
         try {
-            const response = await api.get(endpoints.autenticacao.listarVinculos);
+            const response = await api.get(endpoints.clinica.autenticacao.listarVinculos);
             // console.log("Resposta na api do listarVinculos:", response.data);
             return response.data;
         } catch (error) {
@@ -67,7 +67,7 @@ export const autenticacao = {
 
     verificarAutenticacao: async () => {
         try {
-            const response = await api.get(endpoints.autenticacao.checarStatus);
+            const response = await api.get(endpoints.clinica.autenticacao.checarStatus);
             console.log(response.data)
             return response.data;
             // response.data tem o seguinte formato:

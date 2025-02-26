@@ -1,10 +1,10 @@
 import React from 'react';
-import ListaCards from '../organisms/ListaCards';
+import ListaCards from '../../organisms/ListaCards';
 
 const TemplateListaVinculos = ({ vinculos }) => {
   console.log("Vinculos na Template: ", vinculos);
   return (
-    <ListaCards tipoEntidade="Vínculo" lista={vinculos} />
+    <ListaCards tipoEntidade="Vínculo" dados={vinculos} />
   );
 };
 

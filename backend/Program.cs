@@ -37,7 +37,7 @@ internal class Program
             options.AddPolicy("AllowSpecificOrigin",
                 builder =>
                 {
-                    builder.WithOrigins("https://frontend-imperium:443", "http://localhost:3000")
+                    builder.WithOrigins("https://frontend-imperium:443", "http://localhost:3000", "https://localhost:3001")
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();
