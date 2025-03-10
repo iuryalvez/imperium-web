@@ -10,5 +10,7 @@ namespace backend.Dtos.Usuario
         public DateTime DataCadastro { get; set; }
         public DateTime DataUltimoAcesso { get; set; }
         public string? Perfil { get; set; }
+        public string? NomeClinica { get; set; }
+        public bool Habilitado { get; set; }    
     }
 }

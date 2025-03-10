@@ -96,7 +96,6 @@ namespace backend.Controllers
             return Ok(new { Message = "Usuário criado com sucesso.", UsuarioId = usuario.Id });
         }
 
-
         // obtém usuários por clínica
         [HttpGet("usuarios")]
         [Authorize(Policy = "GerenciaClinica")]
@@ -136,19 +135,6 @@ namespace backend.Controllers
                 // Retorna um erro genérico com a mensagem da exceção para diagnóstico
                 return StatusCode(500, $"Erro ao buscar usuários da clínica: {ex.Message}");
             }
-        }
-
-        [HttpGet("usuarios/{usuarioId}")]
-        [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> GetUsuarioById(int usuarioId)
-        {
-
-            var usuario = await _context.Usuarios.FindAsync(usuarioId);
-            if (usuario == null)
-            {
-                return NotFound("Usuário não encontrado.");
-            }
-            return Ok(usuario);
         }
 
         [HttpPut("usuarios/{upcId}/perfil")]
