@@ -31,7 +31,7 @@ namespace backend.Controllers
         }
         
         // cria um novo usuário com perfil e associação à clínica
-        [HttpPost("usuarios/cadastrar+{perfilId}")]
+        [HttpPost("usuarios/cadastrar/{perfilId}")]
         [Authorize(Policy = "GerenciaClinica")]
         public async Task<IActionResult> CreateUsuario(int perfilId, [FromBody] UsuarioDto usuarioDto)
         {
@@ -151,29 +151,48 @@ namespace backend.Controllers
             return Ok(usuario);
         }
 
-        [HttpPut("usuarios/{upcId}/desabilitar")]
+        [HttpPut("usuarios/{upcId}/perfil")]
         [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> DesabilitarVinculo(int upcId)
+        public async Task<IActionResult> AtualizarPerfil(int upcId, [FromBody] AtualizarPerfilDto atualizarPerfilDto)
         {
-            var vinculo = await _context.UsuariosPerfisClinicas
-                .FirstOrDefaultAsync(v => v.Id == upcId);
-            
+            // Buscar o vínculo existente
+            var vinculo = await _context.UsuariosPerfisClinicas.FirstOrDefaultAsync(v => v.Id == upcId);
             if (vinculo == null)
             {
-                return NotFound(new { Message = "Vínculo não encontrado." });
+                return NotFound(new { Message = "Vínculo do usuário não encontrado." });
             }
 
-            vinculo.Habilitado = false;
+            // Buscar o perfil com base no nome informado
+            var perfil = await _context.Perfis.FirstOrDefaultAsync(p => p.Name == atualizarPerfilDto.NovoPerfil);
+            if (perfil == null)
+            {
+                return BadRequest(new { Message = "Perfil inválido. Selecione um perfil existente." });
+            }
 
-            // Persistir alteração no banco
+            // Remover o vínculo atual
+            _context.UsuariosPerfisClinicas.Remove(vinculo);
             await _context.SaveChangesAsync();
 
-            _logger.LogInformation("Vínculo {VinculoId} desabilitado com sucesso.", upcId);
+            // Criar um novo vínculo com o novo PerfilId e manter os outros dados
+            var novoVinculo = new UsuarioPerfilClinica
+            {
+                UsuarioId = vinculo.UsuarioId,
+                PerfilId = perfil.Id,
+                ClinicaId = vinculo.ClinicaId,
+                Habilitado = vinculo.Habilitado,
+                // Se houver outras propriedades, copie-as conforme necessário
+            };
+
+            _context.UsuariosPerfisClinicas.Add(novoVinculo);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Perfil do vínculo {VinculoId} atualizado para {NovoPerfil}.", upcId, atualizarPerfilDto.NovoPerfil);
 
             return Ok(new 
             { 
-                Message = "Vínculo desabilitado com sucesso.", 
-                VinculoId = upcId 
+                Message = "Perfil atualizado com sucesso.", 
+                VinculoId = novoVinculo.Id,
+                NovoPerfil = atualizarPerfilDto.NovoPerfil
             });
         }
 
@@ -202,6 +221,33 @@ namespace backend.Controllers
                 VinculoId = upcId 
             });
         }
+
+        [HttpPut("usuarios/{upcId}/desabilitar")]
+        [Authorize(Policy = "GerenciaClinica")]
+        public async Task<IActionResult> DesabilitarVinculo(int upcId)
+        {
+            var vinculo = await _context.UsuariosPerfisClinicas
+                .FirstOrDefaultAsync(v => v.Id == upcId);
+            
+            if (vinculo == null)
+            {
+                return NotFound(new { Message = "Vínculo não encontrado." });
+            }
+
+            vinculo.Habilitado = false;
+
+            // Persistir alteração no banco
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Vínculo {VinculoId} desabilitado com sucesso.", upcId);
+
+            return Ok(new 
+            { 
+                Message = "Vínculo desabilitado com sucesso.", 
+                VinculoId = upcId 
+            });
+        }
+
 
         [HttpDelete("usuarios/{usuarioId}")]
         [Authorize(Policy = "GerenciaSistema")]

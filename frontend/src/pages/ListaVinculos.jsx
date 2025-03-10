@@ -4,6 +4,8 @@ import { autenticacao } from "../api/autenticacaoAPI";
 
 import TemplateListaVinculos from "../components/template/listagem/TemplateListaVinculos";
 
+import { ArrowLeftOutlined } from "@ant-design/icons";
+
 const ListaVinculos = () => {
   const [vinculos, setVinculos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,6 +29,12 @@ const ListaVinculos = () => {
 
   const renderStatus = (message, className = "") => (
     <div className="container mx-auto my-8">
+      <button
+        onClick={() => window.history.back()}
+        className="flex items-center font-bold text-green-dark mb-2"
+      >
+        <ArrowLeftOutlined className="mr-2" /> Voltar
+      </button>
       <h1 className="text-2xl font-bold mb-4 text-green-dark">
         Lista de Vínculos
       </h1>

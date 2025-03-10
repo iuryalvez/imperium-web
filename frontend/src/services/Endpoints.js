@@ -70,6 +70,7 @@ const endpoints = {
       listar: `${API_BASE_URL}/clinica/usuarios`,
       detalhes: (usuarioId) => `${API_BASE_URL}/clinica/usuarios/${usuarioId}`,
       editar: (upcId) => `${API_BASE_URL}/clinica/usuarios/${upcId}/editar`,
+      atualizarPerfil: (upcId) => `${API_BASE_URL}/clinica/usuarios/${upcId}/perfil`,
       habilitar: (upcId) => `${API_BASE_URL}/clinica/usuarios/${upcId}/habilitar`,
       desabilitar: (upcId) => `${API_BASE_URL}/clinica/usuarios/${upcId}/desabilitar`,
     },
