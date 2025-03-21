@@ -1,28 +1,43 @@
 import React, { useEffect, useState } from "react";
 
-import { usuario } from "../api/clinica/usuariosAPI.js";
+import { usuariosDaClinicaAPI } from "../api/clinica/usuariosDaClinicaAPI.js";
 
 import Navsidebar from "../components/organisms/Navsidebar.jsx";
 import TemplateListaUsuarios from "../components/template/listagem/TemplateListaUsuarios.jsx";
+import { Spin } from "antd";
 
 const ListaUsuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
+  const [camposCadastro, setCamposCadastro] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
+    const fetchCamposCadastro = async () => {
+          try {
+            const url = usuariosDaClinicaAPI.listarCamposCadastroClinica("usuarios");
+            console.log("Buscando campos em:", url);
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Erro ao buscar campos.");
+            const data = await usuariosDaClinicaAPI.listarCamposCadastroClinica("usuarios");
+            setCamposCadastro(data);
+          } catch (error) {
+            console.error("Erro ao buscar campos do usuário:", error);
+          }
+        };
+
     const fetchUsuarios = async () => {
       try {
-        const response = await usuario.listar();
-        console.log("Usuários na Page: ", response);
+        const response = await usuariosDaClinicaAPI.listar();
+        console.log("Usuários encontrados: ", response);
         setUsuarios(response);
       } catch (err) {
-        setError("Erro ao carregar os usuários.");
+        console.error("Erro ao buscar usuários: ", err);
       } finally {
         setLoading(false);
       }
     };
 
+    fetchCamposCadastro();
     fetchUsuarios();
   }, []);
 
@@ -38,10 +53,15 @@ const ListaUsuarios = () => {
     </div>
   );
 
-  if (loading) return renderStatus("Carregando usuários...");
-  if (error) return renderStatus(error, "text-red-500");
+  if (loading) return <Spin size="large" />;
+  // if (error) return renderStatus(error, "text-red-500");
 
-  return renderStatus(<TemplateListaUsuarios usuarios={usuarios} api={usuario} />);
+  return renderStatus(
+    <TemplateListaUsuarios
+      usuarios={usuarios}
+      camposCadastro={camposCadastro}
+    />
+  );
 };
 
 export default ListaUsuarios;

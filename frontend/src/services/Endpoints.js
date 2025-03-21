@@ -13,6 +13,7 @@ const endpoints = {
     },
     usuario: {
       listar: `${API_BASE_URL}/sistema/usuarios`,
+      listarCamposCadastro: (entidade) => `${API_BASE_URL}/sistema/campos-cadastro/${entidade}`,
     },
   },
   clinica: {
@@ -73,6 +74,7 @@ const endpoints = {
       atualizarPerfil: (upcId) => `${API_BASE_URL}/clinica/usuarios/${upcId}/perfil`,
       habilitar: (upcId) => `${API_BASE_URL}/clinica/usuarios/${upcId}/habilitar`,
       desabilitar: (upcId) => `${API_BASE_URL}/clinica/usuarios/${upcId}/desabilitar`,
+      listarCamposCadastro: (entidade) => `${API_BASE_URL}/sistema/campos-cadastro/${entidade}`,
     },
   }
 };

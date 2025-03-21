@@ -1,26 +1,42 @@
 import React, { useEffect, useState } from "react";
-import { usuario } from "../api/sistema/usuariosAPI.js";
+import { usuariosDoSistemaAPI } from "../api/sistema/usuariosDoSistemaAPI.js";
 import TemplateListaSistemaUsuarios from "../components/template/listagem/TemplateListaSistemaUsuarios.jsx";
 import { ArrowLeftOutlined } from "@ant-design/icons";
+import { message } from "antd";
 
 const ListaSistemaUsuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
+  const [camposCadastro, setCamposCadastro] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // const [error, setError] = useState(null);
 
   useEffect(() => {
+    const fetchCamposCadastro = async () => {
+      try {
+        const url = usuariosDoSistemaAPI.listarCamposCadastroSistema("usuarios");
+        console.log("Buscando campos em:", url);
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Erro ao buscar campos.");
+        const data = await usuariosDoSistemaAPI.listarCamposCadastroSistema("usuarios");
+        setCamposCadastro(data);
+      } catch (error) {
+        console.error("Erro ao buscar campos do usuário:", error);
+      }
+    };
+    
     const fetchUsuarios = async () => {
       try {
-        const response = await usuario.listar();
-        console.log("Usuários na Page: ", response);
+        const response = await usuariosDoSistemaAPI.listar();
+        console.log("Usuários encontrados: ", response);
         setUsuarios(response);
       } catch (err) {
-        setError("Erro ao carregar os usuários.");
+        console.error("Erro ao buscar usuários: ", err);
       } finally {
         setLoading(false);
       }
     };
 
+    fetchCamposCadastro();
     fetchUsuarios();
   }, []);
 
@@ -42,9 +58,9 @@ const ListaSistemaUsuarios = () => {
   );
 
   if (loading) return renderStatus("Carregando usuários...");
-  if (error) return renderStatus(error, "text-red-500");
+  // if (error) return renderStatus(error, "text-red-500");
 
-  return renderStatus(<TemplateListaSistemaUsuarios usuarios={usuarios} api={usuario} />);
+  return renderStatus(<TemplateListaSistemaUsuarios usuarios={usuarios} camposCadastro={camposCadastro} />);
 };
 
 export default ListaSistemaUsuarios;

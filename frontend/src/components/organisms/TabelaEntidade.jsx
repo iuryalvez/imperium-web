@@ -1,16 +1,15 @@
 import { useState, useEffect } from "react";
 import { Table, Button, Space, Checkbox, Select, message, Modal } from "antd";
 import { PlusOutlined, EditOutlined } from "@ant-design/icons";
-import { usuario } from "../../api/clinica/usuariosAPI"; // Exemplo: para usuários. Para outras entidades, ajuste a API conforme necessário.
+import { usuariosDaClinicaAPI } from "../../api/clinica/usuariosDaClinicaAPI"; // Exemplo: para usuários. Para outras entidades, ajuste a API conforme necessário.
 import CardCadastrarEntidade from "../molecules/CardCadastrarEntidade"; // Componente genérico de cadastro
 import "../styles/TabelaEntidade.css";
 
 const TabelaEntidade = ({ 
     entidade,         // Nome da entidade, ex: "usuarios", "animais", etc.
     dados,            // Dados a serem exibidos na tabela
-    onEditar,         // Função de edição, chamada quando se clica em "Editar"
     camposCadastro,   // Configuração dos campos para o card de cadastro (array de objetos)
-    // Exemplo para usuários: [{ name: 'nome', label: 'Nome', type: 'text', placeholder: 'Nome completo', rules: [...] }, ...]
+    onEditar,         // Função de edição, chamada quando se clica em "Editar"
     onSubmitCadastro, // Função que faz a chamada à API para cadastrar
   }) => {
   const [registros, setRegistros] = useState(dados);
@@ -26,10 +25,10 @@ const TabelaEntidade = ({
     try {
       setLoadingId(upcId);
       if (checked) {
-        await usuario.habilitar(upcId);
+        await usuariosDaClinicaAPI.habilitar(upcId);
         message.success("Usuário habilitado com sucesso!");
       } else {
-        await usuario.desabilitar(upcId);
+        await usuariosDaClinicaAPI.desabilitar(upcId);
         message.success("Usuário desabilitado com sucesso!");
       }
       // Atualiza imediatamente o estado local
@@ -49,7 +48,7 @@ const TabelaEntidade = ({
     try {
       setLoadingPerfilId(upcId);
       console.log("Enviando novo perfil:", novoPerfil);
-      await usuario.atualizarPerfil(upcId, novoPerfil);
+      await usuariosDaClinicaAPI.atualizarPerfil(upcId, novoPerfil);
       message.success("Perfil atualizado com sucesso!");
       setRegistros((prev) =>
         prev.map((item) =>
@@ -195,21 +194,25 @@ const TabelaEntidade = ({
 
   const colunasComAcoes = [
     ...(colunasBase[entidade] || []),
-    {
-      title: "Ações",
-      key: "acoes",
-      render: (_, record) => (
-        <Space>
-          <Button
-            icon={<EditOutlined />}
-            onClick={() => onEditar(record)}
-            style={{ backgroundColor: "var(--verde-medio)", color: "white" }}
-          >
-            Editar
-          </Button>
-        </Space>
-      ),
-    },
+    ...(entidade !== "usuarios"
+      ? [
+          {
+            title: "Ações",
+            key: "acoes",
+            render: (_, record) => (
+              <Space>
+                <Button
+                  icon={<EditOutlined />}
+                  onClick={() => onEditar(record)}
+                  style={{ backgroundColor: "var(--verde-medio)", color: "white" }}
+                >
+                  Editar
+                </Button>
+              </Space>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -231,12 +234,15 @@ const TabelaEntidade = ({
         pagination={{ pageSize: 10 }}
       />
       <Modal
-        title={`Cadastrar ${entidade.charAt(0).toUpperCase() + entidade.slice(1)}`}
+        title={`Cadastrar ${entidade
+          .replace(/([A-Z])/g, " $1") // Adiciona um espaço antes de cada letra maiúscula
+          .trim() // Remove espaços extras no início, se houver
+          .charAt(0)
+          .toUpperCase() + entidade.replace(/([A-Z])/g, " $1").trim().slice(1)}`}
         open={modalVisivel}
         onCancel={() => setModalVisivel(false)}
         footer={null}
       >
-        {/* O card de cadastro é genérico para a entidade atual, e os campos podem ser passados via props */} 
         <CardCadastrarEntidade
           entidade={entidade}
           campos={camposCadastro}

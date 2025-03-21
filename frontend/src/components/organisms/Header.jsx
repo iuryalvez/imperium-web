@@ -22,8 +22,8 @@ const Header = () => {
                         <li>
                             <Link to="/clinica/perfil" className="text-green-dark font-bold hover:text-green-light">Perfil</Link>
                         </li>
-                        {/* <li className="text-green-dark">|</li>
-                        <li>
+                        <li className="text-green-dark">|</li>
+                        {/* <li>
                             <Link to="/sistema/vinculos" className="text-green-dark font-bold hover:text-green-light">Trocar vínculo</Link>
                         </li> */}
                         <li className="text-green-dark">|</li>

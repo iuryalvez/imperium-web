@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace backend.Dtos.Usuario
 {
-    public class UsuarioDto : IdentityUser<int>
+    public class CadastrarUsuarioDto : IdentityUser<int>
     {
         public string Nome { get; set; } = string.Empty;
         public string Senha { get; set; } = string.Empty;

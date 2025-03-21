@@ -10,6 +10,7 @@ using backend.Dtos.Usuario;
 using backend.Interfaces;
 using backend.Dtos.Vinculo;
 using System.Security.Claims;
+using backend.Dtos;
 
 namespace backend.Controllers
 {
@@ -33,7 +34,7 @@ namespace backend.Controllers
         // cria um novo usuário com perfil e associação à clínica
         [HttpPost("usuarios/cadastrar/{perfilId}")]
         [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> CreateUsuario(int perfilId, [FromBody] UsuarioDto usuarioDto)
+        public async Task<IActionResult> CadastrarUsuario(int perfilId, [FromBody] CadastrarUsuarioDto cadastrarUsuarioDto)
         {
 
             // Verifica se o perfil é válido
@@ -50,7 +51,7 @@ namespace backend.Controllers
             }
 
             // Verifica se o e-mail já está em uso
-            var existingUser = await _userManager.FindByEmailAsync(usuarioDto.Email);
+            var existingUser = await _userManager.FindByEmailAsync(cadastrarUsuarioDto.Email);
             if (existingUser != null)
             {
                 return BadRequest("O e-mail já está em uso.");
@@ -59,15 +60,15 @@ namespace backend.Controllers
             // Cria o novo usuário usando as convenções do Identity
             var usuario = new Usuario
             {
-                UserName = usuarioDto.Email,
-                Email = usuarioDto.Email,
-                Nome = usuarioDto.Nome,
+                UserName = cadastrarUsuarioDto.Email,
+                Email = cadastrarUsuarioDto.Email,
+                Nome = cadastrarUsuarioDto.Nome,
                 DataCad = DateTime.UtcNow,
                 EmailConfirmed = true, // confirmado por padrão
             };
 
             // Cria o usuário com a senha fornecida (o Identity tratará do hashing automaticamente)
-            var result = await _userManager.CreateAsync(usuario, usuarioDto.Senha);
+            var result = await _userManager.CreateAsync(usuario, cadastrarUsuarioDto.Senha);
             if (!result.Succeeded)
             {
                 return BadRequest(result.Errors);
