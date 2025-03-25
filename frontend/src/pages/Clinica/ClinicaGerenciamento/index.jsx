@@ -1,18 +1,18 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import '../App.css';
-import '../components/styles/Gerenciamento.css';
-import Navsidebar from '../components/organisms/Navsidebar';
+import '../../../App.css';
+import '../../../components/styles/Gerenciamento.css';
+import Navsidebar from '../../../components/organisms/Navsidebar';
 
 
-function Gerenciamento() {
+function ClinicaGerenciamento() {
   const navigate = useNavigate();
   return (
     <div>
         <Navsidebar></Navsidebar>
         <main className='main-content'>
-          <h2>Gerenciamento</h2>
+          <h2>ClinicaGerenciamento</h2>
           <div className='opcoes'>
             <div>
               <button className='button-menu' onClick={()=> navigate('/gerenciamento/usuarios')}>Usuários</button>
@@ -26,4 +26,4 @@ function Gerenciamento() {
   );
 }
 
-export default Gerenciamento;
+export default ClinicaGerenciamento;

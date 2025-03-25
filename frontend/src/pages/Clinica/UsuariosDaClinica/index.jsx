@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 
-import { usuariosDaClinicaAPI } from "../api/clinica/usuariosDaClinicaAPI.js";
+import { usuariosDaClinicaAPI } from "../../../api/clinica/usuariosDaClinicaAPI.js";
 
-import Navsidebar from "../components/organisms/Navsidebar.jsx";
-import TemplateListaUsuarios from "../components/template/listagem/TemplateListaUsuarios.jsx";
+import Navsidebar from "../../../components/organisms/Navsidebar.jsx";
 import { Spin } from "antd";
+import TabelaEntidade from "../../../components/organisms/TabelaEntidade.jsx";
 
-const ListaUsuarios = () => {
+const TabelaUsuariosDaClinica = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [camposCadastro, setCamposCadastro] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -57,11 +57,8 @@ const ListaUsuarios = () => {
   // if (error) return renderStatus(error, "text-red-500");
 
   return renderStatus(
-    <TemplateListaUsuarios
-      usuarios={usuarios}
-      camposCadastro={camposCadastro}
-    />
+    <TabelaEntidade entidade="usuarios" dados={usuarios} camposCadastro={camposCadastro} />
   );
 };
 
-export default ListaUsuarios;
+export default TabelaUsuariosDaClinica;

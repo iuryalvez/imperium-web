@@ -1,8 +1,9 @@
-import "../App.css";
-import "../components/styles/Listas.css";
-import Navsidebar from "../components/organisms/Navsidebar";
+import "../../../App.css";
+import "../../../components/styles/Listas.css";
 
-function Animais() {
+import Navsidebar from "../../../components/organisms/Navsidebar";
+
+function AnimaisDaClinica() {
   return (
     <div>
       <Navsidebar></Navsidebar>
@@ -15,4 +16,4 @@ function Animais() {
   );
 }
 
-export default Animais;
+export default AnimaisDaClinica;

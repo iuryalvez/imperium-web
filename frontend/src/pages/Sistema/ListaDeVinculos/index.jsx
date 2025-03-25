@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 
-import { autenticacao } from "../api/autenticacaoAPI";
-
-import TemplateListaVinculos from "../components/template/listagem/TemplateListaVinculos";
+import { autenticacao } from "../../../api/autenticacaoAPI";
 
 import { ArrowLeftOutlined } from "@ant-design/icons";
+import ListaCards from "../../../components/organisms/ListaCards";
 
-const ListaVinculos = () => {
+const ListaDeVinculos = () => {
   const [vinculos, setVinculos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -45,7 +44,7 @@ const ListaVinculos = () => {
   if (loading) return renderStatus("Carregando vínculos...");
   if (error) return renderStatus(error, "text-red-500");
 
-  return renderStatus(<TemplateListaVinculos vinculos={vinculos} />);
+  return renderStatus(<ListaCards tipoEntidade="Vínculo" dados={vinculos} />);
 };
 
-export default ListaVinculos;
+export default ListaDeVinculos;

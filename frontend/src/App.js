@@ -4,25 +4,25 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './services/AuthContext';
 import { NotificationProvider } from './services/NotificationContext';
 
-
 import LoggedRoute from './components/servicesComponents/LoggedRoute';
 import AuthenticatedRoute from './components/servicesComponents/AuthenticatedRoute';
 
-import Header from './components/organisms/Header';
+import Header from './components/organisms/Header/index.jsx';
 
-import Login from './pages/Login.jsx';
-import Cadastro from './pages/AutoCadastro';
-import Sobre from './pages/Sobre';
-import Clinica from './pages/Clinica.jsx';
-import ListaUsuarios from './pages/ListaUsuarios.jsx';
-import ListaSistemaUsuarios from './pages/ListaSistemaUsuarios.jsx';
-import Tutores from './pages/Tutores.jsx';
-import Gerenciamento from './pages/Gerenciamento.jsx';
-import Consultas from './pages/Consultas.jsx';
-import ListaVinculos from './pages/ListaVinculos';
-import Home from './pages/Home.jsx';
-import Animais from './pages/Animais.jsx';
-import Sistema from './pages/Sistema.jsx';
+import Login from './pages/Login/index.jsx';
+import Sobre from './pages/Sobre/index.jsx';
+
+import Sistema from './pages/Sistema/SistemaInicio/index.jsx';
+import ListaDeVinculos from './pages/Sistema/ListaDeVinculos/index.jsx';
+import UsuariosDoSistema from './pages/Sistema/UsuariosDoSistema/index.jsx';
+
+import Clinica from './pages/Clinica/ClinicaInicio/index.jsx';
+import ClinicaInicio from './pages/Clinica/ClinicaInicio/index.jsx';
+import ClinicaGerenciamento from './pages/Clinica/ClinicaGerenciamento/index.jsx';
+import UsuariosDaClinica from './pages/Clinica/UsuariosDaClinica/index.jsx';
+import TutoresDaClinica from './pages/Clinica/TutoresDaClinica/index.jsx';
+import ConsultasDaClinica from './pages/Clinica/ConsultasDaClinica/index.jsx';
+import AnimaisDaClinica from './pages/Clinica/AnimaisDaClinica/index.jsx';
 
 const App = () => {
   return (
@@ -30,46 +30,35 @@ const App = () => {
       <NotificationProvider>
         <AuthProvider>
           <Header />
-            <Routes>
-              {/* Rotas públicas */}
-              <Route exact path='/' element={<Login />} />
-              <Route path='/login' element={<Login />} />
-              <Route path="/sobre" element={<Sobre />} />
-              <Route path="/cadastro" element={<Cadastro />} />
-              {/* <Route path='/teste'element={<Teste/>} /> */}
-              
-              {/* Rotas protegidas por isLogged */}
-              <Route element={<LoggedRoute />}>
-                <Route path='/sistema' element={<Sistema />} />
-                <Route path='/sistema/vinculos' element={<ListaVinculos />} />
-                <Route path='/sistema/clinicas' element={<Sistema />} />
-                <Route path='/sistema/usuarios' element={<ListaSistemaUsuarios />} />
-              </Route>
+          <Routes>
+            {/* Rotas públicas */}
+            <Route exact path='/' element={<Login />} />
+            <Route path='/login' element={<Login />} />
+            <Route path="/sobre" element={<Sobre />} />
+            {/* <Route path="/cadastro" element={<Cadastro />} /> */}
+            {/* <Route path='/teste'element={<Teste/>} /> */}
+            
+            {/* Rotas protegidas por isLogged */}
+            <Route element={<LoggedRoute />}>
+              <Route path='/sistema' element={<Sistema />} />
+              <Route path='/sistema/vinculos' element={<ListaDeVinculos />} />
+              {/* <Route path='/sistema/clinicas' element={<ListaClinicas />} /> */}
+              <Route path='/sistema/usuarios' element={<UsuariosDoSistema />} />
+            </Route>
 
-              {/* Rotas protegidas dentro da AuthenticatedRoute */}
-              <Route element={<AuthenticatedRoute />}>
-                <Route path='/clinica/home' element={<Home />} />
-                <Route path='/clinica' element={<Clinica />} />
-                <Route path="/clinica/editar" element={<Gerenciamento />} />
-                <Route path='/clinica/usuarios' element={<ListaUsuarios />} />
-                <Route path="/clinica/tutores" element={<Tutores />} />
-                <Route path="/clinica/consultas" element={<Consultas />} />
-                <Route path="/clinica/animais" element={<Animais />} />
-              </Route>
-            </Routes>
+            {/* Rotas protegidas dentro da AuthenticatedRoute */}
+            <Route element={<AuthenticatedRoute />}>
+              <Route path='/clinica/inicio' element={<ClinicaInicio />} />
+              <Route path='/clinica' element={<Clinica />} />
+              <Route path="/clinica/editar" element={<ClinicaGerenciamento />} />
+              <Route path='/clinica/usuarios' element={<UsuariosDaClinica />} />
+              <Route path="/clinica/tutores" element={<TutoresDaClinica />} />
+              <Route path="/clinica/consultas" element={<ConsultasDaClinica />} />
+              <Route path="/clinica/animais" element={<AnimaisDaClinica />} />
+            </Route>
+          </Routes>
         </AuthProvider>
       </NotificationProvider>
-      
-        {/* Rotas a ser implementadas
-          <Route exact path="/" Component={Login} />
-          <Route path="/dashboard" Component={Dashboard} /> 
-          <Route path="/login" Component={Login} />
-          <Route path="/animais" Component={Animais} />
-          <Route path="/animais/cadastrar" Component={CadastrarAnimal} />
-          <Route path="/gerenciamento/usuarios" Component={Usuarios} />
-          <Route path="/gerenciamento/perfil" Component={Perfil} /> 
-        */}
-      
     </Router>
   );
 };

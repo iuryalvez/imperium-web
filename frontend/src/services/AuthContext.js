@@ -55,9 +55,9 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (loading) checkAuth();
-    if (isLogged && !isAuthenticated && !isAdmin) {
-      navigate('/sistema/vinculos');
-    }
+    // if (isLogged && !isAuthenticated && !isAdmin) {
+    //   navigate('/sistema/vinculos');  
+    // }
   }, [loading, isAuthenticated, isLogged, isAdmin, navigate, checkAuth]);
   
   const login = async ({ email, senha }) => {
@@ -93,11 +93,25 @@ export const AuthProvider = ({ children }) => {
       if (response.status === 200) {
         abrirNotificacao('success', 'Vínculo selecionado!', 'Você escolheu seu vínculo com sucesso.');
         await checkAuth();
-        navigate('/clinica/home');
+        navigate('/clinica/inicio');
       }
     } catch (error) {
       abrirNotificacao('error', 'Erro ao selecionar vínculo', 'Não foi possível selecionar o vínculo.');
       throw error;
+    }
+  };
+
+  const trocarVinculo = async () => {
+    try {
+      // Simulando a mudança de estado para "logado", mas sem vínculo ativo
+      setIsAuthenticated(false);
+      setClinicaNome(""); // Resetando a clínica associada
+  
+      abrirNotificacao('info', 'Troca de vínculo', 'Escolha um novo vínculo para continuar.');
+  
+      navigate('/sistema'); // Redireciona para escolher novo vínculo
+    } catch (error) {
+      abrirNotificacao('error', 'Erro ao trocar vínculo', 'Não foi possível trocar de vínculo.');
     }
   };
 
@@ -124,6 +138,7 @@ export const AuthProvider = ({ children }) => {
         login,
         escolherVinculo,
         logout,
+        trocarVinculo,
       }}
     >
       {children}

@@ -1,9 +1,9 @@
 import React from 'react';
 
-import '../App.css'
-import Navsidebar from '../components/organisms/Navsidebar'
+import '../../../App.css'
+import Navsidebar from '../../../components/organisms/Navsidebar'
 
-function Dashboard() {
+function Perfil() {
   return (
     <div>
         <Navsidebar></Navsidebar>
@@ -13,4 +13,4 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+export default Perfil;

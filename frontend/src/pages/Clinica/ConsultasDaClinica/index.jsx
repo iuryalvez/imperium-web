@@ -1,9 +1,9 @@
 import React from 'react';
 
-import '../App.css'
-import Navsidebar from '../components/organisms/Navsidebar'
+import '../../../App.css'
+import Navsidebar from '../../../components/organisms/Navsidebar'
 
-function Consultas() {
+function ConsultasDaClinica() {
   return (
     <div>
         <Navsidebar></Navsidebar>
@@ -13,4 +13,4 @@ function Consultas() {
   );
 }
 
-export default Consultas;
+export default ConsultasDaClinica;
