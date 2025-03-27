@@ -8,23 +8,9 @@ import TabelaEntidade from "../../../components/organisms/TabelaEntidade.jsx";
 
 const TabelaUsuariosDaClinica = () => {
   const [usuarios, setUsuarios] = useState([]);
-  const [camposCadastro, setCamposCadastro] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCamposCadastro = async () => {
-          try {
-            const url = usuariosDaClinicaAPI.listarCamposCadastroClinica("usuarios");
-            console.log("Buscando campos em:", url);
-            const response = await fetch(url);
-            if (!response.ok) throw new Error("Erro ao buscar campos.");
-            const data = await usuariosDaClinicaAPI.listarCamposCadastroClinica("usuarios");
-            setCamposCadastro(data);
-          } catch (error) {
-            console.error("Erro ao buscar campos do usuário:", error);
-          }
-        };
-
     const fetchUsuarios = async () => {
       try {
         const response = await usuariosDaClinicaAPI.listar();
@@ -37,7 +23,6 @@ const TabelaUsuariosDaClinica = () => {
       }
     };
 
-    fetchCamposCadastro();
     fetchUsuarios();
   }, []);
 
@@ -57,7 +42,7 @@ const TabelaUsuariosDaClinica = () => {
   // if (error) return renderStatus(error, "text-red-500");
 
   return renderStatus(
-    <TabelaEntidade entidade="usuarios" dados={usuarios} camposCadastro={camposCadastro} />
+    <TabelaEntidade entidade="usuarios" dados={usuarios} />
   );
 };
 

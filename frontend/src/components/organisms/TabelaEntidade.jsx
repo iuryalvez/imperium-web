@@ -8,9 +8,7 @@ import "../styles/TabelaEntidade.css";
 const TabelaEntidade = ({ 
     entidade,         // Nome da entidade, ex: "usuarios", "animais", etc.
     dados,            // Dados a serem exibidos na tabela
-    camposCadastro,   // Configuração dos campos para o card de cadastro (array de objetos)
     onEditar,         // Função de edição, chamada quando se clica em "Editar"
-    onSubmitCadastro, // Função que faz a chamada à API para cadastrar
   }) => {
   const [registros, setRegistros] = useState(dados);
   const [loadingId, setLoadingId] = useState(null);
@@ -60,6 +58,29 @@ const TabelaEntidade = ({
       message.error("Falha ao atualizar perfil.");
     } finally {
       setLoadingPerfilId(null);
+    }
+  };
+
+  const onSubmitCadastro = async (dadosFormulario) => {
+    try {
+      // Exemplo de endpoint dinâmico baseado na entidade
+      const response = await usuariosDaClinicaAPI.cadastrar(dadosFormulario)
+  
+      if (!response.ok) {
+        throw new Error("Erro ao cadastrar a entidade");
+      }
+  
+      const novoRegistro = await response.json();
+      message.success(`${entidade} cadastrado com sucesso.`);
+      
+      // Atualiza a lista de registros na tabela
+      setRegistros((prev) => [...prev, novoRegistro]);
+  
+      return novoRegistro;
+    } catch (error) {
+      console.error(`Erro ao cadastrar ${entidade}:`, error);
+      message.error(`Falha ao cadastrar ${entidade}.`);
+      throw error;
     }
   };
 
@@ -128,7 +149,7 @@ const TabelaEntidade = ({
         sorter: (a, b) => a.nome.localeCompare(b.nome) 
       },
       { title: "E-mail", dataIndex: "email", key: "email" },
-      { title: "Usuário", dataIndex: "userName", key: "userName" },
+      // { title: "Usuário", dataIndex: "userName", key: "userName" },
       { 
         title: "Perfil", 
         dataIndex: "perfil", 
@@ -206,7 +227,6 @@ const TabelaEntidade = ({
                   onClick={() => onEditar(record)}
                   style={{ backgroundColor: "var(--verde-medio)", color: "white" }}
                 >
-                  Editar
                 </Button>
               </Space>
             ),
@@ -240,17 +260,19 @@ const TabelaEntidade = ({
           .charAt(0)
           .toUpperCase() + entidade.replace(/([A-Z])/g, " $1").trim().slice(1)}`}
         open={modalVisivel}
-        onCancel={() => setModalVisivel(false)}
+        onCancel={() => {
+          setModalVisivel(false);
+        }}  
         footer={null}
       >
         <CardCadastrarEntidade
           entidade={entidade}
-          campos={camposCadastro}
           onSubmit={onSubmitCadastro}
           onSuccess={(novoRegistro) => {
             setModalVisivel(false);
             setRegistros([...registros, novoRegistro]);
           }}
+          setModalVisivel={setModalVisivel}
         />
       </Modal>
     </div>

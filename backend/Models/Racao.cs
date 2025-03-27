@@ -1,5 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace backend.Models {
     public class Racao {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int ClinicaId { get; set; }
         public Clinica? Clinica { get; set; }

@@ -1,5 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace backend.Models {
     public class Animal {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string Nome { get; set; } = string.Empty;
         public int Especie { get; set; } // 1-cao, 2-gato

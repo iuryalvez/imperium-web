@@ -339,46 +339,6 @@ namespace backend.Controllers
             }
         }
 
-        [Authorize(Policy = "VisualizaTudo")]
-        [HttpPost("sistema/trocar-vinculo")]
-        public async Task<IActionResult> GenerateTokenTrocarVinculo()
-        {
-            var claimsIdentity = User.Identity as ClaimsIdentity;
-            var claimUPCId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-            if (claimUPCId == null)
-            {
-                _logger.LogWarning("Claim 'NameIdentifier' não encontrada no token.");
-                return Unauthorized("Token inválido!");
-            }
-
-            int usuarioPerfilClinicaId;
-            if (!int.TryParse(claimUPCId.Value, out usuarioPerfilClinicaId))
-            {
-                _logger.LogWarning("Falha ao converter o valor da claim 'NameIdentifier' para int. Valor: {Value}", claimUPCId.Value);
-                return Unauthorized("Token inválido!");
-            }
-
-            var usuarioId = await _context.UsuariosPerfisClinicas
-                .Where(upc => upc.Id == usuarioPerfilClinicaId)
-                .Select(upc => upc.UsuarioId)
-                .FirstOrDefaultAsync();
-
-            if (usuarioId == 0)
-            {
-                _logger.LogWarning("Nenhum usuário encontrado para o ID de vínculo {UsuarioPerfilClinicaId}.", usuarioPerfilClinicaId);
-                return NotFound("Nenhum usuário encontrado para este vínculo.");
-            }
-
-            var usuarioIp = HttpContext.Connection.RemoteIpAddress?.ToString();
-            var usuarioAgent = Request.Headers["User-Agent"].ToString();
-
-            var token = _tokenService.GenerateTokenLogin(usuarioId.ToString(), usuarioIp, usuarioAgent);
-
-            _logger.LogInformation("Token de login gerado com sucesso para o usuário com ID {UsuarioId}.", usuarioId);
-
-            return Ok();
-        }
-
         [HttpGet("check")]
         public IActionResult CheckStatus()
         {

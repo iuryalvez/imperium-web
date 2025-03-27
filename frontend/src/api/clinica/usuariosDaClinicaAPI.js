@@ -2,6 +2,20 @@ import api from "../index"; // Configuração do axios
 import endpoints from "../../services/Endpoints"; // Endpoints
 
 export const usuariosDaClinicaAPI = {
+  cadastrar: async (dadosFormulario) => {
+    try {
+      const response = await api.post(endpoints.clinica.usuario.cadastrar, dadosFormulario, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data
+    } catch (error) {
+      console.error("Erro ao cadastrar usuário:", error);
+      throw error.response ? error.response.data : error;
+    }
+  },
+
   listar: async () => {
     try {
       const response = await api.get(endpoints.clinica.usuario.listar);
@@ -31,15 +45,7 @@ export const usuariosDaClinicaAPI = {
       throw error.response ? error.response.data : error;
     }
   },
-  listarCamposCadastroClinica: async (entidade) => {
-    try {
-      const response = await api.get(endpoints.clinica.usuario.listarCamposCadastro(entidade));
-      return response.data;
-    } catch (error) {
-      console.error("Erro ao buscar campos do usuário:", error);
-      throw error.response ? error.response.data : error;
-    }
-  },
+  
   desabilitar: async (upcId) => {
     try {  
       const response = await api.put(endpoints.clinica.usuario.desabilitar(upcId));

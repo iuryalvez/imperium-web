@@ -1,5 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace backend.Models {
     public class TutorAnimalClinica {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int TutorId { get; set; }
         public Tutor? Tutor { get; set; }

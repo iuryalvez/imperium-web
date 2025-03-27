@@ -1,5 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace backend.Models {
     public class Tutor {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string Nome { get; set; } = string.Empty;
         public string Cpf { get; set; } = string.Empty;

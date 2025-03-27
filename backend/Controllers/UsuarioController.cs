@@ -32,13 +32,12 @@ namespace backend.Controllers
         }
         
         // cria um novo usuário com perfil e associação à clínica
-        [HttpPost("usuarios/cadastrar/{perfilId}")]
+        [HttpPost("usuarios/cadastrar")]
         [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> CadastrarUsuario(int perfilId, [FromBody] CadastrarUsuarioDto cadastrarUsuarioDto)
+        public async Task<IActionResult> CadastrarUsuario([FromBody] CadastrarUsuarioDto cadastrarUsuarioDto)
         {
-
             // Verifica se o perfil é válido
-            var perfil = await _context.Perfis.FindAsync(perfilId);
+            var perfil = await _context.Perfis.FindAsync(cadastrarUsuarioDto.PerfilId);
             if (perfil == null)
             {
                 return BadRequest("Perfil inválido.");
@@ -64,6 +63,7 @@ namespace backend.Controllers
                 Email = cadastrarUsuarioDto.Email,
                 Nome = cadastrarUsuarioDto.Nome,
                 DataCad = DateTime.UtcNow,
+                DataUltimoAcesso = DateTime.UtcNow,
                 EmailConfirmed = true, // confirmado por padrão
             };
 
@@ -71,9 +71,9 @@ namespace backend.Controllers
             var result = await _userManager.CreateAsync(usuario, cadastrarUsuarioDto.Senha);
             if (!result.Succeeded)
             {
-                return BadRequest(result.Errors);
+                return BadRequest(new { Errors = result.Errors.Select(e => e.Description) });
             }
-
+            
             // Adiciona o usuário ao respectivo role/perfil
             var roleResult = await _userManager.AddToRoleAsync(usuario, perfil.Name);
             if (!roleResult.Succeeded)
@@ -81,13 +81,17 @@ namespace backend.Controllers
                 return BadRequest(roleResult.Errors);
             }
 
-            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            var clinicaIdClaim = User.Claims.FirstOrDefault(c => c.Type == "clinicaId")?.Value;
+            if (string.IsNullOrEmpty(clinicaIdClaim) || !int.TryParse(clinicaIdClaim, out var clinicaId))
+            {
+                return BadRequest("Não foi possível identificar a clínica do usuário.");
+            }
 
             // Associa o usuário à clínica
             var usuarioPerfilClinica = new UsuarioPerfilClinica
             {
                 UsuarioId = usuario.Id,
-                PerfilId = perfilId,
+                PerfilId = perfil.Id,
                 ClinicaId = clinicaId
             };
 

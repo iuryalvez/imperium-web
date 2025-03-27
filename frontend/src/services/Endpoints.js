@@ -18,7 +18,7 @@ const endpoints = {
   },
   clinica: {
     animal: {
-      novo: (tutorId) => `${API_BASE_URL}/clinica/animais/tutor_${tutorId}-novo-animal`,
+      novo: (tutorId) => `${API_BASE_URL}/clinica/animais/tutor/${tutorId}/novo-animal`,
       detalhes: (animalId) => `${API_BASE_URL}/clinica/animais/${animalId}`,
       deletar: (animalId) => `${API_BASE_URL}/clinica/animais/${animalId}`,
       listarPorTutor: (tutorId) => `${API_BASE_URL}/clinica/animais/tutor_${tutorId}/animais`,
@@ -40,7 +40,7 @@ const endpoints = {
       dados: `${API_BASE_URL}/clinica/dados`,
     },
     consulta: {
-      nova: `${API_BASE_URL}/clinica/nova-consulta`,
+      nova: (clinicaId) => `${API_BASE_URL}/clinica//${clinicaId}/nova-consulta`,
       listar: `${API_BASE_URL}/clinica/consultas`,
       detalhes: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}`,
       deletar: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}`,
@@ -62,12 +62,12 @@ const endpoints = {
     tutor: {
       listar: `${API_BASE_URL}/clinica/tutores`,
       detalhes: (tutorId) => `${API_BASE_URL}/clinica/tutor_${tutorId}`,
-      cadastrar: `${API_BASE_URL}/clinica/tutores/cadastrar`,
+      cadastrar: (clinicaId) => `${API_BASE_URL}/clinica/${clinicaId}/tutores/cadastrar`,
       editar: (tutorId) => `${API_BASE_URL}/clinica/tutores/${tutorId}`,
       deletar: (tutorId) => `${API_BASE_URL}/clinica/tutores/tutor_${tutorId}`,
     },
     usuario: {
-      cadastrar: (perfilId) => `${API_BASE_URL}/clinica/usuarios/cadastrar+${perfilId}`,
+      cadastrar:`${API_BASE_URL}/clinica/usuarios/cadastrar`,
       listar: `${API_BASE_URL}/clinica/usuarios`,
       detalhes: (usuarioId) => `${API_BASE_URL}/clinica/usuarios/${usuarioId}`,
       editar: (upcId) => `${API_BASE_URL}/clinica/usuarios/${upcId}/editar`,
