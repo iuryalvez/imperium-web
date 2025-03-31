@@ -143,9 +143,9 @@ namespace backend.Controllers
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                 var usuarios = await _context.UsuariosPerfisClinicas
-                    .AsNoTracking() // melhora o desempenho em consultas somente leitura
-                    .Include(upc => upc.Usuario) // inclui os dados do usuário
-                    .Where(u => u.UsuarioId.ToString() != userId)
+                    .AsNoTracking()
+                    .Include(upc => upc.Usuario)
+                    .Include(upc => upc.Clinica)
                     .Select(upc => new GetUsuariosDto
                     {
                         Id = upc.Usuario.Id,
@@ -153,11 +153,13 @@ namespace backend.Controllers
                         UserName = upc.Usuario.UserName,
                         NomeClinica = upc.Clinica.NomeClinica,
                         Email = upc.Usuario.Email,
-                        Nome = upc.Usuario.Nome ?? string.Empty, // garante que Nome nunca seja nulo
-                        Perfil = upc.Perfil.Name ?? string.Empty,
+                        Nome = upc.Usuario.Nome ?? string.Empty,
+                        Perfis = upc.Perfis
+                            .Where(p => p.Value) // Apenas perfis ativos
+                            .Select(p => p.Key) // Pegamos apenas os nomes dos perfis ativos
+                            .ToList(),
                         DataCadastro = upc.Usuario.DataCad,
-                        DataUltimoAcesso = upc.Usuario.DataUltimoAcesso,
-                        Habilitado = upc.Habilitado
+                        DataUltimoAcesso = upc.Usuario.DataUltimoAcesso
                     })
                     .ToListAsync();
 

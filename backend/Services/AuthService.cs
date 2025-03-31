@@ -80,43 +80,52 @@ namespace backend.Services
             var currentIp = httpContext.Connection.RemoteIpAddress?.ToString();
             var currentUserAgent = httpContext.Request.Headers["User-Agent"].ToString();
             var acessoLogin = principal.FindFirst("acessoLogin")?.Value;
-
             var tokenIpClaim = principal.FindFirst("UsuarioIP")?.Value;
             var tokenUserAgentClaim = principal.FindFirst("UsuarioAgent")?.Value;
             var upcIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            // Valida se o ID do vinculo é um valor numérico válido
-            if (!int.TryParse(upcIdClaim, out int upcId)){
-                throw new SecurityTokenException("O Id contido no token não é um valor numérico válido!");
-            }
+            var isAdminClaim = principal.FindFirst("isAdmin")?.Value;
+            var perfisClaim = principal.FindFirst("Perfis")?.Value;
+            bool isAdmin = isAdminClaim == "true";
 
             if (tokenIpClaim != currentIp || tokenUserAgentClaim != currentUserAgent)
             {
                 throw new SecurityTokenException("IP ou navegador não correspondem ao token.");
             }
-            
-            // Valida se o vínculo ainda existe no banco e se sim define sua Role no contexto da requisição
-            if (string.IsNullOrEmpty(acessoLogin)) {
+
+            if (isAdmin)
+            {
+                // Administrador: Perfis vêm direto da claim e não há vínculo no banco
+                if (string.IsNullOrEmpty(perfisClaim))
+                {
+                    throw new SecurityTokenException("Administrador sem perfis atribuídos no token.");
+                }
+                Console.WriteLine($"Administrador autenticado com perfis: {perfisClaim}");
+            }
+            else
+            {
+                // Usuário comum: Precisa validar o vínculo no banco
+                if (!int.TryParse(upcIdClaim, out int upcId))
+                {
+                    throw new SecurityTokenException("O Id contido no token não é um valor numérico válido!");
+                }
+
                 try
                 {
                     using var _context = _contextFactory.CreateDbContext();
                     var upc = await _context.UsuariosPerfisClinicas
-                    .Include(upc => upc.Perfil)
-                    .Include(upc => upc.Clinica)
-                    .FirstOrDefaultAsync(upc => upc.Id == upcId);
-    
+                        .Include(upc => upc.Clinica)
+                        .FirstOrDefaultAsync(upc => upc.Id == upcId);
+
                     if (upc == null)
                     {
                         Console.WriteLine($"Erro: Vínculo com ID {upcId} não encontrado.");
-                        Console.WriteLine("Id do vínculo presente no token não existe no banco de dados!");
+                        throw new SecurityTokenException("Vínculo do usuário não encontrado no banco de dados.");
                     }
 
-                    // tirei a definição da role no contexto que estava aqui e 
-                    // coloquei na geração do token de vínculo
-                    // porque na verdade não estava sendo adicionada e 
-                    // não estava validando o authorize corretamente.
+                    // Obtém os perfis ativos do dicionário
+                    var perfisAtivos = upc.Perfis.Where(p => p.Value).Select(p => p.Key).ToList();
                     
-                    Console.WriteLine($"\nRole do usuário: {upc.Perfil.Name}");
+                    Console.WriteLine($"Usuário autenticado com perfis: {string.Join(", ", perfisAtivos)}");
                 }
                 catch (Exception ex)
                 {

@@ -57,13 +57,14 @@ internal class Program
         builder.Services.AddDbContextFactory<AppDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-        builder.Services.AddIdentity<Usuario, Perfil>(options =>
+        builder.Services.AddIdentity<Usuario, IdentityRole<int>>(options =>
         {
             options.Password.RequiredLength = 6;
-            options.Password.RequireDigit = true;
-            options.Password.RequireLowercase = true;
-            options.Password.RequireUppercase = true;
-            options.Password.RequireNonAlphanumeric = true;
+            // options.Password.RequireDigit = true;
+            // options.Password.RequireLowercase = true;
+            // options.Password.RequireUppercase = true;
+            // options.Password.RequireNonAlphanumeric = true;
+            options.User.RequireUniqueEmail = true;
         })
         .AddEntityFrameworkStores<AppDbContext>()
         .AddDefaultTokenProviders();
@@ -151,26 +152,38 @@ internal class Program
 
         builder.Services.AddAuthorization(options =>
         {
-            // define as policies para cada perfil
-            options.AddPolicy("VisualizaTudo", policy => policy.RequireRole("ADMIN","GESTOR","VETERINARIO","SECRETARIO","TECNICO"));
-            options.AddPolicy("GerenciaClinica", policy => policy.RequireRole("ADMIN","GESTOR"));
-            options.AddPolicy("GerenciaAnimais", policy => policy.RequireRole("ADMIN","VETERINARIO"));
-            options.AddPolicy("GerenciaTutores", policy => policy.RequireRole("ADMIN","VETERINARIO","SECRETARIO"));
-            options.AddPolicy("GerenciaConsultas", policy => policy.RequireRole("ADMIN","VETERINARIO","SECRETARIO"));
-            options.AddPolicy("GerenciaSistema", policy => policy.RequireClaim("isAdmin", "true"));
-            options.AddPolicy("AcessoLoginPolicy", policy => policy.RequireClaim("acessoLogin", "true"));
-            
-            // policy de operação OU entre AcessoLogin e TodosUsuarios (para as listas de vinculos) 
-            options.AddPolicy("AcessoLoginOuTodosUsuarios", policy =>
-            {
+            // Define as policies verificando a claim "Perfis"
+            options.AddPolicy("VisualizaTudo", policy =>
                 policy.RequireAssertion(context =>
-                    // verifica se o token é de login
-                    context.User.HasClaim(c => c.Type == "acessoLogin" && c.Value == "true")
-                    ||
-                    // se não é de login, verifica se o token tem qualquer valor na claim "role"
-                    context.User.HasClaim(c => c.Type == ClaimTypes.Role && !string.IsNullOrEmpty(c.Value))
-                );
-            });
+                    context.User.TemPerfil("ADMIN", "GESTOR", "VETERINARIO", "SECRETARIO", "TECNICO")));
+
+            options.AddPolicy("GerenciaClinica", policy =>
+                policy.RequireAssertion(context =>
+                    context.User.TemPerfil("ADMIN", "GESTOR")));
+
+            options.AddPolicy("GerenciaAnimais", policy =>
+                policy.RequireAssertion(context =>
+                    context.User.TemPerfil("ADMIN", "VETERINARIO")));
+
+            options.AddPolicy("GerenciaTutores", policy =>
+                policy.RequireAssertion(context =>
+                    context.User.TemPerfil("ADMIN", "VETERINARIO", "SECRETARIO")));
+
+            options.AddPolicy("GerenciaConsultas", policy =>
+                policy.RequireAssertion(context =>
+                    context.User.TemPerfil("ADMIN", "VETERINARIO", "SECRETARIO")));
+
+            options.AddPolicy("GerenciaSistema", policy =>
+                policy.RequireClaim("isAdmin", "true"));
+
+            options.AddPolicy("AcessoLoginPolicy", policy =>
+                policy.RequireClaim("acessoLogin", "true"));
+
+            // Policy para validar AcessoLogin ou se o usuário tem algum perfil ativo
+            options.AddPolicy("AcessoLoginOuTodosUsuarios", policy =>
+                policy.RequireAssertion(context =>
+                    context.User.HasClaim(c => c.Type == "acessoLogin" && c.Value == "true") ||
+                    context.User.TemAlgumPerfil()));
         });
 
         builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>

@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using backend.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace backend.Data
 {
-    public class AppDbContext : IdentityDbContext<Usuario,Perfil,int>
+    public class AppDbContext : IdentityDbContext<Usuario, IdentityRole<int>, int>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -16,7 +17,6 @@ namespace backend.Data
         public DbSet<Clinica> Clinicas { get; set; }
         public DbSet<Consulta> Consultas { get; set; }
         public DbSet<DietaPersonalizada> DietasPersonalizadas { get; set; }
-        public DbSet<Perfil> Perfis { get; set; }
         public DbSet<Racao> Racoes { get; set; }
         public DbSet<Relatorio> Relatorios { get; set; }
         public DbSet<Tutor> Tutores { get; set; }
@@ -28,6 +28,46 @@ namespace backend.Data
         {
 
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Usuario>()
+                .Property(entidade => entidade.Id)
+                .ValueGeneratedOnAdd();
+            
+            modelBuilder.Entity<Clinica>()
+                .Property(entidade => entidade.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<UsuarioPerfilClinica>()
+                .Property(upc => upc.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<Animal>()
+                .Property(entidade => entidade.Id)
+                .ValueGeneratedOnAdd();
+            
+            modelBuilder.Entity<Tutor>()
+                .Property(entidade => entidade.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<TutorAnimalClinica>()
+                .Property(tac => tac.Id)
+                .ValueGeneratedOnAdd();
+            
+            modelBuilder.Entity<Consulta>()
+                .Property(entidade => entidade.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<Racao>()
+                .Property(entidade => entidade.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<DietaPersonalizada>()
+                .Property(entidade => entidade.Id)
+                .ValueGeneratedOnAdd();
+            
+            modelBuilder.Entity<AcompanhamentoInd>()
+                .Property(entidade => entidade.Id)
+                .ValueGeneratedOnAdd();
 
             // 1-1 Acompanhamento e Animal
             modelBuilder.Entity<AcompanhamentoInd>()
@@ -113,29 +153,15 @@ namespace backend.Data
                 .HasForeignKey<DietaPersonalizada>(dp => dp.RacaoId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 1-N Perfil e UPCs
-            modelBuilder.Entity<Perfil>()
-                .HasMany(p => p.UsuariosPerfisClinicas)
-                .WithOne(upc => upc.Perfil)
-                .HasForeignKey(upc => upc.PerfilId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             // UsuarioPerfilClinica - Chave composta para tabela de associação
-            modelBuilder.Entity<UsuarioPerfilClinica>()
-                .HasKey(upc => new { upc.UsuarioId, upc.PerfilId, upc.ClinicaId }); // Chave composta
-            
+            // modelBuilder.Entity<UsuarioPerfilClinica>()
+            //     .HasKey(upc => new { upc.UsuarioId, upc.PerfilId, upc.ClinicaId }); // Chave composta
+
             // UsuarioPerfilClinica 1:N Usuario
             modelBuilder.Entity<UsuarioPerfilClinica>()
                 .HasOne(upc => upc.Usuario) // upc tem um usuário
                 .WithMany(u => u.UsuariosPerfisClinicas) // um usuário tem muitos upc
                 .HasForeignKey(upc => upc.UsuarioId) // a chave estrangeira de upc é usuarioId
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // UsuarioPerfilClinica 1:N Perfil
-            modelBuilder.Entity<UsuarioPerfilClinica>()
-                .HasOne(upc => upc.Perfil)
-                .WithMany(p => p.UsuariosPerfisClinicas)
-                .HasForeignKey(upc => upc.PerfilId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // UsuarioPerfilClinica 1:N Clinica
@@ -146,8 +172,8 @@ namespace backend.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             // TutorAnimalClinica - Chave composta para tabela de associação
-            modelBuilder.Entity<TutorAnimalClinica>()
-                .HasKey(tac => new { tac.TutorId, tac.AnimalId, tac.ClinicaId }); // Chave composta
+            // modelBuilder.Entity<TutorAnimalClinica>()
+            //     .HasKey(tac => new { tac.TutorId, tac.AnimalId, tac.ClinicaId }); // Chave composta
             
             // TutorAnimalClinica 1:N Tutor
             modelBuilder.Entity<TutorAnimalClinica>()

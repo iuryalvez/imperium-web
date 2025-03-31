@@ -226,9 +226,9 @@ Envelopar as requisições em Find "Something" com Dependency Injection (DI).
 
 Precisa ter o código de construção pronto antes de realizar a DI. -->
 
-#### Interfaces
+<!-- #### Interfaces
 
-Declaração das funções que são utilizadas.
+Declaração das funções que são utilizadas. -->
 
 <!-- #### Repository
 
