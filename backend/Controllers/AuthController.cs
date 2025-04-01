@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 using System.Security.Claims;
 using backend.Services;
+using System.Text.Json;
 
 namespace backend.Controllers
 {
@@ -24,18 +25,16 @@ namespace backend.Controllers
         private readonly ILogger<AuthController> _logger;
         private readonly IEmailService _emailService;
         private readonly ITokenService _tokenService;
-        private readonly ICookieService _cookieService;
 
         public AuthController(UserManager<Usuario> userManager, SignInManager<Usuario> signInManager, 
                               ILogger<AuthController> logger, IEmailService emailService, ITokenService tokenService, 
-                              ICookieService cookieService, AppDbContext context)
+                              AppDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _emailService = emailService;
             _tokenService = tokenService;
-            _cookieService = cookieService;
             _context = context;
         }
 
@@ -117,7 +116,7 @@ namespace backend.Controllers
                 await _context.SaveChangesAsync();
 
                 // define o token no cookie
-                _cookieService.SetCookieToken(HttpContext, tokenLogin);
+                _tokenService.SetCookieToken(HttpContext, tokenLogin);
 
                 return Ok(new { tokenLogin });
             }
@@ -238,15 +237,16 @@ namespace backend.Controllers
             }
 
             var vinculos = await _context.UsuariosPerfisClinicas
-                .Where(p => p.UsuarioId == usuarioId && p.Habilitado)
+                .Where(p => p.UsuarioId == usuarioId && p.Perfis.Any(perfil => perfil.Key != "Inativo" && perfil.Value)) // se algo der errado na busca de vínculos do usuário comum é aqui
                 .Select(p => new VinculoDto
                 {
                     Id = p.Id,
                     UsuarioId = p.UsuarioId,
-                    PerfilId = p.PerfilId,
-                    NomePerfil = p.Perfil.Name,
                     ClinicaId = p.ClinicaId,
-                    NomeClinica = p.Clinica.NomeFantasia
+                    NomeClinica = p.Clinica.NomeFantasia,
+                    Perfis = p.Perfis
+                        .Where(perfil => perfil.Key != "Inativo" && perfil.Value) // Apenas perfis ativos
+                        .ToDictionary(perfil => perfil.Key, perfil => perfil.Value) // Retorna dicionário filtrado
                 })
                 .ToListAsync();
 
@@ -267,7 +267,7 @@ namespace backend.Controllers
         {
             try
             {
-                // Obtem o valor de NameIdentifier do token
+                // Obtém o valor de NameIdentifier do token
                 var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userIdClaim))
                 {
@@ -303,12 +303,12 @@ namespace backend.Controllers
                     usuarioId = vinculoAtual.UsuarioId;
                 }
 
-                // Busca o vínculo selecionado pelo ID e verifica se pertence ao mesmo usuário
+                // Busca o vínculo selecionado pelo ID, garantindo que não esteja inativo
                 var vinculo = await _context.UsuariosPerfisClinicas
-                    .Include(v => v.Perfil)
                     .Include(v => v.Usuario)
                     .Include(v => v.Clinica)
-                    .FirstOrDefaultAsync(v => v.Id == upcId && v.UsuarioId == usuarioId);
+                    .FirstOrDefaultAsync(v => v.Id == upcId && v.UsuarioId == usuarioId && 
+                                            (!v.Perfis.ContainsKey("Inativo") || v.Perfis["Inativo"] == false));
 
                 // Verifica se o vínculo foi encontrado
                 if (vinculo == null)
@@ -316,26 +316,70 @@ namespace backend.Controllers
                     return NotFound("Vínculo não encontrado ou não pertence ao mesmo usuário.");
                 }
 
-                // Informações para o retorno
-                var role = vinculo.Perfil?.Name ?? "!!! Role não definida !!!";
-
                 // Extrai informações necessárias para gerar o token
                 var vinculoId = vinculo.Id.ToString();
                 var userIp = HttpContext.Connection.RemoteIpAddress?.ToString();
                 var userAgent = Request.Headers["User-Agent"].ToString();
 
-                // Gera o token
+                // Gera o token com os perfis ativos
                 var token = _tokenService.GenerateTokenVinculo(vinculoId, userIp, userAgent);
 
                 // Configura o cookie HTTP-Only com o novo token
-                _cookieService.SetCookieToken(HttpContext, token);
+                _tokenService.SetCookieToken(HttpContext, token);
 
-                // Retorna a Role escolhida
-                return Ok(new { Role = role });
+                // Retorna os perfis ativos
+                return Ok(new { vinculo });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "Erro ao selecionar vínculo: " + ex.Message);
+            }
+        }
+
+        [Authorize(Policy = "GerenciaSistema")]
+        [HttpPost("sistema/admin")] // Nova rota específica para admins
+        public async Task<IActionResult> SelecionarVinculoAdmin([FromBody] VinculoAdminDto dto)
+        {
+            try
+            {
+                // Obtém o valor de NameIdentifier do token
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim))
+                {
+                    return Unauthorized("Usuário não autenticado.");
+                }
+
+                // Verifica se o usuário tem permissão de administrador
+                var isAdmin = User.Claims.Any(c => c.Type == "isAdmin" && c.Value == "true");
+                if (!isAdmin)
+                {
+                    return Forbid("Apenas administradores podem selecionar vínculo administrativo.");
+                }
+
+                // Obtém os dados da clínica
+                var clinica = await _context.Clinicas.AsNoTracking().FirstOrDefaultAsync(c => c.Id == dto.ClinicaId);
+                if (clinica == null)
+                {
+                    return NotFound("Clínica não encontrada.");
+                }
+
+                // Extrai informações necessárias para gerar o token
+                var userIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+                var userAgent = Request.Headers["User-Agent"].ToString();
+                var usuarioNome = User.FindFirst(ClaimTypes.Name)?.Value ?? "Administrador";
+
+                // Gera o token como se fosse um vínculo
+                var token = _tokenService.GenerateTokenVinculoAdmin(dto.ClinicaId, dto.Perfis, userIp, userAgent);
+
+                // Configura o cookie HTTP-Only com o novo token
+                _tokenService.SetCookieToken(HttpContext, token);
+
+                // Retorna os dados simulados do vínculo
+                return Ok(new { clinicaId = dto.ClinicaId, perfisAtivos = dto.Perfis });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Erro ao selecionar vínculo administrativo: " + ex.Message);
             }
         }
 
@@ -346,9 +390,9 @@ namespace backend.Controllers
             {
                 var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var userNameClaim = User.FindFirst(ClaimTypes.Name)?.Value;
-                var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
                 var clinicaNomeClaim = User.FindFirst("clinicaNome")?.Value;
                 var isAdminClaim = User.FindFirst("isAdmin")?.Value;
+                var perfisClaim = User.FindFirst("Perfis")?.Value;
 
                 if (string.IsNullOrEmpty(userIdClaim))
                 {
@@ -356,6 +400,16 @@ namespace backend.Controllers
                 }
 
                 bool IsAdmin = !string.IsNullOrEmpty(isAdminClaim) && bool.TryParse(isAdminClaim, out var parsedValue) && parsedValue;
+
+                // Deserializa a claim "Perfis" para um dicionário de perfis ativos
+                Dictionary<string, bool> perfisAtivos = new();
+                if (!string.IsNullOrEmpty(perfisClaim))
+                {
+                    perfisAtivos = JsonSerializer.Deserialize<Dictionary<string, bool>>(perfisClaim) ?? new();
+                }
+
+                // Filtra os perfis ativos (onde o valor é true)
+                var perfisFiltrados = perfisAtivos.Where(p => p.Value).Select(p => p.Key).ToList();
 
                 var acessoLoginClaim = User.FindFirst("acessoLogin");
                 if (acessoLoginClaim != null)
@@ -371,9 +425,10 @@ namespace backend.Controllers
                 return Ok(new
                 {
                     status = "autenticado",
-                    role = roleClaim,
+                    isAdmin = IsAdmin,
                     name = userNameClaim,
-                    clinicaNome = clinicaNomeClaim
+                    clinicaNome = clinicaNomeClaim,
+                    perfis = perfisFiltrados // Lista apenas os perfis ativos
                 });
             }
             catch (Exception ex)

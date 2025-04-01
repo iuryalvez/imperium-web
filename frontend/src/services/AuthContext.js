@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
   const [isLogged, setIsLogged] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(null);
+  const [perfis, setPerfis] = useState([]);
   const [userName, setUserName] = useState("");
   const [clinicaNome, setClinicaNome] = useState("");
   const [loading, setLoading] = useState(true);
@@ -23,31 +24,42 @@ export const AuthProvider = ({ children }) => {
     try {
       const resposta = await autenticacao.verificarAutenticacao();
       console.log('Resposta da checkAuth: ', resposta);
-
+  
       switch (resposta.status) {
         case 'autenticado':
           setIsLogged(true);
           setIsAuthenticated(true);
+          setIsAdmin(resposta.isAdmin); // Agora o isAdmin também é salvo
           setUserName(resposta.name || "");
           setClinicaNome(resposta.clinicaNome || "");
+          setPerfis(resposta.perfis || []); // Adiciona os perfis ativos
           break;
+          
         case 'logado':
           setIsLogged(true);
           setIsAuthenticated(false);
           setIsAdmin(resposta.isAdmin);
           setUserName(resposta.name || "");
+          setPerfis([]); // Garante que perfis sejam resetados quando apenas logado
           break;
+  
         default:
           setIsLogged(false);
           setIsAuthenticated(false);
+          setIsAdmin(false);
           setUserName("");
+          setClinicaNome("");
+          setPerfis([]); // Reseta os perfis ao deslogar
           break;
       }
     } catch (error) {
       abrirNotificacao('error', 'Erro de autenticação', 'Não foi possível verificar a autenticação.');
       setIsAuthenticated(false);
       setIsLogged(false);
+      setIsAdmin(false);
       setUserName("");
+      setClinicaNome("");
+      setPerfis([]);
     } finally {
       setLoading(false);
     }
@@ -134,6 +146,7 @@ export const AuthProvider = ({ children }) => {
         isAdmin,
         userName,
         clinicaNome,
+        perfis,
         loading,
         login,
         escolherVinculo,

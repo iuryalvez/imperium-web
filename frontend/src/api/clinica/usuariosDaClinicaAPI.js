@@ -25,7 +25,7 @@ export const usuariosDaClinicaAPI = {
       throw error.response ? error.response.data : error;
     }
   },
-
+  
   atualizarPerfil: async (upcId, novoPerfil) => {
     try {
       const responde = await api.put(endpoints.clinica.usuario.atualizarPerfil(upcId), {novoPerfil: novoPerfil});
@@ -33,26 +33,6 @@ export const usuariosDaClinicaAPI = {
     } catch (error) {
       console.error(`Erro ao modificar perfil do usuário com vinculoId ${upcId}`, error);
       throw error.response ? error.responde.data : error;
-    }
-  },
-
-  habilitar: async (upcId) => {
-    try {
-      const response = await api.put(endpoints.clinica.usuario.habilitar(upcId));
-      return response.data;
-    } catch (error) {
-      console.error(`Erro ao habilitar usuário com vinculoID ${upcId}:`, error);
-      throw error.response ? error.response.data : error;
-    }
-  },
-  
-  desabilitar: async (upcId) => {
-    try {  
-      const response = await api.put(endpoints.clinica.usuario.desabilitar(upcId));
-      return response.data;
-    } catch (error) {
-      console.error(`Erro ao desabilitar usuário com vinculoID ${upcId}:`, error);
-      throw error.response ? error.response.data : error;
     }
   },
 };

@@ -42,7 +42,7 @@ const TabelaUsuariosDaClinica = () => {
   // if (error) return renderStatus(error, "text-red-500");
 
   return renderStatus(
-    <TabelaEntidade entidade="usuarios" dados={usuarios} />
+    <TabelaEntidade entidade="usuáriosDaClínica" dados={usuarios} />
   );
 };
 

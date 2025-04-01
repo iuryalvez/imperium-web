@@ -28,7 +28,6 @@ internal class Program
         
         builder.Services.AddScoped<IEmailService, EmailService>();
         builder.Services.AddScoped<ITokenService, TokenService>();
-        builder.Services.AddScoped<ICookieService, CookieService>();
         builder.Services.AddScoped<IAuthService, AuthService>();
 
         // configuração do CORS
@@ -88,7 +87,7 @@ internal class Program
                 ValidateAudience = true, // valida o público do token
                 ValidAudience = builder.Configuration["JWT:Audience"], // público esperado
                 ValidateLifetime = true, // valida a expiração do token
-                RoleClaimType = ClaimTypes.Role, // define a claim de role
+                // RoleClaimType = ClaimTypes.Role, // define a claim de role
                 ClockSkew = TimeSpan.Zero // remove tolerância padrão de 5 minutos para expiração
             };
             

@@ -4,10 +4,10 @@ namespace backend.Dtos.Vinculo
     {
         public int Id { get; set; }
         public int UsuarioId { get; set; }
-        public int PerfilId { get; set; }
-        public string? NomePerfil { get; set; }
         public int ClinicaId { get; set; }
         public string? NomeClinica { get; set; }
-        public bool Habilitado { get; set; }
+        // Dicionário para armazenar os perfis do usuário na clínica
+        // Dicionário de perfis com valores booleanos
+        public Dictionary<string, bool>? Perfis { get; set; } // Definir no controlador.
     }
 }

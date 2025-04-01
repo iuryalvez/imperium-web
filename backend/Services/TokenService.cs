@@ -16,15 +16,13 @@ namespace backend.Services
     {
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
         private readonly IConfiguration _configuration;
-        private readonly ICookieService _cookie;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<TokenService> _logger;
 
-        public TokenService(IDbContextFactory<AppDbContext> contextFactory, IConfiguration configuration, ICookieService cookie, IHttpContextAccessor httpContextAccessor, ILogger<TokenService> logger)
+        public TokenService(IDbContextFactory<AppDbContext> contextFactory, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, ILogger<TokenService> logger)
         {
             _contextFactory = contextFactory;
             _configuration = configuration;
-            _cookie = cookie;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
         }
@@ -196,6 +194,7 @@ namespace backend.Services
                 throw new Exception("Erro interno ao gerar token. Tente novamente mais tarde.");
             }
         }
+
         public string GenerateTokenVinculoAdmin(int clinicaId, Dictionary<string, bool> perfisAtivos, string usuarioIp, string usuarioAgent)
         {
             try
@@ -274,6 +273,16 @@ namespace backend.Services
             }
         }
 
+        public void SetCookieToken(HttpContext context, string token)
+        {
+            context.Response.Cookies.Append("auth_token", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true, // Caso esteja em produção com HTTPS
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["JWT:ExpiresInMinutes"]))
+            });
+        }
 
         public Task RenovaToken(TokenValidatedContext context) 
         {
@@ -293,7 +302,7 @@ namespace backend.Services
                     ? GenerateTokenVinculo(userId, userIp, userAgent)
                     : GenerateTokenLogin(userId, userIp, userAgent);
 
-                _cookie.SetCookieToken(context.HttpContext, newToken);
+                SetCookieToken(context.HttpContext, newToken);
                 Console.WriteLine($"Token renovado com sucesso para o usuário: {userId}");
             }
 

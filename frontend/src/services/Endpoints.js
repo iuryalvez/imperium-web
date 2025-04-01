@@ -13,7 +13,6 @@ const endpoints = {
     },
     usuario: {
       listar: `${API_BASE_URL}/sistema/usuarios`,
-      listarCamposCadastro: (entidade) => `${API_BASE_URL}/sistema/campos-cadastro/${entidade}`,
     },
   },
   clinica: {
@@ -34,6 +33,7 @@ const endpoints = {
       listarVinculos: `${API_BASE_URL}/auth/sistema`,
       listarVinculosParaTrocar: `${API_BASE_URL}/auth/sistema/trocar-vinculo`,
       escolherVinculo: (upcId) => `${API_BASE_URL}/auth/sistema/${upcId}`,
+      escolherVinculoAdmin: `${API_BASE_URL}/auth/sistema/admin`,
       checarStatus: `${API_BASE_URL}/auth/check`,
     },
     clinica: {

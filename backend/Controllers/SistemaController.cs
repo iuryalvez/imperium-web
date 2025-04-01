@@ -149,9 +149,9 @@ namespace backend.Controllers
                     .Select(upc => new GetUsuariosDto
                     {
                         Id = upc.Usuario.Id,
-                        UpcId = upc.Id,
                         UserName = upc.Usuario.UserName,
                         NomeClinica = upc.Clinica.NomeClinica,
+                        ClinicaId = upc.ClinicaId,
                         Email = upc.Usuario.Email,
                         Nome = upc.Usuario.Nome ?? string.Empty,
                         Perfis = upc.Perfis
@@ -185,7 +185,7 @@ namespace backend.Controllers
 
                 // Busca o vínculo do usuário na tabela UsuariosPerfisClinicas
                 var vinculo = await _context.UsuariosPerfisClinicas
-                    .Include(upc => upc.Usuario) // Inclui os dados do usuário
+                    .Include(upc => upc.Usuario)
                     .FirstOrDefaultAsync(upc => upc.Id == upcId);
 
                 if (vinculo == null)
@@ -205,20 +205,17 @@ namespace backend.Controllers
                 usuario.Nome = dto.Nome;
                 _context.Usuarios.Update(usuario);
 
-                // Atualiza o estado de habilitação
-                vinculo.Habilitado = dto.Habilitado;
-
-                // Busca o perfil pelo nome e atualiza o vínculo
-                var perfil = await _context.Perfis.FirstOrDefaultAsync(p => p.Name == dto.Perfil);
-                if (perfil == null)
+                // Atualiza os perfis no vínculo
+                if (dto.Perfis != null && dto.Perfis.Any())
                 {
-                    return NotFound("Perfil não encontrado.");
+                    vinculo.Perfis = dto.Perfis;
+                }
+                else
+                {
+                    return BadRequest("O usuário deve ter pelo menos um perfil ativo.");
                 }
 
-                vinculo.PerfilId = perfil.Id;
                 _context.UsuariosPerfisClinicas.Update(vinculo);
-
-                // Salva todas as alterações
                 await _context.SaveChangesAsync();
 
                 return Ok("Usuário e vínculo atualizados com sucesso.");
@@ -227,80 +224,6 @@ namespace backend.Controllers
             {
                 _logger.LogError(ex, $"Erro ao editar usuário com vínculo ID {upcId}");
                 return StatusCode(500, "Erro interno ao editar usuário.");
-            }
-        }
-
-        [HttpPut("usuarios/{usuarioId}/desabilitar")]
-        [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> DesabilitarTodosVinculos(int usuarioId)
-        {
-            try
-            {
-                // Verifica se há vínculos antes de buscá-los completamente
-                bool existeVinculo = await _context.UsuariosPerfisClinicas
-                    .AnyAsync(v => v.UsuarioId == usuarioId && v.Habilitado);
-
-                if (!existeVinculo)
-                {
-                    return NotFound(new { Message = "Nenhum vínculo ativo encontrado para desabilitar." });
-                }
-
-                // Busca e desabilita todos os vínculos do usuário
-                var vinculos = await _context.UsuariosPerfisClinicas
-                    .Where(v => v.UsuarioId == usuarioId)
-                    .ToListAsync();
-
-                vinculos.ForEach(v => v.Habilitado = false);
-
-                // Atualiza em lote para melhor performance
-                _context.UsuariosPerfisClinicas.UpdateRange(vinculos);
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation("Todos os vínculos do usuário {UsuarioId} foram desabilitados com sucesso.", usuarioId);
-
-                return Ok(new { Message = "Todos os vínculos foram desabilitados com sucesso." });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao desabilitar vínculos do usuário {UsuarioId}.", usuarioId);
-                return StatusCode(500, new { Message = "Erro interno ao desabilitar os vínculos." });
-            }
-        }
-
-        [HttpPut("usuarios/{usuarioId}/habilitar-todos")]
-        [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> HabilitarTodosVinculos(int usuarioId)
-        {
-            try
-            {
-                // Verifica se há vínculos desabilitados antes de buscá-los completamente
-                bool existeVinculo = await _context.UsuariosPerfisClinicas
-                    .AnyAsync(v => v.UsuarioId == usuarioId && !v.Habilitado);
-
-                if (!existeVinculo)
-                {
-                    return NotFound(new { Message = "Nenhum vínculo desabilitado encontrado para habilitar." });
-                }
-
-                // Busca e habilita todos os vínculos desabilitados do usuário
-                var vinculos = await _context.UsuariosPerfisClinicas
-                    .Where(v => v.UsuarioId == usuarioId && !v.Habilitado)
-                    .ToListAsync();
-
-                vinculos.ForEach(v => v.Habilitado = true);
-
-                // Atualiza em lote para melhor performance
-                _context.UsuariosPerfisClinicas.UpdateRange(vinculos);
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation("Todos os vínculos do usuário {UsuarioId} foram habilitados com sucesso.", usuarioId);
-
-                return Ok(new { Message = "Todos os vínculos foram habilitados com sucesso." });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao habilitar vínculos do usuário {UsuarioId}.", usuarioId);
-                return StatusCode(500, new { Message = "Erro interno ao habilitar os vínculos." });
             }
         }
     }

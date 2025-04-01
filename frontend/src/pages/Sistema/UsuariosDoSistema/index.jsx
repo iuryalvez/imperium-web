@@ -47,7 +47,7 @@ const UsuariosDoSistema = () => {
   // if (error) return renderStatus(error, "text-red-500");
 
   return renderStatus(
-    <TabelaEntidade entidade="usuariosDoSistema" dados={usuariosDoSistema} />
+    <TabelaEntidade entidade="usuáriosDoSistema" dados={usuariosDoSistema} />
   );
 };
 

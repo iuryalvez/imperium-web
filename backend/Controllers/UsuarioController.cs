@@ -11,6 +11,7 @@ using backend.Interfaces;
 using backend.Dtos.Vinculo;
 using System.Security.Claims;
 using backend.Dtos;
+using System.Text.Json;
 
 namespace backend.Controllers
 {
@@ -31,68 +32,48 @@ namespace backend.Controllers
             _logger = logger;
         }
         
-        // cria um novo usuário com perfil e associação à clínica
         [HttpPost("usuarios/cadastrar")]
         [Authorize(Policy = "GerenciaClinica")]
         public async Task<IActionResult> CadastrarUsuario([FromBody] CadastrarUsuarioDto cadastrarUsuarioDto)
         {
-            // Verifica se o perfil é válido
-            var perfil = await _context.Perfis.FindAsync(cadastrarUsuarioDto.PerfilId);
-            if (perfil == null)
+            if (cadastrarUsuarioDto.Perfis == null || !cadastrarUsuarioDto.Perfis.Any(p => p.Value))
             {
-                return BadRequest("Perfil inválido.");
+                return BadRequest("Pelo menos um perfil deve ser selecionado.");
             }
 
-            // Restringe a criação de usuários do tipo ADMIN para apenas administradores
-            if (perfil.Name == "ADMIN" && !User.IsInRole("Admin"))
+            var clinicaExiste = await _context.Clinicas.AnyAsync(c => c.Id == cadastrarUsuarioDto.ClinicaId);
+            if (!clinicaExiste)
             {
-                return Forbid("Apenas administradores podem criar usuários do tipo ADMIN.");
+                return BadRequest("A clínica especificada não existe.");
             }
 
-            // Verifica se o e-mail já está em uso
             var existingUser = await _userManager.FindByEmailAsync(cadastrarUsuarioDto.Email);
             if (existingUser != null)
             {
                 return BadRequest("O e-mail já está em uso.");
             }
 
-            // Cria o novo usuário usando as convenções do Identity
             var usuario = new Usuario
             {
-                UserName = cadastrarUsuarioDto.Email,
+                UserName = cadastrarUsuarioDto.UserName ?? cadastrarUsuarioDto.Email, // Usa o email se UserName for nulo
                 Email = cadastrarUsuarioDto.Email,
                 Nome = cadastrarUsuarioDto.Nome,
                 DataCad = DateTime.UtcNow,
                 DataUltimoAcesso = DateTime.UtcNow,
-                EmailConfirmed = true, // confirmado por padrão
+                EmailConfirmed = true,
             };
 
-            // Cria o usuário com a senha fornecida (o Identity tratará do hashing automaticamente)
             var result = await _userManager.CreateAsync(usuario, cadastrarUsuarioDto.Senha);
             if (!result.Succeeded)
             {
                 return BadRequest(new { Errors = result.Errors.Select(e => e.Description) });
             }
-            
-            // Adiciona o usuário ao respectivo role/perfil
-            var roleResult = await _userManager.AddToRoleAsync(usuario, perfil.Name);
-            if (!roleResult.Succeeded)
-            {
-                return BadRequest(roleResult.Errors);
-            }
 
-            var clinicaIdClaim = User.Claims.FirstOrDefault(c => c.Type == "clinicaId")?.Value;
-            if (string.IsNullOrEmpty(clinicaIdClaim) || !int.TryParse(clinicaIdClaim, out var clinicaId))
-            {
-                return BadRequest("Não foi possível identificar a clínica do usuário.");
-            }
-
-            // Associa o usuário à clínica
             var usuarioPerfilClinica = new UsuarioPerfilClinica
             {
                 UsuarioId = usuario.Id,
-                PerfilId = perfil.Id,
-                ClinicaId = clinicaId
+                ClinicaId = cadastrarUsuarioDto.ClinicaId,
+                Perfis = cadastrarUsuarioDto.Perfis.ToDictionary(entry => entry.Key, entry => entry.Value) // Garante cópia dos perfis
             };
 
             _context.UsuariosPerfisClinicas.Add(usuarioPerfilClinica);
@@ -101,7 +82,7 @@ namespace backend.Controllers
             return Ok(new { Message = "Usuário criado com sucesso.", UsuarioId = usuario.Id });
         }
 
-        // obtém usuários por clínica
+
         [HttpGet("usuarios")]
         [Authorize(Policy = "GerenciaClinica")]
         public async Task<IActionResult> GetUsuariosByClinicaId()
@@ -111,134 +92,36 @@ namespace backend.Controllers
                 var clinicaId = User.GetClaimValue<int>("clinicaId");
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                // realiza a consulta com as devidas inclusões e mapeia para o DTO
+                // Realiza a consulta com as devidas inclusões e mapeia para o DTO
                 var usuarios = await _context.UsuariosPerfisClinicas
-                    .AsNoTracking() // melhora o desempenho em consultas somente leitura
-                    .Include(upc => upc.Usuario) // inclui os dados do usuário
+                    .AsNoTracking() // Melhora o desempenho em consultas somente leitura
+                    .Include(upc => upc.Usuario) // Inclui os dados do usuário
                     .Where(upc => upc.ClinicaId == clinicaId)
-                    .Where(upc => upc.Perfil.Name != "ADMIN")
-                    .Where(u => u.UsuarioId.ToString() != userId)
-                    .Select(upc => new GetUsuariosByClinicaDto
+                    .Where(upc => upc.UsuarioId.ToString() != userId)
+                    .Select(upc => new GetUsuariosClinicaDto
                     {
                         Id = upc.Usuario.Id,
                         UpcId = upc.Id,
                         UserName = upc.Usuario.UserName,
                         Email = upc.Usuario.Email,
-                        Nome = upc.Usuario.Nome ?? string.Empty, // garante que Nome nunca seja nulo
-                        Perfil = upc.Perfil.Name ?? string.Empty,
+                        Nome = upc.Usuario.Nome ?? string.Empty, // Garante que Nome nunca seja nulo
+                        Perfis = upc.Perfis
+                            .Where(p => p.Value) // Filtra apenas os perfis ativos
+                            .Select(p => p.Key) // Retorna apenas os nomes dos perfis ativos
+                            .ToList(),
                         DataCadastro = upc.Usuario.DataCad,
-                        DataUltimoAcesso = upc.Usuario.DataUltimoAcesso,
-                        Habilitado = upc.Habilitado
+                        DataUltimoAcesso = upc.Usuario.DataUltimoAcesso
                     })
                     .ToListAsync();
 
-                // retorna a lista de usuários (pode ser vazia)
                 return Ok(usuarios);
             }
             catch (Exception ex)
             {
-                // Retorna um erro genérico com a mensagem da exceção para diagnóstico
-                return StatusCode(500, $"Erro ao buscar usuários da clínica: {ex.Message}");
+                _logger.LogError(ex, "Erro ao buscar usuários da clínica.");
+                return StatusCode(500, "Erro interno ao buscar usuários da clínica.");
             }
         }
-
-        [HttpPut("usuarios/{upcId}/perfil")]
-        [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> AtualizarPerfil(int upcId, [FromBody] AtualizarPerfilDto atualizarPerfilDto)
-        {
-            // Buscar o vínculo existente
-            var vinculo = await _context.UsuariosPerfisClinicas.FirstOrDefaultAsync(v => v.Id == upcId);
-            if (vinculo == null)
-            {
-                return NotFound(new { Message = "Vínculo do usuário não encontrado." });
-            }
-
-            // Buscar o perfil com base no nome informado
-            var perfil = await _context.Perfis.FirstOrDefaultAsync(p => p.Name == atualizarPerfilDto.NovoPerfil);
-            if (perfil == null)
-            {
-                return BadRequest(new { Message = "Perfil inválido. Selecione um perfil existente." });
-            }
-
-            // Remover o vínculo atual
-            _context.UsuariosPerfisClinicas.Remove(vinculo);
-            await _context.SaveChangesAsync();
-
-            // Criar um novo vínculo com o novo PerfilId e manter os outros dados
-            var novoVinculo = new UsuarioPerfilClinica
-            {
-                UsuarioId = vinculo.UsuarioId,
-                PerfilId = perfil.Id,
-                ClinicaId = vinculo.ClinicaId,
-                Habilitado = vinculo.Habilitado,
-                // Se houver outras propriedades, copie-as conforme necessário
-            };
-
-            _context.UsuariosPerfisClinicas.Add(novoVinculo);
-            await _context.SaveChangesAsync();
-
-            _logger.LogInformation("Perfil do vínculo {VinculoId} atualizado para {NovoPerfil}.", upcId, atualizarPerfilDto.NovoPerfil);
-
-            return Ok(new 
-            { 
-                Message = "Perfil atualizado com sucesso.", 
-                VinculoId = novoVinculo.Id,
-                NovoPerfil = atualizarPerfilDto.NovoPerfil
-            });
-        }
-
-        [HttpPut("usuarios/{upcId}/habilitar")]
-        [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> HabilitarVinculo(int upcId)
-        {
-            var vinculo = await _context.UsuariosPerfisClinicas
-                .FirstOrDefaultAsync(v => v.Id == upcId);
-            
-            if (vinculo == null)
-            {
-                return NotFound(new { Message = "Vínculo não encontrado." });
-            }
-
-            vinculo.Habilitado = true;
-
-            // persistir alteração no banco
-            await _context.SaveChangesAsync();
-
-            _logger.LogInformation("Vínculo {VinculoId} habilitado com sucesso.", upcId);
-
-            return Ok(new 
-            { 
-                Message = "Vínculo habilitado com sucesso.", 
-                VinculoId = upcId 
-            });
-        }
-
-        [HttpPut("usuarios/{upcId}/desabilitar")]
-        [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> DesabilitarVinculo(int upcId)
-        {
-            var vinculo = await _context.UsuariosPerfisClinicas
-                .FirstOrDefaultAsync(v => v.Id == upcId);
-            
-            if (vinculo == null)
-            {
-                return NotFound(new { Message = "Vínculo não encontrado." });
-            }
-
-            vinculo.Habilitado = false;
-
-            // Persistir alteração no banco
-            await _context.SaveChangesAsync();
-
-            _logger.LogInformation("Vínculo {VinculoId} desabilitado com sucesso.", upcId);
-
-            return Ok(new 
-            { 
-                Message = "Vínculo desabilitado com sucesso.", 
-                VinculoId = upcId 
-            });
-        }
-
 
         [HttpDelete("usuarios/{usuarioId}")]
         [Authorize(Policy = "GerenciaSistema")]

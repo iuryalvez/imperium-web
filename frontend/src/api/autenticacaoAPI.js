@@ -2,16 +2,6 @@ import api from './index';  // configuração do axios
 import endpoints from '../services/Endpoints'; // endpoints
 
 export const autenticacao = {
-    signup: async (userData) => {
-        try {
-            const response = await api.post(endpoints.clinica.autenticacao.signup, userData);
-            return response.data;
-        } catch (error) {
-            console.error('Erro ao cadastrar o usuário:', error);
-            throw error.response ? error.response.data : error;
-        }
-    },
-
     login: async ({ email, senha, rememberMe }) => {
         console.log("---------------------------Entrou na api---------------------------");
         console.log("\nemail na api: ", email, "\nsenha na api: ", senha);
@@ -34,9 +24,19 @@ export const autenticacao = {
         }
     },
 
-    escolherVinculo: async (id) => {
+    escolherVinculo: async (vinculoId) => {
         try {
-            const response = await api.post(endpoints.clinica.autenticacao.escolherVinculo(id));
+            const response = await api.post(endpoints.clinica.autenticacao.escolherVinculo(vinculoId));
+            return response;
+        } catch (error) {
+            console.error('Erro ao escolher vínculo:', error);
+            throw error.response ? error.response.data : error;
+        }
+    },
+    
+    escolherVinculoAdmin: async (vinculoAdmin) => {
+        try {
+            const response = await api.post(endpoints.clinica.autenticacao.escolherVinculo, vinculoAdmin);
             return response;
         } catch (error) {
             console.error('Erro ao escolher vínculo:', error);

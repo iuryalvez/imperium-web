@@ -16,13 +16,5 @@ public class UsuarioPerfilClinica {
 
     // Dicionário para armazenar os perfis do usuário na clínica
     // Dicionário de perfis com valores booleanos
-    public Dictionary<string, bool> Perfis { get; set; } = new Dictionary<string, bool> // Definir no controlador.
-    {
-        // { "Gestor", false },
-        // { "Veterinário", false },
-        // { "Secretário", false },
-        // { "Técnico", false },
-        // { "Visualizador", false },
-        // { "Inativo", true }
-    };
+    public Dictionary<string, bool>? Perfis { get; set; }
 }

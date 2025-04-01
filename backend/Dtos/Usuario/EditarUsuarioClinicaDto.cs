@@ -1,10 +1,11 @@
+using Microsoft.AspNetCore.Identity;
+
 namespace backend.Dtos.Usuario
 {
-    public class EditarUsuarioClinicaDto
+    public class EditarUsuarioClinicaDto : IdentityUser<int>
     {
-        public int Id { get; set; }
         public int UpcId { get; set; }
-        public string? Perfil { get; set; }
-        public bool Habilitado { get; set; }    
+        public string? Nome { get; set; }
+        public Dictionary<string, bool>? Perfis { get; set; } 
     }
 }
