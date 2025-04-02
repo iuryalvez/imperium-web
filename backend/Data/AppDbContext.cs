@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using backend.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using backend.Dtos.Clinica;
 
 namespace backend.Data
 {

@@ -11,6 +11,6 @@ namespace backend.Dtos.Usuario
         public DateTime DataUltimoAcesso { get; set; }
         public bool IsAdmin { get; set; }
         public int ClinicaId { get; set; }
-        public Dictionary<string, bool>? Perfis { get; set; }
+        public List<string>? Perfis { get; set; }
     }
 }

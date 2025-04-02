@@ -30,70 +30,55 @@ namespace backend.Services {
                 return default;
             }
         }
+
         public static bool TemPerfil(this ClaimsPrincipal user, params string[] perfisNecessarios)
         {
-            var perfisClaim = user.FindFirst("Perfis")?.Value;
-            Console.WriteLine($"[DEBUG] Claim 'Perfis' encontrada: {perfisClaim}");
-
-            if (string.IsNullOrEmpty(perfisClaim))
-            {
-                Console.WriteLine("[DEBUG] Nenhuma claim 'Perfis' encontrada ou está vazia.");
-                return false;
-            }
-
             try
             {
-                var perfisAtivos = JsonSerializer.Deserialize<Dictionary<string, bool>>(perfisClaim);
-                if (perfisAtivos == null)
+                var perfisClaim = user.FindFirst("Perfis")?.Value;
+                Console.WriteLine($"[DEBUG] Claim 'Perfis' encontrada: {perfisClaim}");
+
+                if (string.IsNullOrEmpty(perfisClaim))
                 {
-                    Console.WriteLine("[DEBUG] A desserialização da claim 'Perfis' retornou null.");
+                    Console.WriteLine("[DEBUG] Nenhuma claim 'Perfis' encontrada ou está vazia.");
                     return false;
                 }
 
-                Console.WriteLine($"[DEBUG] Perfis ativos desserializados: {string.Join(", ", perfisAtivos.Select(p => $"{p.Key}: {p.Value}"))}");
+                var perfisDeserialize = JsonSerializer.Deserialize<List<string>>(perfisClaim);
 
-                bool possuiPerfil = perfisNecessarios.Any(perfil => perfisAtivos.TryGetValue(perfil, out bool ativo) && ativo);
+                bool possuiPerfil = perfisNecessarios.Any(perfil => perfisDeserialize.Contains(perfil));
                 Console.WriteLine($"[DEBUG] Resultado da verificação de perfil: {possuiPerfil}");
 
                 return possuiPerfil;
             }
-            catch (JsonException ex)
+            catch (Exception ex)
             {
-                Console.WriteLine($"[ERRO] Falha ao desserializar a claim 'Perfis': {ex.Message}");
+                Console.WriteLine($"[ERRO] Falha ao ler a claim 'Perfis': {ex.Message}");
                 return false;
             }
         }
 
         public static bool TemAlgumPerfil(this ClaimsPrincipal user)
         {
-            var perfisClaim = user.FindFirst("Perfis")?.Value;
-            Console.WriteLine($"[DEBUG] Claim 'Perfis' encontrada: {perfisClaim}");
-
-            if (string.IsNullOrEmpty(perfisClaim))
-            {
-                Console.WriteLine("[DEBUG] Nenhuma claim 'Perfis' encontrada ou está vazia.");
-                return false;
-            }
-
             try
             {
-                var perfisAtivos = JsonSerializer.Deserialize<Dictionary<string, bool>>(perfisClaim);
-                if (perfisAtivos == null)
+                var perfisClaim = user.FindFirst("Perfis")?.Value;
+                Console.WriteLine($"[DEBUG] Claim 'Perfis' encontrada: {perfisClaim}");
+
+                if (string.IsNullOrEmpty(perfisClaim))
                 {
-                    Console.WriteLine("[DEBUG] A desserialização da claim 'Perfis' retornou null.");
+                    Console.WriteLine("[DEBUG] Nenhuma claim 'Perfis' encontrada ou está vazia.");
                     return false;
                 }
 
-                Console.WriteLine($"[DEBUG] Perfis ativos desserializados: {string.Join(", ", perfisAtivos.Select(p => $"{p.Key}: {p.Value}"))}");
-
-                bool temAlgum = perfisAtivos.Values.Any(ativo => ativo);
+                bool temAlgum = perfisClaim.Any();
                 Console.WriteLine($"[DEBUG] Resultado da verificação de existência de algum perfil ativo: {temAlgum}");
 
                 return temAlgum;
             }
-            catch (JsonException ex)
+            catch (Exception ex)
             {
-                Console.WriteLine($"[ERRO] Falha ao desserializar a claim 'Perfis': {ex.Message}");
+                Console.WriteLine($"[ERRO] Falha ao ler a claim 'Perfis': {ex.Message}");
                 return false;
             }
         }

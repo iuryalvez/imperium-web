@@ -123,7 +123,7 @@ namespace backend.Services
                     }
 
                     // Obtém os perfis ativos do dicionário
-                    var perfisAtivos = upc.Perfis.Where(p => p.Value).Select(p => p.Key).ToList();
+                    var perfisAtivos = upc.Perfis;
                     
                     Console.WriteLine($"Usuário autenticado com perfis: {string.Join(", ", perfisAtivos)}");
                 }

@@ -36,7 +36,7 @@ namespace backend.Controllers
         [Authorize(Policy = "GerenciaClinica")]
         public async Task<IActionResult> CadastrarUsuario([FromBody] CadastrarUsuarioDto cadastrarUsuarioDto)
         {
-            if (cadastrarUsuarioDto.Perfis == null || !cadastrarUsuarioDto.Perfis.Any(p => p.Value))
+            if (cadastrarUsuarioDto.Perfis == null || !cadastrarUsuarioDto.Perfis.Any())
             {
                 return BadRequest("Pelo menos um perfil deve ser selecionado.");
             }
@@ -73,7 +73,7 @@ namespace backend.Controllers
             {
                 UsuarioId = usuario.Id,
                 ClinicaId = cadastrarUsuarioDto.ClinicaId,
-                Perfis = cadastrarUsuarioDto.Perfis.ToDictionary(entry => entry.Key, entry => entry.Value) // Garante cópia dos perfis
+                Perfis = cadastrarUsuarioDto.Perfis
             };
 
             _context.UsuariosPerfisClinicas.Add(usuarioPerfilClinica);
@@ -105,10 +105,7 @@ namespace backend.Controllers
                         UserName = upc.Usuario.UserName,
                         Email = upc.Usuario.Email,
                         Nome = upc.Usuario.Nome ?? string.Empty, // Garante que Nome nunca seja nulo
-                        Perfis = upc.Perfis
-                            .Where(p => p.Value) // Filtra apenas os perfis ativos
-                            .Select(p => p.Key) // Retorna apenas os nomes dos perfis ativos
-                            .ToList(),
+                        Perfis = upc.Perfis,
                         DataCadastro = upc.Usuario.DataCad,
                         DataUltimoAcesso = upc.Usuario.DataUltimoAcesso
                     })

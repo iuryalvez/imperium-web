@@ -6,6 +6,6 @@ namespace backend.Dtos.Usuario
     {
         public int UpcId { get; set; }
         public string? Nome { get; set; }
-        public Dictionary<string, bool>? Perfis { get; set; } 
+        public List<string>? Perfis { get; set; } 
     }
 }

@@ -16,6 +16,7 @@ namespace backend.Data
             {
                 new Usuario
                 {
+                    Id = -1,
                     Nome = "Iury Dev",
                     UserName = "admin.iury",
                     Email = "iuryalves774@gmail.com",
@@ -29,6 +30,7 @@ namespace backend.Data
                 },
                 new Usuario
                 {
+                    Id = -2,
                     Nome = "Rafael Dev",
                     UserName = "admin.rafael",
                     Email = "rafaelnmcosta@gmail.com",
@@ -42,6 +44,7 @@ namespace backend.Data
                 },
                 new Usuario
                 {
+                    Id = -3,
                     Nome = "Professor Ceron",
                     UserName = "admin.ceron",
                     Email = "ceron@ufg.br",
@@ -55,6 +58,7 @@ namespace backend.Data
                 },
                 new Usuario
                 {
+                    Id = -4,
                     Nome = "Professor Hugo",
                     UserName = "admin.hugo",
                     Email = "hadn@ufg.br",

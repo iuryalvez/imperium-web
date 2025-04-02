@@ -237,16 +237,14 @@ namespace backend.Controllers
             }
 
             var vinculos = await _context.UsuariosPerfisClinicas
-                .Where(p => p.UsuarioId == usuarioId && p.Perfis.Any(perfil => perfil.Key != "Inativo" && perfil.Value)) // se algo der errado na busca de vínculos do usuário comum é aqui
+                .Where(p => p.UsuarioId == usuarioId && p.Perfis.Any(perfil => perfil != "Inativo")) // Verifica se há perfis ativos
                 .Select(p => new VinculoDto
                 {
                     Id = p.Id,
                     UsuarioId = p.UsuarioId,
                     ClinicaId = p.ClinicaId,
                     NomeClinica = p.Clinica.NomeFantasia,
-                    Perfis = p.Perfis
-                        .Where(perfil => perfil.Key != "Inativo" && perfil.Value) // Apenas perfis ativos
-                        .ToDictionary(perfil => perfil.Key, perfil => perfil.Value) // Retorna dicionário filtrado
+                    Perfis = p.Perfis // Retorna lista de perfis ativos
                 })
                 .ToListAsync();
 
@@ -307,8 +305,8 @@ namespace backend.Controllers
                 var vinculo = await _context.UsuariosPerfisClinicas
                     .Include(v => v.Usuario)
                     .Include(v => v.Clinica)
-                    .FirstOrDefaultAsync(v => v.Id == upcId && v.UsuarioId == usuarioId && 
-                                            (!v.Perfis.ContainsKey("Inativo") || v.Perfis["Inativo"] == false));
+                    .FirstOrDefaultAsync(v => v.Id == upcId && v.UsuarioId == usuarioId &&
+                                            !v.Perfis.Contains("Inativo")); // Garante que "Inativo" não esteja na lista
 
                 // Verifica se o vínculo foi encontrado
                 if (vinculo == null)
@@ -401,16 +399,6 @@ namespace backend.Controllers
 
                 bool IsAdmin = !string.IsNullOrEmpty(isAdminClaim) && bool.TryParse(isAdminClaim, out var parsedValue) && parsedValue;
 
-                // Deserializa a claim "Perfis" para um dicionário de perfis ativos
-                Dictionary<string, bool> perfisAtivos = new();
-                if (!string.IsNullOrEmpty(perfisClaim))
-                {
-                    perfisAtivos = JsonSerializer.Deserialize<Dictionary<string, bool>>(perfisClaim) ?? new();
-                }
-
-                // Filtra os perfis ativos (onde o valor é true)
-                var perfisFiltrados = perfisAtivos.Where(p => p.Value).Select(p => p.Key).ToList();
-
                 var acessoLoginClaim = User.FindFirst("acessoLogin");
                 if (acessoLoginClaim != null)
                 {
@@ -428,7 +416,7 @@ namespace backend.Controllers
                     isAdmin = IsAdmin,
                     name = userNameClaim,
                     clinicaNome = clinicaNomeClaim,
-                    perfis = perfisFiltrados // Lista apenas os perfis ativos
+                    perfis = JsonSerializer.Deserialize<List<string>>(perfisClaim) // Lista apenas os perfis ativos
                 });
             }
             catch (Exception ex)

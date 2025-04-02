@@ -154,10 +154,7 @@ namespace backend.Controllers
                         ClinicaId = upc.ClinicaId,
                         Email = upc.Usuario.Email,
                         Nome = upc.Usuario.Nome ?? string.Empty,
-                        Perfis = upc.Perfis
-                            .Where(p => p.Value) // Apenas perfis ativos
-                            .Select(p => p.Key) // Pegamos apenas os nomes dos perfis ativos
-                            .ToList(),
+                        Perfis = upc.Perfis,
                         DataCadastro = upc.Usuario.DataCad,
                         DataUltimoAcesso = upc.Usuario.DataUltimoAcesso
                     })

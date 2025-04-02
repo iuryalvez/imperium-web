@@ -83,9 +83,15 @@ namespace backend.Services
                         .AsNoTracking()
                         .Include(upc => upc.Usuario)
                         .FirstOrDefault(upc => upc.UsuarioId == idUsuario);
-                    var perfisAtivos = upc.Perfis.Where(p => p.Value).Select(p => p.Key).ToList();
-                    claims.Add(new Claim("Perfis", JsonSerializer.Serialize(perfisAtivos))); // Lista de perfis ativos
-                    claims.Add(new Claim("isAdmin", "false"));
+
+                    if (upc != null) // Verifica se encontrou o usuário
+                    {
+                        var perfisAtivos = upc.Perfis ?? new List<string>(); // Garante que não seja nulo
+
+                        // Serializa a lista de perfis para uma string JSON antes de adicionar à claim
+                        claims.Add(new Claim("Perfis", JsonSerializer.Serialize(perfisAtivos))); 
+                        claims.Add(new Claim("isAdmin", "false"));
+                    }
                 }
 
                 var tokenDescriptor = new SecurityTokenDescriptor
@@ -154,7 +160,7 @@ namespace backend.Services
                 
                 var now = DateTime.UtcNow;
 
-                var perfisAtivos = upc.Perfis.Where(p => p.Value).Select(p => p.Key).ToList();
+                var perfisAtivos = upc.Perfis;
 
                 var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -195,7 +201,7 @@ namespace backend.Services
             }
         }
 
-        public string GenerateTokenVinculoAdmin(int clinicaId, Dictionary<string, bool> perfisAtivos, string usuarioIp, string usuarioAgent)
+        public string GenerateTokenVinculoAdmin(int clinicaId, List<string> perfisAtivos, string usuarioIp, string usuarioAgent)
         {
             try
             {
