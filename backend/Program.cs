@@ -63,7 +63,9 @@ internal class Program
             // options.Password.RequireLowercase = true;
             // options.Password.RequireUppercase = true;
             // options.Password.RequireNonAlphanumeric = true;
-            options.User.RequireUniqueEmail = true;
+            // options.User.RequireUniqueEmail = true;
+            options.SignIn.RequireConfirmedEmail = false;
+            options.Lockout.AllowedForNewUsers = false;
         })
         .AddEntityFrameworkStores<AppDbContext>()
         .AddDefaultTokenProviders();

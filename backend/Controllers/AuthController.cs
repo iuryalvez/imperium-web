@@ -90,39 +90,46 @@ namespace backend.Controllers
                 return BadRequest(ModelState);
             }
 
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Senha, model.RememberMe, false);
-            if (result.Succeeded)
+            var usuario = await _userManager.FindByEmailAsync(model.Email);
+
+            if (usuario == null)
             {
-                _logger.LogInformation("Usuário logado com sucesso!.");
-
-                var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == model.Email);
-                if (usuario == null)
-                {
-                    return Unauthorized(new { Message = "Usuário não encontrado." });
-                }
-
-                // atualiza a data do último acesso
-                usuario.DataUltimoAcesso = DateTime.UtcNow;
-
-                // obtém informações da requisição
-                var usuarioIp = HttpContext.Connection.RemoteIpAddress?.ToString();
-                var usuarioAgent = Request.Headers["User-Agent"].ToString();
-
-                // gera o token de login
-                var tokenLogin = _tokenService.GenerateTokenLogin(usuario.Id.ToString(), usuarioIp, usuarioAgent);
-
-                // atualiza o banco de dados com a nova data de acesso
-                _context.Usuarios.Update(usuario);
-                await _context.SaveChangesAsync();
-
-                // define o token no cookie
-                _tokenService.SetCookieToken(HttpContext, tokenLogin);
-
-                return Ok(new { tokenLogin });
+                _logger.LogWarning("Usuário não encontrado.");
+                return Unauthorized(new { Message = "Usuário não encontrado." });
             }
 
-            _logger.LogWarning("Tentativa de login inválida.");
-            return Unauthorized(new { Message = "Login ou senha inválidos" });
+            // Verifica se o email foi confirmado
+            if (!usuario.EmailConfirmed)
+            {
+                _logger.LogWarning("Usuário ainda não confirmou o email.");
+                return Unauthorized(new { Message = "Confirme seu email antes de fazer login." });
+            }
+
+            // Verifica se a senha está correta
+            var senhaValida = await _userManager.CheckPasswordAsync(usuario, model.Senha);
+
+            if (!senhaValida)
+            {
+                _logger.LogWarning("Senha incorreta.");
+                return Unauthorized(new { Message = "Senha incorreta." });
+            }
+
+            // Atualiza a data do último acesso
+            usuario.DataUltimoAcesso = DateTime.UtcNow;
+            _context.Usuarios.Update(usuario);
+            await _context.SaveChangesAsync();
+
+            // Gera o token manualmente
+            var usuarioIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var usuarioAgent = Request.Headers["User-Agent"].ToString();
+            var tokenLogin = _tokenService.GenerateTokenLogin(usuario.Id.ToString(), usuarioIp, usuarioAgent);
+
+            // Define o token no cookie
+            _tokenService.SetCookieToken(HttpContext, tokenLogin);
+
+            _logger.LogInformation("Usuário logado com sucesso!");
+
+            return Ok(new { tokenLogin });
         }
 
         [HttpGet("logout")]
