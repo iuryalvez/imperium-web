@@ -4,6 +4,7 @@ import { useAuth } from '../../services/AuthContext';
 import Header from '../organisms/Header';
 
 import "../../App.css"
+import { Spin } from 'antd';
 
 const AuthenticatedRoute = () => {
   const { isAuthenticated, isLogged, isAdmin, loading } = useAuth();
@@ -13,7 +14,7 @@ const AuthenticatedRoute = () => {
       <Header></Header>
       <div className='main-content'>
         <div className='info-content'>
-          <div>Carregando...</div> 
+          <Spin size="large" />;
         </div>
       </div>
     </div>

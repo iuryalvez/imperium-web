@@ -1,7 +1,7 @@
 import api from '../index';  // configuração do axios
 import endpoints from '../../services/Endpoints'; // endpoints
 
-export const clinica = {
+export const clinicaAPI = {
     listarClinicas: async (userData) => {
         try {
             const response = await api.get(endpoints.sistema.clinica.listar, userData);

@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import { usuariosDaClinicaAPI } from "../../../api/clinica/usuariosDaClinicaAPI.js";
 
 import Navsidebar from "../../../components/organisms/Navsidebar.jsx";
-import { Spin } from "antd";
 import TabelaEntidade from "../../../components/organisms/TabelaEntidade.jsx";
+import LoadingSpinner from "../../../components/atoms/LoadingSpinner.jsx";
 
 const TabelaUsuariosDaClinica = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -38,7 +38,7 @@ const TabelaUsuariosDaClinica = () => {
     </div>
   );
 
-  if (loading) return <Spin size="large" />;
+  if (loading) return <LoadingSpinner />;
   // if (error) return renderStatus(error, "text-red-500");
 
   return renderStatus(

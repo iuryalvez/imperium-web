@@ -4,6 +4,7 @@ import { autenticacao } from "../../../api/autenticacaoAPI";
 
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import ListaCards from "../../../components/organisms/ListaCards";
+import LoadingSpinner from "../../../components/atoms/LoadingSpinner";
 
 const ListaDeVinculos = () => {
   const [vinculos, setVinculos] = useState([]);
@@ -41,7 +42,7 @@ const ListaDeVinculos = () => {
     </div>
   );
 
-  if (loading) return renderStatus("Carregando vínculos...");
+  if (loading) return <LoadingSpinner />;
   if (error) return renderStatus(error, "text-red-500");
 
   return renderStatus(<ListaCards tipoEntidade="Vínculo" dados={vinculos} />);

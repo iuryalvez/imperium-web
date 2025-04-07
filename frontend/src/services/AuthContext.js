@@ -23,16 +23,15 @@ export const AuthProvider = ({ children }) => {
   const checkAuth = useCallback(async () => {
     try {
       const resposta = await autenticacao.verificarAutenticacao();
-      console.log('Resposta da checkAuth: ', resposta);
   
       switch (resposta.status) {
         case 'autenticado':
           setIsLogged(true);
           setIsAuthenticated(true);
-          setIsAdmin(resposta.isAdmin); // Agora o isAdmin também é salvo
+          setIsAdmin(resposta.isAdmin);
           setUserName(resposta.name || "");
           setClinicaNome(resposta.clinicaNome || "");
-          setPerfis(resposta.perfis || []); // Adiciona os perfis ativos
+          setPerfis(resposta.perfis || []);
           break;
           
         case 'logado':
@@ -40,7 +39,7 @@ export const AuthProvider = ({ children }) => {
           setIsAuthenticated(false);
           setIsAdmin(resposta.isAdmin);
           setUserName(resposta.name || "");
-          setPerfis([]); // Garante que perfis sejam resetados quando apenas logado
+          setPerfis([]);
           break;
   
         default:
@@ -49,9 +48,11 @@ export const AuthProvider = ({ children }) => {
           setIsAdmin(false);
           setUserName("");
           setClinicaNome("");
-          setPerfis([]); // Reseta os perfis ao deslogar
+          setPerfis([]);
           break;
       }
+  
+      return resposta; // <-- Retorna os dados
     } catch (error) {
       abrirNotificacao('error', 'Erro de autenticação', 'Não foi possível verificar a autenticação.');
       setIsAuthenticated(false);
@@ -60,10 +61,12 @@ export const AuthProvider = ({ children }) => {
       setUserName("");
       setClinicaNome("");
       setPerfis([]);
+      return null; // <-- Em caso de erro
     } finally {
       setLoading(false);
     }
   }, [abrirNotificacao]);
+  
 
   useEffect(() => {
     if (loading) checkAuth();
@@ -75,11 +78,17 @@ export const AuthProvider = ({ children }) => {
   const login = async ({ email, senha }) => {
     try {
       const response = await autenticacao.login({ email, senha });
+
       if (response.status === 200) {
         abrirNotificacao('success', 'Login bem-sucedido!', 'Você foi autenticado com sucesso.');
-        await checkAuth();
-        if (isAdmin) navigate('/sistema');
-        else navigate('/sistema/vinculos');
+
+        const authData = await checkAuth(); // agora authData tem isAdmin
+
+        if (authData?.isAdmin) {
+          navigate('/sistema');
+        } else {
+          navigate('/sistema/vinculos');
+        }
       }
     } catch (error) {
       console.log("Erro completo:", error);

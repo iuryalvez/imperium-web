@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Table, Button, Space, Tag } from "antd";
-import { PlusOutlined, EditOutlined } from "@ant-design/icons";
+import { EditOutlined } from "@ant-design/icons";
 import "../styles/TabelaEntidade.css";
 import { useNavigate } from "react-router-dom";
 
@@ -54,7 +54,7 @@ const TabelaEntidade = ({
         render: (data) => new Date(data).toLocaleDateString("pt-BR"),
       },
     ],
-    usuáriosDoSistema: [
+    usuariosDoSistema: [
       { 
         title: "Nome", 
         dataIndex: "nome", 
@@ -132,16 +132,6 @@ const TabelaEntidade = ({
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => navigate(`/sistema/cadastrar/${entidade}`)}
-          style={{ backgroundColor: "var(--verde-medio)" }}
-        >
-          Adicionar {entidade.charAt(0).toUpperCase() + entidade.slice(1)}
-        </Button>
-      </div>
       <Table
         dataSource={registros}
         columns={colunasComAcoes}
