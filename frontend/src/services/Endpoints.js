@@ -4,7 +4,7 @@ const endpoints = {
   sistema: {
     clinica: {
       listar: `${API_BASE_URL}/sistema/clinicas`,
-      nova: `${API_BASE_URL}/sistema/clinicas/nova-clinica`,
+      cadastrar: `${API_BASE_URL}/sistema/clinicas/cadastrar`,
       detalhes: (clinicaId) => `${API_BASE_URL}/sistema/clinicas/${clinicaId}`,
       desativar: (clinicaId) => `${API_BASE_URL}/sistema/clinicas/${clinicaId}`,
     },
@@ -13,11 +13,12 @@ const endpoints = {
     },
     usuario: {
       listar: `${API_BASE_URL}/sistema/usuarios`,
+      cadastrar:`${API_BASE_URL}/sistema/usuarios/cadastrar`
     },
   },
   clinica: {
     animal: {
-      novo: (tutorId) => `${API_BASE_URL}/clinica/animais/tutor/${tutorId}/novo-animal`,
+      cadastrar: (tutorId) => `${API_BASE_URL}/clinica/animais/tutor/${tutorId}/cadastrar`,
       detalhes: (animalId) => `${API_BASE_URL}/clinica/animais/${animalId}`,
       deletar: (animalId) => `${API_BASE_URL}/clinica/animais/${animalId}`,
       listarPorTutor: (tutorId) => `${API_BASE_URL}/clinica/animais/tutor_${tutorId}/animais`,
@@ -40,7 +41,7 @@ const endpoints = {
       dados: `${API_BASE_URL}/clinica/dados`,
     },
     consulta: {
-      nova: (clinicaId) => `${API_BASE_URL}/clinica//${clinicaId}/nova-consulta`,
+      cadastrar: (clinicaId) => `${API_BASE_URL}/clinica//${clinicaId}/cadastrar`,
       listar: `${API_BASE_URL}/clinica/consultas`,
       detalhes: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}`,
       deletar: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}`,
@@ -53,7 +54,7 @@ const endpoints = {
       },
     },
     racao: {
-      nova: `${API_BASE_URL}/clinica/racoes/nova-racao`,
+      cadastrar: `${API_BASE_URL}/clinica/racoes/cadastrar`,
       listar: `${API_BASE_URL}/clinica/racoes`,
       detalhes: (racaoId) => `${API_BASE_URL}/clinica/racoes/${racaoId}`,
       editar: (racaoId) => `${API_BASE_URL}/clinica/racoes/${racaoId}/editar`,
@@ -67,7 +68,7 @@ const endpoints = {
       deletar: (tutorId) => `${API_BASE_URL}/clinica/tutores/tutor_${tutorId}`,
     },
     usuario: {
-      cadastrar:`${API_BASE_URL}/clinica/usuarios/cadastrar`,
+      cadastrar:`${API_BASE_URL}/sistema/usuarios/cadastrar`,
       listar: `${API_BASE_URL}/clinica/usuarios`,
       detalhes: (usuarioId) => `${API_BASE_URL}/clinica/usuarios/${usuarioId}`,
       editar: (upcId) => `${API_BASE_URL}/clinica/usuarios/${upcId}/editar`,

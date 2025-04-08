@@ -156,23 +156,23 @@ internal class Program
             // Define as policies verificando a claim "Perfis"
             options.AddPolicy("VisualizaTudo", policy =>
                 policy.RequireAssertion(context =>
-                    context.User.TemPerfil("ADMIN", "GESTOR", "VETERINARIO", "SECRETARIO", "TECNICO")));
+                    context.User.TemPerfil("isAdmin", "GESTOR", "VETERINARIO", "SECRETARIO", "TECNICO")));
 
             options.AddPolicy("GerenciaClinica", policy =>
                 policy.RequireAssertion(context =>
-                    context.User.TemPerfil("ADMIN", "GESTOR")));
+                    context.User.TemPerfil("isAdmin", "GESTOR")));
 
             options.AddPolicy("GerenciaAnimais", policy =>
                 policy.RequireAssertion(context =>
-                    context.User.TemPerfil("ADMIN", "VETERINARIO")));
+                    context.User.TemPerfil("isAdmin", "VETERINARIO")));
 
             options.AddPolicy("GerenciaTutores", policy =>
                 policy.RequireAssertion(context =>
-                    context.User.TemPerfil("ADMIN", "VETERINARIO", "SECRETARIO")));
+                    context.User.TemPerfil("isAdmin", "VETERINARIO", "SECRETARIO")));
 
             options.AddPolicy("GerenciaConsultas", policy =>
                 policy.RequireAssertion(context =>
-                    context.User.TemPerfil("ADMIN", "VETERINARIO", "SECRETARIO")));
+                    context.User.TemPerfil("isAdmin", "VETERINARIO", "SECRETARIO")));
 
             options.AddPolicy("GerenciaSistema", policy =>
                 policy.RequireClaim("isAdmin", "true"));

@@ -35,6 +35,17 @@ namespace backend.Services {
         {
             try
             {
+                // Se "isAdmin" estiver entre os perfis necessários e o usuário for admin, retorna true imediatamente
+                if (perfisNecessarios.Contains("isAdmin", StringComparer.OrdinalIgnoreCase))
+                {
+                    var isAdminClaim = user.FindFirst("isAdmin")?.Value;
+                    if (bool.TryParse(isAdminClaim, out bool isAdmin) && isAdmin)
+                    {
+                        Console.WriteLine("[DEBUG] Usuário é administrador e 'isAdmin' foi requisitado como perfil.");
+                        return true;
+                    }
+                }
+
                 var perfisClaim = user.FindFirst("Perfis")?.Value;
                 Console.WriteLine($"[DEBUG] Claim 'Perfis' encontrada: {perfisClaim}");
 
@@ -53,7 +64,7 @@ namespace backend.Services {
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERRO] Falha ao ler a claim 'Perfis': {ex.Message}");
+                Console.WriteLine($"[ERRO] Falha ao ler as claims de perfil: {ex.Message}");
                 return false;
             }
         }
@@ -62,6 +73,13 @@ namespace backend.Services {
         {
             try
             {
+                var isAdminClaim = user.FindFirst("isAdmin")?.Value;
+                if (bool.TryParse(isAdminClaim, out bool isAdmin) && isAdmin)
+                {
+                    Console.WriteLine("[DEBUG] Usuário é administrador. Considerado como tendo perfil.");
+                    return true;
+                }
+
                 var perfisClaim = user.FindFirst("Perfis")?.Value;
                 Console.WriteLine($"[DEBUG] Claim 'Perfis' encontrada: {perfisClaim}");
 
@@ -71,9 +89,10 @@ namespace backend.Services {
                     return false;
                 }
 
-                bool temAlgum = perfisClaim.Any();
-                Console.WriteLine($"[DEBUG] Resultado da verificação de existência de algum perfil ativo: {temAlgum}");
+                var perfisDeserialize = JsonSerializer.Deserialize<List<string>>(perfisClaim);
+                bool temAlgum = perfisDeserialize.Any();
 
+                Console.WriteLine($"[DEBUG] Resultado da verificação de existência de algum perfil ativo: {temAlgum}");
                 return temAlgum;
             }
             catch (Exception ex)

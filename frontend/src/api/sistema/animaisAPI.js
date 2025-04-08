@@ -2,7 +2,7 @@ import api from '../index';  // configuração do axios
 import endpoints from '../../services/Endpoints'; // endpoints
 
 export const animais = {
-    listarAnimais: async (userData) => {
+    listar: async (userData) => {
         try {
             const response = await api.get(endpoints.sistema.animal.listar, userData);
             return response.data;

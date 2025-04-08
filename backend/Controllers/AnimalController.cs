@@ -31,7 +31,7 @@ namespace backend.Controllers
         /// <returns>An IActionResult indicating the result of the operation.</returns>
         /// <response code="200">Returns a success message and the ID of the created animal.</response>
         /// <response code="403">If the user does not have permission to access the clinic.</response>
-        [HttpPost("animais/tutor_{tutorId}-novo-animal")]
+        [HttpPost("animais/tutor_{tutorId}-cadastrar")]
         [Authorize(Policy = "GerenciaAnimal")]
         public async Task<IActionResult> CreateAnimal(int tutorId, [FromBody] AnimalDto animalDto)
         {

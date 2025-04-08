@@ -19,7 +19,7 @@ namespace backend.Controllers {
             _authService = authService;
         }
 
-        [HttpPost("racoes/nova-racao")]
+        [HttpPost("racoes/cadastrar")]
         [Authorize(Policy = "VisualizaTudo")]
         public async Task<IActionResult> CreateRacao([FromBody] CreateRacaoDto racaoDto)
         {

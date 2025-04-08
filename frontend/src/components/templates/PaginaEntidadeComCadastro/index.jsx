@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Modal, Button } from "antd";
 import { ArrowLeftOutlined, PlusOutlined } from "@ant-design/icons";
 
@@ -16,7 +16,7 @@ const PaginaEntidadeComCadastro = ({
   const [loading, setLoading] = useState(true);
   const [modalVisivel, setModalVisivel] = useState(false);
 
-  const buscarDados = async () => {
+  const buscarDados = useCallback(async () => {
     try {
       setLoading(true);
       const response = await api.listar();
@@ -26,14 +26,14 @@ const PaginaEntidadeComCadastro = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [api, entidade]);
 
   useEffect(() => {
     buscarDados();
-  }, []);
+  }, [buscarDados]);
 
   const handleCadastrar = async (formData) => {
-    return await api.criar(formData);
+    return await api.cadastrar(formData);
   };
 
   const handleSucesso = () => {
@@ -79,6 +79,7 @@ const PaginaEntidadeComCadastro = ({
           onSubmit={handleCadastrar}
           onSuccess={handleSucesso}
           setModalVisivel={setModalVisivel}
+          tituloModal={"Usuário"}
         />
       </Modal>
     </div>

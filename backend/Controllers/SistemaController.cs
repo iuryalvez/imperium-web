@@ -75,7 +75,7 @@ namespace backend.Controllers
         }
 
         // criar clinica pelo sistema
-        [HttpPost("clinicas/nova-clinica")]
+        [HttpPost("clinicas/cadastrar")]
         [Authorize(Policy = "GerenciaSistema")]
         public async Task<ActionResult<ClinicaDto>> CreateClinica([FromBody] ClinicaDto clinicaDto)
         {
@@ -167,6 +167,88 @@ namespace backend.Controllers
                 _logger.LogError(ex, "Erro ao buscar usuários");
                 return StatusCode(500, "Erro interno ao buscar usuários.");
             }
+        }
+
+        [HttpPost("usuarios/cadastrar")]
+        [Authorize(Policy = "GerenciaSistema")]
+        public async Task<IActionResult> CadastrarUsuario([FromBody] CadastrarUsuarioDto cadastrarUsuarioDto)
+        {
+            // Imprime lista de perfis recebida
+            if (cadastrarUsuarioDto.Perfis != null)
+            {
+                Console.WriteLine("[DEBUG] Perfis recebidos no DTO:");
+                foreach (var perfil in cadastrarUsuarioDto.Perfis)
+                {
+                    Console.WriteLine($"[DEBUG] - {perfil}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("[DEBUG] Nenhum perfil recebido (null)");
+            }
+
+            // Se vier com "ADMIN" na lista de perfis, trata como isAdmin
+            if (cadastrarUsuarioDto.Perfis != null && 
+                cadastrarUsuarioDto.Perfis.Contains("ADMIN", StringComparer.OrdinalIgnoreCase))
+            {
+                cadastrarUsuarioDto.IsAdmin = true;
+                cadastrarUsuarioDto.Perfis = new List<string>(); // ou null, se preferir
+            }
+
+            // Para usuários não-admins, precisa validar os perfis
+            if (!cadastrarUsuarioDto.IsAdmin &&
+                (cadastrarUsuarioDto.Perfis == null || !cadastrarUsuarioDto.Perfis.Any()))
+            {
+                return BadRequest("Pelo menos um perfil deve ser selecionado.");
+            }
+
+            // Para usuários não-admins, clinica é obrigatória
+            if (!cadastrarUsuarioDto.IsAdmin)
+            {
+                var clinicaExiste = await _context.Clinicas.AnyAsync(c => c.Id == cadastrarUsuarioDto.ClinicaId);
+                if (!clinicaExiste)
+                {
+                    return BadRequest("A clínica especificada não existe.");
+                }
+            }
+
+            var existingUser = await _userManager.FindByEmailAsync(cadastrarUsuarioDto.Email);
+            if (existingUser != null)
+            {
+                return BadRequest("O e-mail já está em uso.");
+            }
+
+            var usuario = new Usuario
+            {
+                UserName = cadastrarUsuarioDto.UserName ?? cadastrarUsuarioDto.Email,
+                Email = cadastrarUsuarioDto.Email,
+                Nome = cadastrarUsuarioDto.Nome,
+                DataCad = DateTime.UtcNow,
+                DataUltimoAcesso = DateTime.UtcNow,
+                EmailConfirmed = true,
+                IsAdmin = cadastrarUsuarioDto.IsAdmin
+            };
+
+            var result = await _userManager.CreateAsync(usuario, cadastrarUsuarioDto.Senha);
+            if (!result.Succeeded)
+            {
+                return BadRequest(new { Errors = result.Errors.Select(e => e.Description) });
+            }
+
+            // Apenas cria vínculo com clínica se não for admin
+            if (!usuario.IsAdmin)
+            {
+                var usuarioPerfilClinica = new UsuarioPerfilClinica
+                {
+                    UsuarioId = usuario.Id,
+                    ClinicaId = cadastrarUsuarioDto.ClinicaId,
+                    Perfis = cadastrarUsuarioDto.Perfis
+                };
+
+                _context.UsuariosPerfisClinicas.Add(usuarioPerfilClinica);
+            }
+
+            return Ok(new { Message = "Usuário criado com sucesso.", UsuarioId = usuario.Id });
         }
 
         [HttpPut("usuarios/{upcId}/editar")]

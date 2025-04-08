@@ -11,19 +11,16 @@ export const usuariosDoSistemaAPI = {
       throw error.response ? error.response.data : error;
     }
   },
-  listarCamposCadastroSistema: async (entidade) => {
+  cadastrar: async (dadosFormulario) => {
     try {
-      const url = endpoints.sistema.usuario.listarCamposCadastro(entidade);
-      console.log("Buscando campos em:", url);
-      const responseTeste = await fetch(url);
-      console.log("Status da resposta:", responseTeste.status);
-      if (!responseTeste.ok) {
-        throw new Error(`Erro ao buscar campos. Status: ${responseTeste.status}`);
-      }
-      const response = await api.get(endpoints.sistema.usuario.listarCamposCadastro(entidade));
-      return response.data;
+      const response = await api.post(endpoints.sistema.usuario.cadastrar, dadosFormulario, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data
     } catch (error) {
-      console.error("Erro ao buscar campos do usuário:", error);
+      console.error("Erro ao cadastrar usuário:", error);
       throw error.response ? error.response.data : error;
     }
   },

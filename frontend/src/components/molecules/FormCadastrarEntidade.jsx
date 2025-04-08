@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Input, Select, DatePicker, Checkbox, Button, Form, message } from "antd";
+import { Input, Select, DatePicker, Checkbox, Button, Form, message, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import { clinicaAPI } from "../../api/sistema/clinicaAPI";
+import { clinicasAPI } from "../../api/sistema/clinicasAPI";
 
 const perfisSistema = [
   { label: "Administrador", value: "ADMIN" },
@@ -41,20 +41,20 @@ const camposCadastro = {
         { type: "minLength", message: "Mínimo 6 caracteres" },
       ],
     },
-    {
-      name: "perfil",
-      label: "Perfil",
-      type: "select",
-      placeholder: "Selecione um perfil",
-      options: [
-        { label: "Administrador", value: "ADMIN" },
-        { label: "Gestor", value: "GESTOR" },
-        { label: "Técnico", value: "TECNICO" },
-        { label: "Secretário", value: "SECRETARIO" },
-        { label: "Veterinário", value: "VETERINARIO" },
-      ],
-      rules: [{ type: "required", message: "Perfil obrigatório" }],
-    },
+    // {
+    //   name: "perfil",
+    //   label: "Perfil",
+    //   type: "select",
+    //   placeholder: "Selecione um perfil",
+    //   options: [
+    //     { label: "Administrador", value: "ADMIN" },
+    //     { label: "Gestor", value: "GESTOR" },
+    //     { label: "Técnico", value: "TECNICO" },
+    //     { label: "Secretário", value: "SECRETARIO" },
+    //     { label: "Veterinário", value: "VETERINARIO" },
+    //   ],
+    //   rules: [{ type: "required", message: "Perfil obrigatório" }],
+    // },
   ],
   usuarios: [
     {
@@ -133,7 +133,7 @@ const camposCadastro = {
   ]
 };
 
-const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel }) => {
+const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel, tituloModal }) => {
   const campos = camposCadastro[entidade] || [];
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -142,7 +142,7 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel 
 
   useEffect(() => {
     if (entidade === "usuariosDoSistema") {
-      clinicaAPI.listarClinicas()
+      clinicasAPI.listar()
         .then((data) => setClinicas(data))
         .catch((err) => console.error("Erro ao carregar clínicas:", err));
     }
@@ -196,11 +196,15 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel 
   return (
     <div className="p-2">
       <Form
+        title={`Cadastro de ${tituloModal}`}
         form={form}
         layout="vertical"
         onFinish={handleFinish}
         className="space-y-3"
       >
+        <Typography.Title level={4}>
+          Cadastro de {tituloModal || "Entidade"}
+        </Typography.Title>
         {campos.map((campo) => (
           <Form.Item
             key={campo.name}
@@ -225,15 +229,24 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel 
                 options={perfisSistema.map((perfil) => ({
                   ...perfil,
                   disabled:
-                    inativoSelecionado && perfil.value !== "INATIVO"
-                      ? true
-                      : false,
+                    (inativoSelecionado && perfil.value !== "INATIVO") ||
+                    (adminSelecionado && perfil.value !== "ADMIN"),
                 }))}
                 style={{ display: "flex", flexDirection: "column", gap: 8 }}
                 value={perfisSelecionados}
                 onChange={(values) => {
-                  setPerfisSelecionados(values);
-                  form.setFieldValue("perfis", values);
+                  let newValues = values;
+
+                  if (values.includes("ADMIN")) {
+                    newValues = ["ADMIN"];
+                  } else if (values.includes("INATIVO")) {
+                    newValues = ["INATIVO"];
+                  } else {
+                    newValues = values.filter((val) => val !== "ADMIN" && val !== "INATIVO");
+                  }
+
+                  setPerfisSelecionados(newValues);
+                  form.setFieldValue("perfis", newValues);
                 }}
               />
             </Form.Item>
@@ -255,7 +268,11 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel 
             )}
           </>
         )}
-
+        <Button onClick={() => {
+          console.log(form.getFieldsValue());
+        }}>
+          Ver campos do formulário
+        </Button>
         <div className="flex gap-4 justify-between">
           <Button
             onClick={() => setModalVisivel(false)}

@@ -1,10 +1,9 @@
-using System.Runtime.Intrinsics.X86;
-using Microsoft.AspNetCore.Identity;
-
 namespace backend.Dtos.Usuario
 {
-    public class CadastrarUsuarioDto : IdentityUser<int>
+    public class CadastrarUsuarioDto
     {
+        public string? Email { get; set; }
+        public string? UserName { get; set; }
         public string? Nome { get; set; }
         public string? Senha { get; set; }
         public DateTime DataCad { get; set; }

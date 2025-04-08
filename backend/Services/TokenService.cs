@@ -249,7 +249,7 @@ namespace backend.Services
                     new Claim("clinicaNome", clinicaNome),
                     new Claim("clinicaId", clinicaId.ToString()),
                     new Claim("isAdmin", "true"),
-                    new Claim("Perfis", JsonSerializer.Serialize(perfisAtivos)) // Dicionário de perfis ativos
+                    new Claim("Perfis", JsonSerializer.Serialize(perfisAtivos)) // lista de perfis ativos
                 };
                 
                 var tokenHandler = new JwtSecurityTokenHandler();
