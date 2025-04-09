@@ -71,7 +71,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (loading) checkAuth();
     // if (isLogged && !isAuthenticated && !isAdmin) {
-    //   navigate('/sistema/vinculos');  
+    //   navigate('/imperium/vinculos');  
     // }
   }, [loading, isAuthenticated, isLogged, isAdmin, navigate, checkAuth]);
   
@@ -85,9 +85,9 @@ export const AuthProvider = ({ children }) => {
         const authData = await checkAuth(); // agora authData tem isAdmin
 
         if (authData?.isAdmin) {
-          navigate('/sistema');
+          navigate('/imperium');
         } else {
-          navigate('/sistema/vinculos');
+          navigate('/imperium/vinculos');
         }
       }
     } catch (error) {
@@ -130,7 +130,7 @@ export const AuthProvider = ({ children }) => {
   
       abrirNotificacao('info', 'Troca de vínculo', 'Escolha um novo vínculo para continuar.');
   
-      navigate('/sistema'); // Redireciona para escolher novo vínculo
+      navigate('/imperium'); // Redireciona para escolher novo vínculo
     } catch (error) {
       abrirNotificacao('error', 'Erro ao trocar vínculo', 'Não foi possível trocar de vínculo.');
     }

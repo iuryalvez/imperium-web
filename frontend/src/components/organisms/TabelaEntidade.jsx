@@ -106,6 +106,9 @@ const TabelaEntidade = ({
       { title: "Nome", dataIndex: "nome", key: "nome", sorter: (a, b) => a.nome.localeCompare(b.nome) },
       { title: "E-mail", dataIndex: "email", key: "email" },
     ],
+    clinicas: [
+      { title: "Nome da Clínica", dataIndex: "nomeClinica", key: "nomeClinica", sorter: (a, b) => a.nomeClinica.localeCompare(b.nomeClinica) }
+    ],
   };
 
   const colunasComAcoes = [

@@ -2,9 +2,9 @@ import api from '../index';  // configuração do axios
 import endpoints from '../../services/Endpoints'; // endpoints
 
 export const animais = {
-    listar: async (userData) => {
+    listar: async () => {
         try {
-            const response = await api.get(endpoints.sistema.animal.listar, userData);
+            const response = await api.get(endpoints.sistema.animal.listar);
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar animais:', error);

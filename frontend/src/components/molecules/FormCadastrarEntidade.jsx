@@ -12,6 +12,14 @@ const perfisSistema = [
   { label: "Inativo", value: "INATIVO" },
 ];
 
+const perfisClinica = [
+  { label: "Gestor", value: "GESTOR" },
+  { label: "Técnico", value: "TECNICO" },
+  { label: "Secretário", value: "SECRETARIO" },
+  { label: "Veterinário", value: "VETERINARIO" },
+  { label: "Inativo", value: "INATIVO" },
+];
+
 const camposCadastro = {
   usuariosDoSistema: [
     {
@@ -41,20 +49,6 @@ const camposCadastro = {
         { type: "minLength", message: "Mínimo 6 caracteres" },
       ],
     },
-    // {
-    //   name: "perfil",
-    //   label: "Perfil",
-    //   type: "select",
-    //   placeholder: "Selecione um perfil",
-    //   options: [
-    //     { label: "Administrador", value: "ADMIN" },
-    //     { label: "Gestor", value: "GESTOR" },
-    //     { label: "Técnico", value: "TECNICO" },
-    //     { label: "Secretário", value: "SECRETARIO" },
-    //     { label: "Veterinário", value: "VETERINARIO" },
-    //   ],
-    //   rules: [{ type: "required", message: "Perfil obrigatório" }],
-    // },
   ],
   usuarios: [
     {
@@ -128,7 +122,7 @@ const camposCadastro = {
       { name: "cpf", label: "CPF", type: "text", placeholder: "Digite o CPF (somente números)", rules: [{ type: "required", message: "O CPF é obrigatório." }, { type: "exactLength", value: 11, message: "O CPF deve ter 11 caracteres." }] },
       { name: "email", label: "E-mail", type: "email", placeholder: "Digite o e-mail", rules: [{ type: "required", message: "O e-mail é obrigatório." }, { type: "email", message: "O e-mail não é válido." }] }
   ],
-  clinicasDoSistema: [
+  clinicas: [
       { name: "nomeClinica", label: "Nome da Clínica", type: "text", placeholder: "Digite o nome da clínica", rules: [{ type: "required", message: "O nome da clínica é obrigatório" }, { type: "maxLength", value: 100, message: "O nome deve ter no máximo 100 caracteres" }] }
   ]
 };
@@ -143,8 +137,15 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel,
   useEffect(() => {
     if (entidade === "usuariosDoSistema") {
       clinicasAPI.listar()
-        .then((data) => setClinicas(data))
-        .catch((err) => console.error("Erro ao carregar clínicas:", err));
+      .then((data) => {
+        // Aqui preparamos os dados no formato que o Select espera
+        const clinicasFormatadas = data.map((clinica) => ({
+          label: clinica.nomeClinica,
+          value: clinica.id,
+        }));
+        setClinicas(clinicasFormatadas);
+      })  
+      .catch((err) => console.error("Erro ao carregar clínicas:", err));
     }
   }, [entidade]);
 
@@ -253,11 +254,19 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel,
 
             {!adminSelecionado && (
               <Form.Item
-                label="Clínica"
-                name="clinicaId"
-                rules={[{ required: true, message: "Selecione a clínica" }]}
+              label="Clínica"
+              name="clinicaId"
+              rules={[{ required: true, message: "Selecione a clínica" }]}
               >
-                <Select placeholder="Selecione a clínica">
+                <Select
+                showSearch
+                placeholder="Selecione a clínica"
+                optionFilterProp="label"
+                filterOption={(input, option) =>
+                  option.label.toLowerCase().includes(input.toLowerCase())
+                }
+                options={clinicas}
+                >
                   {clinicas.map((clinica) => (
                     <Select.Option key={clinica.value} value={clinica.value}>
                       {clinica.label}
@@ -268,11 +277,11 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel,
             )}
           </>
         )}
-        <Button onClick={() => {
+        {/* <Button onClick={() => {
           console.log(form.getFieldsValue());
         }}>
           Ver campos do formulário
-        </Button>
+        </Button> */}
         <div className="flex gap-4 justify-between">
           <Button
             onClick={() => setModalVisivel(false)}

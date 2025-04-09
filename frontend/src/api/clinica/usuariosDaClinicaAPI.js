@@ -11,9 +11,9 @@ export const usuariosDaClinicaAPI = {
       throw error.response ? error.response.data : error;
     }
   },
-  cadastrar: async (dadosFormulario) => {
+  cadastrar: async (dadosUsuario) => {
     try {
-      const response = await api.post(endpoints.clinica.usuario.cadastrar, dadosFormulario, {
+      const response = await api.post(endpoints.clinica.usuario.cadastrar, dadosUsuario, {
         headers: {
           "Content-Type": "application/json",
         },

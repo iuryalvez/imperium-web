@@ -11,13 +11,17 @@ export const clinicasAPI = {
             throw error.response ? error.response.data : error;
         }
     },
-    cadastrar: async (userData) => { // nao sei se ta certo o post
+    cadastrar: async (dadosClinica) => {
         try {
-            const response = await api.post(endpoints.sistema.clinica.cadastrar, userData);
+            const response = await api.post(endpoints.sistema.clinica.cadastrar, dadosClinica);
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar clínicas:', error);
             throw error.response ? error.response.data : error;
         }
+    },
+    buscarPorNome: async (nomeClinica) => {
+        const response = await api.get(endpoints.clinica.buscarPorNome(nomeClinica));
+        return response.data;
     },
 };

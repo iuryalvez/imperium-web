@@ -13,8 +13,9 @@ import Login from './pages/Login/index.jsx';
 import Sobre from './pages/Sobre/index.jsx';
 
 import Sistema from './pages/Sistema/SistemaInicio/index.jsx';
-import ListaDeVinculos from './pages/Sistema/ListaDeVinculos/index.jsx';
-import UsuariosDoSistema from './pages/Sistema/UsuariosDoSistema/index.jsx';
+import SistemaVinculos from './pages/Sistema/ListaDeVinculos/index.jsx';
+import SistemaUsuarios from './pages/Sistema/Usuarios/index.jsx';
+import SistemaClinicas from './pages/Sistema/Clinicas/index.jsx';
 
 import Clinica from './pages/Clinica/ClinicaInicio/index.jsx';
 import ClinicaInicio from './pages/Clinica/ClinicaInicio/index.jsx';
@@ -23,6 +24,7 @@ import UsuariosDaClinica from './pages/Clinica/UsuariosDaClinica/index.jsx';
 import TutoresDaClinica from './pages/Clinica/TutoresDaClinica/index.jsx';
 import ConsultasDaClinica from './pages/Clinica/ConsultasDaClinica/index.jsx';
 import AnimaisDaClinica from './pages/Clinica/AnimaisDaClinica/index.jsx';
+import AdminRoute from './components/servicesComponents/AdminRoute.js';
 
 const App = () => {
   return (
@@ -40,10 +42,13 @@ const App = () => {
             
             {/* Rotas protegidas por isLogged */}
             <Route element={<LoggedRoute />}>
-              <Route path='/sistema' element={<Sistema />} />
-              <Route path='/sistema/vinculos' element={<ListaDeVinculos />} />
-              {/* <Route path='/sistema/clinicas' element={<ListaClinicas />} /> */}
-              <Route path='/sistema/usuarios' element={<UsuariosDoSistema />} />
+              <Route path='/imperium/vinculos' element={<SistemaVinculos />} />
+            </Route>
+
+            <Route element={<AdminRoute />}>
+              <Route path='/imperium' element={<Sistema />} />
+              <Route path='/imperium/clinicas' element={<SistemaClinicas />} />
+              <Route path='/imperium/usuarios' element={<SistemaUsuarios />} />
             </Route>
 
             {/* Rotas protegidas dentro da AuthenticatedRoute */}

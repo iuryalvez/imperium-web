@@ -17,6 +17,8 @@ const endpoints = {
     },
   },
   clinica: {
+    dados: `${API_BASE_URL}/clinica/dados`,
+    buscarPorNome: (nome) => `${API_BASE_URL}/clinica/buscar?nome=${encodeURIComponent(nome)}`,
     animal: {
       cadastrar: (tutorId) => `${API_BASE_URL}/clinica/animais/tutor/${tutorId}/cadastrar`,
       detalhes: (animalId) => `${API_BASE_URL}/clinica/animais/${animalId}`,
@@ -37,9 +39,7 @@ const endpoints = {
       escolherVinculoAdmin: `${API_BASE_URL}/auth/sistema/admin`,
       checarStatus: `${API_BASE_URL}/auth/check`,
     },
-    clinica: {
-      dados: `${API_BASE_URL}/clinica/dados`,
-    },
+
     consulta: {
       cadastrar: (clinicaId) => `${API_BASE_URL}/clinica//${clinicaId}/cadastrar`,
       listar: `${API_BASE_URL}/clinica/consultas`,

@@ -24,8 +24,8 @@ const AuthenticatedRoute = () => {
     return <Outlet></Outlet>
   }
   if (isLogged) {
-    return isAdmin ? <Navigate to="/sistema" /> 
-    : <Navigate to="/sistema/vinculos" />
+    return isAdmin ? <Navigate to="/imperium" /> 
+    : <Navigate to="/imperium/vinculos" />
   }
 
   return <Navigate to="/login" />;

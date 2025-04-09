@@ -55,5 +55,23 @@ namespace backend.Controllers
 
             return NoContent();
         }
+
+        [HttpGet("buscar")]
+        public async Task<IActionResult> BuscarClinicasPorNome([FromQuery] string nome)
+        {
+            if (string.IsNullOrWhiteSpace(nome))
+                return BadRequest("O nome da clínica não pode ser vazio.");
+
+            var clinicas = await _context.Clinicas
+                .Where(c => EF.Functions.ILike(c.NomeClinica, $"%{nome}%")) // ILike é case-insensitive (PostgreSQL)
+                .Select(c => new
+                {
+                    value = c.Id,
+                    label = c.NomeClinica
+                })
+                .ToListAsync();
+
+            return Ok(clinicas);
+        }
     }
 }
