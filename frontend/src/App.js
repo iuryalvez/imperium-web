@@ -42,13 +42,13 @@ const App = () => {
             
             {/* Rotas protegidas por isLogged */}
             <Route element={<LoggedRoute />}>
-              <Route path='/imperium/vinculos' element={<SistemaVinculos />} />
+              <Route path='/sistema/vinculos' element={<SistemaVinculos />} />
             </Route>
 
             <Route element={<AdminRoute />}>
-              <Route path='/imperium' element={<Sistema />} />
-              <Route path='/imperium/clinicas' element={<SistemaClinicas />} />
-              <Route path='/imperium/usuarios' element={<SistemaUsuarios />} />
+              <Route path='/sistema' element={<Sistema />} />
+              <Route path='/sistema/clinicas' element={<SistemaClinicas />} />
+              <Route path='/sistema/usuarios' element={<SistemaUsuarios />} />
             </Route>
 
             {/* Rotas protegidas dentro da AuthenticatedRoute */}

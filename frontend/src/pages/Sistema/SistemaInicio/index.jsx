@@ -10,16 +10,16 @@ const SistemaInicio = () => {
   
   useEffect(() => {
     if (!isAdmin) {
-      navigate('/imperium/vinculos');
+      navigate('/sistema/vinculos');
     }
   }, [isAdmin, navigate]);
 
   const botoesGerais = [
-      { texto: 'Vínculos', rota: '/imperium/vinculos', ativo: true },
-      { texto: 'Clínicas', rota: '/imperium/clinicas', ativo: true },
-      { texto: 'Usuários', rota: '/imperium/usuarios', ativo: true },
-      { texto: 'Animais', rota: '/imperium/animais', ativo: false },
-      { texto: 'Perfis', rota: '/imperium/perfis', ativo: false }
+      { texto: 'Clínicas', rota: '/sistema/clinicas', ativo: true },
+      { texto: 'Usuários', rota: '/sistema/usuarios', ativo: true },
+      { texto: 'Animais', rota: '/sistema/animais', ativo: false },
+    //   { texto: 'Tutores', rota: '/sistema/tutores', ativo: false },
+    //   { texto: 'Dashboard', rota: '/sistema/dashboard', ativo: false }
   ];
 
   const renderBotoes = () => {

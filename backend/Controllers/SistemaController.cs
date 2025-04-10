@@ -173,7 +173,8 @@ namespace backend.Controllers
         [Authorize(Policy = "GerenciaSistema")]
         public async Task<IActionResult> CadastrarUsuario([FromBody] CadastrarUsuarioDto cadastrarUsuarioDto)
         {
-            // Imprime lista de perfis recebida
+            // Console.WriteLine("[DEBUG] Iniciando cadastro de usuário...");
+
             if (cadastrarUsuarioDto.Perfis != null)
             {
                 Console.WriteLine("[DEBUG] Perfis recebidos no DTO:");
@@ -187,25 +188,25 @@ namespace backend.Controllers
                 Console.WriteLine("[DEBUG] Nenhum perfil recebido (null)");
             }
 
-            // Se vier com "ADMIN" na lista de perfis, trata como isAdmin
             if (cadastrarUsuarioDto.Perfis != null && 
                 cadastrarUsuarioDto.Perfis.Contains("ADMIN", StringComparer.OrdinalIgnoreCase))
             {
                 cadastrarUsuarioDto.IsAdmin = true;
-                cadastrarUsuarioDto.Perfis = new List<string>(); // ou null, se preferir
+                cadastrarUsuarioDto.Perfis = new List<string>();
+                Console.WriteLine("[DEBUG] Usuário identificado como administrador (ADMIN)");
             }
 
-            // Para usuários não-admins, precisa validar os perfis
             if (!cadastrarUsuarioDto.IsAdmin &&
                 (cadastrarUsuarioDto.Perfis == null || !cadastrarUsuarioDto.Perfis.Any()))
             {
+                Console.WriteLine("[DEBUG] Perfis obrigatórios ausentes para usuário não-admin.");
                 return BadRequest("Pelo menos um perfil deve ser selecionado.");
             }
 
-            // Para usuários não-admins, clinica é obrigatória
             if (!cadastrarUsuarioDto.IsAdmin)
             {
                 var clinicaExiste = await _context.Clinicas.AnyAsync(c => c.Id == cadastrarUsuarioDto.ClinicaId);
+                Console.WriteLine($"[DEBUG] Clínica ID {cadastrarUsuarioDto.ClinicaId} existe? {clinicaExiste}");
                 if (!clinicaExiste)
                 {
                     return BadRequest("A clínica especificada não existe.");
@@ -215,6 +216,7 @@ namespace backend.Controllers
             var existingUser = await _userManager.FindByEmailAsync(cadastrarUsuarioDto.Email);
             if (existingUser != null)
             {
+                Console.WriteLine("[DEBUG] E-mail já em uso.");
                 return BadRequest("O e-mail já está em uso.");
             }
 
@@ -232,10 +234,16 @@ namespace backend.Controllers
             var result = await _userManager.CreateAsync(usuario, cadastrarUsuarioDto.Senha);
             if (!result.Succeeded)
             {
+                Console.WriteLine("[DEBUG] Erro ao criar usuário:");
+                foreach (var error in result.Errors)
+                {
+                    Console.WriteLine($"[DEBUG] - {error.Description}");
+                }
                 return BadRequest(new { Errors = result.Errors.Select(e => e.Description) });
             }
 
-            // Apenas cria vínculo com clínica se não for admin
+            Console.WriteLine($"[DEBUG] Usuário criado com sucesso. ID: {usuario.Id}");
+
             if (!usuario.IsAdmin)
             {
                 var usuarioPerfilClinica = new UsuarioPerfilClinica
@@ -246,7 +254,16 @@ namespace backend.Controllers
                 };
 
                 _context.UsuariosPerfisClinicas.Add(usuarioPerfilClinica);
+                Console.WriteLine("[DEBUG] Vínculo UsuarioPerfilClinica adicionado ao contexto.");
             }
+            else
+            {
+                Console.WriteLine("[DEBUG] Usuário é admin, vínculo com clínica não será criado.");
+            }
+
+            // >>> ESSENCIAL: Salvar as alterações no banco de dados <<<
+            await _context.SaveChangesAsync();
+            // Console.WriteLine("[DEBUG] Alterações salvas no banco de dados.");
 
             return Ok(new { Message = "Usuário criado com sucesso.", UsuarioId = usuario.Id });
         }

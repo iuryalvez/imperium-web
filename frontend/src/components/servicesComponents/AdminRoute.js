@@ -26,7 +26,7 @@ const AdminRoute = () => {
     return <Navigate to="/login" />;
   }
 
-  return isAdmin ? <Outlet /> : <Navigate to="/imperium/vinculos" />;
+  return isAdmin ? <Outlet /> : <Navigate to="/sistema/vinculos" />;
 }
 
 export default AdminRoute;
