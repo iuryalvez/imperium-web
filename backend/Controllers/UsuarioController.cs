@@ -34,7 +34,7 @@ namespace backend.Controllers
         
         [HttpPost("usuarios/cadastrar")]
         [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> CadastrarUsuario([FromBody] CadastrarUsuarioDto cadastrarUsuarioDto)
+        public async Task<IActionResult> CadastrarUsuario([FromBody] CadastrarUsuarioClinicaDto cadastrarUsuarioDto)
         {
             if (cadastrarUsuarioDto.Perfis == null || !cadastrarUsuarioDto.Perfis.Any())
             {

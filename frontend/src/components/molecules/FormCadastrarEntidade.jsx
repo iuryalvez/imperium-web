@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Input, Select, DatePicker, Checkbox, Button, Form, message, Typography } from "antd";
+import { Input, Select, DatePicker, Checkbox, Button, Form, message, Typography, Alert } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { clinicasAPI } from "../../api/sistema/clinicasAPI";
 
@@ -146,27 +146,40 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel,
             </Form.Item>
 
             {!adminSelecionado && (
-              <Form.Item
-              label="Clínica"
-              name="clinicaId"
-              rules={[{ required: true, message: "Selecione a clínica" }]}
-              >
-                <Select
-                showSearch
-                placeholder="Selecione a clínica"
-                optionFilterProp="label"
-                filterOption={(input, option) =>
-                  option.label.toLowerCase().includes(input.toLowerCase())
-                }
-                options={clinicas}
+              <>
+                <Form.Item
+                  label="Clínicas"
+                  name="clinicaId"
+                  rules={[
+                    { required: true, message: "Selecione pelo menos uma clínica" },
+                  ]}
                 >
-                  {clinicas.map((clinica) => (
-                    <Select.Option key={clinica.value} value={clinica.value}>
-                      {clinica.label}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
+                  <Select
+                    mode="multiple"
+                    showSearch
+                    placeholder="Selecione uma ou mais clínicas"
+                    optionFilterProp="label"
+                    filterOption={(input, option) =>
+                      option.label.toLowerCase().includes(input.toLowerCase())
+                    }
+                    options={clinicas}
+                  >
+                    {clinicas.map((clinica) => (
+                      <Select.Option key={clinica.value} value={clinica.value}>
+                        {clinica.label}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+
+                <Alert
+                  message="Atenção"
+                  description="Após associar o usuário a uma ou mais clínicas, **não será possível remover essa associação.** Certifique-se antes de continuar."
+                  type="warning"
+                  showIcon
+                  className="mb-4"
+                />
+              </>
             )}
           </>
         )}

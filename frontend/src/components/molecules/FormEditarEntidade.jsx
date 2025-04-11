@@ -2,23 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Input, Select, DatePicker, Checkbox, Button, Form, message, Typography } from "antd";
 import { SaveOutlined } from "@ant-design/icons";
 import { clinicasAPI } from "../../api/sistema/clinicasAPI";
-
-const perfisSistema = [
-    { label: "Administrador", value: "ADMIN" },
-    { label: "Gestor", value: "GESTOR" },
-    { label: "Técnico", value: "TECNICO" },
-    { label: "Secretário", value: "SECRETARIO" },
-    { label: "Veterinário", value: "VETERINARIO" },
-    { label: "Inativo", value: "INATIVO" },
-  ];
   
-  const perfisClinica = [
-    { label: "Gestor", value: "GESTOR" },
-    { label: "Técnico", value: "TECNICO" },
-    { label: "Secretário", value: "SECRETARIO" },
-    { label: "Veterinário", value: "VETERINARIO" },
-    { label: "Inativo", value: "INATIVO" },
-  ];
+const perfisClinica = [
+  { label: "Gestor", value: "GESTOR" },
+  { label: "Técnico", value: "TECNICO" },
+  { label: "Secretário", value: "SECRETARIO" },
+  { label: "Veterinário", value: "VETERINARIO" },
+  { label: "Inativo", value: "INATIVO" },
+];
 
 const FormEditarEntidade = ({
   entidade,
@@ -97,7 +88,6 @@ const FormEditarEntidade = ({
   };
 
   const inativoSelecionado = perfisSelecionados.includes("INATIVO");
-  const adminSelecionado = perfisSelecionados.includes("ADMIN");
 
   return (
     <div className="p-2">
@@ -133,11 +123,10 @@ const FormEditarEntidade = ({
               ]}
             >
               <Checkbox.Group
-                options={perfisSistema.map((perfil) => ({
+                options={perfisClinica.map((perfil) => ({
                   ...perfil,
                   disabled:
-                    (inativoSelecionado && perfil.value !== "INATIVO") ||
-                    (adminSelecionado && perfil.value !== "ADMIN"),
+                    (inativoSelecionado && perfil.value !== "INATIVO")
                 }))}
                 style={{ display: "flex", flexDirection: "column", gap: 8 }}
                 value={perfisSelecionados}
@@ -158,29 +147,11 @@ const FormEditarEntidade = ({
               />
             </Form.Item>
 
-            {!adminSelecionado && (
-              <Form.Item
-                label="Clínica"
-                name="clinicaId"
-                rules={[{ required: true, message: "Selecione a clínica" }]}
-              >
-                <Select
-                  showSearch
-                  placeholder="Selecione a clínica"
-                  optionFilterProp="label"
-                  filterOption={(input, option) =>
-                    option.label.toLowerCase().includes(input.toLowerCase())
-                  }
-                  options={clinicas}
-                >
-                  {clinicas.map((clinica) => (
-                    <Select.Option key={clinica.value} value={clinica.value}>
-                      {clinica.label}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            )}
+            <Form.Item label="Clínica">
+              <div style={{ padding: "4px 11px", backgroundColor: "#f5f5f5", borderRadius: 4 }}>
+                {clinicas.find(c => c.value === form.getFieldValue("clinicaId"))?.label || "Clínica não encontrada"}
+              </div>
+            </Form.Item>
           </>
         )}
 

@@ -24,4 +24,17 @@ export const usuariosDoSistemaAPI = {
       throw error.response ? error.response.data : error;
     }
   },
+  editar: async (upcId, dadosEditados) => {
+    try {
+      const response = await api.put(endpoints.sistema.usuario.editar(upcId), dadosEditados, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao editar usuário:", error);
+      throw error.response ? error.response.data : error;
+    }
+  },
 };

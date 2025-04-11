@@ -22,17 +22,7 @@ const camposEditar = {
         { type: "required", message: "E-mail obrigatório" },
         { type: "email", message: "Formato inválido" },
       ],
-    },
-    {
-      name: "senha",
-      label: "Senha",
-      type: "password",
-      placeholder: "Digite sua senha",
-      rules: [
-        { type: "required", message: "Senha obrigatória" },
-        { type: "minLength", message: "Mínimo 6 caracteres" },
-      ],
-    },
+    }
   ],
   usuarios: [
     {
@@ -50,16 +40,6 @@ const camposEditar = {
       rules: [
         { type: "required", message: "E-mail obrigatório" },
         { type: "email", message: "Formato inválido" },
-      ],
-    },
-    {
-      name: "senha",
-      label: "Senha",
-      type: "password",
-      placeholder: "Digite sua senha",
-      rules: [
-        { type: "required", message: "Senha obrigatória" },
-        { type: "minLength", message: "Mínimo 6 caracteres" },
       ],
     },
     {
@@ -127,7 +107,7 @@ const TabelaEntidade = ({
     // ✏️ Envia os dados editados para a API
     const editarRegistro = async (id, valores) => {
       try {
-        await entidadeAPI.atualizar(id, valores); // função do seu API service
+        await entidadeAPI.editar(id, valores); // função do seu API service
         setModalVisivel(false);
       } catch (erro) {
         console.error("Erro ao editar registro:", erro);

@@ -171,7 +171,7 @@ namespace backend.Controllers
 
         [HttpPost("usuarios/cadastrar")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> CadastrarUsuario([FromBody] CadastrarUsuarioDto cadastrarUsuarioDto)
+        public async Task<IActionResult> CadastrarUsuario([FromBody] CadastrarUsuarioSistemaDto cadastrarUsuarioDto)
         {
             // Console.WriteLine("[DEBUG] Iniciando cadastro de usuário...");
 
@@ -201,16 +201,6 @@ namespace backend.Controllers
             {
                 Console.WriteLine("[DEBUG] Perfis obrigatórios ausentes para usuário não-admin.");
                 return BadRequest("Pelo menos um perfil deve ser selecionado.");
-            }
-
-            if (!cadastrarUsuarioDto.IsAdmin)
-            {
-                var clinicaExiste = await _context.Clinicas.AnyAsync(c => c.Id == cadastrarUsuarioDto.ClinicaId);
-                Console.WriteLine($"[DEBUG] Clínica ID {cadastrarUsuarioDto.ClinicaId} existe? {clinicaExiste}");
-                if (!clinicaExiste)
-                {
-                    return BadRequest("A clínica especificada não existe.");
-                }
             }
 
             var existingUser = await _userManager.FindByEmailAsync(cadastrarUsuarioDto.Email);
@@ -246,15 +236,31 @@ namespace backend.Controllers
 
             if (!usuario.IsAdmin)
             {
-                var usuarioPerfilClinica = new UsuarioPerfilClinica
+                if (cadastrarUsuarioDto.ClinicaIds == null || !cadastrarUsuarioDto.ClinicaIds.Any())
                 {
-                    UsuarioId = usuario.Id,
-                    ClinicaId = cadastrarUsuarioDto.ClinicaId,
-                    Perfis = cadastrarUsuarioDto.Perfis
-                };
+                    return BadRequest("Pelo menos uma clínica deve ser selecionada.");
+                }
 
-                _context.UsuariosPerfisClinicas.Add(usuarioPerfilClinica);
-                Console.WriteLine("[DEBUG] Vínculo UsuarioPerfilClinica adicionado ao contexto.");
+                foreach (var clinicaId in cadastrarUsuarioDto.ClinicaIds)
+                {
+                    var clinicaExiste = await _context.Clinicas.AnyAsync(c => c.Id == clinicaId);
+                    Console.WriteLine($"[DEBUG] Clínica ID {clinicaId} existe? {clinicaExiste}");
+
+                    if (!clinicaExiste)
+                    {
+                        return BadRequest($"A clínica com ID {clinicaId} não existe.");
+                    }
+
+                    var usuarioPerfilClinica = new UsuarioPerfilClinica
+                    {
+                        UsuarioId = usuario.Id,
+                        ClinicaId = clinicaId,
+                        Perfis = cadastrarUsuarioDto.Perfis
+                    };
+
+                    _context.UsuariosPerfisClinicas.Add(usuarioPerfilClinica);
+                    Console.WriteLine($"[DEBUG] Vínculo UsuarioPerfilClinica com clínica {clinicaId} adicionado ao contexto.");
+                }
             }
             else
             {
@@ -270,16 +276,11 @@ namespace backend.Controllers
 
         [HttpPut("usuarios/{upcId}/editar")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> EditarUsuario(int upcId, [FromBody] EditarUsuarioDto dto)
+        public async Task<IActionResult> EditarUsuario(int upcId, [FromBody] EditarUsuarioSistemaDto dto)
         {
             try
             {
-                if (dto == null || upcId != dto.UpcId)
-                {
-                    return BadRequest("Dados inválidos para edição.");
-                }
-
-                // Busca o vínculo do usuário na tabela UsuariosPerfisClinicas
+                // Busca o vínculo e inclui o usuário relacionado
                 var vinculo = await _context.UsuariosPerfisClinicas
                     .Include(upc => upc.Usuario)
                     .FirstOrDefaultAsync(upc => upc.Id == upcId);
@@ -296,9 +297,17 @@ namespace backend.Controllers
                 }
 
                 // Atualiza os dados do usuário
-                usuario.UserName = dto.UserName;
-                usuario.Email = dto.Email;
-                usuario.Nome = dto.Nome;
+                if (!string.IsNullOrWhiteSpace(dto.Email))
+                {
+                    usuario.UserName = dto.Email;
+                    usuario.Email = dto.Email;
+                }
+
+                if (!string.IsNullOrWhiteSpace(dto.Nome))
+                {
+                    usuario.Nome = dto.Nome;
+                }
+
                 _context.Usuarios.Update(usuario);
 
                 // Atualiza os perfis no vínculo
