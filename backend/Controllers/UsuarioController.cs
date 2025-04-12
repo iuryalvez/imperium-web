@@ -107,7 +107,7 @@ namespace backend.Controllers
                         Nome = upc.Usuario.Nome ?? string.Empty, // Garante que Nome nunca seja nulo
                         Perfis = upc.Perfis,
                         DataCadastro = upc.Usuario.DataCad,
-                        DataUltimoAcesso = upc.Usuario.DataUltimoAcesso
+                        DataUltimoAcesso = upc.Usuario.DataUltimoAcesso,
                     })
                     .ToListAsync();
 

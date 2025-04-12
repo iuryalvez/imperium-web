@@ -94,7 +94,8 @@ const camposEditar = {
 const TabelaEntidade = ({
     entidade,            // nome da entidade
     dados,
-    entidadeAPI
+    entidadeAPI,
+    onAtualizar
   }) => {
     const [registros, setRegistros] = useState(dados);
     const [modalVisivel, setModalVisivel] = useState(false);
@@ -104,10 +105,12 @@ const TabelaEntidade = ({
       setRegistros(dados);
     }, [dados]);
 
-    // ✏️ Envia os dados editados para a API
-    const editarRegistro = async (id, valores) => {
+    // Envia os dados editados para a API
+    const editarRegistro = async (valores) => {
       try {
-        await entidadeAPI.editar(id, valores); // função do seu API service
+        console.log("Valores iniciais passados para edição:", dados);
+        console.log("Valores recebidos para edição:", valores);
+        await entidadeAPI.editar(valores); // função do seu API service
         setModalVisivel(false);
       } catch (erro) {
         console.error("Erro ao editar registro:", erro);
@@ -253,8 +256,8 @@ const TabelaEntidade = ({
         >
           <FormEditarEntidade
             entidade={entidade}
-            onSubmit={(valores) => editarRegistro(registroSelecionado.id, valores)}
-            onSuccess={() => registros}
+            onSubmit={(valores) => editarRegistro(valores)}
+            onSuccess={onAtualizar}
             setModalVisivel={setModalVisivel}
             tituloModal={`Edição de ${entidade}`}
             valoresIniciais={registroSelecionado}

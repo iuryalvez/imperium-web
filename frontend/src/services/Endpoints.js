@@ -13,8 +13,8 @@ const endpoints = {
     },
     usuario: {
       listar: `${API_BASE_URL}/sistema/usuarios`,
-      cadastrar:`${API_BASE_URL}/sistema/usuarios/cadastrar`,
-      editar: (upcId) => `${API_BASE_URL}/sistema/usuarios/${upcId}/editar`,
+      cadastrar: `${API_BASE_URL}/sistema/usuarios/cadastrar`,
+      editar: `${API_BASE_URL}/sistema/usuarios/editar`,
     },
   },
   clinica: {
@@ -72,7 +72,7 @@ const endpoints = {
       cadastrar:`${API_BASE_URL}/sistema/usuarios/cadastrar`,
       listar: `${API_BASE_URL}/clinica/usuarios`,
       detalhes: (usuarioId) => `${API_BASE_URL}/clinica/usuarios/${usuarioId}`,
-      editar: (upcId) => `${API_BASE_URL}/clinica/usuarios/${upcId}/editar`,
+      editar: `${API_BASE_URL}/clinica/usuarios/editar`,
       atualizarPerfil: (upcId) => `${API_BASE_URL}/clinica/usuarios/${upcId}/perfil`,
       habilitar: (upcId) => `${API_BASE_URL}/clinica/usuarios/${upcId}/habilitar`,
       desabilitar: (upcId) => `${API_BASE_URL}/clinica/usuarios/${upcId}/desabilitar`,

@@ -49,6 +49,7 @@ const FormEditarEntidade = ({
   const handleFinish = async (values) => {
     try {
       setLoading(true);
+      if (entidade === "usuariosDoSistema") values.id = valoresIniciais.upcId;
       const response = await onSubmit(values);
       message.success(`${entidade} atualizado com sucesso.`);
       if (onSuccess) onSuccess(response);

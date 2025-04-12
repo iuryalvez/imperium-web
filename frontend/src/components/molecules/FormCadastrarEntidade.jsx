@@ -149,7 +149,7 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel,
               <>
                 <Form.Item
                   label="Clínicas"
-                  name="clinicaId"
+                  name="clinicaIds"
                   rules={[
                     { required: true, message: "Selecione pelo menos uma clínica" },
                   ]}

@@ -171,7 +171,7 @@ const PaginaEntidadeComCadastro = ({
           </Button>
         </div>
 
-        <TabelaEntidade entidade={entidade} entidadeAPI={api} dados={dados} />
+        <TabelaEntidade entidade={entidade} entidadeAPI={api} dados={dados} onAtualizar={buscarDados}/>
       </div>
       <div className="max-h-[80vh] overflow-y-auto">
         <Modal

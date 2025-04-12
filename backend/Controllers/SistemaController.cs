@@ -9,7 +9,6 @@ using backend.Dtos.Clinica;
 using backend.Dtos.Animal;
 using backend.Dtos.Usuario;
 using System.Security.Claims;
-using backend.Dtos;
 
 namespace backend.Controllers
 {
@@ -136,7 +135,7 @@ namespace backend.Controllers
         // obtém todos os usuários
         [HttpGet("usuarios")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> GetAllUsuarios()
+        public async Task<IActionResult> ListarUsuarios()
         {
             try
             {
@@ -146,17 +145,17 @@ namespace backend.Controllers
                     .AsNoTracking()
                     .Include(upc => upc.Usuario)
                     .Include(upc => upc.Clinica)
-                    .Select(upc => new GetUsuariosDto
+                    .Select(upc => new GetUsuariosSistemaDto
                     {
                         Id = upc.Usuario.Id,
+                        UpcId = upc.Id,
                         UserName = upc.Usuario.UserName,
                         NomeClinica = upc.Clinica.NomeClinica,
                         ClinicaId = upc.ClinicaId,
                         Email = upc.Usuario.Email,
                         Nome = upc.Usuario.Nome ?? string.Empty,
                         Perfis = upc.Perfis,
-                        DataCadastro = upc.Usuario.DataCad,
-                        DataUltimoAcesso = upc.Usuario.DataUltimoAcesso
+                        DataCadastro = upc.Usuario.DataCad
                     })
                     .ToListAsync();
 
@@ -216,7 +215,6 @@ namespace backend.Controllers
                 Email = cadastrarUsuarioDto.Email,
                 Nome = cadastrarUsuarioDto.Nome,
                 DataCad = DateTime.UtcNow,
-                DataUltimoAcesso = DateTime.UtcNow,
                 EmailConfirmed = true,
                 IsAdmin = cadastrarUsuarioDto.IsAdmin
             };
@@ -274,21 +272,27 @@ namespace backend.Controllers
             return Ok(new { Message = "Usuário criado com sucesso.", UsuarioId = usuario.Id });
         }
 
-        [HttpPut("usuarios/{upcId}/editar")]
+        [HttpPut("usuarios/editar")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> EditarUsuario(int upcId, [FromBody] EditarUsuarioSistemaDto dto)
+        public async Task<IActionResult> EditarUsuario([FromBody] EditarUsuarioSistemaDto dto)
         {
             try
             {
                 // Busca o vínculo e inclui o usuário relacionado
                 var vinculo = await _context.UsuariosPerfisClinicas
                     .Include(upc => upc.Usuario)
-                    .FirstOrDefaultAsync(upc => upc.Id == upcId);
+                    .FirstOrDefaultAsync(upc => upc.Id == dto.Id); // o Id do dto é o upcId
 
                 if (vinculo == null)
                 {
                     return NotFound("Vínculo do usuário não encontrado.");
                 }
+
+                // Valida se o vínculo corresponde ao usuário e à clínica recebidos
+                // if (vinculo.UsuarioId != dto.Id || vinculo.ClinicaId != dto.ClinicaId)
+                // {
+                //     return BadRequest("Os dados do vínculo não correspondem ao usuário ou à clínica informados.");
+                // }
 
                 var usuario = vinculo.Usuario;
                 if (usuario == null)
@@ -327,7 +331,7 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Erro ao editar usuário com vínculo ID {upcId}");
+                _logger.LogError(ex, $"Erro ao editar usuário com vínculo ID {dto.UpcId}");
                 return StatusCode(500, "Erro interno ao editar usuário.");
             }
         }
