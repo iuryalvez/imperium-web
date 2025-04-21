@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Table, Button, Space, Tag, Modal } from "antd";
-import { EditOutlined } from "@ant-design/icons";
+import { EditOutlined, LoginOutlined } from "@ant-design/icons";
 import "../styles/TabelaEntidade.css";
 import FormEditarEntidade from "../molecules/FormEditarEntidade";
+import FormAcessarClinica from "../molecules/FormAcessarClinica";
 
 const camposEditar = {
   usuariosDoSistema: [
@@ -98,29 +99,42 @@ const TabelaEntidade = ({
     onAtualizar
   }) => {
     const [registros, setRegistros] = useState(dados);
-    const [modalVisivel, setModalVisivel] = useState(false);
+    const [modalEdicaoVisivel, setModalEdicaoVisivel] = useState(false);
     const [registroSelecionado, setRegistroSelecionado] = useState(null);
-  
+    const [modalAcessoAberto, setModalAcessoAberto] = useState(false);
+    const [clinicaSelecionada, setClinicaSelecionada] = useState(null);
+
+    
     useEffect(() => {
       setRegistros(dados);
     }, [dados]);
-
+    
     // Envia os dados editados para a API
     const editarRegistro = async (valores) => {
       try {
         console.log("Valores iniciais passados para edição:", dados);
         console.log("Valores recebidos para edição:", valores);
-        await entidadeAPI.editar(valores); // função do seu API service
-        setModalVisivel(false);
+        await entidadeAPI.editar(valores); // função da API
+        setModalEdicaoVisivel(false);
       } catch (erro) {
         console.error("Erro ao editar registro:", erro);
       }
     };  
+    
+    const abrirModalEdicao = (registro) => {
+      setRegistroSelecionado(registro);
+      setModalEdicaoVisivel(true);
+    };
+    
+    const abrirModalAcessoClinica = (clinica) => {
+      setClinicaSelecionada(clinica);
+      setModalAcessoAberto(true);
+    };
 
-  const abrirModalEdicao = (registro) => {
-    setRegistroSelecionado(registro);
-    setModalVisivel(true);
-  };
+    const fecharModalAcessoClinica = () => {
+      setModalAcessoAberto(false);
+      setClinicaSelecionada(null);
+    };
 
   // Configuração das colunas para cada entidade
   const colunasBase = {
@@ -219,21 +233,29 @@ const TabelaEntidade = ({
 
   const colunasComAcoes = [
     ...(colunasBase[entidade] || []),
-    ...[
-      {
-        title: "Ações",
-          key: "acoes",
-          render: (_, record) => (
-            <Space>
-              <Button
-                icon={<EditOutlined />}
-                onClick={() => abrirModalEdicao(record)}
-                style={{ backgroundColor: "var(--verde-medio)", color: "white" }}
-              />
-            </Space>
-        ),
-      },
-    ],
+    {
+      title: "Ações",
+      key: "acoes",
+      width: "auto",
+      render: (_, record) => (
+        <Space>
+          <Button
+            icon={<EditOutlined />}
+            onClick={() => abrirModalEdicao(record)}
+            style={{ backgroundColor: "var(--verde-medio)", color: "white" }}
+          />
+          {entidade === "clinicas" && (
+            <Button
+              icon={<LoginOutlined />}
+              onClick={() => abrirModalAcessoClinica(record)}
+              style={{ backgroundColor: "var(--verde-medio)", color: "white" }}
+            >
+              Acessar
+            </Button>
+          )}
+        </Space>
+      ),
+    },
   ];
 
   return (
@@ -246,8 +268,8 @@ const TabelaEntidade = ({
       />
       <div className="max-h-[80vh] overflow-y-auto">
         <Modal
-        open={modalVisivel}
-        onCancel={() => setModalVisivel(false)}
+        open={modalEdicaoVisivel}
+        onCancel={() => setModalEdicaoVisivel(false)}
         footer={null}
         centered
         destroyOnClose
@@ -258,11 +280,19 @@ const TabelaEntidade = ({
             entidade={entidade}
             onSubmit={(valores) => editarRegistro(valores)}
             onSuccess={onAtualizar}
-            setModalVisivel={setModalVisivel}
+            setModalEdicaoVisivel={setModalEdicaoVisivel}
             tituloModal={`Edição de ${entidade}`}
             valoresIniciais={registroSelecionado}
             camposEditar={camposEditar}
           />
+        </Modal>
+        <Modal
+          title={`Acessar Clínica`}
+          open={modalAcessoAberto}
+          onCancel={fecharModalAcessoClinica}
+          footer={null}
+        >
+          <FormAcessarClinica clinica={clinicaSelecionada} onSucesso={fecharModalAcessoClinica} />
         </Modal>
       </div>
     </div>

@@ -1,6 +1,19 @@
 const API_BASE_URL = '/api';
 
 const endpoints = {
+  autenticacao: {
+    signup: `${API_BASE_URL}/auth/signup`,
+    login: `${API_BASE_URL}/auth/login`,
+    logout: `${API_BASE_URL}/auth/logout`,
+    recuperarSenha: `${API_BASE_URL}/auth/forgot-password`,
+    resetPassword: `${API_BASE_URL}/auth/reset-password`,
+    sendEmail: `${API_BASE_URL}/auth/send-email`,
+    listarVinculos: `${API_BASE_URL}/auth/sistema`,
+    listarVinculosParaTrocar: `${API_BASE_URL}/auth/sistema/trocar-vinculo`,
+    escolherVinculo: (upcId) => `${API_BASE_URL}/auth/sistema/${upcId}`,
+    escolherVinculoAdmin: `${API_BASE_URL}/auth/sistema/admin`,
+    checarStatus: `${API_BASE_URL}/auth/check`,
+  },
   sistema: {
     clinica: {
       listar: `${API_BASE_URL}/sistema/clinicas`,
@@ -27,20 +40,6 @@ const endpoints = {
       listarPorTutor: (tutorId) => `${API_BASE_URL}/clinica/animais/tutor_${tutorId}/animais`,
       editar: (animalId) => `${API_BASE_URL}/clinica/animais/${animalId}/editar`,
     },
-    autenticacao: {
-      signup: `${API_BASE_URL}/auth/signup`,
-      login: `${API_BASE_URL}/auth/login`,
-      logout: `${API_BASE_URL}/auth/logout`,
-      recuperarSenha: `${API_BASE_URL}/auth/forgot-password`,
-      resetPassword: `${API_BASE_URL}/auth/reset-password`,
-      sendEmail: `${API_BASE_URL}/auth/send-email`,
-      listarVinculos: `${API_BASE_URL}/auth/sistema`,
-      listarVinculosParaTrocar: `${API_BASE_URL}/auth/sistema/trocar-vinculo`,
-      escolherVinculo: (upcId) => `${API_BASE_URL}/auth/sistema/${upcId}`,
-      escolherVinculoAdmin: `${API_BASE_URL}/auth/sistema/admin`,
-      checarStatus: `${API_BASE_URL}/auth/check`,
-    },
-
     consulta: {
       cadastrar: (clinicaId) => `${API_BASE_URL}/clinica//${clinicaId}/cadastrar`,
       listar: `${API_BASE_URL}/clinica/consultas`,

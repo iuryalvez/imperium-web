@@ -379,6 +379,8 @@ namespace backend.Controllers
                 // Configura o cookie HTTP-Only com o novo token
                 _tokenService.SetCookieToken(HttpContext, token);
 
+                _logger.LogInformation("Admin {UsuarioId} selecionou clínica {ClinicaId} com perfis: {Perfis}", userIdClaim, dto.ClinicaId, string.Join(", ", dto.Perfis));
+
                 // Retorna os dados simulados do vínculo
                 return Ok(new { clinicaId = dto.ClinicaId, perfisAtivos = dto.Perfis });
             }

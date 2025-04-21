@@ -1,12 +1,12 @@
 import api from './index';  // configuração do axios
 import endpoints from '../services/Endpoints'; // endpoints
 
-export const autenticacao = {
+export const autenticacaoAPI = {
     login: async ({ email, senha, rememberMe }) => {
         console.log("---------------------------Entrou na api---------------------------");
         console.log("\nemail na api: ", email, "\nsenha na api: ", senha);
         try {
-            const response = await api.post(endpoints.clinica.autenticacao.login, { email, senha, rememberMe });
+            const response = await api.post(endpoints.autenticacao.login, { email, senha, rememberMe });
             return response;
         } catch (error) {
             console.error('Erro ao fazer login:', error);
@@ -16,7 +16,7 @@ export const autenticacao = {
 
     logout: async () => {
         try {
-            const response = await api.get(endpoints.clinica.autenticacao.logout);
+            const response = await api.get(endpoints.autenticacao.logout);
             return response.data;
         } catch (error) {
             console.error('Erro ao fazer logout:', error);
@@ -26,7 +26,7 @@ export const autenticacao = {
 
     escolherVinculo: async (vinculoId) => {
         try {
-            const response = await api.post(endpoints.clinica.autenticacao.escolherVinculo(vinculoId));
+            const response = await api.post(endpoints.autenticacao.escolherVinculo(vinculoId));
             return response;
         } catch (error) {
             console.error('Erro ao escolher vínculo:', error);
@@ -34,9 +34,9 @@ export const autenticacao = {
         }
     },
     
-    escolherVinculoAdmin: async (vinculoAdmin) => {
+    escolherVinculoAdmin: async () => {
         try {
-            const response = await api.post(endpoints.clinica.autenticacao.escolherVinculo, vinculoAdmin);
+            const response = await api.post(endpoints.autenticacao.escolherVinculo);
             return response;
         } catch (error) {
             console.error('Erro ao escolher vínculo:', error);
@@ -46,7 +46,7 @@ export const autenticacao = {
 
     recuperarSenha: async (email) => {
         try {
-            const response = await api.post(endpoints.clinica.autenticacao.recuperarSenha, { email });
+            const response = await api.post(endpoints.autenticacao.recuperarSenha, { email });
             return response.data;
         } catch (error) {
             console.error('Erro ao recuperar senha:', error);
@@ -56,7 +56,7 @@ export const autenticacao = {
 
     listarVinculos: async () => {
         try {
-            const response = await api.get(endpoints.clinica.autenticacao.listarVinculos);
+            const response = await api.get(endpoints.autenticacao.listarVinculos);
             // console.log("Resposta na api do listarVinculos:", response.data);
             return response.data;
         } catch (error) {
@@ -67,7 +67,7 @@ export const autenticacao = {
 
     verificarAutenticacao: async () => {
         try {
-            const response = await api.get(endpoints.clinica.autenticacao.checarStatus);
+            const response = await api.get(endpoints.autenticacao.checarStatus);
             console.log(response.data)
             return response.data;
             // response.data tem o seguinte formato:

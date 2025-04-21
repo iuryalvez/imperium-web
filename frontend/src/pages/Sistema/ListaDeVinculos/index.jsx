@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { autenticacao } from "../../../api/autenticacaoAPI";
+import { autenticacaoAPI } from "../../../api/autenticacaoAPI";
 
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import ListaCards from "../../../components/organisms/ListaCards";
@@ -14,7 +14,7 @@ const ListaDeVinculos = () => {
   useEffect(() => {
     const fetchVinculos = async () => {
       try {
-        const response = await autenticacao.listarVinculos();
+        const response = await autenticacaoAPI.listarVinculos();
         console.log("Vinculos na Page: ", response);
         setVinculos(response);
       } catch (err) {

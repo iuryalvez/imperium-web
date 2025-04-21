@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { autenticacao } from '../api/autenticacaoAPI';
+import { autenticacaoAPI } from '../api/autenticacaoAPI';
 import { useNotification } from './NotificationContext';
 
 const AuthContext = createContext();
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = useCallback(async () => {
     try {
-      const resposta = await autenticacao.verificarAutenticacao();
+      const resposta = await autenticacaoAPI.verificarAutenticacao();
   
       switch (resposta.status) {
         case 'autenticado':
@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }) => {
   
   const login = async ({ email, senha }) => {
     try {
-      const response = await autenticacao.login({ email, senha });
+      const response = await autenticacaoAPI.login({ email, senha });
 
       if (response.status === 200) {
         abrirNotificacao('success', 'Login bem-sucedido!', 'Você foi autenticado com sucesso.');
@@ -110,7 +110,7 @@ export const AuthProvider = ({ children }) => {
   
   const escolherVinculo = async (id) => {
     try {
-      const response = await autenticacao.escolherVinculo(id);
+      const response = await autenticacaoAPI.escolherVinculo(id);
       if (response.status === 200) {
         abrirNotificacao('success', 'Vínculo selecionado!', 'Você escolheu seu vínculo com sucesso.');
         await checkAuth();
@@ -138,7 +138,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await autenticacao.logout();
+      await autenticacaoAPI.logout();
       abrirNotificacao('success', 'Logout realizado', 'Você saiu do sistema com sucesso.');
       await checkAuth();
       navigate('/login');
