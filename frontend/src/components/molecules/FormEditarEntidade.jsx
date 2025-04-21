@@ -15,7 +15,7 @@ const FormEditarEntidade = ({
   entidade,
   onSubmit,
   onSuccess,
-  setModalVisivel,
+  setModalEdicaoVisivel,
   camposEditar,
   valoresIniciais,
   tituloModal,
@@ -53,7 +53,7 @@ const FormEditarEntidade = ({
       const response = await onSubmit(values);
       message.success(`${entidade} atualizado com sucesso.`);
       if (onSuccess) onSuccess(response);
-      setModalVisivel(false);
+      setModalEdicaoVisivel(false);
     } catch (error) {
       console.error(`Erro ao atualizar ${entidade}:`, error);
       message.error(`Falha ao atualizar ${entidade}.`);
@@ -158,7 +158,7 @@ const FormEditarEntidade = ({
 
         <div className="flex gap-4 justify-between">
           <Button
-            onClick={() => setModalVisivel(false)}
+            onClick={() => setModalEdicaoVisivel(false)}
             className="w-1/2"
             style={{ backgroundColor: "#d9d9d9", color: "#000" }}
           >

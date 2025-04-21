@@ -34,9 +34,11 @@ export const autenticacaoAPI = {
         }
     },
     
-    escolherVinculoAdmin: async () => {
+    escolherVinculoAdmin: async (clinicaId, perfis) => {
         try {
-            const response = await api.post(endpoints.autenticacao.escolherVinculo);
+            const response = await api.post(endpoints.autenticacao.escolherVinculoAdmin, 
+                {clinicaId, perfis}
+            );
             return response;
         } catch (error) {
             console.error('Erro ao escolher vínculo:', error);

@@ -112,7 +112,21 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await autenticacaoAPI.escolherVinculo(id);
       if (response.status === 200) {
-        abrirNotificacao('success', 'Vínculo selecionado!', 'Você escolheu seu vínculo com sucesso.');
+        abrirNotificacao('success', 'Vínculo selecionado!', 'Vínculo acessado com sucesso.');
+        await checkAuth();
+        navigate('/clinica/inicio');
+      }
+    } catch (error) {
+      abrirNotificacao('error', 'Erro ao selecionar vínculo', 'Não foi possível selecionar o vínculo.');
+      throw error;
+    }
+  };
+  
+  const escolherVinculoAdmin = async (clinicaId, perfis) => {
+    try {
+      const response = await autenticacaoAPI.escolherVinculoAdmin(clinicaId, perfis);
+      if (response.status === 200) {
+        abrirNotificacao('success', 'Vínculo selecionado!', 'Vínculo criado com sucesso.');
         await checkAuth();
         navigate('/clinica/inicio');
       }
@@ -161,6 +175,7 @@ export const AuthProvider = ({ children }) => {
         escolherVinculo,
         logout,
         trocarVinculo,
+        escolherVinculoAdmin
       }}
     >
       {children}
