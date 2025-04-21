@@ -166,3 +166,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+/docker-compose_db_local.yml
+docker-compose.db.yml

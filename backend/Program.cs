@@ -36,7 +36,12 @@ internal class Program
             options.AddPolicy("AllowSpecificOrigin",
                 builder =>
                 {
-                    builder.WithOrigins("https://200.137.215.116:3001", "http://localhost:3000", "https://localhost:3001")
+                    builder.WithOrigins(
+                        "https://200.137.215.116:3001", 
+                        "https://frontend-imperium:3001",
+                        "http://localhost:5050",
+                        "http://localhost:3000"
+                    )
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();
@@ -191,7 +196,7 @@ internal class Program
         {
             options.TokenLifespan = TimeSpan.FromMinutes(30); // Define a validade do token para 30 minutos
         });
-
+        
         // configuração de Logging para o Console
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole(options =>
