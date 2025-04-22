@@ -39,44 +39,6 @@ namespace backend.Controllers
         }
 
         /// <summary>
-        /// Faz o registro de um novo usuário através do auto-cadastro do front-end.
-        /// </summary>
-        /// <param name="model">O sign-up data transfer object.</param>
-        /// <returns>IActionResult indica o retorno da requisição.</returns>
-        [HttpPost("signup")]
-        public async Task<IActionResult> SignUp([FromBody] SignUpDto model)
-        {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid model state for SignUp.");
-                return BadRequest(ModelState);
-            }
-
-            var user = new Usuario
-            {
-                UserName = model.Email,
-                Email = model.Email,
-                Nome = model.Nome,
-                DataCad = DateTime.UtcNow
-            };
-
-            var result = await _userManager.CreateAsync(user, model.Senha);
-            if (result.Succeeded)
-            {
-                _logger.LogInformation("Usuário registrado com sucesso.");
-                return Ok(new { Message = "Usuário registrado com sucesso!" });
-            }
-
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-                _logger.LogWarning("Erro ao registrar usuário: {Error}", error.Description);
-            }
-
-            return BadRequest(ModelState);
-        }
-
-        /// <summary>
         /// Faz o login de um usuário.
         /// </summary>
         /// <param name="model">O login data transfer object.</param>
@@ -233,8 +195,8 @@ namespace backend.Controllers
             return Ok("E-mail enviado com sucesso");
         }
 
-        [HttpGet("sistema")]
         [Authorize(Policy = "AcessoLoginOuTodosUsuarios")]
+        [HttpGet("sistema")]
         public async Task<IActionResult> GetVinculos()
         {
             var usuarioId = User.GetClaimValue<int>(ClaimTypes.NameIdentifier);
@@ -250,7 +212,7 @@ namespace backend.Controllers
                     Id = p.Id,
                     UsuarioId = p.UsuarioId,
                     ClinicaId = p.ClinicaId,
-                    NomeClinica = p.Clinica.NomeFantasia,
+                    NomeClinica = p.Clinica.NomeClinica,
                     Perfis = p.Perfis // Retorna lista de perfis ativos
                 })
                 .ToListAsync();
@@ -310,6 +272,7 @@ namespace backend.Controllers
 
                 // Busca o vínculo selecionado pelo ID, garantindo que não esteja inativo
                 var vinculo = await _context.UsuariosPerfisClinicas
+                    .AsNoTracking()
                     .Include(v => v.Usuario)
                     .Include(v => v.Clinica)
                     .FirstOrDefaultAsync(v => v.Id == upcId && v.UsuarioId == usuarioId &&
@@ -332,12 +295,80 @@ namespace backend.Controllers
                 // Configura o cookie HTTP-Only com o novo token
                 _tokenService.SetCookieToken(HttpContext, token);
 
+                var vinculoDto = new VinculoDto
+                {
+                    Id = vinculo.Id,
+                    UsuarioId = vinculo.UsuarioId,
+                    ClinicaId = vinculo.ClinicaId,
+                    NomeClinica = vinculo.Clinica?.NomeClinica,
+                    Perfis = vinculo.Perfis
+                };
+
                 // Retorna os perfis ativos
-                return Ok(new { vinculo });
+                return Ok(vinculoDto);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "Erro ao selecionar vínculo: " + ex.Message);
+            }
+        }
+
+        [Authorize(Policy = "AcessoLoginOuTodosUsuarios")]
+        [HttpPost("sistema/trocar-vinculo")]
+        public async Task<IActionResult> TrocarVinculo()
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userIdClaim))
+                    return Unauthorized("Usuário não autenticado.");
+
+                var isAcessoLogin = User.HasClaim("acessoLogin", "true");
+                var isAdmin = User.HasClaim("isAdmin", "true");
+
+                // Se já estiver com token de login, não precisa trocar
+                if (isAcessoLogin)
+                    return BadRequest("Token atual já é de login.");
+
+                string usuarioId;
+
+                if (isAdmin)
+                {
+                    // Admins com token de vínculo: o NameIdentifier ainda é o ID do admin real
+                    usuarioId = userIdClaim;
+                }
+                else
+                {
+                    // Usuário comum com vínculo: o NameIdentifier é o ID do vínculo
+                    var vinculoId = int.Parse(userIdClaim);
+
+                    var vinculo = await _context.UsuariosPerfisClinicas
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(v => v.Id == vinculoId);
+
+                    if (vinculo == null)
+                        return Unauthorized("Vínculo não encontrado.");
+
+                    usuarioId = vinculo.UsuarioId.ToString();
+                }
+
+                var usuario = await _userManager.FindByIdAsync(usuarioId);
+                if (usuario == null)
+                    return Unauthorized("Usuário não encontrado.");
+
+                var userIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+                var userAgent = Request.Headers["User-Agent"].ToString();
+
+                var tokenLogin = _tokenService.GenerateTokenLogin(usuario.Id.ToString(), userIp, userAgent);
+
+                _tokenService.SetCookieToken(HttpContext, tokenLogin);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao trocar vínculo: {ex.Message}");
             }
         }
 

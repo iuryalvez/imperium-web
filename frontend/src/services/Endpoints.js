@@ -9,7 +9,7 @@ const endpoints = {
     resetPassword: `${API_BASE_URL}/auth/reset-password`,
     sendEmail: `${API_BASE_URL}/auth/send-email`,
     listarVinculos: `${API_BASE_URL}/auth/sistema`,
-    listarVinculosParaTrocar: `${API_BASE_URL}/auth/sistema/trocar-vinculo`,
+    trocarVinculo: `${API_BASE_URL}/auth/sistema/trocar-vinculo`,
     escolherVinculo: (upcId) => `${API_BASE_URL}/auth/sistema/${upcId}`,
     escolherVinculoAdmin: `${API_BASE_URL}/auth/sistema/admin`,
     checarStatus: `${API_BASE_URL}/auth/check`,

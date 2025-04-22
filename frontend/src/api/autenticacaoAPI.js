@@ -45,6 +45,16 @@ export const autenticacaoAPI = {
             throw error.response ? error.response.data : error;
         }
     },
+    
+    trocarVinculo: async () => {
+        try {
+            const response = await api.post(endpoints.autenticacao.trocarVinculo);
+            return response;
+        } catch (error) {
+            console.error('Erro ao trocar vínculo:', error);
+            throw error.response ? error.response.data : error;
+        }
+    },
 
     recuperarSenha: async (email) => {
         try {

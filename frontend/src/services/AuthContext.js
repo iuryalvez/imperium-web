@@ -70,9 +70,6 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (loading) checkAuth();
-    // if (isLogged && !isAuthenticated && !isAdmin) {
-    //   navigate('/sistema/vinculos');  
-    // }
   }, [loading, isAuthenticated, isLogged, isAdmin, navigate, checkAuth]);
   
   const login = async ({ email, senha }) => {
@@ -108,9 +105,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
   
-  const escolherVinculo = async (id) => {
+  const escolherVinculo = async (upcId) => {
     try {
-      const response = await autenticacaoAPI.escolherVinculo(id);
+      const response = await autenticacaoAPI.escolherVinculo(upcId);
       if (response.status === 200) {
         abrirNotificacao('success', 'Vínculo selecionado!', 'Vínculo acessado com sucesso.');
         await checkAuth();
@@ -138,13 +135,17 @@ export const AuthProvider = ({ children }) => {
 
   const trocarVinculo = async () => {
     try {
-      // Simulando a mudança de estado para "logado", mas sem vínculo ativo
-      setIsAuthenticated(false);
-      setClinicaNome(""); // Resetando a clínica associada
-  
+      const authData = await checkAuth();
+      
+      await autenticacaoAPI.trocarVinculo();
+      
       abrirNotificacao('info', 'Troca de vínculo', 'Escolha um novo vínculo para continuar.');
-  
-      navigate('/sistema'); // Redireciona para escolher novo vínculo
+      
+      if (authData?.isAdmin) navigate('/sistema'); // Redireciona para escolher novo vínculo
+      else navigate('sistema/vinculos')
+      
+      await checkAuth();
+
     } catch (error) {
       abrirNotificacao('error', 'Erro ao trocar vínculo', 'Não foi possível trocar de vínculo.');
     }

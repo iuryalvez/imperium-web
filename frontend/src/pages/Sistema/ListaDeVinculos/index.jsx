@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from "react";
-
+import { Card, Typography, Spin, Alert, Row, Col } from "antd";
 import { autenticacaoAPI } from "../../../api/autenticacaoAPI";
+import { useAuth } from "../../../services/AuthContext";
 
-import { ArrowLeftOutlined } from "@ant-design/icons";
-import ListaCards from "../../../components/organisms/ListaCards";
-import LoadingSpinner from "../../../components/atoms/LoadingSpinner";
+import BotaoSecundario from "../../../components/atoms/BotaoSecundario";
+
+const { Title, Text } = Typography;
 
 const ListaDeVinculos = () => {
   const [vinculos, setVinculos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { escolherVinculo } = useAuth();
 
   useEffect(() => {
     const fetchVinculos = async () => {
       try {
         const response = await autenticacaoAPI.listarVinculos();
-        console.log("Vinculos na Page: ", response);
         setVinculos(response);
       } catch (err) {
         setError("Erro ao carregar os vínculos.");
@@ -27,25 +28,74 @@ const ListaDeVinculos = () => {
     fetchVinculos();
   }, []);
 
-  const renderStatus = (message, className = "") => (
-    <div className="container mx-auto my-8">
-      <button
-        onClick={() => window.history.back()}
-        className="flex items-center font-bold text-green-dark mb-2"
-      >
-        <ArrowLeftOutlined className="mr-2" /> Voltar
-      </button>
-      <h1 className="text-2xl font-bold mb-4 text-green-dark">
+  const handleEscolherVinculo = async (vinculoId) => {
+    try {
+      await escolherVinculo(vinculoId);
+    } catch (error) {
+      console.error("Erro ao escolher vínculo:", error);
+      alert("Não foi possível selecionar o vínculo. Tente novamente.");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto my-8">
+        <Title level={2}>Lista de Vínculos</Title>
+        <Alert message={error} type="error" showIcon />
+      </div>
+    );
+  }
+
+  return (
+<div className="container mx-auto my-8">
+      <Title level={2} style={{ color: "var(--verde-escuro)" }}>
         Lista de Vínculos
-      </h1>
-      <div className={className}>{message}</div>
+      </Title>
+
+      <Row gutter={[16, 16]}>
+        {vinculos.map((vinculo) => (
+          <Col xs={24} md={12} lg={8} key={vinculo.id}>
+            <Card
+              title={
+                <span style={{ color: "var(--verde-escuro)" }}>
+                  {vinculo.nomeClinica || "Clínica Desconhecida"}
+                </span>
+              }
+              bordered={false}
+              style={{
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                borderRadius: "12px",
+              }}
+              actions={[
+                <BotaoSecundario
+                  texto="Selecionar"
+                  onClick={() => handleEscolherVinculo(vinculo.id)}
+                />,
+              ]}
+            >
+              <Text strong style={{ color: "var(--verde-escuro)" }}>
+                Perfis:
+              </Text>
+              <br />
+              <Text style={{ color: "var(--verde-escuro)" }}>
+                {vinculo.perfis && vinculo.perfis.length > 0
+                  ? vinculo.perfis.join(", ")
+                  : "Nenhum perfil vinculado"}
+              </Text>
+            </Card>
+          </Col>
+        ))}
+      </Row>
     </div>
   );
-
-  if (loading) return <LoadingSpinner />;
-  if (error) return renderStatus(error, "text-red-500");
-
-  return renderStatus(<ListaCards tipoEntidade="Vínculo" dados={vinculos} />);
 };
 
 export default ListaDeVinculos;
