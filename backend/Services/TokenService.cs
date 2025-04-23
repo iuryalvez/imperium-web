@@ -79,19 +79,7 @@ namespace backend.Services
 
                 if (usuario.IsAdmin) claims.Add(new Claim("isAdmin", "true"));
                 else {
-                    var upc = _context.UsuariosPerfisClinicas
-                        .AsNoTracking()
-                        .Include(upc => upc.Usuario)
-                        .FirstOrDefault(upc => upc.UsuarioId == idUsuario);
-
-                    if (upc != null) // Verifica se encontrou o usuário
-                    {
-                        var perfisAtivos = upc.Perfis ?? new List<string>(); // Garante que não seja nulo
-
-                        // Serializa a lista de perfis para uma string JSON antes de adicionar à claim
-                        claims.Add(new Claim("Perfis", JsonSerializer.Serialize(perfisAtivos))); 
-                        claims.Add(new Claim("isAdmin", "false"));
-                    }
+                    claims.Add(new Claim("isAdmin", "false"));
                 }
 
                 var tokenDescriptor = new SecurityTokenDescriptor

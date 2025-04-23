@@ -139,9 +139,7 @@ namespace backend.Controllers
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-                var usuarios = await _context.UsuariosPerfisClinicas
+                var usuariosComVinculo = await _context.UsuariosPerfisClinicas
                     .AsNoTracking()
                     .Include(upc => upc.Usuario)
                     .Include(upc => upc.Clinica)
@@ -159,12 +157,102 @@ namespace backend.Controllers
                     })
                     .ToListAsync();
 
-                return Ok(usuarios);
+                // Pega os IDs dos usuários já retornados
+                var idsUsuariosComVinculo = usuariosComVinculo.Select(u => u.Id).Distinct();
+
+                // Agora busca usuários administradores que não têm vínculo
+                var adminsSemVinculo = await _context.Usuarios
+                    .AsNoTracking()
+                    .Where(u => u.IsAdmin && !idsUsuariosComVinculo.Contains(u.Id))
+                    .Select(u => new GetUsuariosSistemaDto
+                    {
+                        Id = u.Id,
+                        UpcId = 0, // sem vínculo
+                        UserName = u.UserName,
+                        NomeClinica = "N/A",
+                        ClinicaId = 0,
+                        Email = u.Email,
+                        Nome = u.Nome ?? string.Empty,
+                        Perfis = new List<string> { "Administrador" },
+                        DataCadastro = u.DataCad
+                    })
+                    .ToListAsync();
+
+                // Junta tudo
+                var todosUsuarios = usuariosComVinculo.Concat(adminsSemVinculo).ToList();
+
+                return Ok(todosUsuarios);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar usuários");
                 return StatusCode(500, "Erro interno ao buscar usuários.");
+            }
+        }
+
+        [HttpGet("usuarios/inativos")]
+        [Authorize(Policy = "GerenciaSistema")]
+        public async Task<IActionResult> ListarUsuariosInativos()
+        {
+            try
+            {
+                var usuariosInativos = await _context.UsuariosPerfisClinicas
+                    .AsNoTracking()
+                    .Include(upc => upc.Usuario)
+                    .Include(upc => upc.Clinica)
+                    .Where(upc => upc.Perfis.All(p => p == "Inativo"))
+                    .Select(upc => new GetUsuariosSistemaDto
+                    {
+                        Id = upc.Usuario.Id,
+                        UpcId = upc.Id,
+                        UserName = upc.Usuario.UserName,
+                        NomeClinica = upc.Clinica.NomeClinica,
+                        ClinicaId = upc.ClinicaId,
+                        Email = upc.Usuario.Email,
+                        Nome = upc.Usuario.Nome ?? string.Empty,
+                        Perfis = upc.Perfis,
+                        DataCadastro = upc.Usuario.DataCad
+                    })
+                    .ToListAsync();
+
+                return Ok(usuariosInativos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar usuários inativos");
+                return StatusCode(500, "Erro interno ao buscar usuários inativos.");
+            }
+        }
+
+        [HttpGet("usuarios/administradores")]
+        [Authorize(Policy = "GerenciaSistema")]
+        public async Task<IActionResult> ListarUsuariosAdministradores()
+        {
+            try
+            {
+                var admins = await _context.Usuarios
+                    .AsNoTracking()
+                    .Where(u => u.IsAdmin)
+                    .Select(u => new GetUsuariosSistemaDto
+                    {
+                        Id = u.Id,
+                        UpcId = 0,
+                        UserName = u.UserName,
+                        NomeClinica = "N/A",
+                        ClinicaId = 0,
+                        Email = u.Email,
+                        Nome = u.Nome ?? string.Empty,
+                        Perfis = new List<string> { "Administrador" },
+                        DataCadastro = u.DataCad
+                    })
+                    .ToListAsync();
+
+                return Ok(admins);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar administradores");
+                return StatusCode(500, "Erro interno ao buscar administradores.");
             }
         }
 
