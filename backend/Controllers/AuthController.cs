@@ -46,9 +46,11 @@ namespace backend.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto model)
         {
+            _logger.LogDebug("Login solicitado para o e-mail {Email}.", model.Email);
+
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Login inválido.");
+                _logger.LogWarning("ModelState inválido para login do e-mail {Email}.", model.Email);
                 return BadRequest(ModelState);
             }
 
@@ -56,40 +58,34 @@ namespace backend.Controllers
 
             if (usuario == null)
             {
-                _logger.LogWarning("Usuário não encontrado.");
+                _logger.LogWarning("Usuário com e-mail {Email} não encontrado.", model.Email);
                 return Unauthorized(new { Message = "Usuário não encontrado." });
             }
 
-            // Verifica se o email foi confirmado
             if (!usuario.EmailConfirmed)
             {
-                _logger.LogWarning("Usuário ainda não confirmou o email.");
+                _logger.LogWarning("Usuário {Email} tentou login sem confirmar e-mail.", model.Email);
                 return Unauthorized(new { Message = "Confirme seu email antes de fazer login." });
             }
 
-            // Verifica se a senha está correta
             var senhaValida = await _userManager.CheckPasswordAsync(usuario, model.Senha);
 
             if (!senhaValida)
             {
-                _logger.LogWarning("Senha incorreta.");
+                _logger.LogWarning("Senha incorreta para usuário {Email}.", model.Email);
                 return Unauthorized(new { Message = "Senha incorreta." });
             }
 
-            // Atualiza a data do último acesso
             usuario.DataUltimoAcesso = DateTime.UtcNow;
             _context.Usuarios.Update(usuario);
             await _context.SaveChangesAsync();
 
-            // Gera o token manualmente
             var usuarioIp = HttpContext.Connection.RemoteIpAddress?.ToString();
             var usuarioAgent = Request.Headers["User-Agent"].ToString();
             var tokenLogin = _tokenService.GenerateTokenLogin(usuario.Id.ToString(), usuarioIp, usuarioAgent);
-
-            // Define o token no cookie
             _tokenService.SetCookieToken(HttpContext, tokenLogin);
 
-            _logger.LogInformation("Usuário logado com sucesso!");
+            _logger.LogInformation("Usuário {Email} logado com sucesso. IP: {IP}, Agent: {Agent}", model.Email, usuarioIp, usuarioAgent);
 
             return Ok(new { tokenLogin });
         }
@@ -99,11 +95,13 @@ namespace backend.Controllers
         {
             try
             {
+                _logger.LogInformation("Logout solicitado por IP {IP}.", HttpContext.Connection.RemoteIpAddress);
                 HttpContext.Response.Cookies.Delete("auth_token");
                 return Ok(new { message = "Logout efetuado com sucesso!" });
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Erro ao efetuar logout.");
                 return StatusCode(500, "Erro ao efetuar logout: " + ex.Message);
             }
         }
@@ -111,25 +109,24 @@ namespace backend.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto model)
         {
+            _logger.LogDebug("Solicitação de recuperação de senha recebida para o e-mail {Email}.", model.Email);
+
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Invalid model state for ForgotPassword.");
+                _logger.LogWarning("ModelState inválido em ForgotPassword para o e-mail {Email}.", model.Email);
                 return BadRequest(ModelState);
             }
 
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
-                _logger.LogWarning("Usuário não encontrado para o e-mail {Email}.", model.Email);
-                // Não revelar se o usuário não existe ou não está confirmado
+                _logger.LogWarning("Usuário não encontrado ao solicitar recuperação de senha para o e-mail {Email}.", model.Email);
                 return Ok(new { Message = "Se o e-mail estiver registrado, um link de redefinição de senha será enviado." });
             }
 
-            // Gera o token para redefinição de senha
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var callbackUrl = Url.Action("ResetPassword", "Auth", new { token, email = user.Email }, protocol: HttpContext.Request.Scheme);
 
-            // Envia o e-mail com o link para redefinir a senha
             await _emailService.SendEmailAsync(user.Email, "Redefinir Senha", 
                 $"Por favor, redefina sua senha clicando <a href='{callbackUrl}'>aqui</a>. O link expira em 30 minutos.");
 
@@ -141,32 +138,32 @@ namespace backend.Controllers
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto model)
         {
+            _logger.LogDebug("Solicitação de redefinição de senha recebida para o e-mail {Email}.", model.Email);
+
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Invalid model state for ResetPassword.");
+                _logger.LogWarning("ModelState inválido para ResetPassword do e-mail {Email}.", model.Email);
                 return BadRequest(ModelState);
             }
 
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
-                _logger.LogWarning("Usuário não encontrado para o e-mail {Email}.", model.Email);
-                // Não revelar se o usuário não existe
+                _logger.LogWarning("Usuário não encontrado ao redefinir senha para o e-mail {Email}.", model.Email);
                 return Ok(new { Message = "Senha redefinida com sucesso." });
             }
 
-            // Redefinir a senha usando o token gerado
             var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
             if (result.Succeeded)
             {
-                _logger.LogInformation("Senha redefinida com sucesso para o usuário com e-mail {Email}.", user.Email);
+                _logger.LogInformation("Senha redefinida com sucesso para o e-mail {Email}.", user.Email);
                 return Ok(new { Message = "Senha redefinida com sucesso." });
             }
 
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);
-                _logger.LogWarning("Erro ao redefinir senha para o usuário com e-mail {Email}: {Error}", user.Email, error.Description);
+                _logger.LogWarning("Erro ao redefinir senha para o e-mail {Email}: {Error}", user.Email, error.Description);
             }
 
             return BadRequest(ModelState);
@@ -175,16 +172,18 @@ namespace backend.Controllers
         [HttpPost("send-email")]
         public async Task<IActionResult> SendEmail([FromBody] string userId)
         {
+            _logger.LogDebug("Solicitação de envio de e-mail recebida para o usuário ID {UserId}.", userId);
+
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                _logger.LogWarning("Usuário não encontrado para o ID {UserId}.", userId);
+                _logger.LogWarning("Usuário com ID {UserId} não encontrado para envio de e-mail.", userId);
                 return NotFound("Usuário não encontrado");
             }
 
             if (string.IsNullOrEmpty(user.Email))
             {
-                _logger.LogWarning("O e-mail do usuário com ID {UserId} é nulo ou vazio.", userId);
+                _logger.LogWarning("Usuário com ID {UserId} possui e-mail vazio ou nulo.", userId);
                 throw new ArgumentNullException(nameof(user.Email), "O e-mail do usuário não pode ser nulo ou vazio");
             }
 

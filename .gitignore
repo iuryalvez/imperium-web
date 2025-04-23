@@ -1,4 +1,17 @@
+# gitignore do que o iury colocou para proteger infos sensíveis:
+
+# appsettings de Produção
+/backend/appsettings.Production.json
+
+# Seeder do Database
+/backend/Data/DatabaseSeeder.cs
+
+# Dockers Composes
+docker-compose_db_local.yml
+docker-compose.db.yml
+
 ### GITIGNORE PARA O NPM/REACT
+
 # dependencies
 /frontend/node_modules
 /frontend/.pnp
@@ -50,6 +63,7 @@ mono_crash.*
 /backend/[Oo]bj/
 /backend/[Ll]og/
 /backend/[Ll]ogs/
+
 
 # .NET
 project.lock.json
@@ -166,6 +180,3 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
-
-/docker-compose_db_local.yml
-docker-compose.db.yml
