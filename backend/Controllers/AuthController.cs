@@ -38,6 +38,55 @@ namespace backend.Controllers
             _context = context;
         }
 
+        [HttpGet("check")]
+        public IActionResult CheckStatus()
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userNameClaim = User.FindFirst(ClaimTypes.Name)?.Value;
+                var clinicaNomeClaim = User.FindFirst("clinicaNome")?.Value;
+                var isAdminClaim = User.FindFirst("isAdmin")?.Value;
+                var perfisClaim = User.FindFirst("Perfis")?.Value;
+
+                if (string.IsNullOrEmpty(userIdClaim))
+                {
+                    return Unauthorized(new { status = "invalido" });
+                }
+
+                bool IsAdmin = !string.IsNullOrEmpty(isAdminClaim) && bool.TryParse(isAdminClaim, out var parsedValue) && parsedValue;
+
+                var acessoLoginClaim = User.FindFirst("acessoLogin");
+                if (acessoLoginClaim != null)
+                {
+                    return Ok(new
+                    {
+                        status = "logado",
+                        isAdmin = IsAdmin,
+                        name = userNameClaim
+                    });
+                }
+
+                return Ok(new
+                {
+                    status = "autenticado",
+                    isAdmin = IsAdmin,
+                    name = userNameClaim,
+                    clinicaNome = clinicaNomeClaim,
+                    perfis = JsonSerializer.Deserialize<List<string>>(perfisClaim) // Lista apenas os perfis ativos
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = "erro",
+                    message = "Erro ao verificar status de autenticação.",
+                    details = ex.Message
+                });
+            }
+        }
+
         /// <summary>
         /// Faz o login de um usuário.
         /// </summary>
@@ -106,93 +155,96 @@ namespace backend.Controllers
             }
         }
 
-        [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto model)
-        {
-            _logger.LogDebug("Solicitação de recuperação de senha recebida para o e-mail {Email}.", model.Email);
+        // TODO
+        // [HttpPost("forgot-password")]
+        // public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto model)
+        // {
+        //     _logger.LogDebug("Solicitação de recuperação de senha recebida para o e-mail {Email}.", model.Email);
 
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("ModelState inválido em ForgotPassword para o e-mail {Email}.", model.Email);
-                return BadRequest(ModelState);
-            }
+        //     if (!ModelState.IsValid)
+        //     {
+        //         _logger.LogWarning("ModelState inválido em ForgotPassword para o e-mail {Email}.", model.Email);
+        //         return BadRequest(ModelState);
+        //     }
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null)
-            {
-                _logger.LogWarning("Usuário não encontrado ao solicitar recuperação de senha para o e-mail {Email}.", model.Email);
-                return Ok(new { Message = "Se o e-mail estiver registrado, um link de redefinição de senha será enviado." });
-            }
+        //     var user = await _userManager.FindByEmailAsync(model.Email);
+        //     if (user == null)
+        //     {
+        //         _logger.LogWarning("Usuário não encontrado ao solicitar recuperação de senha para o e-mail {Email}.", model.Email);
+        //         return Ok(new { Message = "Se o e-mail estiver registrado, um link de redefinição de senha será enviado." });
+        //     }
 
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var callbackUrl = Url.Action("ResetPassword", "Auth", new { token, email = user.Email }, protocol: HttpContext.Request.Scheme);
+        //     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        //     var callbackUrl = Url.Action("ResetPassword", "Auth", new { token, email = user.Email }, protocol: HttpContext.Request.Scheme);
 
-            await _emailService.SendEmailAsync(user.Email, "Redefinir Senha", 
-                $"Por favor, redefina sua senha clicando <a href='{callbackUrl}'>aqui</a>. O link expira em 30 minutos.");
+        //     await _emailService.SendEmailAsync(user.Email, "Redefinir Senha", 
+        //         $"Por favor, redefina sua senha clicando <a href='{callbackUrl}'>aqui</a>. O link expira em 30 minutos.");
 
-            _logger.LogInformation("E-mail de redefinição de senha enviado para {Email}.", user.Email);
+        //     _logger.LogInformation("E-mail de redefinição de senha enviado para {Email}.", user.Email);
 
-            return Ok(new { Message = "Se o e-mail estiver registrado, um link de redefinição de senha será enviado." });
-        }
+        //     return Ok(new { Message = "Se o e-mail estiver registrado, um link de redefinição de senha será enviado." });
+        // }
 
-        [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto model)
-        {
-            _logger.LogDebug("Solicitação de redefinição de senha recebida para o e-mail {Email}.", model.Email);
+        // TODO
+        // [HttpPost("reset-password")]
+        // public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto model)
+        // {
+        //     _logger.LogDebug("Solicitação de redefinição de senha recebida para o e-mail {Email}.", model.Email);
 
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("ModelState inválido para ResetPassword do e-mail {Email}.", model.Email);
-                return BadRequest(ModelState);
-            }
+        //     if (!ModelState.IsValid)
+        //     {
+        //         _logger.LogWarning("ModelState inválido para ResetPassword do e-mail {Email}.", model.Email);
+        //         return BadRequest(ModelState);
+        //     }
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null)
-            {
-                _logger.LogWarning("Usuário não encontrado ao redefinir senha para o e-mail {Email}.", model.Email);
-                return Ok(new { Message = "Senha redefinida com sucesso." });
-            }
+        //     var user = await _userManager.FindByEmailAsync(model.Email);
+        //     if (user == null)
+        //     {
+        //         _logger.LogWarning("Usuário não encontrado ao redefinir senha para o e-mail {Email}.", model.Email);
+        //         return Ok(new { Message = "Senha redefinida com sucesso." });
+        //     }
 
-            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
-            if (result.Succeeded)
-            {
-                _logger.LogInformation("Senha redefinida com sucesso para o e-mail {Email}.", user.Email);
-                return Ok(new { Message = "Senha redefinida com sucesso." });
-            }
+        //     var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+        //     if (result.Succeeded)
+        //     {
+        //         _logger.LogInformation("Senha redefinida com sucesso para o e-mail {Email}.", user.Email);
+        //         return Ok(new { Message = "Senha redefinida com sucesso." });
+        //     }
 
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-                _logger.LogWarning("Erro ao redefinir senha para o e-mail {Email}: {Error}", user.Email, error.Description);
-            }
+        //     foreach (var error in result.Errors)
+        //     {
+        //         ModelState.AddModelError(string.Empty, error.Description);
+        //         _logger.LogWarning("Erro ao redefinir senha para o e-mail {Email}: {Error}", user.Email, error.Description);
+        //     }
 
-            return BadRequest(ModelState);
-        }
+        //     return BadRequest(ModelState);
+        // }
 
-        [HttpPost("send-email")]
-        public async Task<IActionResult> SendEmail([FromBody] string userId)
-        {
-            _logger.LogDebug("Solicitação de envio de e-mail recebida para o usuário ID {UserId}.", userId);
+        // TODO
+        // [HttpPost("send-email")]
+        // public async Task<IActionResult> SendEmail([FromBody] string userId)
+        // {
+        //     _logger.LogDebug("Solicitação de envio de e-mail recebida para o usuário ID {UserId}.", userId);
 
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                _logger.LogWarning("Usuário com ID {UserId} não encontrado para envio de e-mail.", userId);
-                return NotFound("Usuário não encontrado");
-            }
+        //     var user = await _userManager.FindByIdAsync(userId);
+        //     if (user == null)
+        //     {
+        //         _logger.LogWarning("Usuário com ID {UserId} não encontrado para envio de e-mail.", userId);
+        //         return NotFound("Usuário não encontrado");
+        //     }
 
-            if (string.IsNullOrEmpty(user.Email))
-            {
-                _logger.LogWarning("Usuário com ID {UserId} possui e-mail vazio ou nulo.", userId);
-                throw new ArgumentNullException(nameof(user.Email), "O e-mail do usuário não pode ser nulo ou vazio");
-            }
+        //     if (string.IsNullOrEmpty(user.Email))
+        //     {
+        //         _logger.LogWarning("Usuário com ID {UserId} possui e-mail vazio ou nulo.", userId);
+        //         throw new ArgumentNullException(nameof(user.Email), "O e-mail do usuário não pode ser nulo ou vazio");
+        //     }
 
-            await _emailService.SendEmailAsync(user.Email, "Assunto do E-mail", "Mensagem do E-mail");
+        //     await _emailService.SendEmailAsync(user.Email, "Assunto do E-mail", "Mensagem do E-mail");
 
-            _logger.LogInformation("E-mail enviado com sucesso para o usuário com ID {UserId}.", userId);
+        //     _logger.LogInformation("E-mail enviado com sucesso para o usuário com ID {UserId}.", userId);
 
-            return Ok("E-mail enviado com sucesso");
-        }
+        //     return Ok("E-mail enviado com sucesso");
+        // }
 
         [Authorize(Policy = "AcessoLoginOuTodosUsuarios")]
         [HttpGet("sistema")]
@@ -241,7 +293,7 @@ namespace backend.Controllers
                 }
 
                 // Verifica o tipo de token pela presença da claim "acessoLogin"
-                var isAcessoLogin = User.HasClaim("acessoLogin", "true");
+                var isAcessoLogin = User.GetClaimValue<bool>("acessoLogin");
 
                 int usuarioId;
 
@@ -312,65 +364,6 @@ namespace backend.Controllers
             }
         }
 
-        [Authorize(Policy = "AcessoLoginOuTodosUsuarios")]
-        [HttpPost("sistema/trocar-vinculo")]
-        public async Task<IActionResult> TrocarVinculo()
-        {
-            try
-            {
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-                if (string.IsNullOrEmpty(userIdClaim))
-                    return Unauthorized("Usuário não autenticado.");
-
-                var isAcessoLogin = User.HasClaim("acessoLogin", "true");
-                var isAdmin = User.HasClaim("isAdmin", "true");
-
-                // Se já estiver com token de login, não precisa trocar
-                if (isAcessoLogin)
-                    return BadRequest("Token atual já é de login.");
-
-                string usuarioId;
-
-                if (isAdmin)
-                {
-                    // Admins com token de vínculo: o NameIdentifier ainda é o ID do admin real
-                    usuarioId = userIdClaim;
-                }
-                else
-                {
-                    // Usuário comum com vínculo: o NameIdentifier é o ID do vínculo
-                    var vinculoId = int.Parse(userIdClaim);
-
-                    var vinculo = await _context.UsuariosPerfisClinicas
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(v => v.Id == vinculoId);
-
-                    if (vinculo == null)
-                        return Unauthorized("Vínculo não encontrado.");
-
-                    usuarioId = vinculo.UsuarioId.ToString();
-                }
-
-                var usuario = await _userManager.FindByIdAsync(usuarioId);
-                if (usuario == null)
-                    return Unauthorized("Usuário não encontrado.");
-
-                var userIp = HttpContext.Connection.RemoteIpAddress?.ToString();
-                var userAgent = Request.Headers["User-Agent"].ToString();
-
-                var tokenLogin = _tokenService.GenerateTokenLogin(usuario.Id.ToString(), userIp, userAgent);
-
-                _tokenService.SetCookieToken(HttpContext, tokenLogin);
-
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Erro ao trocar vínculo: {ex.Message}");
-            }
-        }
-
         [Authorize(Policy = "GerenciaSistema")]
         [HttpPost("sistema/admin")] // Nova rota específica para admins
         public async Task<IActionResult> SelecionarVinculoAdmin([FromBody] VinculoAdminDto dto)
@@ -420,52 +413,62 @@ namespace backend.Controllers
             }
         }
 
-        [HttpGet("check")]
-        public IActionResult CheckStatus()
+        [Authorize(Policy = "AcessoLoginOuTodosUsuarios")]
+        [HttpPost("sistema/trocar-vinculo")]
+        public async Task<IActionResult> TrocarVinculo()
         {
             try
             {
                 var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var userNameClaim = User.FindFirst(ClaimTypes.Name)?.Value;
-                var clinicaNomeClaim = User.FindFirst("clinicaNome")?.Value;
-                var isAdminClaim = User.FindFirst("isAdmin")?.Value;
-                var perfisClaim = User.FindFirst("Perfis")?.Value;
 
                 if (string.IsNullOrEmpty(userIdClaim))
+                    return Unauthorized("Usuário não autenticado.");
+
+                var isAcessoLogin = User.GetClaimValue<bool>("acessoLogin");
+                var isAdmin = User.GetClaimValue<bool>("isAdmin");
+
+                // Se já estiver com token de login, não precisa trocar
+                if (isAcessoLogin)
+                    return BadRequest("Token atual já é de login.");
+
+                string usuarioId;
+
+                if (isAdmin)
                 {
-                    return Unauthorized(new { status = "invalido" });
+                    // Admins com token de vínculo: o NameIdentifier ainda é o ID do admin real
+                    usuarioId = userIdClaim;
+                }
+                else
+                {
+                    // Usuário comum com vínculo: o NameIdentifier é o ID do vínculo
+                    var vinculoId = int.Parse(userIdClaim);
+
+                    var vinculo = await _context.UsuariosPerfisClinicas
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(v => v.Id == vinculoId);
+
+                    if (vinculo == null)
+                        return Unauthorized("Vínculo não encontrado.");
+
+                    usuarioId = vinculo.UsuarioId.ToString();
                 }
 
-                bool IsAdmin = !string.IsNullOrEmpty(isAdminClaim) && bool.TryParse(isAdminClaim, out var parsedValue) && parsedValue;
+                var usuario = await _userManager.FindByIdAsync(usuarioId);
+                if (usuario == null)
+                    return Unauthorized("Usuário não encontrado.");
 
-                var acessoLoginClaim = User.FindFirst("acessoLogin");
-                if (acessoLoginClaim != null)
-                {
-                    return Ok(new
-                    {
-                        status = "logado",
-                        isAdmin = IsAdmin,
-                        name = userNameClaim
-                    });
-                }
+                var userIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+                var userAgent = Request.Headers["User-Agent"].ToString();
 
-                return Ok(new
-                {
-                    status = "autenticado",
-                    isAdmin = IsAdmin,
-                    name = userNameClaim,
-                    clinicaNome = clinicaNomeClaim,
-                    perfis = JsonSerializer.Deserialize<List<string>>(perfisClaim) // Lista apenas os perfis ativos
-                });
+                var tokenLogin = _tokenService.GenerateTokenLogin(usuario.Id.ToString(), userIp, userAgent);
+
+                _tokenService.SetCookieToken(HttpContext, tokenLogin);
+
+                return Ok();
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    status = "erro",
-                    message = "Erro ao verificar status de autenticação.",
-                    details = ex.Message
-                });
+                return StatusCode(500, $"Erro ao trocar vínculo: {ex.Message}");
             }
         }
     }

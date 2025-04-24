@@ -8,7 +8,6 @@ using backend.Models;
 using backend.Dtos.Clinica;
 using backend.Dtos.Animal;
 using backend.Dtos.Usuario;
-using System.Security.Claims;
 
 namespace backend.Controllers
 {
@@ -27,10 +26,35 @@ namespace backend.Controllers
             _logger = logger;
         }
 
+        [HttpGet("clinicas/buscar")]
+        [Authorize(Policy = "AcessoLoginPolicy")]
+        public async Task<IActionResult> BuscarClinicasPorNome([FromQuery] string nome)
+        {
+            try {
+                if (string.IsNullOrWhiteSpace(nome))
+                    return BadRequest("O nome da clínica não pode ser vazio.");
+
+                var clinicas = await _context.Clinicas
+                    .Where(c => EF.Functions.ILike(c.NomeClinica, $"%{nome}%")) // ILike é case-insensitive (PostgreSQL)
+                    .Select(c => new
+                    {
+                        value = c.Id,
+                        label = c.NomeClinica
+                    })
+                    .ToListAsync();
+
+                return Ok(clinicas);
+            }
+            catch (Exception ex) {
+                _logger.LogError(ex, "Erro ao buscar clínica por nome.");
+                return StatusCode(500, "Erro interno ao buscar clínica por nome.");
+            }
+        }
+
         // obtém todas as clínicas cadastradas
         [HttpGet("clinicas")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<ActionResult<IEnumerable<ClinicaDto>>> GetAllClinicas()
+        public async Task<ActionResult<IEnumerable<ClinicaDto>>> GetClinicas()
         {
             try
             {
@@ -76,7 +100,7 @@ namespace backend.Controllers
         // criar clinica pelo sistema
         [HttpPost("clinicas/cadastrar")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<ActionResult<ClinicaDto>> CreateClinica([FromBody] ClinicaDto clinicaDto)
+        public async Task<ActionResult<ClinicaDto>> CadastrarClinica([FromBody] ClinicaDto clinicaDto)
         {
             var clinica = new Clinica
             {
@@ -88,6 +112,46 @@ namespace backend.Controllers
 
             return CreatedAtAction(nameof(GetClinica), new { clinicaId = clinica.Id }, clinicaDto);
         }
+
+        [HttpPut("clinicas/editar")]
+        [Authorize(Policy = "AcessoLoginOuTodosUsuarios")]
+        public async Task<IActionResult> EditarClinicaAdmin([FromBody] EditarClinicaAdminDto editarClinicaAdminDto)
+        {
+            // Verifica se o usuário tem permissão de administrador
+            var isAdmin = User.Claims.Any(c => c.Type == "isAdmin" && c.Value == "true");
+            if (!isAdmin)
+            {
+                return Forbid("Apenas administradores podem acessar esse recurso.");
+            }
+
+            if (editarClinicaAdminDto.ClinicaId == 0)
+            {
+                return BadRequest("Id da clínica não informado.");
+            }
+
+            var clinica = await _context.Clinicas.FindAsync(editarClinicaAdminDto.ClinicaId);
+            if (clinica == null)
+            {
+                return NotFound("Clínica não encontrada.");
+            }
+
+            clinica.NomeClinica = editarClinicaAdminDto.NomeClinica;
+            clinica.NomeFantasia = editarClinicaAdminDto.NomeFantasia;
+            clinica.Cnpj = editarClinicaAdminDto.Cnpj;
+            clinica.Endereco = editarClinicaAdminDto.Endereco;
+            clinica.EndNumero = editarClinicaAdminDto.EndNumero;
+            clinica.EndEstado = editarClinicaAdminDto.EndEstado;
+            clinica.EndCidade = editarClinicaAdminDto.EndCidade;
+            clinica.Cep = editarClinicaAdminDto.Cep;
+            clinica.Telefone1 = editarClinicaAdminDto.Telefone1;
+            clinica.Whatsapp = editarClinicaAdminDto.Whatsapp;
+            clinica.Email = editarClinicaAdminDto.Email;
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
 
         // deleta clínica
         [HttpDelete("clinicas/{clinicaId}")]
@@ -129,6 +193,31 @@ namespace backend.Controllers
             {
                 _logger.LogError(ex, "Erro ao buscar animais");
                 return StatusCode(500, "Erro interno ao buscar animais.");
+            }
+        }
+
+        [HttpGet("buscar")]
+        [Authorize(Policy = "GerenciaSistema")]
+        public async Task<IActionResult> BuscarUsuariosPorNome([FromQuery] string nome)
+        {
+            try {
+                if (string.IsNullOrWhiteSpace(nome))
+                    return BadRequest("O nome do usuário não pode ser vazio.");
+
+                var usuarios = await _context.Usuarios
+                    .Where(u => EF.Functions.ILike(u.Nome, $"%{nome}%")) // ILike é case-insensitive (PostgreSQL)
+                    .Select(u => new
+                    {
+                        value = u.Id,
+                        label = u.Nome
+                    })
+                    .ToListAsync();
+
+                return Ok(usuarios);
+            }
+            catch (Exception ex) {
+                _logger.LogError(ex, "Erro ao buscar usuário por nome.");
+                return StatusCode(500, "Erro interno ao buscar usuário por nome.");
             }
         }
 

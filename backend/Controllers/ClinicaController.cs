@@ -15,63 +15,52 @@ namespace backend.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IAuthService _authService;
-
-        public ClinicaController(AppDbContext context, IAuthService authService)
+        private readonly ILogger<ClinicaController> _logger;
+        public ClinicaController(AppDbContext context, IAuthService authService, ILogger<ClinicaController> logger)
         {
             _context = context;
             _authService = authService;
+            _logger = logger;
         }
 
         // atualizar clinica
-        [HttpPut("dados")]
+        [HttpPut("editar")]
         [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> UpdateClinica([FromBody] UpdateClinicaDto updateClinicaDto)
+        public async Task<IActionResult> EditarClinica([FromBody] EditarClinicaDto editarClinicaDto)
         {
-            var clinicaId = User.GetClaimValue<int>("clinicaId");
-            if (clinicaId == 0) {
-                return BadRequest("Acesso não permitido a esta clínica.");
-            }
+            try {
+                var clinicaId = User.GetClaimValue<int>("clinicaId");
+                if (clinicaId == 0) {
+                    return BadRequest("Acesso não permitido a esta clínica.");
+                }
 
-            var clinica = await _context.Clinicas.FindAsync(clinicaId);
-            if (clinica == null)
-            {
-                return NotFound();
-            }
-
-            clinica.NomeClinica = updateClinicaDto.NomeClinica;
-            clinica.NomeFantasia = updateClinicaDto.NomeFantasia;
-            clinica.Cnpj = updateClinicaDto.Cnpj;
-            clinica.Endereco = updateClinicaDto.Endereco;
-            clinica.EndNumero = updateClinicaDto.EndNumero;
-            clinica.EndEstado = updateClinicaDto.EndEstado;
-            clinica.EndCidade = updateClinicaDto.EndCidade;
-            clinica.Cep = updateClinicaDto.Cep;
-            clinica.Telefone1 = updateClinicaDto.Telefone1;
-            clinica.Whatsapp = updateClinicaDto.Whatsapp;
-            clinica.Email = updateClinicaDto.Email;
-
-            _context.Entry(clinica).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        [HttpGet("buscar")]
-        public async Task<IActionResult> BuscarClinicasPorNome([FromQuery] string nome)
-        {
-            if (string.IsNullOrWhiteSpace(nome))
-                return BadRequest("O nome da clínica não pode ser vazio.");
-
-            var clinicas = await _context.Clinicas
-                .Where(c => EF.Functions.ILike(c.NomeClinica, $"%{nome}%")) // ILike é case-insensitive (PostgreSQL)
-                .Select(c => new
+                var clinica = await _context.Clinicas.FindAsync(clinicaId);
+                if (clinica == null)
                 {
-                    value = c.Id,
-                    label = c.NomeClinica
-                })
-                .ToListAsync();
+                    return NotFound();
+                }
 
-            return Ok(clinicas);
+                clinica.NomeClinica = editarClinicaDto.NomeClinica;
+                clinica.NomeFantasia = editarClinicaDto.NomeFantasia;
+                clinica.Cnpj = editarClinicaDto.Cnpj;
+                clinica.Endereco = editarClinicaDto.Endereco;
+                clinica.EndNumero = editarClinicaDto.EndNumero;
+                clinica.EndEstado = editarClinicaDto.EndEstado;
+                clinica.EndCidade = editarClinicaDto.EndCidade;
+                clinica.Cep = editarClinicaDto.Cep;
+                clinica.Telefone1 = editarClinicaDto.Telefone1;
+                clinica.Whatsapp = editarClinicaDto.Whatsapp;
+                clinica.Email = editarClinicaDto.Email;
+
+                _context.Entry(clinica).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                return Ok(new {Message = "Clínica atualizada com sucesso.", });
+            } 
+            catch (Exception ex) {
+                _logger.LogError(ex, $"Erro ao editar clínica {editarClinicaDto.NomeClinica}");
+                return StatusCode(500, "Erro interno ao editar clínica.");
+            }
         }
     }
 }

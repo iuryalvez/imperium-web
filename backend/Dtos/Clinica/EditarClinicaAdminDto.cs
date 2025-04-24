@@ -1,5 +1,6 @@
 namespace backend.Dtos.Clinica {
-    public class UpdateClinicaDto {
+    public class EditarClinicaAdminDto {
+        public int ClinicaId { get; set; }
         public string NomeClinica { get; set; } = string.Empty;
         public string NomeFantasia { get; set; } = string.Empty;
         public string Cnpj { get; set; } = string.Empty;

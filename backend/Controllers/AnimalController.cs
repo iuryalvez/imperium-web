@@ -16,67 +16,12 @@ namespace backend.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IAuthService _authService;
-
-        public AnimalController(AppDbContext context, IAuthService authService)
+        private readonly ILogger<AnimalController> _logger;
+        public AnimalController(AppDbContext context, IAuthService authService, ILogger<AnimalController> logger)
         {
             _context = context;
             _authService = authService;
-        }
-
-        /// <summary>
-        /// Cria um novo animal e associa com um tutor e uma clínica.
-        /// </summary>
-        /// <param name="tutorId">The ID of the tutor.</param>
-        /// <param name="animalDto">The data transfer object containing animal details.</param>
-        /// <returns>An IActionResult indicating the result of the operation.</returns>
-        /// <response code="200">Returns a success message and the ID of the created animal.</response>
-        /// <response code="403">If the user does not have permission to access the clinic.</response>
-        [HttpPost("animais/tutor_{tutorId}-cadastrar")]
-        [Authorize(Policy = "GerenciaAnimal")]
-        public async Task<IActionResult> CreateAnimal(int tutorId, [FromBody] AnimalDto animalDto)
-        {
-            var animal = new Animal
-            {
-                Nome = animalDto.Nome,
-                Especie = animalDto.Especie,
-                Nascimento = animalDto.Nascimento,
-                DataCad = DateTime.UtcNow,
-                DataCadModificado = DateTime.UtcNow,
-                Sexo = animalDto.Sexo,
-                Castrado = animalDto.Castrado,
-                Peso = animalDto.Peso,
-                CondicaoCorporal = animalDto.CondicaoCorporal,
-                GrauAtividade = animalDto.GrauAtividade,
-                Gestacao = animalDto.Gestacao,
-                Lactacao = animalDto.Lactacao,
-                SemanaLactacao = animalDto.SemanaLactacao,
-                SemanaGestacao = animalDto.SemanaGestacao
-            };
-
-            _context.Animais.Add(animal);
-            await _context.SaveChangesAsync();
-
-            // Obter o valor da claim como inteiro
-            var clinicaId = User.GetClaimValue<int>("clinicaId");
-
-            if (clinicaId == 0) // Considerando 0 como default para int
-            {
-                return BadRequest("Claim 'clinicaId' não encontrada ou inválida.");
-            }
-
-            Console.WriteLine($"Acesso permitido à clínica {clinicaId}");
-
-            var tutorAnimalClinica = new TutorAnimalClinica
-            {
-                TutorId = tutorId,
-                AnimalId = animal.Id,
-                ClinicaId = clinicaId
-            };
-
-            _context.TutoresAnimaisClinicas.Add(tutorAnimalClinica);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { Message = "Animal criado com sucesso.", AnimalId = animal.Id });
+            _logger = logger;
         }
 
         // Obtém um animal por ID
@@ -125,6 +70,54 @@ namespace backend.Controllers
             }
 
             return Ok(animais);
+        }
+
+        [HttpPost("animais/cadastrar")]
+        [Authorize(Policy = "GerenciaAnimal")]
+        public async Task<IActionResult> CadastrarAnimal(int tutorId, [FromBody] AnimalDto animalDto)
+        {
+            var animal = new Animal
+            {
+                Nome = animalDto.Nome,
+                Especie = animalDto.Especie,
+                Nascimento = animalDto.Nascimento,
+                DataCad = DateTime.UtcNow,
+                DataCadModificado = DateTime.UtcNow,
+                Sexo = animalDto.Sexo,
+                Castrado = animalDto.Castrado,
+                Peso = animalDto.Peso,
+                CondicaoCorporal = animalDto.CondicaoCorporal,
+                GrauAtividade = animalDto.GrauAtividade,
+                Gestacao = animalDto.Gestacao,
+                Lactacao = animalDto.Lactacao,
+                SemanaLactacao = animalDto.SemanaLactacao,
+                SemanaGestacao = animalDto.SemanaGestacao
+            };
+
+            _context.Animais.Add(animal);
+            await _context.SaveChangesAsync();
+
+            // Obter o valor da claim como inteiro
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+
+            if (clinicaId == 0) // Considerando 0 como default para int
+            {
+                return BadRequest("Claim 'clinicaId' não encontrada ou inválida.");
+            }
+
+            Console.WriteLine($"Acesso permitido à clínica {clinicaId}");
+
+            var tutorAnimalClinica = new TutorAnimalClinica
+            {
+                TutorId = tutorId,
+                AnimalId = animal.Id,
+                ClinicaId = clinicaId
+            };
+
+            _context.TutoresAnimaisClinicas.Add(tutorAnimalClinica);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = "Animal criado com sucesso.", AnimalId = animal.Id });
         }
 
         // Atualiza um animal de uma clínica
