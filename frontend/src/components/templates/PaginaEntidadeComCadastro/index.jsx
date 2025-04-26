@@ -36,7 +36,7 @@ const camposCadastro = {
       ],
     },
   ],
-  usuarios: [
+  usuariosDaClinica: [
     {
       name: "nome",
       label: "Nome",
@@ -116,8 +116,9 @@ const camposCadastro = {
 const PaginaEntidadeComCadastro = ({
   titulo,
   entidade,
+  nomeEntidade,
   api,
-  nomeBotao = "Cadastrar",
+  nomeBotao,
 }) => {
   const [dados, setDados] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -145,7 +146,7 @@ const PaginaEntidadeComCadastro = ({
 
   const handleSucesso = () => {
     setModalVisivel(false);
-    buscarDados(); // Atualiza a lista
+    buscarDados();
   };
 
   if (loading) return <LoadingSpinner />;
@@ -164,7 +165,7 @@ const PaginaEntidadeComCadastro = ({
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            className="bg-green-700 hover:bg-green-800 text-white focus:bg-green-800 active:bg-green-900 focus:shadow-none border-none"
+            className="bg-green-700 hover:bg-green-800 text-white focus:bg-green-300 active:bg-green-300 focus:shadow-none border-none"
             onClick={() => setModalVisivel(true)}
           >
             {nomeBotao}
@@ -187,7 +188,7 @@ const PaginaEntidadeComCadastro = ({
             onSubmit={handleCadastrar}
             onSuccess={handleSucesso}
             setModalVisivel={setModalVisivel}
-            tituloModal={`Cadastro de ${entidade}`}
+            tituloModal={`Cadastro de ${nomeEntidade}`}
             camposCadastro={camposCadastro}
           />
         </Modal>

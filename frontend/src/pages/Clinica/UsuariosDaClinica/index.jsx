@@ -1,49 +1,20 @@
-import React, { useEffect, useState } from "react";
-
+import React from "react";
+import PaginaEntidadeComCadastro from "../../../components/templates/PaginaEntidadeComCadastro/index.jsx";
 import { usuariosDaClinicaAPI } from "../../../api/clinica/usuariosDaClinicaAPI.js";
+import AppLayout from "../../../components/layout/AppLayout.jsx";
 
-import Navsidebar from "../../../components/organisms/Navsidebar.jsx";
-import TabelaEntidade from "../../../components/organisms/TabelaEntidade.jsx";
-import LoadingSpinner from "../../../components/atoms/LoadingSpinner.jsx";
-
-const TabelaUsuariosDaClinica = () => {
-  const [usuarios, setUsuarios] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUsuarios = async () => {
-      try {
-        const response = await usuariosDaClinicaAPI.listar();
-        console.log("Usuários encontrados: ", response);
-        setUsuarios(response);
-      } catch (err) {
-        console.error("Erro ao buscar usuários: ", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsuarios();
-  }, []);
-
-  const renderStatus = (message, className = "") => (
-    <div className="main-content">
-      <Navsidebar />
-      <div className="info-content">
-        <h1 className="text-2xl font-bold mb-4 text-green-dark">
-          Lista de Usuários
-        </h1>
-        <div className={className}>{message}</div>
-      </div>
-    </div>
-  );
-
-  if (loading) return <LoadingSpinner />;
-  // if (error) return renderStatus(error, "text-red-500");
-
-  return renderStatus(
-    <TabelaEntidade entidade="usuáriosDaClínica" dados={usuarios} />
+const UsuariosDaClinica = () => {
+  return (
+    <AppLayout temSidebar>
+      <PaginaEntidadeComCadastro
+        titulo="Lista de Usuários"
+        entidade="usuariosDaClinica"
+        api={usuariosDaClinicaAPI}
+        nomeBotao="Cadastrar Usuário"
+        nomeEntidade="Usuários"
+      />
+    </AppLayout>
   );
 };
 
-export default TabelaUsuariosDaClinica;
+export default UsuariosDaClinica;

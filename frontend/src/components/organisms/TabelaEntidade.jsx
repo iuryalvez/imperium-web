@@ -25,7 +25,7 @@ const camposEditar = {
       ],
     }
   ],
-  usuarios: [
+  usuariosDaClinica: [
     {
       name: "nome",
       label: "Nome",
@@ -138,7 +138,7 @@ const TabelaEntidade = ({
 
   // Configuração das colunas para cada entidade
   const colunasBase = {
-    usuáriosDaClínica: [
+    usuariosDaClinica: [
       {
         title: "Nome",
         dataIndex: "nome",
@@ -149,15 +149,28 @@ const TabelaEntidade = ({
         title: "Perfis",
         dataIndex: "perfis",
         key: "perfis",
+        filters: [
+          { text: "INATIVO", value: "INATIVO" },
+          { text: "GESTOR", value: "GESTOR" },
+          { text: "TÉCNICO", value: "TECNICO" },
+          { text: "SECRETÁRIO", value: "SECRETARIO" },
+        ],
+        onFilter: (value, record) => record.perfis.includes(value),
+        sorter: (a, b) =>
+          a.perfis.join(", ").localeCompare(b.perfis.join(", ")),
         render: (perfis) => (
           <>
-            {perfis.map((perfil) => (
-              <Tag color="blue" key={perfil}>
-                {perfil}
-              </Tag>
-            ))}
+            {perfis.map((perfil) => {
+              let color = "green";
+              if (perfil === "INATIVO") color = "red";
+              return (
+                <Tag color={color} key={perfil}>
+                  {perfil}
+                </Tag>
+              );
+            })}
           </>
-        ),
+        )
       },
       { 
         title: "Data de Cadastro", 
@@ -186,15 +199,30 @@ const TabelaEntidade = ({
         title: "Perfis",
         dataIndex: "perfis",
         key: "perfis",
+        filters: [
+          { text: "ADMINISTRADOR", value: "ADMINISTRADOR" },
+          { text: "INATIVO", value: "INATIVO" },
+          { text: "GESTOR", value: "GESTOR" },
+          { text: "TÉCNICO", value: "TECNICO" },
+          { text: "SECRETÁRIO", value: "SECRETARIO" },
+        ],
+        onFilter: (value, record) => record.perfis.includes(value),
+        sorter: (a, b) =>
+          a.perfis.join(", ").localeCompare(b.perfis.join(", ")),
         render: (perfis) => (
           <>
-            {perfis.map((perfil) => (
-              <Tag color="green" key={perfil}>
-                {perfil}
-              </Tag>
-            ))}
+            {perfis.map((perfil) => {
+              let color = "green";
+              if (perfil === "INATIVO") color = "red";
+              else if (perfil === "ADMINISTRADOR") color = "blue";
+              return (
+                <Tag color={color} key={perfil}>
+                  {perfil}
+                </Tag>
+              );
+            })}
           </>
-        ),
+        )
       },
       { 
         title: "Data de Cadastro", 
@@ -265,6 +293,7 @@ const TabelaEntidade = ({
         columns={colunasComAcoes}
         rowKey={(record) => record.upcId || record.id}
         pagination={{ pageSize: 10 }}
+        scroll={{ x: 'max-content' }} // ativa scroll horizontal se necessário
       />
       <div className="max-h-[80vh] overflow-y-auto">
         <Modal

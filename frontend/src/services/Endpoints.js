@@ -28,8 +28,6 @@ const endpoints = {
     usuario: {
       buscarPorNome: (nome) => `${API_BASE_URL}/sistema/usuarios/buscar?nome=${encodeURIComponent(nome)}`,
       listar: `${API_BASE_URL}/sistema/usuarios`,
-      listarInativos: `${API_BASE_URL}/sistema/usuarios/inativos`,
-      listarAdministradores: `${API_BASE_URL}/sistema/usuarios/administradores`,
       cadastrar: `${API_BASE_URL}/sistema/usuarios/cadastrar`,
       editar: `${API_BASE_URL}/sistema/usuarios/editar`,
     },
@@ -72,7 +70,6 @@ const endpoints = {
     },
     usuario: {
       listar: `${API_BASE_URL}/clinica/usuarios`,
-      listarInativos: `${API_BASE_URL}/clinica/usuarios/inativos`,
       cadastrar:`${API_BASE_URL}/sistema/usuarios/cadastrar`,
       editar: `${API_BASE_URL}/clinica/usuarios/editar`,
     },

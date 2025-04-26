@@ -196,7 +196,7 @@ namespace backend.Controllers
             }
         }
 
-        [HttpGet("buscar")]
+        [HttpGet("usuarios/buscar")]
         [Authorize(Policy = "GerenciaSistema")]
         public async Task<IActionResult> BuscarUsuariosPorNome([FromQuery] string nome)
         {
@@ -228,7 +228,7 @@ namespace backend.Controllers
         {
             try
             {
-                var usuariosComVinculo = await _context.UsuariosPerfisClinicas
+                var usuariosComuns = await _context.UsuariosPerfisClinicas
                     .AsNoTracking()
                     .Include(upc => upc.Usuario)
                     .Include(upc => upc.Clinica)
@@ -247,12 +247,12 @@ namespace backend.Controllers
                     .ToListAsync();
 
                 // Pega os IDs dos usuários já retornados
-                var idsUsuariosComVinculo = usuariosComVinculo.Select(u => u.Id).Distinct();
+                var idsUsuariosComuns = usuariosComuns.Select(u => u.Id).Distinct();
 
                 // Agora busca usuários administradores que não têm vínculo
-                var adminsSemVinculo = await _context.Usuarios
+                var usuariosAdministradores = await _context.Usuarios
                     .AsNoTracking()
-                    .Where(u => u.IsAdmin && !idsUsuariosComVinculo.Contains(u.Id))
+                    .Where(u => u.IsAdmin && !idsUsuariosComuns.Contains(u.Id))
                     .Select(u => new GetUsuariosSistemaDto
                     {
                         Id = u.Id,
@@ -262,13 +262,13 @@ namespace backend.Controllers
                         ClinicaId = 0,
                         Email = u.Email,
                         Nome = u.Nome ?? string.Empty,
-                        Perfis = new List<string> { "Administrador" },
+                        Perfis = new List<string> { "ADMINISTRADOR" },
                         DataCadastro = u.DataCad
                     })
                     .ToListAsync();
 
                 // Junta tudo
-                var todosUsuarios = usuariosComVinculo.Concat(adminsSemVinculo).ToList();
+                var todosUsuarios = usuariosComuns.Concat(usuariosAdministradores).ToList();
 
                 return Ok(todosUsuarios);
             }
