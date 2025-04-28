@@ -1,6 +1,6 @@
 namespace backend.Dtos.Vinculo
 {
-    public class VinculoDto
+    public class GetVinculoDto
     {
         public int Id { get; set; }
         public int UsuarioId { get; set; }

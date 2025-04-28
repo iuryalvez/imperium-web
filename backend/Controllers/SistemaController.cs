@@ -54,12 +54,12 @@ namespace backend.Controllers
         // obtém todas as clínicas cadastradas
         [HttpGet("clinicas")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<ActionResult<IEnumerable<ClinicaDto>>> GetClinicas()
+        public async Task<ActionResult<IEnumerable<CadastrarClinicaDto>>> GetClinicas()
         {
             try
             {
                 var clinicas = await _context.Clinicas
-                    .Select(c => new ClinicaDto
+                    .Select(c => new CadastrarClinicaDto
                     {
                         Id = c.Id,
                         NomeClinica = c.NomeClinica
@@ -78,11 +78,11 @@ namespace backend.Controllers
         // get clinica by clinicaId
         [HttpGet("clinicas/{clinicaId}")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<ActionResult<ClinicaDto>> GetClinica(int clinicaId)
+        public async Task<ActionResult<GetClinicaDto>> GetClinica(int clinicaId)
         {
             var clinica = await _context.Clinicas
                 .Where(c => c.Id == clinicaId)
-                .Select(c => new ClinicaDto
+                .Select(c => new GetClinicaDto
                 {
                     Id = c.Id,
                     NomeClinica = c.NomeClinica
@@ -100,7 +100,7 @@ namespace backend.Controllers
         // criar clinica pelo sistema
         [HttpPost("clinicas/cadastrar")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<ActionResult<ClinicaDto>> CadastrarClinica([FromBody] ClinicaDto clinicaDto)
+        public async Task<ActionResult<CadastrarClinicaDto>> CadastrarClinica([FromBody] CadastrarClinicaDto clinicaDto)
         {
             var clinica = new Clinica
             {
@@ -242,7 +242,8 @@ namespace backend.Controllers
                         Email = upc.Usuario.Email,
                         Nome = upc.Usuario.Nome ?? string.Empty,
                         Perfis = upc.Perfis,
-                        DataCadastro = upc.Usuario.DataCad
+                        DataCadastro = upc.Usuario.DataCad,
+                        DataUltimoAcesso = upc.Usuario.DataUltimoAcesso
                     })
                     .ToListAsync();
 
@@ -263,7 +264,8 @@ namespace backend.Controllers
                         Email = u.Email,
                         Nome = u.Nome ?? string.Empty,
                         Perfis = new List<string> { "ADMINISTRADOR" },
-                        DataCadastro = u.DataCad
+                        DataCadastro = u.DataCad,
+                        DataUltimoAcesso = u.DataUltimoAcesso
                     })
                     .ToListAsync();
 
@@ -300,7 +302,8 @@ namespace backend.Controllers
                         Email = upc.Usuario.Email,
                         Nome = upc.Usuario.Nome ?? string.Empty,
                         Perfis = upc.Perfis,
-                        DataCadastro = upc.Usuario.DataCad
+                        DataCadastro = upc.Usuario.DataCad,
+                        DataUltimoAcesso = upc.Usuario.DataUltimoAcesso
                     })
                     .ToListAsync();
 
@@ -332,7 +335,8 @@ namespace backend.Controllers
                         Email = u.Email,
                         Nome = u.Nome ?? string.Empty,
                         Perfis = new List<string> { "Administrador" },
-                        DataCadastro = u.DataCad
+                        DataCadastro = u.DataCad,
+                        DataUltimoAcesso = u.DataUltimoAcesso
                     })
                     .ToListAsync();
 
@@ -349,7 +353,7 @@ namespace backend.Controllers
         [Authorize(Policy = "GerenciaSistema")]
         public async Task<IActionResult> CadastrarUsuario([FromBody] CadastrarUsuarioSistemaDto cadastrarUsuarioDto)
         {
-            // Console.WriteLine("[DEBUG] Iniciando cadastro de usuário...");
+            Console.WriteLine("[DEBUG] Iniciando cadastro de usuário...");
 
             if (cadastrarUsuarioDto.Perfis != null)
             {
@@ -392,6 +396,7 @@ namespace backend.Controllers
                 Email = cadastrarUsuarioDto.Email,
                 Nome = cadastrarUsuarioDto.Nome,
                 DataCad = DateTime.UtcNow,
+                DataUltimoAcesso = DateTime.UtcNow,
                 EmailConfirmed = true,
                 IsAdmin = cadastrarUsuarioDto.IsAdmin
             };

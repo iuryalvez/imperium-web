@@ -87,10 +87,7 @@ namespace backend.Controllers
             _context.Tutores.Add(tutor);
             await _context.SaveChangesAsync();
 
-            tutorDto.Id = tutor.Id;
-
-            // return CreatedAtAction(nameof(GetTutorById), new { id = tutorDto.Id }, tutorDto);
-            return Ok(new { Message = "Tutor cadastrado com sucesso.", TutorId = tutor.Id });
+            return Ok(new { Message = "Tutor cadastrado com sucesso.", tutor.Id });
         }
 
         [HttpPut("tutores/{tutorId}")]

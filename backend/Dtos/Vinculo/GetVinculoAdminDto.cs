@@ -1,6 +1,6 @@
 namespace backend.Dtos.Vinculo
 {
-    public class VinculoAdminDto
+    public class GetVinculoAdminDto
     {
         public int ClinicaId { get; set; }
         public string? NomeClinica { get; set; }

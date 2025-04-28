@@ -15,8 +15,12 @@ namespace backend.Models {
         public string EndCidade { get; set; } = string.Empty;
         public string Cep { get; set; } = string.Empty;
         public string Telefone1 { get; set; } = string.Empty;
-        public string Whatsapp { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
+        public string Whatsapp { get; set; } = string.Empty;
+        public string Instagram { get; set; }   
+        public DateTime DataCad { get; set; }
+        public bool IsAtivo { get; set; }
+        public string LogoUrl { get; set; }
         public virtual ICollection<Consulta>? Consultas { get; set; }
         public virtual ICollection<Racao>? Racoes { get; set; }
         public virtual ICollection<UsuarioPerfilClinica>? UsuariosPerfisClinicas { get; set; }

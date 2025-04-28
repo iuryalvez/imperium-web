@@ -258,7 +258,7 @@ namespace backend.Controllers
 
             var vinculos = await _context.UsuariosPerfisClinicas
                 .Where(p => p.UsuarioId == usuarioId && p.Perfis.Any(perfil => perfil != "Inativo")) // Verifica se há perfis ativos
-                .Select(p => new VinculoDto
+                .Select(p => new GetVinculoDto
                 {
                     Id = p.Id,
                     UsuarioId = p.UsuarioId,
@@ -346,7 +346,7 @@ namespace backend.Controllers
                 // Configura o cookie HTTP-Only com o novo token
                 _tokenService.SetCookieToken(HttpContext, token);
 
-                var vinculoDto = new VinculoDto
+                var vinculoDto = new GetVinculoDto
                 {
                     Id = vinculo.Id,
                     UsuarioId = vinculo.UsuarioId,
@@ -366,7 +366,7 @@ namespace backend.Controllers
 
         [Authorize(Policy = "GerenciaSistema")]
         [HttpPost("sistema/admin")] // Nova rota específica para admins
-        public async Task<IActionResult> SelecionarVinculoAdmin([FromBody] VinculoAdminDto dto)
+        public async Task<IActionResult> SelecionarVinculoAdmin([FromBody] GetVinculoAdminDto dto)
         {
             try
             {

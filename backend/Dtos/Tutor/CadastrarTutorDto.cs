@@ -5,8 +5,6 @@ namespace backend.Dtos.Tutor
 {
     public class TutorDto
     {
-        public int Id { get; set; }
-
         [Required(ErrorMessage = "O nome é obrigatório.")]
         [StringLength(100, ErrorMessage = "O nome deve ter no máximo 100 caracteres.")]
         public string Nome { get; set; } = string.Empty;
@@ -24,7 +22,8 @@ namespace backend.Dtos.Tutor
         public string Cep { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "O WhatsApp é obrigatório.")]
-        [Phone(ErrorMessage = "O número de WhatsApp não é válido.")]
+        // [Phone(ErrorMessage = "O número de WhatsApp não é válido.")]
+        [StringLength(11, ErrorMessage = "O telefone deve ter 11 dígitos.")]
         public string Whatsapp { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "O e-mail é obrigatório.")]
