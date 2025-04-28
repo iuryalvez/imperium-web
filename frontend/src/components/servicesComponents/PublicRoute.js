@@ -1,0 +1,29 @@
+import React from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../../services/AuthContext';
+
+import '../../App.css';
+import LayoutPublic from '../layout/LayoutPublic';
+import LoadingSpinner from '../atoms/LoadingSpinner';
+
+const PublicRoute = () => {
+  const { loading, isLogged } = useAuth();
+
+  if (loading) {
+    return (
+      <LayoutPublic>
+        <div className="flex justify-center items-center h-screen">
+          <LoadingSpinner/>
+        </div>
+      </LayoutPublic>
+    );
+  }
+
+  if (isLogged) {
+    return <Navigate to="/clinica/inicio" replace />;
+  }
+
+  return <Outlet />;
+}
+
+export default PublicRoute;

@@ -1,34 +1,41 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../services/AuthContext';
-import Header from '../organisms/Header';
 
-import "../../App.css"
-import { Spin } from 'antd';
+import "../../App.css";
+import LoadingSpinner from '../atoms/LoadingSpinner';
+import LayoutLogged from '../layout/LayoutLogged';
 
 const AuthenticatedRoute = () => {
-  const { isAuthenticated, isLogged, isAdmin, loading } = useAuth();
+  const { isAuthenticated, isLogged, loading } = useAuth();
 
   if (loading) return (
-    <div>
-      <Header></Header>
-      <div className='main-content'>
-        <div className='info-content'>
-          <Spin size="large" />;
-        </div>
+    <LayoutLogged>
+      <div className="flex justify-center items-center h-screen">
+        <LoadingSpinner/>
       </div>
-    </div>
+    </LayoutLogged>
   );
 
-  if (isAuthenticated) {
-    return <Outlet></Outlet>
-  }
-  if (isLogged) {
-    return isAdmin ? <Navigate to="/sistema" /> 
-    : <Navigate to="/sistema/vinculos" />
+  if (!isLogged) {
+    return <Navigate to="/login" replace />;
   }
 
-  return <Navigate to="/login" />;
+  if (!isAuthenticated) {
+    return <Navigate to="/sistema/vinculos" replace />;
+  }
+
+  return <Outlet />;
+
+  // if (isAuthenticated) {
+  //   return <Outlet></Outlet>
+  // }
+  // if (isLogged) {
+  //   return isAdmin ? <Navigate to="/sistema" /> 
+  //   : <Navigate to="/sistema/vinculos" />
+  // }
+
+  // return <Navigate to="/login" />;
 
 };
 

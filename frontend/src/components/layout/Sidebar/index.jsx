@@ -1,25 +1,20 @@
-import React, { useState } from "react";
-import { useAuth } from "../../services/AuthContext";
+import React from "react";
+import { useAuth } from "../../../services/AuthContext";
 import { NavLink } from "react-router-dom";
-import { Layout, Menu, Typography, Button } from "antd";
+import { Menu, Typography, Button } from "antd";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 
-import ClinicaIcon from "../../assets/animal/pet-care-service-pet-grooming-service-svgrepo-com.png";
-import AnimaisIcon from "../../assets/animal/pet-14-svgrepo-com.png";
-import ConsultasIcon from "../../assets/document/consultation-consulting-laptop-doctor-healthy-medical-care-svgrepo-com.png";
-import TutoresIcon from "../../assets/client/client-profile-svgrepo-com.png";
-import UsuariosIcon from "../../assets/user/user-group-svgrepo-com.png";
-import RacoesIcon from "../../assets/animal/dog-food-pet-svgrepo-com.png";
+import ClinicaIcon from "../../../assets/animal/pet-care-service-pet-grooming-service-svgrepo-com.png";
+import AnimaisIcon from "../../../assets/animal/pet-14-svgrepo-com.png";
+import ConsultasIcon from "../../../assets/document/consultation-consulting-laptop-doctor-healthy-medical-care-svgrepo-com.png";
+import TutoresIcon from "../../../assets/client/client-profile-svgrepo-com.png";
+import UsuariosIcon from "../../../assets/user/user-group-svgrepo-com.png";
+import RacoesIcon from "../../../assets/animal/dog-food-pet-svgrepo-com.png";
 
 const { Text } = Typography;
 
-const SidebarDrawer = () => {
+const SidebarDrawer = ({ collapsed, toggleCollapse }) => {
   const { userName, clinicaNome } = useAuth();
-  const [collapsed, setCollapsed] = useState(false);
-
-  const toggleCollapse = () => {
-    setCollapsed(!collapsed);
-  };
 
   const menuItems = [
     {
@@ -61,12 +56,12 @@ const SidebarDrawer = () => {
   ];
 
   return (
-    <div className={`min-h screen fixed left-0 top-0 h-full z-50 shadow-sm transition-all duration-300 ease-in-out ${collapsed ? 'w-20' : 'w-64'}`}>
+    <div className={`h-screen fixed h-full shadow-sm transition-all duration-300 ease-in-out ${collapsed ? 'w-min' : 'w-64'}`}>
       {/* Botão de toggle */}
       <Button
         type="text"
         onClick={toggleCollapse}
-        className={`absolute -right-10 top-4 z-50 w-10 h-10 flex items-center justify-center bg-[#006634] text-white rounded-r-lg hover:bg-[#00552b]`}
+        className={`absolute -right-10 w-10 h-10 flex items-center justify-center bg-[#006634] text-white rounded-r-lg hover:bg-[#00552b]`}
       >
         {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
       </Button>
@@ -97,7 +92,7 @@ const SidebarDrawer = () => {
           {menuItems.map((item) => (
             <Menu.Item 
               key={item.key} 
-              icon={<img src={item.icon} alt={item.label} className="w-5 h-5" />}
+              icon={<img src={item.icon} alt={item.label} className={`${collapsed ? 'w-4 h-4' : 'w-6 h-6'}`} />}
               className="hover:bg-[#00552b]"
             >
               <NavLink

@@ -152,7 +152,7 @@ const PaginaEntidadeComCadastro = ({
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="main-content">
+    <div>
       <div className="info-content">
         <button
           onClick={() => window.history.back()}

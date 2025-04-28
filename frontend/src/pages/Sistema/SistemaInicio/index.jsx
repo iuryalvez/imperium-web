@@ -33,7 +33,7 @@ const SistemaInicio = () => {
   };
 
   return (
-      <div className="sistema-content">
+      <div className='info-content'>
           <h1 className="text-2xl font-bold mb-4 text-green-dark">
               Bem-vindo, {userName || 'Usuário'}!
           </h1>

@@ -6,8 +6,12 @@ import { NotificationProvider } from './services/NotificationContext';
 
 import LoggedRoute from './components/servicesComponents/LoggedRoute';
 import AuthenticatedRoute from './components/servicesComponents/AuthenticatedRoute';
+import AdminRoute from './components/servicesComponents/AdminRoute.js';
+import PublicRoute from './components/servicesComponents/PublicRoute.js';
 
-import Header from './components/organisms/Header/index.jsx';
+import LayoutPublic from './components/layout/LayoutPublic.jsx';
+import LayoutLogged from './components/layout/LayoutLogged.jsx';
+import LayoutAuthenticated from './components/layout/LayoutAuthenticated.jsx';
 
 import Login from './pages/Login/index.jsx';
 import Sobre from './pages/Sobre/index.jsx';
@@ -24,42 +28,50 @@ import UsuariosDaClinica from './pages/Clinica/UsuariosDaClinica/index.jsx';
 import TutoresDaClinica from './pages/Clinica/TutoresDaClinica/index.jsx';
 import ConsultasDaClinica from './pages/Clinica/ConsultasDaClinica/index.jsx';
 import AnimaisDaClinica from './pages/Clinica/AnimaisDaClinica/index.jsx';
-import AdminRoute from './components/servicesComponents/AdminRoute.js';
 
 const App = () => {
   return (
     <Router>
       <NotificationProvider>
         <AuthProvider>
-          <Header />
           <Routes>
             {/* Rotas públicas */}
-            <Route exact path='/' element={<Login />} />
-            <Route path='/login' element={<Login />} />
-            <Route path="/sobre" element={<Sobre />} />
+            <Route element={<PublicRoute />}>
+              <Route element={<LayoutPublic />}>
+                <Route path="/" element={<Login />} />
+                <Route path="login" element={<Login />} />
+                <Route path="sobre" element={<Sobre />} />
+              </Route>
+            </Route>
             {/* <Route path="/cadastro" element={<Cadastro />} /> */}
             {/* <Route path='/teste'element={<Teste/>} /> */}
             
             {/* Rotas protegidas por isLogged */}
             <Route element={<LoggedRoute />}>
-              <Route path='/sistema/vinculos' element={<SistemaVinculos />} />
+              <Route element={<LayoutLogged />}>
+                <Route path='/sistema/vinculos' element={<SistemaVinculos />} />
+              </Route>
             </Route>
 
             <Route element={<AdminRoute />}>
-              <Route path='/sistema' element={<Sistema />} />
-              <Route path='/sistema/clinicas' element={<SistemaClinicas />} />
-              <Route path='/sistema/usuarios' element={<SistemaUsuarios />} />
+              <Route element={<LayoutLogged />}>
+                <Route path='/sistema' element={<Sistema />} />
+                <Route path='/sistema/clinicas' element={<SistemaClinicas />} />
+                <Route path='/sistema/usuarios' element={<SistemaUsuarios />} />
+              </Route>
             </Route>
 
             {/* Rotas protegidas dentro da AuthenticatedRoute */}
             <Route element={<AuthenticatedRoute />}>
-              <Route path='/clinica/inicio' element={<ClinicaInicio />} />
-              <Route path='/clinica' element={<Clinica />} />
-              <Route path="/clinica/editar" element={<ClinicaGerenciamento />} />
-              <Route path='/clinica/usuarios' element={<UsuariosDaClinica />} />
-              <Route path="/clinica/tutores" element={<TutoresDaClinica />} />
-              <Route path="/clinica/consultas" element={<ConsultasDaClinica />} />
-              <Route path="/clinica/animais" element={<AnimaisDaClinica />} />
+              <Route element={<LayoutAuthenticated />}>
+                <Route path='/clinica/inicio' element={<ClinicaInicio />} />
+                <Route path='/clinica' element={<Clinica />} />
+                <Route path="/clinica/editar" element={<ClinicaGerenciamento />} />
+                <Route path='/clinica/usuarios' element={<UsuariosDaClinica />} />
+                <Route path="/clinica/tutores" element={<TutoresDaClinica />} />
+                <Route path="/clinica/consultas" element={<ConsultasDaClinica />} />
+                <Route path="/clinica/animais" element={<AnimaisDaClinica />} />
+              </Route>
             </Route>
           </Routes>
         </AuthProvider>

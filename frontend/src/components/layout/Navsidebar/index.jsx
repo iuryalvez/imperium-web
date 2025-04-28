@@ -1,6 +1,6 @@
 import React from "react";
-import Sidebar from "../molecules/Sidebar";
-import Header from "./Header";
+import Header from "../Header/Authenticated";
+import Sidebar from "../Sidebar/Sidebar";
 
 function Navsidebar() {
     return (

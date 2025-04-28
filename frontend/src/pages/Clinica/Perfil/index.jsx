@@ -1,12 +1,10 @@
 import React from 'react';
 
 import '../../../App.css'
-import Navsidebar from '../../../components/organisms/Navsidebar'
 
 function Perfil() {
   return (
     <div>
-        <Navsidebar></Navsidebar>
         <main className='main-content'>
         </main>
     </div>
