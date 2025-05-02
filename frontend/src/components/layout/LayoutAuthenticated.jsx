@@ -15,7 +15,7 @@ const LayoutAuthenticated = () => {
       <AuthenticatedHeader />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar collapsed={collapsed} toggleCollapse={toggleCollapse} />
-        <main className={`flex-1 overflow-auto ml-64 transition-all duration-300 ${collapsed ? 'ml-16' : 'ml-min'}`}>
+        <main className={`flex-1 overflow-auto ml-64 transition-all duration-300 ${collapsed ? 'ml-20' : 'ml-64'}`}>
           <Outlet />
         </main>
       </div>

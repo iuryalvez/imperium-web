@@ -7,7 +7,7 @@ import LayoutPublic from '../layout/LayoutPublic';
 import LoadingSpinner from '../atoms/LoadingSpinner';
 
 const PublicRoute = () => {
-  const { loading, isLogged } = useAuth();
+  const { loading, isLogged, isAuthenticated, isAdmin } = useAuth();
 
   if (loading) {
     return (
@@ -19,7 +19,15 @@ const PublicRoute = () => {
     );
   }
 
-  if (isLogged) {
+  if (isLogged && !isAdmin) {
+    return <Navigate to="/sistema/vinculos" replace />;
+  }
+  
+  if (isLogged && isAdmin) {
+    return <Navigate to="/sistema" replace />;
+  }
+  
+  if (isAuthenticated) {
     return <Navigate to="/clinica/inicio" replace />;
   }
 

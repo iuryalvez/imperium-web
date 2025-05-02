@@ -56,7 +56,7 @@ const SidebarDrawer = ({ collapsed, toggleCollapse }) => {
   ];
 
   return (
-    <div className={`h-screen fixed h-full shadow-sm transition-all duration-300 ease-in-out ${collapsed ? 'w-min' : 'w-64'}`}>
+    <div className={`h-screen fixed h-full shadow-sm transition-all duration-300 ease-in-out ${collapsed ? 'w-20' : 'w-64'}`}>
       {/* Botão de toggle */}
       <Button
         type="text"

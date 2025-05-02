@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../services/AuthContext';
 import LoadingSpinner from '../atoms/LoadingSpinner';
 import LayoutPublic from '../layout/LayoutPublic';
@@ -15,14 +15,19 @@ const LoggedRoute = () => {
     </LayoutPublic>
   );
 
-  if (isLogged ) {
-    return isAdmin ? <Navigate to="/sistema" /> 
-    : <Navigate to="/sistema/vinculos" />
+  if (!isLogged) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  if (isAuthenticated) {
+    return <Navigate to="/clinica/inicio" replace />;
   }
 
-  if (!isLogged && !isAuthenticated) return <Navigate to="/login" />;
+  if (isLogged && !isAuthenticated) {
+    return <Outlet />
+  }
 
-  if (isAuthenticated) return <Navigate to="/clinica/inicio" />;
+  return <Outlet />
 
 };
 

@@ -32,6 +32,8 @@ const AdminRoute = () => {
   if (isAuthenticated) {
     return <Navigate to="/clinica/inicio" replace />;
   }
+
+  return <Outlet />
 }
 
 export default AdminRoute;

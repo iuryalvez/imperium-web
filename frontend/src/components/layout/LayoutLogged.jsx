@@ -7,7 +7,7 @@ const LayoutLogged = () => {
     <div className="flex flex-col min-h-screen">
       <LoggedHeader />
       <main>
-        <Outlet />
+        <Outlet></Outlet>
       </main>
     </div>
   );
