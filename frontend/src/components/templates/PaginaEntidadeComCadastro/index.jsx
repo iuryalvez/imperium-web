@@ -153,7 +153,7 @@ const PaginaEntidadeComCadastro = ({
 
   return (
     <div>
-      <div className="info-content">
+      <div>
         <button
           onClick={() => window.history.back()}
           className="flex items-center font-bold text-green-dark mb-2"

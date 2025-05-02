@@ -20,15 +20,15 @@ const PublicRoute = () => {
   }
 
   if (isLogged && !isAdmin) {
-    return <Navigate to="/sistema/vinculos" replace />;
+    return <Navigate to="/sistema/vinculos" />;
   }
   
   if (isLogged && isAdmin) {
-    return <Navigate to="/sistema" replace />;
+    return <Navigate to="/sistema" />;
   }
   
   if (isAuthenticated) {
-    return <Navigate to="/clinica/inicio" replace />;
+    return <Navigate to="/clinica/inicio" />;
   }
 
   return <Outlet />;

@@ -141,8 +141,11 @@ export const AuthProvider = ({ children }) => {
       
       abrirNotificacao('info', 'Troca de vínculo', 'Escolha um novo vínculo para continuar.');
       
-      if (authData?.isAdmin) navigate('/sistema'); // Redireciona para escolher novo vínculo
-      else navigate('sistema/vinculos')
+      if (authData?.isAdmin) {
+        navigate('/sistema'); // Redireciona para escolher novo vínculo
+      } else {
+        navigate('sistema/vinculos')
+      }
       
       await checkAuth();
 

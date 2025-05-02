@@ -14,6 +14,10 @@ const LoggedRoute = () => {
       </div>
     </LayoutPublic>
   );
+  
+  if (isLogged && isAdmin) {
+    return <Navigate to="/sistema" replace />;
+  }
 
   if (!isLogged) {
     return <Navigate to="/login" replace />;
@@ -22,11 +26,11 @@ const LoggedRoute = () => {
   if (isAuthenticated) {
     return <Navigate to="/clinica/inicio" replace />;
   }
-
-  if (isLogged && !isAuthenticated) {
-    return <Outlet />
-  }
-
+  
+  // if (isLogged && !isAuthenticated && !isAdmin) {
+  //   return <Navigate to="/sistema/vinculos" replace />;
+  // }
+  
   return <Outlet />
 
 };

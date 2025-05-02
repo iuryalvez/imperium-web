@@ -18,13 +18,11 @@ const AdminRoute = () => {
       </LayoutLogged>
     );
   }
-
-  if (isLogged && isAdmin) return <Outlet />;
-
+  
   if (!isLogged) {
     return <Navigate to="/login" replace />;
   }
-
+  
   if (isLogged && !isAdmin) {
     return <Navigate to="/sistema/vinculos" replace />;
   }

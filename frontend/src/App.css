@@ -9,33 +9,6 @@
   --verde-escuro: #064420;
 }
 
-
-.sistema-content {
-  margin-top: 2rem;
-  padding-left: 4rem;
-  padding-right: 4rem;
-  text-align: left;
-}
-
-/* Estilo para o conteúdo principal da clínica */
-.main-content {
-  display: flex;
-  text-align: left;
-  max-height: calc(100vh - 4rem); /* Limita a altura do conteúdo para não ultrapassar a tela */
-  overflow: hidden;
-}
-
-/* Estilo para o conteúdo principal das informações da clínica */
-.info-content {
-  display: flex;
-  flex-direction: column;
-  margin-top: 2rem;
-  padding-left: 4rem;
-  padding-right: 4rem;
-  text-align: left;
-  width: 100%;
-}
-
 .icone {
   height: 1.3rem;
   width: 1.3rem;

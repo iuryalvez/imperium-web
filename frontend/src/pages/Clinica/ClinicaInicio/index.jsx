@@ -4,8 +4,8 @@ import '../../../App.css'
 
 function Home() {
   return (
-    <div className='main-content'>
-        <div className='info-content'>
+    <div>
+        <div>
             <h1>Bem-vindo ao sistema de gerenciamento da clínica veterinária!</h1>
             <p>Aqui você pode gerenciar todas as operações da clínica.</p>
         </div>
