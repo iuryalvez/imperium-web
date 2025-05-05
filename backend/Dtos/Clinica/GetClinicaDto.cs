@@ -6,6 +6,7 @@ namespace backend.Dtos.Clinica
     {
         public int Id { get; set; }
         public string NomeClinica { get; set; } = string.Empty;
+        public bool IsAtiva { get; set; }
         public DateTime DataCad { get; set; }
     }
 }

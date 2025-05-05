@@ -54,15 +54,17 @@ namespace backend.Controllers
         // obtém todas as clínicas cadastradas
         [HttpGet("clinicas")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<ActionResult<IEnumerable<CadastrarClinicaDto>>> GetClinicas()
+        public async Task<ActionResult<IEnumerable<GetClinicaDto>>> GetClinicas()
         {
             try
             {
                 var clinicas = await _context.Clinicas
-                    .Select(c => new CadastrarClinicaDto
+                    .Select(c => new GetClinicaDto
                     {
                         Id = c.Id,
-                        NomeClinica = c.NomeClinica
+                        NomeClinica = c.NomeClinica,
+                        IsAtiva = c.IsAtivo,
+                        DataCad = c.DataCad
                     })
                     .ToListAsync();
 
@@ -100,17 +102,19 @@ namespace backend.Controllers
         // criar clinica pelo sistema
         [HttpPost("clinicas/cadastrar")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<ActionResult<CadastrarClinicaDto>> CadastrarClinica([FromBody] CadastrarClinicaDto clinicaDto)
+        public async Task<ActionResult<CadastrarClinicaDto>> CadastrarClinica([FromBody] CadastrarClinicaDto cadastrarClinicaDto)
         {
-            var clinica = new Clinica
+            var novaClinica = new Clinica
             {
-                NomeClinica = clinicaDto.NomeClinica
+                NomeClinica = cadastrarClinicaDto.NomeClinica,
+                IsAtivo = cadastrarClinicaDto.IsAtiva,
+                DataCad = DateTime.Now
             };
 
-            _context.Clinicas.Add(clinica);
+            _context.Clinicas.Add(novaClinica);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetClinica), new { clinicaId = clinica.Id }, clinicaDto);
+            return CreatedAtAction(nameof(GetClinica), new { clinicaId = novaClinica.Id }, cadastrarClinicaDto);
         }
 
         [HttpPut("clinicas/editar")]
@@ -146,6 +150,7 @@ namespace backend.Controllers
             clinica.Telefone1 = editarClinicaAdminDto.Telefone1;
             clinica.Whatsapp = editarClinicaAdminDto.Whatsapp;
             clinica.Email = editarClinicaAdminDto.Email;
+            clinica.IsAtivo = editarClinicaAdminDto.IsAtiva;
 
             await _context.SaveChangesAsync();
 
@@ -221,13 +226,13 @@ namespace backend.Controllers
             }
         }
 
-        // obtém todos os usuários
         [HttpGet("usuarios")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> ListarUsuarios()
+        public async Task<ActionResult<IEnumerable<GetUsuariosSistemaDto>>> ListarUsuarios()
         {
             try
             {
+                // 1. Busca usuários comuns vinculados a clínicas
                 var usuariosComuns = await _context.UsuariosPerfisClinicas
                     .AsNoTracking()
                     .Include(upc => upc.Usuario)
@@ -247,10 +252,9 @@ namespace backend.Controllers
                     })
                     .ToListAsync();
 
-                // Pega os IDs dos usuários já retornados
                 var idsUsuariosComuns = usuariosComuns.Select(u => u.Id).Distinct();
 
-                // Agora busca usuários administradores que não têm vínculo
+                // 2. Busca administradores sem vínculo
                 var usuariosAdministradores = await _context.Usuarios
                     .AsNoTracking()
                     .Where(u => u.IsAdmin && !idsUsuariosComuns.Contains(u.Id))
@@ -269,10 +273,8 @@ namespace backend.Controllers
                     })
                     .ToListAsync();
 
-                // Junta tudo
-                var todosUsuarios = usuariosComuns.Concat(usuariosAdministradores).ToList();
-
-                return Ok(todosUsuarios);
+                // 3. Combina os resultados
+                return Ok(usuariosComuns.Concat(usuariosAdministradores));
             }
             catch (Exception ex)
             {

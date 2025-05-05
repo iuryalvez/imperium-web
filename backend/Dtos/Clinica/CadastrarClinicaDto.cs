@@ -9,7 +9,6 @@ namespace backend.Dtos.Clinica
         [Required]
         [StringLength(100, ErrorMessage = "A clínica deve ter um nome entre 0 e 100 caracteres.")]
         public string NomeClinica { get; set; }
-
-        public DateTime DataCad { get; set; }
+        public bool IsAtiva { get; set; }
     }
 }

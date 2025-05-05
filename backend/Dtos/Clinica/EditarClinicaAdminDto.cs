@@ -21,8 +21,9 @@ namespace backend.Dtos.Clinica {
         public string Telefone1 { get; set; } = string.Empty;
         public string Whatsapp { get; set; } = string.Empty;
         
-        [Required(ErrorMessage = "O e-mail é obrigatório.")]
-        [EmailAddress(ErrorMessage = "O e-mail não é válido.")]
+        // [Required(ErrorMessage = "O e-mail é obrigatório.")]
+        // [EmailAddress(ErrorMessage = "O e-mail não é válido.")]
         public string Email { get; set; } = string.Empty;
+        public bool IsAtiva { get; set; }
     }
 }
