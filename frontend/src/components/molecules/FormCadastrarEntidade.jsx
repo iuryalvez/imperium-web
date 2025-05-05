@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Input, Select, DatePicker, Checkbox, Button, Form, message, Typography, Alert } from "antd";
+import { Input, Select, DatePicker, Checkbox, Button, Form, message, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { clinicasAPI } from "../../api/sistema/clinicasAPI";
 
@@ -20,8 +20,8 @@ const perfisClinica = [
   { label: "Inativo", value: "INATIVO" },
 ];
 
-const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel, tituloModal, camposCadastro }) => {
-  const campos = camposCadastro[entidade] || [];
+const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel, tituloModal, camposSimplesCadastrar }) => {
+  const campos = camposSimplesCadastrar[entidade] || [];
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [perfisSelecionados, setPerfisSelecionados] = useState([]);
@@ -172,15 +172,49 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel,
                   </Select>
                 </Form.Item>
 
-                <Alert
+                {/* <Alert
                   message="Atenção"
                   description="Após associar o usuário a uma ou mais clínicas, **não será possível remover essa associação.** Certifique-se antes de continuar."
                   type="warning"
                   showIcon
                   className="mb-4"
-                />
+                /> */}
               </>
             )}
+          </>
+        )}
+
+        {entidade === "usuariosDaClinica" && (
+          <>
+            <Form.Item
+              label="Perfis"
+              name="perfis"
+              rules={[
+                { required: true, message: "Pelo menos um perfil deve ser selecionado" },
+              ]}
+            >
+              <Checkbox.Group
+                options={perfisClinica.map((perfil) => ({
+                  ...perfil,
+                  disabled:
+                    (inativoSelecionado && perfil.value !== "INATIVO")
+                }))}
+                style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                value={perfisSelecionados}
+                onChange={(values) => {
+                  let newValues = values;
+
+                  if (values.includes("INATIVO")) {
+                    newValues = ["INATIVO"];
+                  } else {
+                    newValues = values.filter((val) => val !== "INATIVO");
+                  }
+
+                  setPerfisSelecionados(newValues);
+                  form.setFieldValue("perfis", newValues);
+                }}
+              />
+            </Form.Item>
           </>
         )}
         {/* <Button onClick={() => {

@@ -1,10 +1,10 @@
 import React from "react";
 import { clinicasAPI } from "../../../api/sistema/clinicasAPI.js";
-import PaginaEntidadeComCadastro from "../../../components/templates/PaginaEntidadeComCadastro/index.jsx";
+import PaginaSistemaEntidadeComCadastro from "../../../components/templates/PaginaSistemaEntidadeComCadastro/index.jsx";
 
 const Clinicas = () => {
   return (
-    <PaginaEntidadeComCadastro
+    <PaginaSistemaEntidadeComCadastro
       titulo="Lista de Clínicas"
       entidade="clinicas"
       api={clinicasAPI}

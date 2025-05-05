@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { Table, Button, Space, Tag, Modal } from "antd";
-import { EditOutlined, LoginOutlined } from "@ant-design/icons";
+import { Table, Button, Space, Tag, Modal, Popconfirm, message } from "antd";
+import { DeleteOutlined, EditOutlined, LoginOutlined } from "@ant-design/icons";
 import "../styles/TabelaEntidade.css";
 import FormEditarEntidade from "../molecules/FormEditarEntidade";
 import FormAcessarClinica from "../molecules/FormAcessarClinica";
 
-const camposEditar = {
+const camposSimplesEditar = {
   usuariosDoSistema: [
     {
       name: "nome",
@@ -42,20 +42,7 @@ const camposEditar = {
         { type: "required", message: "E-mail obrigatório" },
         { type: "email", message: "Formato inválido" },
       ],
-    },
-    {
-      name: "perfilId",
-      label: "Perfil",
-      type: "select",
-      placeholder: "Selecione um perfil",
-      options: [
-        { label: "Gestor", value: 2 },
-        { label: "Técnico", value: 5 },
-        { label: "Secretário", value: 4 },
-        { label: "Veterinário", value: 3 },
-      ],
-      rules: [{ type: "required", message: "Perfil obrigatório" }],
-    },
+    }
   ],
   animais: [
       { name: "nome", label: "Nome do Animal", type: "text", placeholder: "Digite o nome", rules: [{ type: "required", message: "Nome obrigatório" }] },
@@ -88,12 +75,32 @@ const camposEditar = {
       { name: "email", label: "E-mail", type: "email", placeholder: "Digite o e-mail", rules: [{ type: "required", message: "O e-mail é obrigatório." }, { type: "email", message: "O e-mail não é válido." }] }
   ],
   clinicas: [
-      { name: "nomeClinica", label: "Nome da Clínica", type: "text", placeholder: "Digite o nome da clínica", rules: [{ type: "required", message: "O nome da clínica é obrigatório" }, { type: "maxLength", value: 100, message: "O nome deve ter no máximo 100 caracteres" }] }
+    {
+      name: "nomeClinica",
+      label: "Nome da Clínica",
+      type: "text",
+      placeholder: "Digite o nome oficial da clínica",
+      rules: [
+        { type: "required", message: "O nome da clínica é obrigatório" },
+        { type: "maxLength", value: 100, message: "O nome deve ter no máximo 100 caracteres" }
+      ]
+    },
+    {
+      name: "nomeFantasia",
+      label: "Nome Fantasia",
+      type: "text",
+      placeholder: "Digite o nome fantasia da clínica",
+      rules: [
+        { type: "required", message: "O nome fantasia é obrigatório" },
+        { type: "maxLength", value: 100, message: "O nome fantasia deve ter no máximo 100 caracteres" }
+      ]
+    }
   ]
 };
 
 const TabelaEntidade = ({
-    entidade,            // nome da entidade
+    entidade,
+    nomeEntidade,
     dados,
     entidadeAPI,
     onAtualizar
@@ -118,6 +125,15 @@ const TabelaEntidade = ({
         setModalEdicaoVisivel(false);
       } catch (erro) {
         console.error("Erro ao editar registro:", erro);
+      }
+    };  
+    
+    const deletarRegistro = async (registroId) => {
+      try {
+        await entidadeAPI.deletar(registroId); // função da API
+        message.success("Registro deletado com sucesso.");
+      } catch (erro) {
+        console.error("Erro ao deletar registro:", erro);
       }
     };  
     
@@ -255,8 +271,44 @@ const TabelaEntidade = ({
       { title: "E-mail", dataIndex: "email", key: "email" },
     ],
     clinicas: [
-      { title: "Nome da Clínica", dataIndex: "nomeClinica", key: "nomeClinica", sorter: (a, b) => a.nomeClinica.localeCompare(b.nomeClinica) }
-    ],
+      { 
+        title: "Nome da Clínica", 
+        dataIndex: "nomeClinica", 
+        key: "nomeClinica", 
+        sorter: (a, b) => a.nomeClinica.localeCompare(b.nomeClinica) 
+      },
+      { 
+        title: "Status", 
+        dataIndex: "isAtiva", 
+        key: "isAtiva",
+        filters: [
+          { text: 'Ativa', value: true },
+          { text: 'Inativa', value: false }
+        ],
+        onFilter: (value, record) => record.isAtiva === value,
+        render: (isAtiva) => (
+          <Tag color={isAtiva ? "green" : "red"} key={isAtiva ? "ativo" : "inativo"}>
+            {isAtiva ? (
+              <>
+                ATIVA
+              </>
+            ) : (
+              <>
+                INATIVA
+              </>
+            )}
+          </Tag>
+        ),
+        sorter: (a, b) => a.isAtiva - b.isAtiva
+      },
+      { 
+        title: "Data de Cadastro", 
+        dataIndex: "dataCad", 
+        key: "dataCad",
+        render: (dataCad) => new Date(dataCad).toLocaleDateString(),
+        sorter: (a, b) => new Date(a.dataCad) - new Date(b.dataCad)
+      }
+    ]
   };
 
   const colunasComAcoes = [
@@ -281,8 +333,19 @@ const TabelaEntidade = ({
               Acessar
             </Button>
           )}
+          <Popconfirm
+          title="Tem certeza que deseja deletar este registro?"
+          onConfirm={() => deletarRegistro(record.id || record.upcId)}
+          okText="Sim"
+          cancelText="Não"
+        >
+          <Button
+            icon={<DeleteOutlined />}
+            style={{ backgroundColor: "var(--vermelho-delete)", color: "white" }}
+          />
+        </Popconfirm>
         </Space>
-      ),
+      )
     },
   ];
 
@@ -310,9 +373,9 @@ const TabelaEntidade = ({
             onSubmit={(valores) => editarRegistro(valores)}
             onSuccess={onAtualizar}
             setModalEdicaoVisivel={setModalEdicaoVisivel}
-            tituloModal={`Edição de ${entidade}`}
+            tituloModal={`Edição de ${nomeEntidade}`}
             valoresIniciais={registroSelecionado}
-            camposEditar={camposEditar}
+            camposSimplesEditar={camposSimplesEditar}
           />
         </Modal>
         <Modal

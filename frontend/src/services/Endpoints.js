@@ -35,7 +35,7 @@ const endpoints = {
   clinica: {
     editar: `${API_BASE_URL}/clinica/editar`,
     animal: {
-      cadastrar: (tutorId) => `${API_BASE_URL}/clinica/animais/tutor/${tutorId}/cadastrar`,
+      cadastrar: `${API_BASE_URL}/clinica/animais/cadastrar`,
       detalhes: (animalId) => `${API_BASE_URL}/clinica/animais/${animalId}`,
       deletar: (animalId) => `${API_BASE_URL}/clinica/animais/${animalId}`,
       listarPorTutor: (tutorId) => `${API_BASE_URL}/clinica/animais/tutor_${tutorId}/animais`,

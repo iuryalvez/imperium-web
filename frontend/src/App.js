@@ -28,6 +28,7 @@ import UsuariosDaClinica from './pages/Clinica/UsuariosDaClinica/index.jsx';
 import TutoresDaClinica from './pages/Clinica/TutoresDaClinica/index.jsx';
 import ConsultasDaClinica from './pages/Clinica/ConsultasDaClinica/index.jsx';
 import AnimaisDaClinica from './pages/Clinica/AnimaisDaClinica/index.jsx';
+import RacoesDaClinica from './pages/Clinica/RacoesDaClinica/index.jsx';
 
 const App = () => {
   return (
@@ -67,10 +68,11 @@ const App = () => {
                 <Route path='/clinica/inicio' element={<ClinicaInicio />} />
                 <Route path='/clinica' element={<Clinica />} />
                 <Route path="/clinica/editar" element={<ClinicaGerenciamento />} />
-                <Route path='/clinica/usuarios' element={<UsuariosDaClinica />} />
-                <Route path="/clinica/tutores" element={<TutoresDaClinica />} />
-                <Route path="/clinica/consultas" element={<ConsultasDaClinica />} />
                 <Route path="/clinica/animais" element={<AnimaisDaClinica />} />
+                <Route path="/clinica/tutores" element={<TutoresDaClinica />} />
+                <Route path='/clinica/usuarios' element={<UsuariosDaClinica />} />
+                <Route path="/clinica/consultas" element={<ConsultasDaClinica />} />
+                <Route path="/clinica/racoes" element={<RacoesDaClinica />} />
               </Route>
             </Route>
           </Routes>

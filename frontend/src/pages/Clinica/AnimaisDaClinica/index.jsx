@@ -1,6 +1,3 @@
-import "../../../App.css";
-import "../../../components/styles/Listas.css";
-
 //   // Listas de raças de cães e gatos
 //   const dogBreeds = [
 //     'Affenpinscher', 'Afghan Hound', 'Airedale Terrier', 'Akita', 'Alaskan Malamute',
@@ -48,16 +45,20 @@ import "../../../components/styles/Listas.css";
 //     'Turkish Angora', 'Turkish Van'
 //   ];
 
-function AnimaisDaClinica() {
+import React from "react";
+import PaginaClinicaEntidadeComCadastro from "../../../components/templates/PaginaClinicaEntidadeComCadastro/index.jsx";
+import { animaisDaClinicaAPI } from "../../../api/clinica/animaisDaClinicaAPI.js";
+
+const AnimaisDaClinica = () => {
   return (
-    <div>
-      <main className="main-content">
-        <div className="titulo-animais">
-          <h2>Lista de animais</h2>
-        </div>
-      </main>
-    </div>
+    <PaginaClinicaEntidadeComCadastro
+      titulo="Lista de Animais"
+      entidade="animaisDaClinica"
+      api={animaisDaClinicaAPI}
+      nomeBotao="Cadastrar Animal"
+      nomeEntidade="Animais"
+    />
   );
-}
+};
 
 export default AnimaisDaClinica;

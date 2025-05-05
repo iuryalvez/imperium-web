@@ -1,6 +1,6 @@
 import React from "react";
 import { usuariosDoSistemaAPI } from "../../../api/sistema/usuariosDoSistemaAPI.js";
-import PaginaEntidadeComCadastro from "../../../components/templates/PaginaEntidadeComCadastro/index.jsx";
+import PaginaEntidadeComCadastro from "../../../components/templates/PaginaSistemaEntidadeComCadastro/index.jsx";
 
 const UsuariosDoSistema = () => {
   return (

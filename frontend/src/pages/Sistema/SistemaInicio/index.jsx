@@ -1,18 +1,12 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../services/AuthContext.js';   
 import BotaoMenu from '../../../components/atoms/BotaoMenu.jsx';
 import BotaoOff from '../../../components/atoms/BotaoOff.jsx';
 
 const SistemaInicio = () => {
-  const { isAdmin, userName } = useAuth();
+  const { userName } = useAuth();
   const navigate = useNavigate();
-  
-  useEffect(() => {
-    if (!isAdmin) {
-      navigate('/sistema/vinculos');
-    }
-  }, [isAdmin, navigate]);
 
   const botoesGerais = [
       { texto: 'Clínicas', rota: '/sistema/clinicas', ativo: true },

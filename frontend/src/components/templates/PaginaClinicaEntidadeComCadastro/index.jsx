@@ -6,36 +6,7 @@ import LoadingSpinner from "../../atoms/LoadingSpinner.jsx";
 import FormCadastrarEntidade from "../../molecules/FormCadastrarEntidade.jsx";
 import TabelaEntidade from "../../organisms/TabelaEntidade.jsx";
 
-const camposCadastro = {
-  usuariosDoSistema: [
-    {
-      name: "nome",
-      label: "Nome",
-      type: "text",
-      placeholder: "Digite seu nome",
-      rules: [{ type: "required", message: "Nome obrigatório" }],
-    },
-    {
-      name: "email",
-      label: "E-mail",
-      type: "email",
-      placeholder: "Digite seu e-mail",
-      rules: [
-        { type: "required", message: "E-mail obrigatório" },
-        { type: "email", message: "Formato inválido" },
-      ],
-    },
-    {
-      name: "senha",
-      label: "Senha",
-      type: "password",
-      placeholder: "Digite sua senha",
-      rules: [
-        { type: "required", message: "Senha obrigatória" },
-        { type: "minLength", message: "Mínimo 6 caracteres" },
-      ],
-    },
-  ],
+const camposSimplesCadastrar = {
   usuariosDaClinica: [
     {
       name: "nome",
@@ -108,12 +79,12 @@ const camposCadastro = {
       { name: "cpf", label: "CPF", type: "text", placeholder: "Digite o CPF (somente números)", rules: [{ type: "required", message: "O CPF é obrigatório." }, { type: "exactLength", value: 11, message: "O CPF deve ter 11 caracteres." }] },
       { name: "email", label: "E-mail", type: "email", placeholder: "Digite o e-mail", rules: [{ type: "required", message: "O e-mail é obrigatório." }, { type: "email", message: "O e-mail não é válido." }] }
   ],
-  clinicas: [
+  clinica: [
       { name: "nomeClinica", label: "Nome da Clínica", type: "text", placeholder: "Digite o nome da clínica", rules: [{ type: "required", message: "O nome da clínica é obrigatório" }, { type: "maxLength", value: 100, message: "O nome deve ter no máximo 100 caracteres" }] }
   ]
 };
 
-const PaginaEntidadeComCadastro = ({
+const PaginaClinicaEntidadeComCadastro = ({
   titulo,
   entidade,
   nomeEntidade,
@@ -154,12 +125,12 @@ const PaginaEntidadeComCadastro = ({
   return (
     <div>
       <div>
-        <button
+        {/* <button
           onClick={() => window.history.back()}
           className="flex items-center font-bold text-green-dark mb-2"
         >
           <ArrowLeftOutlined className="mr-2" /> Voltar
-        </button>
+        </button> */}
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold text-green-dark">{titulo}</h1>
           <Button
@@ -172,7 +143,7 @@ const PaginaEntidadeComCadastro = ({
           </Button>
         </div>
 
-        <TabelaEntidade entidade={entidade} entidadeAPI={api} dados={dados} onAtualizar={buscarDados}/>
+        <TabelaEntidade entidade={entidade} nomeEntidade={nomeEntidade} entidadeAPI={api} dados={dados} onAtualizar={buscarDados}/>
       </div>
       <div className="max-h-[80vh] overflow-y-auto">
         <Modal
@@ -189,7 +160,7 @@ const PaginaEntidadeComCadastro = ({
             onSuccess={handleSucesso}
             setModalVisivel={setModalVisivel}
             tituloModal={`Cadastro de ${nomeEntidade}`}
-            camposCadastro={camposCadastro}
+            camposSimplesCadastrar={camposSimplesCadastrar}
           />
         </Modal>
       </div>
@@ -197,4 +168,4 @@ const PaginaEntidadeComCadastro = ({
   );
 };
 
-export default PaginaEntidadeComCadastro;
+export default PaginaClinicaEntidadeComCadastro;
