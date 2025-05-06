@@ -14,7 +14,7 @@ import RacoesIcon from "../../../assets/animal/dog-food-pet-svgrepo-com.png";
 const { Text } = Typography;
 
 const SidebarDrawer = ({ collapsed, toggleCollapse }) => {
-  const { userName, clinicaNome } = useAuth();
+  const { userName, nomeClinica } = useAuth();
 
   const menuItems = [
     {
@@ -75,7 +75,7 @@ const SidebarDrawer = ({ collapsed, toggleCollapse }) => {
               {collapsed ? userName?.split(' ')[0] || "Usuário" : userName || "Usuário"}
             </Text>
             <Text className={`text-white ${collapsed ? 'text-xs truncate w-full text-center' : 'text-sm'}`}>
-              {collapsed ? clinicaNome?.split(' ')[0] || "Clínica" : clinicaNome || "Clínica"}
+              {collapsed ? nomeClinica?.split(' ')[0] || "Clínica" : nomeClinica || "Clínica"}
             </Text>
           </div>
         </div>

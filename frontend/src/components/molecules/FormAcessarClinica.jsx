@@ -21,7 +21,7 @@ const FormAcessarClinica = ({ clinica, onSucesso }) => {
         setCarregando(true);
         
         try {
-            await escolherVinculoAdmin(clinica.id, perfis);
+            await escolherVinculoAdmin(clinica.id, perfis, clinica.nomeClinica);
             message.success("Vínculo criado com sucesso!");
             onSucesso(); // Fecha modal ou atualiza interface
         } catch (err) {
@@ -63,7 +63,7 @@ const FormAcessarClinica = ({ clinica, onSucesso }) => {
 
         <Form.Item>
             <Button type="primary" htmlType="submit" loading={carregando}>
-            Acessar Clínica
+            Acessar {clinica.nomeClinica}
             </Button>
         </Form.Item>
         </Form>

@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(null);
   const [perfis, setPerfis] = useState([]);
   const [userName, setUserName] = useState("");
-  const [clinicaNome, setClinicaNome] = useState("");
+  const [nomeClinica, setNomeClinica] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const abrirNotificacao = useNotification(); // Contexto de notificação
@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
           setIsAuthenticated(true);
           setIsAdmin(resposta.isAdmin);
           setUserName(resposta.name || "");
-          setClinicaNome(resposta.clinicaNome || "");
+          setNomeClinica(resposta.nomeClinica || "");
           setPerfis(resposta.perfis || []);
           break;
           
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
           setIsAuthenticated(false);
           setIsAdmin(false);
           setUserName("");
-          setClinicaNome("");
+          setNomeClinica("");
           setPerfis([]);
           break;
       }
@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }) => {
       setIsLogged(false);
       setIsAdmin(false);
       setUserName("");
-      setClinicaNome("");
+      setNomeClinica("");
       setPerfis([]);
       return null; // <-- Em caso de erro
     } finally {
@@ -172,7 +172,7 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated,
         isAdmin,
         userName,
-        clinicaNome,
+        nomeClinica,
         perfis,
         loading,
         login,

@@ -106,11 +106,12 @@ const TabelaEntidade = ({
     onAtualizar
   }) => {
     const [registros, setRegistros] = useState(dados);
+    const [backupRegistros, setBackupRegistros] = useState([]);
     const [modalEdicaoVisivel, setModalEdicaoVisivel] = useState(false);
     const [registroSelecionado, setRegistroSelecionado] = useState(null);
     const [modalAcessoAberto, setModalAcessoAberto] = useState(false);
     const [clinicaSelecionada, setClinicaSelecionada] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [setLoading] = useState(false);
 
     
     useEffect(() => {
@@ -118,50 +119,55 @@ const TabelaEntidade = ({
     }, [dados]);
     
     // Edição otimista com rollback em caso de erro
+
     const editarRegistro = async (valores) => {
       setLoading(true);
       try {
+        // Salva estado atual para possível rollback
+        setBackupRegistros(registros);
         
-        // Atualização otimista (UI primeiro)
+        // Atualização otimista
         setRegistros(prev => 
           prev.map(reg => reg.id === valores.id ? { ...reg, ...valores } : reg)
         );
         
-        // Chamada à API
         await entidadeAPI.editar(valores);
         
-        // Fecha modal e feedback
         setModalEdicaoVisivel(false);
         message.success(`${nomeEntidade} atualizado com sucesso!`);
         
-        // Chama callback de atualização se existir
         if (onAtualizar) onAtualizar();
       } catch (erro) {
+        // Rollback em caso de erro
+        setRegistros(backupRegistros);
         console.error("Erro ao editar registro:", erro);
-        message.error(`Falha ao atualizar ${nomeEntidade.toLowerCase()}`);
+        message.error(erro.response?.data?.message || 
+                    `Falha ao atualizar ${nomeEntidade.toLowerCase()}`);
       } finally {
         setLoading(false);
       }
     };
-
-    // Exclusão otimista com rollback
+  
     const deletarRegistro = async (registroId) => {
       setLoading(true);
       try {
+        // Salva estado atual
+        setBackupRegistros(registros);
+        
         // Atualização otimista
         setRegistros(prev => prev.filter(reg => reg.id !== registroId));
         
-        // Chamada à API
         await entidadeAPI.deletar(registroId);
         
-        // Feedback
         message.success(`${nomeEntidade} deletado com sucesso.`);
         
-        // Callback de atualização
         if (onAtualizar) onAtualizar();
       } catch (error) {
+        // Rollback
+        setRegistros(backupRegistros);
         console.error("Erro ao deletar registro:", error);
-        message.error(`Falha ao deletar ${nomeEntidade.toLowerCase()}`);
+        message.error(error.response?.data?.message || 
+                    `Falha ao deletar ${nomeEntidade.toLowerCase()}`);
       } finally {
         setLoading(false);
       }

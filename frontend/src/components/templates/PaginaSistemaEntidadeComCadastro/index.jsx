@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Modal, Button } from "antd";
+import { Modal, Button, message } from "antd";
 import { ArrowLeftOutlined, PlusOutlined } from "@ant-design/icons";
 
 import LoadingSpinner from "../../atoms/LoadingSpinner.jsx";
@@ -131,17 +131,22 @@ const PaginaSistemaEntidadeComCadastro = ({
       setDados(response);
     } catch (err) {
       console.error(`Erro ao buscar ${entidade}: `, err);
+      message.error(`Falha ao carregar ${nomeEntidade.toLowerCase()}`);
     } finally {
       setLoading(false);
     }
-  }, [api, entidade]);
+  }, [api, entidade, nomeEntidade]);
 
   useEffect(() => {
     buscarDados();
   }, [buscarDados]);
 
   const handleCadastrar = async (formData) => {
-    return await api.cadastrar(formData);
+    try {
+      return await api.cadastrar(formData);
+    } catch (error) {
+      throw error; // Propaga o erro para ser tratado no FormCadastrarEntidade
+    }
   };
 
   const handleSucesso = () => {

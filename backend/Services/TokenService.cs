@@ -134,7 +134,7 @@ namespace backend.Services
 
                 var clinicaId = upc.ClinicaId;
 
-                var clinicaNome = upc.Clinica?.NomeClinica ?? throw new Exception("Clínica não encontrada para o usuário.");
+                var nomeClinica = upc.Clinica?.NomeClinica ?? throw new Exception("Clínica não encontrada para o usuário.");
 
                 var usuarioNome = upc.Usuario?.Nome ?? throw new Exception("Nome não encontrado para o usuário.");
                 
@@ -160,7 +160,7 @@ namespace backend.Services
                         new Claim(ClaimTypes.Name, usuarioNome),
                         new Claim("UsuarioIp", usuarioIp),
                         new Claim("UsuarioAgent", usuarioAgent),
-                        new Claim("clinicaNome", clinicaNome),
+                        new Claim("nomeClinica", nomeClinica),
                         new Claim("clinicaId", clinicaId.ToString()),
                         new Claim("isAdmin", "false"),
                         new Claim("Perfis", JsonSerializer.Serialize(perfisAtivos)) // Lista de perfis ativos
@@ -216,7 +216,7 @@ namespace backend.Services
                     throw new Exception("Clínica não encontrada.");
                 }
 
-                var clinicaNome = clinica.NomeClinica;
+                var nomeClinica = clinica.NomeClinica;
                 var usuarioNome = userPrincipal.FindFirst(ClaimTypes.Name)?.Value ?? "Administrador";
                 
                 // Validação da chave JWT
@@ -234,7 +234,7 @@ namespace backend.Services
                     new Claim(ClaimTypes.Name, usuarioNome),
                     new Claim("UsuarioIp", usuarioIp),
                     new Claim("UsuarioAgent", usuarioAgent),
-                    new Claim("clinicaNome", clinicaNome),
+                    new Claim("nomeClinica", nomeClinica),
                     new Claim("clinicaId", clinicaId.ToString()),
                     new Claim("isAdmin", "true"),
                     new Claim("Perfis", JsonSerializer.Serialize(perfisAtivos)) // lista de perfis ativos

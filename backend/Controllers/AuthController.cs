@@ -45,7 +45,7 @@ namespace backend.Controllers
             {
                 var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var userNameClaim = User.FindFirst(ClaimTypes.Name)?.Value;
-                var clinicaNomeClaim = User.FindFirst("clinicaNome")?.Value;
+                var nomeClinicaClaim = User.FindFirst("nomeClinica")?.Value;
                 var isAdminClaim = User.FindFirst("isAdmin")?.Value;
                 var perfisClaim = User.FindFirst("Perfis")?.Value;
 
@@ -72,7 +72,7 @@ namespace backend.Controllers
                     status = "autenticado",
                     isAdmin = IsAdmin,
                     name = userNameClaim,
-                    clinicaNome = clinicaNomeClaim,
+                    nomeClinica = nomeClinicaClaim,
                     perfis = JsonSerializer.Deserialize<List<string>>(perfisClaim) // Lista apenas os perfis ativos
                 });
             }
