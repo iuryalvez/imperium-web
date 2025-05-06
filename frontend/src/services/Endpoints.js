@@ -20,7 +20,7 @@ const endpoints = {
       cadastrar: `${API_BASE_URL}/sistema/clinicas/cadastrar`,
       editar: `${API_BASE_URL}/sistema/clinicas/editar`,
       detalhes: (clinicaId) => `${API_BASE_URL}/sistema/clinicas/${clinicaId}`,
-      desativar: (clinicaId) => `${API_BASE_URL}/sistema/clinicas/${clinicaId}`,
+      deletar: (clinicaId) => `${API_BASE_URL}/sistema/clinicas/${clinicaId}`,
     },
     animal: {
       listar: `${API_BASE_URL}/sistema/animais`,

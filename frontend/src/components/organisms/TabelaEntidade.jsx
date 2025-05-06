@@ -110,32 +110,62 @@ const TabelaEntidade = ({
     const [registroSelecionado, setRegistroSelecionado] = useState(null);
     const [modalAcessoAberto, setModalAcessoAberto] = useState(false);
     const [clinicaSelecionada, setClinicaSelecionada] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     
     useEffect(() => {
       setRegistros(dados);
     }, [dados]);
     
-    // Envia os dados editados para a API
+    // Edição otimista com rollback em caso de erro
     const editarRegistro = async (valores) => {
+      setLoading(true);
       try {
-        console.log("Valores iniciais passados para edição:", dados);
-        console.log("Valores recebidos para edição:", valores);
-        await entidadeAPI.editar(valores); // função da API
+        
+        // Atualização otimista (UI primeiro)
+        setRegistros(prev => 
+          prev.map(reg => reg.id === valores.id ? { ...reg, ...valores } : reg)
+        );
+        
+        // Chamada à API
+        await entidadeAPI.editar(valores);
+        
+        // Fecha modal e feedback
         setModalEdicaoVisivel(false);
+        message.success(`${nomeEntidade} atualizado com sucesso!`);
+        
+        // Chama callback de atualização se existir
+        if (onAtualizar) onAtualizar();
       } catch (erro) {
         console.error("Erro ao editar registro:", erro);
+        message.error(`Falha ao atualizar ${nomeEntidade.toLowerCase()}`);
+      } finally {
+        setLoading(false);
       }
-    };  
-    
+    };
+
+    // Exclusão otimista com rollback
     const deletarRegistro = async (registroId) => {
+      setLoading(true);
       try {
-        await entidadeAPI.deletar(registroId); // função da API
-        message.success("Registro deletado com sucesso.");
-      } catch (erro) {
-        console.error("Erro ao deletar registro:", erro);
+        // Atualização otimista
+        setRegistros(prev => prev.filter(reg => reg.id !== registroId));
+        
+        // Chamada à API
+        await entidadeAPI.deletar(registroId);
+        
+        // Feedback
+        message.success(`${nomeEntidade} deletado com sucesso.`);
+        
+        // Callback de atualização
+        if (onAtualizar) onAtualizar();
+      } catch (error) {
+        console.error("Erro ao deletar registro:", error);
+        message.error(`Falha ao deletar ${nomeEntidade.toLowerCase()}`);
+      } finally {
+        setLoading(false);
       }
-    };  
+    };
     
     const abrirModalEdicao = (registro) => {
       setRegistroSelecionado(registro);
@@ -335,7 +365,7 @@ const TabelaEntidade = ({
           )}
           <Popconfirm
           title="Tem certeza que deseja deletar este registro?"
-          onConfirm={() => deletarRegistro(record.id || record.upcId)}
+          onConfirm={() => deletarRegistro(record.id)}
           okText="Sim"
           cancelText="Não"
         >

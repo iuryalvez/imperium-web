@@ -229,7 +229,7 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel,
               <Switch
                 checkedChildren="ATIVA"
                 unCheckedChildren="INATIVA"
-                defaultChecked
+                defaultUnChecked
               />
             </Form.Item>
           </>
