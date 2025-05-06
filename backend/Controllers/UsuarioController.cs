@@ -39,6 +39,9 @@ namespace backend.Controllers
             try
             {
                 var clinicaId = User.GetClaimValue<int>("clinicaId");
+
+                // Console.WriteLine("clinicaId encontrada na claim: " + clinicaId);
+
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                 // Realiza a consulta com as devidas inclusões e mapeia para o DTO
@@ -51,6 +54,7 @@ namespace backend.Controllers
                     {
                         Id = upc.Usuario.Id,
                         UpcId = upc.Id,
+                        ClinicaId = upc.ClinicaId,
                         UserName = upc.Usuario.UserName,
                         Email = upc.Usuario.Email,
                         Nome = upc.Usuario.Nome ?? string.Empty, // Garante que Nome nunca seja nulo
@@ -71,52 +75,153 @@ namespace backend.Controllers
 
         [HttpPost("usuarios/cadastrar")]
         [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> CadastrarUsuario([FromBody] CadastrarUsuarioClinicaDto cadastrarUsuarioClinicaDto)
+        public async Task<IActionResult> CadastrarUsuarioClinica([FromBody] CadastrarUsuarioClinicaDto cadastrarUsuarioClinicaDto)
         {
+            // Validações iniciais (fora da transação pois são verificações rápidas)
             if (cadastrarUsuarioClinicaDto.Perfis == null || !cadastrarUsuarioClinicaDto.Perfis.Any())
             {
                 return BadRequest("Pelo menos um perfil deve ser selecionado.");
             }
 
-            var clinicaExiste = await _context.Clinicas.AnyAsync(c => c.Id == cadastrarUsuarioClinicaDto.ClinicaId);
-            if (!clinicaExiste)
+            // Inicia a transação atômica
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            
+            try
             {
-                return BadRequest("A clínica especificada não existe.");
+                var clinicaId = User.GetClaimValue<int>("clinicaId");
+                Console.WriteLine("clinicaId que o usuário vai ser associado: " + clinicaId);
+                // Verificação da clínica (dentro da transação)
+                var clinicaExiste = await _context.Clinicas.AnyAsync(c => c.Id == clinicaId);
+                if (!clinicaExiste)
+                {
+                    await transaction.RollbackAsync();
+                    return BadRequest("A clínica especificada não existe.");
+                }
+
+                // Verificação de e-mail único (dentro da transação)
+                var existingUser = await _userManager.FindByEmailAsync(cadastrarUsuarioClinicaDto.Email);
+                if (existingUser != null)
+                {
+                    await transaction.RollbackAsync();
+                    return BadRequest("O e-mail já está em uso.");
+                }
+
+                // Criação do usuário (Identity)
+                var usuario = new Usuario
+                {
+                    UserName = cadastrarUsuarioClinicaDto.UserName ?? cadastrarUsuarioClinicaDto.Email,
+                    Email = cadastrarUsuarioClinicaDto.Email,
+                    Nome = cadastrarUsuarioClinicaDto.Nome,
+                    DataCad = DateTime.UtcNow,
+                    DataUltimoAcesso = DateTime.UtcNow,
+                    EmailConfirmed = true,
+                };
+
+                var result = await _userManager.CreateAsync(usuario, cadastrarUsuarioClinicaDto.Senha);
+                if (!result.Succeeded)
+                {
+                    await transaction.RollbackAsync();
+                    return BadRequest(new { Errors = result.Errors.Select(e => e.Description) });
+                }
+
+                // Criação do vínculo (Entity Framework)
+                var usuarioPerfilClinica = new UsuarioPerfilClinica
+                {
+                    UsuarioId = usuario.Id,
+                    ClinicaId = clinicaId,
+                    Perfis = cadastrarUsuarioClinicaDto.Perfis
+                };
+
+                _context.UsuariosPerfisClinicas.Add(usuarioPerfilClinica);
+                await _context.SaveChangesAsync();
+
+                // Confirma todas as operações
+                await transaction.CommitAsync();
+
+                return Ok(new { Message = "Usuário criado com sucesso.", UsuarioId = usuario.Id });
+            }
+            catch (Exception ex)
+            {
+                // Rollback automático em caso de erro não tratado
+                await transaction.RollbackAsync();
+                
+                // Log do erro completo
+                _logger.LogError(ex, "Erro durante o cadastro de usuário");
+                
+                return StatusCode(500, "Ocorreu um erro durante o cadastro. Por favor, tente novamente.");
+            }
+        }
+
+        [HttpPut("usuarios/editar")]
+        [Authorize(Policy = "GerenciaClinica")]
+        public async Task<IActionResult> EditarUsuarioClinica([FromBody] EditarUsuarioClinicaDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
             }
 
-            var existingUser = await _userManager.FindByEmailAsync(cadastrarUsuarioClinicaDto.Email);
-            if (existingUser != null)
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            
+            try
             {
-                return BadRequest("O e-mail já está em uso.");
+                Console.WriteLine("EditarUsuarioClinicaDto.UpcId: " + dto.UpcId);
+                var vinculo = await _context.UsuariosPerfisClinicas
+                    .Include(upc => upc.Usuario)
+                    .FirstOrDefaultAsync(upc => upc.Id == dto.UpcId);
+
+                if (vinculo == null)
+                {
+                    return NotFound(new { Success = false, Message = "Vínculo do usuário não encontrado." });
+                }
+
+                var usuario = vinculo.Usuario;
+                if (usuario == null)
+                {
+                    return NotFound(new { Success = false, Message = "Usuário associado ao vínculo não encontrado." });
+                }
+
+                if (!string.IsNullOrWhiteSpace(dto.Nome))
+                {
+                    usuario.Nome = dto.Nome;
+                }
+
+                // Validação de perfis
+                if (dto.Perfis == null || !dto.Perfis.Any())
+                {
+                    return BadRequest(new { Success = false, Message = "O usuário deve ter pelo menos um perfil ativo." });
+                }
+                vinculo.Perfis = dto.Perfis;
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return Ok(new {
+                    Success = true,
+                    Message = "Usuário atualizado com sucesso",
+                    Data = new { UserId = usuario.Id, VinculoId = vinculo.Id }
+                });
             }
-
-            var usuario = new Usuario
+            catch (DbUpdateConcurrencyException ex)
             {
-                UserName = cadastrarUsuarioClinicaDto.UserName ?? cadastrarUsuarioClinicaDto.Email, // Usa o email se UserName for nulo
-                Email = cadastrarUsuarioClinicaDto.Email,
-                Nome = cadastrarUsuarioClinicaDto.Nome,
-                DataCad = DateTime.UtcNow,
-                DataUltimoAcesso = DateTime.UtcNow,
-                EmailConfirmed = true,
-            };
-
-            var result = await _userManager.CreateAsync(usuario, cadastrarUsuarioClinicaDto.Senha);
-            if (!result.Succeeded)
-            {
-                return BadRequest(new { Errors = result.Errors.Select(e => e.Description) });
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, $"Conflito de concorrência ao editar usuário {dto.UpcId}");
+                return StatusCode(409, new {
+                    Success = false,
+                    Message = "Os dados foram modificados por outro usuário. Recarregue e tente novamente.",
+                    ErrorCode = "CONCURRENCY_ERROR"
+                });
             }
-
-            var usuarioPerfilClinica = new UsuarioPerfilClinica
+            catch (Exception ex)
             {
-                UsuarioId = usuario.Id,
-                ClinicaId = cadastrarUsuarioClinicaDto.ClinicaId,
-                Perfis = cadastrarUsuarioClinicaDto.Perfis
-            };
-
-            _context.UsuariosPerfisClinicas.Add(usuarioPerfilClinica);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { Message = "Usuário criado com sucesso.", UsuarioId = usuario.Id });
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, $"Erro ao editar usuário com vínculo ID {dto.UpcId}");
+                return StatusCode(500, new {
+                    Success = false,
+                    Message = "Erro interno ao editar usuário.",
+                    ErrorCode = "INTERNAL_ERROR"
+                });
+            }
         }
 
         [HttpDelete("usuarios/{usuarioId}")]
@@ -161,120 +266,3 @@ namespace backend.Controllers
         }
     }
 }
-
-        // [HttpGet("buscar")]
-        // [Authorize(Policy = "GerenciaSistema")]
-        // public async Task<IActionResult> BuscarUsuariosPorNome([FromQuery] string nome)
-        // {
-        //     try {
-        //         if (string.IsNullOrWhiteSpace(nome))
-        //             return BadRequest("O nome do usuário não pode ser vazio.");
-
-        //         var usuarios = await _context.Usuarios
-        //             .Where(u => EF.Functions.ILike(u.Nome, $"%{nome}%")) // ILike é case-insensitive (PostgreSQL)
-        //             .Select(u => new
-        //             {
-        //                 value = u.Id,
-        //                 label = u.Nome
-        //             })
-        //             .ToListAsync();
-
-        //         return Ok(usuarios);
-        //     }
-        //     catch (Exception ex) {
-        //         _logger.LogError(ex, "Erro ao buscar usuário por nome.");
-        //         return StatusCode(500, "Erro interno ao buscar usuário por nome.");
-        //     }
-        // }
-
-        // // obtém todos os usuários
-        // [HttpGet("usuarios")]
-        // [Authorize(Policy = "GerenciaSistema")]
-        // public async Task<IActionResult> ListarUsuarios()
-        // {
-        //     try
-        //     {
-        //         var usuariosComVinculo = await _context.UsuariosPerfisClinicas
-        //             .AsNoTracking()
-        //             .Include(upc => upc.Usuario)
-        //             .Include(upc => upc.Clinica)
-        //             .Select(upc => new GetUsuariosSistemaDto
-        //             {
-        //                 Id = upc.Usuario.Id,
-        //                 UpcId = upc.Id,
-        //                 UserName = upc.Usuario.UserName,
-        //                 NomeClinica = upc.Clinica.NomeClinica,
-        //                 ClinicaId = upc.ClinicaId,
-        //                 Email = upc.Usuario.Email,
-        //                 Nome = upc.Usuario.Nome ?? string.Empty,
-        //                 Perfis = upc.Perfis,
-        //                 DataCadastro = upc.Usuario.DataCad
-        //             })
-        //             .ToListAsync();
-
-        //         // Pega os IDs dos usuários já retornados
-        //         var idsUsuariosComVinculo = usuariosComVinculo.Select(u => u.Id).Distinct();
-
-        //         // Agora busca usuários administradores que não têm vínculo
-        //         var adminsSemVinculo = await _context.Usuarios
-        //             .AsNoTracking()
-        //             .Where(u => u.IsAdmin && !idsUsuariosComVinculo.Contains(u.Id))
-        //             .Select(u => new GetUsuariosSistemaDto
-        //             {
-        //                 Id = u.Id,
-        //                 UpcId = 0, // sem vínculo
-        //                 UserName = u.UserName,
-        //                 NomeClinica = "N/A",
-        //                 ClinicaId = 0,
-        //                 Email = u.Email,
-        //                 Nome = u.Nome ?? string.Empty,
-        //                 Perfis = new List<string> { "Administrador" },
-        //                 DataCadastro = u.DataCad
-        //             })
-        //             .ToListAsync();
-
-        //         // Junta tudo
-        //         var todosUsuarios = usuariosComVinculo.Concat(adminsSemVinculo).ToList();
-
-        //         return Ok(todosUsuarios);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         _logger.LogError(ex, "Erro ao buscar usuários");
-        //         return StatusCode(500, "Erro interno ao buscar usuários.");
-        //     }
-        // }
-
-        // [HttpGet("usuarios/inativos")]
-        // [Authorize(Policy = "GerenciaSistema")]
-        // public async Task<IActionResult> ListarUsuariosInativos()
-        // {
-        //     try
-        //     {
-        //         var usuariosInativos = await _context.UsuariosPerfisClinicas
-        //             .AsNoTracking()
-        //             .Include(upc => upc.Usuario)
-        //             .Include(upc => upc.Clinica)
-        //             .Where(upc => upc.Perfis.All(p => p == "Inativo"))
-        //             .Select(upc => new GetUsuariosSistemaDto
-        //             {
-        //                 Id = upc.Usuario.Id,
-        //                 UpcId = upc.Id,
-        //                 UserName = upc.Usuario.UserName,
-        //                 NomeClinica = upc.Clinica.NomeClinica,
-        //                 ClinicaId = upc.ClinicaId,
-        //                 Email = upc.Usuario.Email,
-        //                 Nome = upc.Usuario.Nome ?? string.Empty,
-        //                 Perfis = upc.Perfis,
-        //                 DataCadastro = upc.Usuario.DataCad
-        //             })
-        //             .ToListAsync();
-
-        //         return Ok(usuariosInativos);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         _logger.LogError(ex, "Erro ao buscar usuários inativos");
-        //         return StatusCode(500, "Erro interno ao buscar usuários inativos.");
-        //     }
-        // }

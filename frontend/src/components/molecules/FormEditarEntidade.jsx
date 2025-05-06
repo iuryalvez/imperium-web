@@ -34,15 +34,6 @@ const estadosBrasil = [
   { value: 'TO', label: 'Tocantins' }
 ];
 
-const perfisSistema = [
-  { label: "Administrador", value: "ADMIN" },
-  { label: "Gestor", value: "GESTOR" },
-  { label: "Técnico", value: "TECNICO" },
-  { label: "Secretário", value: "SECRETARIO" },
-  { label: "Veterinário", value: "VETERINARIO" },
-  { label: "Inativo", value: "INATIVO" },
-];
-
 const perfisClinica = [
   { label: "Gestor", value: "GESTOR" },
   { label: "Técnico", value: "TECNICO" },
@@ -89,9 +80,12 @@ const FormEditarEntidade = ({
   const handleFinish = async (values) => {
     try {
       setLoading(true);
+      console.log(valoresIniciais);
       if (entidade === "usuariosDoSistema") values.id = valoresIniciais.upcId;
+      console.log(values);
       const response = await onSubmit(values);
-      message.success(`${entidade} atualizado com sucesso.`);
+      // essa mensagem aparece mesmo com fracasso enquanto a outra que está no componente pai de fato funciona
+      // message.success(`${entidade} atualizado com sucesso.`); 
       if (onSuccess) onSuccess(response);
       setModalEdicaoVisivel(false);
     } catch (error) {
@@ -164,7 +158,7 @@ const FormEditarEntidade = ({
               ]}
             >
               <Checkbox.Group
-                options={perfisSistema.map((perfil) => ({
+                options={perfisClinica.map((perfil) => ({
                   ...perfil,
                   disabled:
                     (inativoSelecionado && perfil.value !== "INATIVO")
@@ -228,6 +222,30 @@ const FormEditarEntidade = ({
                   form.setFieldValue("perfis", newValues);
                 }}
               />
+            </Form.Item>
+            <Form.Item
+              name="clinicaId"
+              label="clinicaId"
+              hidden // Esta propriedade esconde o campo
+              initialValue={valoresIniciais.clinicaId} // Valor inicial do DTO
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="id"
+              label="id"
+              hidden // Esta propriedade esconde o campo
+              initialValue={valoresIniciais.id} // Valor inicial do DTO
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="upcId"
+              label="upcId"
+              hidden // Esta propriedade esconde o campo
+              initialValue={valoresIniciais.upcId} // Valor inicial do DTO
+            >
+              <Input />
             </Form.Item>
           </>
         )}
@@ -334,7 +352,7 @@ const FormEditarEntidade = ({
             <Form.Item
               label="Estado"
               name="endEstado"
-              rules={[{ required: true, message: "Estado é obrigatório" }]}
+              // rules={[{ required: true, message: "Estado é obrigatório" }]}
             >
               <Select
                 options={estadosBrasil}

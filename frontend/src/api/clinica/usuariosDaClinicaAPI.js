@@ -24,13 +24,18 @@ export const usuariosDaClinicaAPI = {
       throw error.response ? error.response.data : error;
     }
   },
-  atualizarPerfil: async (upcId, novoPerfil) => {
+  editar: async (dadosUsuarioEditados) => {
     try {
-      const responde = await api.put(endpoints.clinica.usuario.atualizarPerfil(upcId), {novoPerfil: novoPerfil});
-      return responde.data
+      console.log(dadosUsuarioEditados);
+      const response = await api.put(endpoints.clinica.usuario.editar, dadosUsuarioEditados, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data.data;
     } catch (error) {
-      console.error(`Erro ao modificar perfil do usuário com vinculoId ${upcId}`, error);
-      throw error.response ? error.responde.data : error;
+      console.error("Erro ao editar usuário:", error);
+      throw error.response ? error.response.data : error;
     }
   },
 };

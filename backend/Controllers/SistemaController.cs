@@ -405,7 +405,7 @@ namespace backend.Controllers
 
         [HttpPost("usuarios/cadastrar")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> CadastrarUsuario([FromBody] CadastrarUsuarioSistemaDto cadastrarUsuarioSistemaDto)
+        public async Task<IActionResult> CadastrarUsuarioSistema([FromBody] CadastrarUsuarioSistemaDto cadastrarUsuarioSistemaDto)
         {
             Console.WriteLine("[DEBUG] Iniciando cadastro de usuário...");
 
@@ -510,7 +510,7 @@ namespace backend.Controllers
 
         [HttpPut("usuarios/editar")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> EditarUsuario([FromBody] EditarUsuarioSistemaDto dto)
+        public async Task<IActionResult> EditarUsuarioSistema([FromBody] EditarUsuarioSistemaDto dto)
         {
             if (!ModelState.IsValid)
             {

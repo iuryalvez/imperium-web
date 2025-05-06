@@ -111,7 +111,7 @@ const TabelaEntidade = ({
     const [registroSelecionado, setRegistroSelecionado] = useState(null);
     const [modalAcessoAberto, setModalAcessoAberto] = useState(false);
     const [clinicaSelecionada, setClinicaSelecionada] = useState(null);
-    const [setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     
     useEffect(() => {
@@ -369,17 +369,19 @@ const TabelaEntidade = ({
               Acessar
             </Button>
           )}
-          <Popconfirm
-          title="Tem certeza que deseja deletar este registro?"
-          onConfirm={() => deletarRegistro(record.id)}
-          okText="Sim"
-          cancelText="Não"
-        >
-          <Button
-            icon={<DeleteOutlined />}
-            style={{ backgroundColor: "var(--vermelho-delete)", color: "white" }}
-          />
-        </Popconfirm>
+          {entidade !== "usuariosDaClinica" && (
+            <Popconfirm
+            title="Tem certeza que deseja deletar este registro?"
+            onConfirm={() => deletarRegistro(record.id)}
+            okText="Sim"
+            cancelText="Não"
+            >
+              <Button
+                icon={<DeleteOutlined />}
+                style={{ backgroundColor: "var(--vermelho-delete)", color: "white" }}
+              />
+            </Popconfirm>
+          )}
         </Space>
       )
     },

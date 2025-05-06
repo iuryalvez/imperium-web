@@ -30,6 +30,7 @@ const endpoints = {
       listar: `${API_BASE_URL}/sistema/usuarios`,
       cadastrar: `${API_BASE_URL}/sistema/usuarios/cadastrar`,
       editar: `${API_BASE_URL}/sistema/usuarios/editar`,
+      // deletar: (usuarioId) => `${API_BASE_URL}/sistema/usuarios/${usuarioId}`,
     },
   },
   clinica: {
@@ -70,7 +71,7 @@ const endpoints = {
     },
     usuario: {
       listar: `${API_BASE_URL}/clinica/usuarios`,
-      cadastrar:`${API_BASE_URL}/sistema/usuarios/cadastrar`,
+      cadastrar:`${API_BASE_URL}/clinica/usuarios/cadastrar`,
       editar: `${API_BASE_URL}/clinica/usuarios/editar`,
     },
   }

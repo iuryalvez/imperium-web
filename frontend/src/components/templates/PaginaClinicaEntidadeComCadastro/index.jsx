@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Modal, Button } from "antd";
-import { ArrowLeftOutlined, PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 
 import LoadingSpinner from "../../atoms/LoadingSpinner.jsx";
 import FormCadastrarEntidade from "../../molecules/FormCadastrarEntidade.jsx";
@@ -34,20 +34,7 @@ const camposSimplesCadastrar = {
         { type: "required", message: "Senha obrigatória" },
         { type: "minLength", message: "Mínimo 6 caracteres" },
       ],
-    },
-    {
-      name: "perfilId",
-      label: "Perfil",
-      type: "select",
-      placeholder: "Selecione um perfil",
-      options: [
-        { label: "Gestor", value: 2 },
-        { label: "Técnico", value: 5 },
-        { label: "Secretário", value: 4 },
-        { label: "Veterinário", value: 3 },
-      ],
-      rules: [{ type: "required", message: "Perfil obrigatório" }],
-    },
+    }
   ],
   animais: [
       { name: "nome", label: "Nome do Animal", type: "text", placeholder: "Digite o nome", rules: [{ type: "required", message: "Nome obrigatório" }] },
