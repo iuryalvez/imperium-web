@@ -6,10 +6,16 @@ namespace backend.Models {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+        
+        [Required(ErrorMessage = "O id do tutor é obrigatório.")]
         public int TutorId { get; set; }
         public Tutor? Tutor { get; set; }
+
+        [Required(ErrorMessage = "O id do animal é obrigatório.")]
         public int AnimalId { get; set; }
         public Animal? Animal { get; set; }
+
+        [Required(ErrorMessage = "O id da clínica é obrigatório.")]
         public int ClinicaId { get; set; }
         public Clinica? Clinica { get; set; }
     }

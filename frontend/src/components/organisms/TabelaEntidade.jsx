@@ -354,7 +354,7 @@ const TabelaEntidade = ({
       <Table
         dataSource={registros}
         columns={colunasComAcoes}
-        rowKey={(record) => record.upcId || record.id}
+        rowKey={(record) => record.id}
         pagination={{ pageSize: 10 }}
         scroll={{ x: 'max-content' }} // ativa scroll horizontal se necessário
       />

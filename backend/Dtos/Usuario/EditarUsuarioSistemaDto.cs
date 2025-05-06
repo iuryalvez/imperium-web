@@ -6,6 +6,7 @@ namespace backend.Dtos.Usuario
 {
     public class EditarUsuarioSistemaDto
     {
+        [Required(ErrorMessage = "O id do usuário é obrigatório.")]
         public int Id { get; set; }
         public int ClinicaId { get; set; }
         public int UpcId { get; set; }
@@ -16,7 +17,7 @@ namespace backend.Dtos.Usuario
 
         [Required(ErrorMessage = "O e-mail é obrigatório.")]
         [EmailAddress(ErrorMessage = "O e-mail não é válido.")]
-        public string? Email { get; set; }
+        public string Email { get; set; }
         public List<string>? Perfis { get; set; } 
     }
 }

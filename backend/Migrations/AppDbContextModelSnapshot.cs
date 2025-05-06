@@ -248,7 +248,6 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Nome")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<float>("Peso")
@@ -277,61 +276,62 @@ namespace backend.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Cep")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(9)
+                        .HasColumnType("character varying(9)");
 
                     b.Property<string>("Cnpj")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(14)
+                        .HasColumnType("character varying(14)");
 
                     b.Property<DateTime>("DataCad")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("EndCidade")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("EndEstado")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("EndNumero")
                         .HasColumnType("integer");
 
                     b.Property<string>("Endereco")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
 
                     b.Property<string>("Instagram")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
 
-                    b.Property<bool>("IsAtivo")
+                    b.Property<bool>("IsAtiva")
                         .HasColumnType("boolean");
 
                     b.Property<string>("LogoUrl")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("NomeClinica")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("NomeFantasia")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Telefone1")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
+
+                    b.Property<string>("Telefone2")
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
 
                     b.Property<string>("Whatsapp")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
 
                     b.HasKey("Id");
 
@@ -349,8 +349,8 @@ namespace backend.Migrations
                     b.Property<int>("ClinicaId")
                         .HasColumnType("integer");
 
-                    b.Property<DateOnly>("Date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("DataConsulta")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("TutorId")
                         .HasColumnType("integer");
@@ -422,23 +422,23 @@ namespace backend.Migrations
                     b.Property<int>("ClinicaId")
                         .HasColumnType("integer");
 
-                    b.Property<float>("Ee")
+                    b.Property<float>("ExtratoEtereo")
                         .HasColumnType("real");
 
-                    b.Property<float>("Fb")
+                    b.Property<float>("FibraBruta")
                         .HasColumnType("real");
 
-                    b.Property<float>("Mm")
+                    b.Property<float>("MateriaMineral")
                         .HasColumnType("real");
 
-                    b.Property<float>("Ms")
+                    b.Property<float>("MateriaSeca")
                         .HasColumnType("real");
 
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<float>("Pb")
+                    b.Property<float>("ProteinaBruta")
                         .HasColumnType("real");
 
                     b.Property<float>("Umidade")
@@ -469,7 +469,6 @@ namespace backend.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("DescDieta")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("GrauAtividade")
@@ -482,7 +481,6 @@ namespace backend.Migrations
                         .HasColumnType("real");
 
                     b.Property<string>("Racao")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -504,12 +502,13 @@ namespace backend.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Cep")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
 
                     b.Property<string>("Cpf")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
 
                     b.Property<DateTime>("DataCad")
                         .HasColumnType("timestamp with time zone");
@@ -519,35 +518,34 @@ namespace backend.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("EndCidade")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("EndEstado")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("EndNumero")
                         .HasColumnType("integer");
 
                     b.Property<string>("Endereco")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
 
                     b.Property<string>("Nome")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Telefone1")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
 
                     b.Property<string>("Telefone2")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
 
                     b.Property<string>("Whatsapp")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
 
                     b.HasKey("Id");
 
@@ -597,6 +595,10 @@ namespace backend.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("text");
 
+                    b.Property<string>("Cpf")
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
+
                     b.Property<DateTime>("DataCad")
                         .HasColumnType("timestamp with time zone");
 
@@ -611,8 +613,8 @@ namespace backend.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("Formacao")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
 
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("boolean");
@@ -625,7 +627,8 @@ namespace backend.Migrations
 
                     b.Property<string>("Nome")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -647,12 +650,20 @@ namespace backend.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
+                    b.Property<string>("Telefone1")
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Whatsapp")
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
 
                     b.HasKey("Id");
 
@@ -670,8 +681,8 @@ namespace backend.Migrations
                         {
                             Id = -1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "3866b235-bf74-459b-8ade-fd89bd470266",
-                            DataCad = new DateTime(2025, 4, 28, 20, 44, 29, 712, DateTimeKind.Utc).AddTicks(147),
+                            ConcurrencyStamp = "016f185f-b64a-400a-a242-966abc1d660e",
+                            DataCad = new DateTime(2025, 5, 6, 3, 14, 30, 265, DateTimeKind.Utc).AddTicks(959),
                             DataUltimoAcesso = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "iuryalves774@gmail.com",
                             EmailConfirmed = true,
@@ -681,9 +692,9 @@ namespace backend.Migrations
                             Nome = "Iury Dev",
                             NormalizedEmail = "IURYALVES774@GMAIL.COM",
                             NormalizedUserName = "ADMIN.IURY",
-                            PasswordHash = "AQAAAAIAAYagAAAAEFhQmKNMEZbIMq3g6LYQKHJnUqsmvbylGLaNgcZgQ0uOJonVQlkRQccqufmCyZpjVQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEHg5umf6S2RmhjRZb2a9kljUFATEArQnJkiWKjmah41ddHU8SEA4FDPW8Qyz2njnsw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "cd79a3ba-5a55-46d2-ac23-e17f5eab721c",
+                            SecurityStamp = "17bc2f4f-4a24-42b5-a962-16227484ed56",
                             TwoFactorEnabled = false,
                             UserName = "admin.iury"
                         },
@@ -691,8 +702,8 @@ namespace backend.Migrations
                         {
                             Id = -2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "badfe6a7-580c-434a-94a4-c58ebe6325c3",
-                            DataCad = new DateTime(2025, 4, 28, 20, 44, 29, 712, DateTimeKind.Utc).AddTicks(180),
+                            ConcurrencyStamp = "84924ee6-33cf-4115-a9c7-16b0ae35b515",
+                            DataCad = new DateTime(2025, 5, 6, 3, 14, 30, 265, DateTimeKind.Utc).AddTicks(988),
                             DataUltimoAcesso = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "rafaelnmcosta@gmail.com",
                             EmailConfirmed = true,
@@ -702,9 +713,9 @@ namespace backend.Migrations
                             Nome = "Rafael Dev",
                             NormalizedEmail = "ADMIN@GMAIL.COM",
                             NormalizedUserName = "ADMIN.RAFAEL",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJCdlBahqQ0vgJ1QBgLoM6/kyqS9IEu41Mobq0wulZycV1UZGQPcdT4npYRV9HzpqA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAENWRmLD90s/Krl9bxLp4fXQe9vBgWnX3jikYPiisBA0EVzEoiuMHtomQdqfmqhGUoQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "573a13e4-49c7-4228-a298-de076092aecd",
+                            SecurityStamp = "206afe52-98cd-4c60-a719-763a9a9ab88a",
                             TwoFactorEnabled = false,
                             UserName = "admin.rafael"
                         },
@@ -712,8 +723,8 @@ namespace backend.Migrations
                         {
                             Id = -3,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "65fc9d8a-0b41-477c-975d-45f86235b7fa",
-                            DataCad = new DateTime(2025, 4, 28, 20, 44, 29, 712, DateTimeKind.Utc).AddTicks(208),
+                            ConcurrencyStamp = "8ed9458c-81ab-4ed2-81cd-731dde8654a1",
+                            DataCad = new DateTime(2025, 5, 6, 3, 14, 30, 265, DateTimeKind.Utc).AddTicks(1017),
                             DataUltimoAcesso = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "ceron@ufg.br",
                             EmailConfirmed = true,
@@ -723,9 +734,9 @@ namespace backend.Migrations
                             Nome = "Professor Ceron",
                             NormalizedEmail = "CERON@UFG.BR",
                             NormalizedUserName = "ADMIN.CERON",
-                            PasswordHash = "AQAAAAIAAYagAAAAENOp3WNeAArOU+6qPdrYpktOpx5goB0cUvJYwyttgZS/gtXjNTNa2Exa5XDBEgqqqw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEELsAF8rLFWaSnHzuof1RqnZ0SkWzTISuwg5WByS+/dFBc6vX1CWKN/+w5sY+o8gFw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "2ba4bb82-486b-4e49-afa0-0255584da5e4",
+                            SecurityStamp = "3625a9ab-19c7-42f9-a904-7bf988843337",
                             TwoFactorEnabled = false,
                             UserName = "admin.ceron"
                         },
@@ -733,8 +744,8 @@ namespace backend.Migrations
                         {
                             Id = -4,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "4632f56d-dc73-4aa9-9c18-209fe09f3e6f",
-                            DataCad = new DateTime(2025, 4, 28, 20, 44, 29, 712, DateTimeKind.Utc).AddTicks(241),
+                            ConcurrencyStamp = "f410d2a0-b6d8-4cb6-b981-59014a5dab6f",
+                            DataCad = new DateTime(2025, 5, 6, 3, 14, 30, 265, DateTimeKind.Utc).AddTicks(1046),
                             DataUltimoAcesso = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "hadn@ufg.br",
                             EmailConfirmed = true,
@@ -744,9 +755,9 @@ namespace backend.Migrations
                             Nome = "Professor Hugo",
                             NormalizedEmail = "HADN@UFG.BR",
                             NormalizedUserName = "ADMIN.HUGO",
-                            PasswordHash = "AQAAAAIAAYagAAAAEBfTUYTxVRcTvhC+KpJmgo0nl2/qtqKsw/Fv+KW1ayc0zawvMyZGoC7wbn5ObWeE9Q==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEE4HwfSCLHZLmELKhNWqwJ8N7IVx+iCpgt6jLIfkp0zaZNMB6DRNYcuqlNxMfRBq8g==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "c3edbf53-9bc1-412f-a881-8d93448736bb",
+                            SecurityStamp = "e7d78ee9-cc2b-4177-84e7-5eb7996a4f2a",
                             TwoFactorEnabled = false,
                             UserName = "admin.hugo"
                         });

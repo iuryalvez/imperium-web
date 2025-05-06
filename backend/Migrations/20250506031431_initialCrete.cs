@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace backend.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class initialCrete : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,7 +21,7 @@ namespace backend.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Nome = table.Column<string>(type: "text", nullable: false),
+                    Nome = table.Column<string>(type: "text", nullable: true),
                     Especie = table.Column<int>(type: "integer", nullable: false),
                     Nascimento = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     DataCad = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -64,11 +64,14 @@ namespace backend.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Nome = table.Column<string>(type: "text", nullable: false),
+                    Nome = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     DataCad = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     DataUltimoAcesso = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Formacao = table.Column<string>(type: "text", nullable: false),
+                    Formacao = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: true),
+                    Cpf = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
                     IsAdmin = table.Column<bool>(type: "boolean", nullable: false),
+                    Telefone1 = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
+                    Whatsapp = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -95,17 +98,22 @@ namespace backend.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    NomeClinica = table.Column<string>(type: "text", nullable: false),
-                    NomeFantasia = table.Column<string>(type: "text", nullable: false),
-                    Cnpj = table.Column<string>(type: "text", nullable: false),
-                    Endereco = table.Column<string>(type: "text", nullable: false),
+                    NomeClinica = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    NomeFantasia = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Cnpj = table.Column<string>(type: "character varying(14)", maxLength: 14, nullable: true),
+                    Endereco = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
                     EndNumero = table.Column<int>(type: "integer", nullable: false),
-                    EndEstado = table.Column<string>(type: "text", nullable: false),
-                    EndCidade = table.Column<string>(type: "text", nullable: false),
-                    Cep = table.Column<string>(type: "text", nullable: false),
-                    Telefone1 = table.Column<string>(type: "text", nullable: false),
-                    Whatsapp = table.Column<string>(type: "text", nullable: false),
-                    Email = table.Column<string>(type: "text", nullable: false)
+                    EndEstado = table.Column<string>(type: "text", nullable: true),
+                    EndCidade = table.Column<string>(type: "text", nullable: true),
+                    Cep = table.Column<string>(type: "character varying(9)", maxLength: 9, nullable: true),
+                    Telefone1 = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
+                    Telefone2 = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
+                    Email = table.Column<string>(type: "text", nullable: true),
+                    Whatsapp = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
+                    Instagram = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
+                    DataCad = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsAtiva = table.Column<bool>(type: "boolean", nullable: false),
+                    LogoUrl = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -118,16 +126,16 @@ namespace backend.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Nome = table.Column<string>(type: "text", nullable: false),
-                    Cpf = table.Column<string>(type: "text", nullable: false),
-                    Endereco = table.Column<string>(type: "text", nullable: false),
+                    Nome = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Cpf = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: false),
+                    Endereco = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
                     EndNumero = table.Column<int>(type: "integer", nullable: false),
-                    EndEstado = table.Column<string>(type: "text", nullable: false),
-                    EndCidade = table.Column<string>(type: "text", nullable: false),
-                    Cep = table.Column<string>(type: "text", nullable: false),
-                    Telefone1 = table.Column<string>(type: "text", nullable: false),
-                    Telefone2 = table.Column<string>(type: "text", nullable: false),
-                    Whatsapp = table.Column<string>(type: "text", nullable: false),
+                    EndEstado = table.Column<string>(type: "text", nullable: true),
+                    EndCidade = table.Column<string>(type: "text", nullable: true),
+                    Cep = table.Column<string>(type: "character varying(8)", maxLength: 8, nullable: true),
+                    Telefone1 = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
+                    Telefone2 = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
+                    Whatsapp = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
                     Email = table.Column<string>(type: "text", nullable: false),
                     DataCad = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -272,11 +280,11 @@ namespace backend.Migrations
                     ClinicaId = table.Column<int>(type: "integer", nullable: false),
                     Nome = table.Column<string>(type: "text", nullable: false),
                     Umidade = table.Column<float>(type: "real", nullable: false),
-                    Pb = table.Column<float>(type: "real", nullable: false),
-                    Ee = table.Column<float>(type: "real", nullable: false),
-                    Mm = table.Column<float>(type: "real", nullable: false),
-                    Fb = table.Column<float>(type: "real", nullable: false),
-                    Ms = table.Column<float>(type: "real", nullable: false)
+                    ProteinaBruta = table.Column<float>(type: "real", nullable: false),
+                    ExtratoEtereo = table.Column<float>(type: "real", nullable: false),
+                    MateriaMineral = table.Column<float>(type: "real", nullable: false),
+                    FibraBruta = table.Column<float>(type: "real", nullable: false),
+                    MateriaSeca = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -325,7 +333,7 @@ namespace backend.Migrations
                     UsuarioId = table.Column<int>(type: "integer", nullable: false),
                     ClinicaId = table.Column<int>(type: "integer", nullable: false),
                     TutorId = table.Column<int>(type: "integer", nullable: false),
-                    Date = table.Column<DateOnly>(type: "date", nullable: false)
+                    DataConsulta = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -427,8 +435,8 @@ namespace backend.Migrations
                     Peso = table.Column<float>(type: "real", nullable: false),
                     CondicaoCorporal = table.Column<int>(type: "integer", nullable: false),
                     GrauAtividade = table.Column<int>(type: "integer", nullable: false),
-                    Racao = table.Column<string>(type: "text", nullable: false),
-                    DescDieta = table.Column<string>(type: "text", nullable: false)
+                    Racao = table.Column<string>(type: "text", nullable: true),
+                    DescDieta = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -449,13 +457,13 @@ namespace backend.Migrations
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
-                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "DataCad", "DataUltimoAcesso", "Email", "EmailConfirmed", "Formacao", "IsAdmin", "LockoutEnabled", "LockoutEnd", "Nome", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Cpf", "DataCad", "DataUltimoAcesso", "Email", "EmailConfirmed", "Formacao", "IsAdmin", "LockoutEnabled", "LockoutEnd", "Nome", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "Telefone1", "TwoFactorEnabled", "UserName", "Whatsapp" },
                 values: new object[,]
                 {
-                    { -4, 0, "5f9a4cd6-dbc1-49ba-8d04-724360a78d43", new DateTime(2025, 4, 2, 4, 43, 14, 161, DateTimeKind.Utc).AddTicks(6239), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "hadn@ufg.br", true, "Desenvolvedor do sistema", true, false, null, "Professor Hugo", "HADN@UFG.BR", "ADMIN.HUGO", "AQAAAAIAAYagAAAAECmVohQfbkLWx5Abw48BMZQ8eqjzpnSHA6L8lOt1hZ5RiNlnw30HHHnhlqBIIcLCOQ==", null, false, "619d3a47-20bc-4432-8863-c845ff604714", false, "admin.hugo" },
-                    { -3, 0, "943c050a-956e-41cd-85aa-823908b618ea", new DateTime(2025, 4, 2, 4, 43, 14, 161, DateTimeKind.Utc).AddTicks(6211), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "ceron@ufg.br", true, "Administrador do sistema", true, false, null, "Professor Ceron", "CERON@UFG.BR", "ADMIN.CERON", "AQAAAAIAAYagAAAAEOTuXvmxphht1tXDpgrSf+zcESQa6q1BhWO83zLgYmUZCpfpfkBy3tRV5PObr5DBFg==", null, false, "99d0ed61-b105-4d2f-bc4f-e44fea8fe322", false, "admin.ceron" },
-                    { -2, 0, "8f5b4b04-40df-4024-a43f-d50de225809f", new DateTime(2025, 4, 2, 4, 43, 14, 161, DateTimeKind.Utc).AddTicks(6183), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "rafaelnmcosta@gmail.com", true, "Desenvolvedor do sistema", true, false, null, "Rafael Dev", "ADMIN@GMAIL.COM", "ADMIN.RAFAEL", "AQAAAAIAAYagAAAAEDLQHK26PK6dUhjVCsH6hu8IdabLk+t7Q+C86+br5ITe+s2M7+XJ0Syt79ZFOvkh9g==", null, false, "3cd9168e-8cc3-4fa8-9d59-aa79898e16ee", false, "admin.rafael" },
-                    { -1, 0, "5a8ede89-5305-4eda-aeae-3b54fda16c6d", new DateTime(2025, 4, 2, 4, 43, 14, 161, DateTimeKind.Utc).AddTicks(6153), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "iuryalves774@gmail.com", true, "Desenvolvedor do sistema", true, false, null, "Iury Dev", "IURYALVES774@GMAIL.COM", "ADMIN.IURY", "AQAAAAIAAYagAAAAELavlJCsGqSFtUvchdht5N5BupQQUzuNik2K3kT6n3Yy7ty5dLEiYOS9GCZoFkLlCw==", null, false, "6bf8767e-8dd6-40e2-b0d6-a3ae5d087be0", false, "admin.iury" }
+                    { -4, 0, "f410d2a0-b6d8-4cb6-b981-59014a5dab6f", null, new DateTime(2025, 5, 6, 3, 14, 30, 265, DateTimeKind.Utc).AddTicks(1046), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "hadn@ufg.br", true, "Desenvolvedor do sistema", true, false, null, "Professor Hugo", "HADN@UFG.BR", "ADMIN.HUGO", "AQAAAAIAAYagAAAAEE4HwfSCLHZLmELKhNWqwJ8N7IVx+iCpgt6jLIfkp0zaZNMB6DRNYcuqlNxMfRBq8g==", null, false, "e7d78ee9-cc2b-4177-84e7-5eb7996a4f2a", null, false, "admin.hugo", null },
+                    { -3, 0, "8ed9458c-81ab-4ed2-81cd-731dde8654a1", null, new DateTime(2025, 5, 6, 3, 14, 30, 265, DateTimeKind.Utc).AddTicks(1017), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "ceron@ufg.br", true, "Administrador do sistema", true, false, null, "Professor Ceron", "CERON@UFG.BR", "ADMIN.CERON", "AQAAAAIAAYagAAAAEELsAF8rLFWaSnHzuof1RqnZ0SkWzTISuwg5WByS+/dFBc6vX1CWKN/+w5sY+o8gFw==", null, false, "3625a9ab-19c7-42f9-a904-7bf988843337", null, false, "admin.ceron", null },
+                    { -2, 0, "84924ee6-33cf-4115-a9c7-16b0ae35b515", null, new DateTime(2025, 5, 6, 3, 14, 30, 265, DateTimeKind.Utc).AddTicks(988), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "rafaelnmcosta@gmail.com", true, "Desenvolvedor do sistema", true, false, null, "Rafael Dev", "ADMIN@GMAIL.COM", "ADMIN.RAFAEL", "AQAAAAIAAYagAAAAENWRmLD90s/Krl9bxLp4fXQe9vBgWnX3jikYPiisBA0EVzEoiuMHtomQdqfmqhGUoQ==", null, false, "206afe52-98cd-4c60-a719-763a9a9ab88a", null, false, "admin.rafael", null },
+                    { -1, 0, "016f185f-b64a-400a-a242-966abc1d660e", null, new DateTime(2025, 5, 6, 3, 14, 30, 265, DateTimeKind.Utc).AddTicks(959), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "iuryalves774@gmail.com", true, "Desenvolvedor do sistema", true, false, null, "Iury Dev", "IURYALVES774@GMAIL.COM", "ADMIN.IURY", "AQAAAAIAAYagAAAAEHg5umf6S2RmhjRZb2a9kljUFATEArQnJkiWKjmah41ddHU8SEA4FDPW8Qyz2njnsw==", null, false, "17bc2f4f-4a24-42b5-a962-16227484ed56", null, false, "admin.iury", null }
                 });
 
             migrationBuilder.CreateIndex(

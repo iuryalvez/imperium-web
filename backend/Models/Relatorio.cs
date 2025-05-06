@@ -14,7 +14,7 @@ namespace backend.Models {
         public float Peso { get; set; }
         public int CondicaoCorporal { get; set; }
         public int GrauAtividade { get; set; } // 0-inativo, 1-moderado, 2-ativo
-        public string Racao { get; set; } = string.Empty;
-        public string DescDieta { get; set; } = string.Empty;
+        public string? Racao { get; set; }
+        public string? DescDieta { get; set; }
     }
 }

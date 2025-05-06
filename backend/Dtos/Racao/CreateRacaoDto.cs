@@ -4,20 +4,24 @@ namespace backend.Dtos.Racao
 {
     public class CreateRacaoDto
     {
-        [Required]
+        [Required(ErrorMessage = "A clínica vinculada é obrigatório.")]
         public int ClinicaId { get; set; }
-        [Required]
+        [Required(ErrorMessage = "O nome da ração é obrigatório.")]
         public string Nome { get; set; } = string.Empty;
-        [Required]
+        [Required(ErrorMessage = "A umidade da ração é obrigatória")]
         public float Umidade { get; set; }
-        [Required]
-        public float Pb { get; set; } // unidade: utilizar % ou g
-        [Required]
-        public float Ee { get; set; }
-        [Required]
-        public float Mm { get; set; }
-        [Required]
-        public float Fb { get; set; }
+
+        [Required(ErrorMessage = "A proteína bruta da ração é obrigatória.")]
+        public float ProteinaBruta { get; set; } // unidade: utilizar % ou g
+        
+        [Required(ErrorMessage = "O extrato etéreo da ração é obrigatório.")]
+        public float ExtratoEtereo { get; set; }
+
+        [Required(ErrorMessage = "A matéria mineral da ração é obrigatória.")]
+        public float MateriaMineral { get; set; }
+
+        [Required(ErrorMessage = "A fibra bruta da ração é obrigatória.")]
+        public float FibraBruta { get; set; }
         // [Required]
         // public float Ms { get; set; } // MS calculada ou determinada
     }

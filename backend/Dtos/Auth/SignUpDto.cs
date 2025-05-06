@@ -2,12 +2,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace backend.Dtos.Auth {
     public class SignUpDto {
-        [Required]
-        public string Nome { get; set; } = string.Empty;
-        [Required]
+
+        [Required(ErrorMessage = "O nome é obrigatório.")]
+        public string Nome { get; set; }
+        
+        [Required(ErrorMessage = "O e-mail é obrigatório.")]
         [EmailAddress]
-        public string Email { get; set; } = string.Empty;
-        [Required]
-        public string Senha { get; set; } = string.Empty;
+        public string Email { get; set; }
+        
+        [Required(ErrorMessage = "A senha é obrigatória.")]
+        public string Senha { get; set; }
     }
 }

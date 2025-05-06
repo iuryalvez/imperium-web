@@ -5,7 +5,7 @@ export const usuariosDoSistemaAPI = {
   listar: async () => {
     try {
       const response = await api.get(endpoints.sistema.usuario.listar);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.error("Erro ao buscar usuários:", error);
       throw error.response ? error.response.data : error;

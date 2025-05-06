@@ -33,11 +33,11 @@ namespace backend.Controllers {
                 ClinicaId = clinicaId,
                 Nome = racaoDto.Nome,
                 Umidade = racaoDto.Umidade,
-                Pb = racaoDto.Pb,
-                Ee = racaoDto.Ee,
-                Mm = racaoDto.Mm,
-                Fb = racaoDto.Fb,
-                Ms = 10 // isso é calculado ou determinado
+                ProteinaBruta = racaoDto.ProteinaBruta,
+                ExtratoEtereo = racaoDto.ExtratoEtereo,
+                MateriaMineral = racaoDto.MateriaMineral,
+                FibraBruta = racaoDto.FibraBruta,
+                MateriaSeca = 10 // isso é calculado ou determinado
             };
 
             _context.Racoes.Add(racao);
@@ -82,11 +82,11 @@ namespace backend.Controllers {
                 {
                     Nome = r.Nome,
                     Umidade = r.Umidade,
-                    Pb = r.Pb,
-                    Ee = r.Ee,
-                    Mm = r.Mm,
-                    Fb = r.Fb,
-                    Ms = 10 // calculado ou determinado
+                    ProteinaBruta = r.ProteinaBruta,
+                    ExtratoEtereo = r.ExtratoEtereo,
+                    MateriaMineral = r.MateriaMineral,
+                    FibraBruta = r.FibraBruta,
+                    MateriaSeca = 10 // calculado ou determinado
                 })
                 .FirstOrDefaultAsync();
 
@@ -116,11 +116,11 @@ namespace backend.Controllers {
 
             racao.Nome = racaoDto.Nome;
             racao.Umidade = racaoDto.Umidade;
-            racao.Pb = racaoDto.Pb;
-            racao.Ee = racaoDto.Ee;
-            racao.Mm = racaoDto.Mm;
-            racao.Fb = racaoDto.Fb;
-            racao.Ms = 10; // calculado ou determinado
+            racao.ProteinaBruta = racaoDto.ProteinaBruta;
+            racao.ExtratoEtereo = racaoDto.ExtratoEtereo;
+            racao.MateriaMineral = racaoDto.MateriaMineral;
+            racao.FibraBruta = racaoDto.FibraBruta;
+            racao.MateriaSeca = 10; // calculado ou determinado
 
             _context.Racoes.Update(racao);
             await _context.SaveChangesAsync();

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Input, Select, DatePicker, Checkbox, Button, Form, message, Typography } from "antd";
+import { Input, Select, DatePicker, Checkbox, Button, Form, message, Typography, Switch } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { clinicasAPI } from "../../api/sistema/clinicasAPI";
 
@@ -217,6 +217,24 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel,
             </Form.Item>
           </>
         )}
+
+          {entidade === "clinicas" && (
+          <>
+            {/* Switch Ativo/Inativo */}
+            <Form.Item
+              label="Status da Clínica"
+              name="isAtiva"
+              valuePropName="checked"
+            >
+              <Switch
+                checkedChildren="ATIVA"
+                unCheckedChildren="INATIVA"
+                defaultChecked
+              />
+            </Form.Item>
+          </>
+        )}
+
         {/* <Button onClick={() => {
           console.log(form.getFieldsValue());
         }}>

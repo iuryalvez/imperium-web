@@ -71,20 +71,20 @@ namespace backend.Controllers
 
         [HttpPost("usuarios/cadastrar")]
         [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> CadastrarUsuario([FromBody] CadastrarUsuarioClinicaDto cadastrarUsuarioDto)
+        public async Task<IActionResult> CadastrarUsuario([FromBody] CadastrarUsuarioClinicaDto cadastrarUsuarioClinicaDto)
         {
-            if (cadastrarUsuarioDto.Perfis == null || !cadastrarUsuarioDto.Perfis.Any())
+            if (cadastrarUsuarioClinicaDto.Perfis == null || !cadastrarUsuarioClinicaDto.Perfis.Any())
             {
                 return BadRequest("Pelo menos um perfil deve ser selecionado.");
             }
 
-            var clinicaExiste = await _context.Clinicas.AnyAsync(c => c.Id == cadastrarUsuarioDto.ClinicaId);
+            var clinicaExiste = await _context.Clinicas.AnyAsync(c => c.Id == cadastrarUsuarioClinicaDto.ClinicaId);
             if (!clinicaExiste)
             {
                 return BadRequest("A clínica especificada não existe.");
             }
 
-            var existingUser = await _userManager.FindByEmailAsync(cadastrarUsuarioDto.Email);
+            var existingUser = await _userManager.FindByEmailAsync(cadastrarUsuarioClinicaDto.Email);
             if (existingUser != null)
             {
                 return BadRequest("O e-mail já está em uso.");
@@ -92,15 +92,15 @@ namespace backend.Controllers
 
             var usuario = new Usuario
             {
-                UserName = cadastrarUsuarioDto.UserName ?? cadastrarUsuarioDto.Email, // Usa o email se UserName for nulo
-                Email = cadastrarUsuarioDto.Email,
-                Nome = cadastrarUsuarioDto.Nome,
+                UserName = cadastrarUsuarioClinicaDto.UserName ?? cadastrarUsuarioClinicaDto.Email, // Usa o email se UserName for nulo
+                Email = cadastrarUsuarioClinicaDto.Email,
+                Nome = cadastrarUsuarioClinicaDto.Nome,
                 DataCad = DateTime.UtcNow,
                 DataUltimoAcesso = DateTime.UtcNow,
                 EmailConfirmed = true,
             };
 
-            var result = await _userManager.CreateAsync(usuario, cadastrarUsuarioDto.Senha);
+            var result = await _userManager.CreateAsync(usuario, cadastrarUsuarioClinicaDto.Senha);
             if (!result.Succeeded)
             {
                 return BadRequest(new { Errors = result.Errors.Select(e => e.Description) });
@@ -109,8 +109,8 @@ namespace backend.Controllers
             var usuarioPerfilClinica = new UsuarioPerfilClinica
             {
                 UsuarioId = usuario.Id,
-                ClinicaId = cadastrarUsuarioDto.ClinicaId,
-                Perfis = cadastrarUsuarioDto.Perfis
+                ClinicaId = cadastrarUsuarioClinicaDto.ClinicaId,
+                Perfis = cadastrarUsuarioClinicaDto.Perfis
             };
 
             _context.UsuariosPerfisClinicas.Add(usuarioPerfilClinica);

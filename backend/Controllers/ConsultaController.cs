@@ -39,7 +39,7 @@ namespace backend.Controllers
                 ClinicaId = clinicaId, 
                 UsuarioId = consultaDto.UsuarioId,
                 TutorId = consultaDto.TutorId,
-                Date = consultaDto.Date
+                DataConsulta = consultaDto.DataConsulta
             };
 
             _context.Consultas.Add(consulta);
@@ -100,7 +100,7 @@ namespace backend.Controllers
             // Atualiza os campos da consulta
             consulta.UsuarioId = consultaDto.UsuarioId;
             consulta.TutorId = consultaDto.TutorId;
-            consulta.Date = consultaDto.Date;
+            consulta.DataConsulta = consultaDto.DataConsulta;
 
             _context.Consultas.Update(consulta);
             await _context.SaveChangesAsync();
