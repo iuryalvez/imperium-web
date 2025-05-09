@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace backend.Dtos.Clinica {
     public class EditarClinicaAdminDto {
-        public int ClinicaId { get; set; }
+        public int Id { get; set; } // id da clínica
 
         [Required(ErrorMessage = "O nome da clínica é obrigatório.")]
         [StringLength(100, ErrorMessage = "A clínica deve ter um nome entre 0 e 100 caracteres.")]

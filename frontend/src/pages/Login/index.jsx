@@ -16,7 +16,7 @@ const Login = () => {
   };
 
   return (
-    <Row className="h-full" style={{ minHeight: '100vh' }}>
+    <Row className="h-full" style={{ }}>
       {/* Lado esquerdo - informações */}
       <Col span={14} className="pt-20 pr-10 pl-20 flex flex-col justify-start text-green-dark">
         <Title level={1} style={{ color: '#064e3b' }}>Bem-vindo ao Software IMPERIUM!</Title>

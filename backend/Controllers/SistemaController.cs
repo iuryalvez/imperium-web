@@ -135,7 +135,7 @@ namespace backend.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var clinica = await _context.Clinicas.FindAsync(editarClinicaAdminDto.ClinicaId);
+                var clinica = await _context.Clinicas.FindAsync(editarClinicaAdminDto.Id);
                 if (clinica == null)
                 {
                     return NotFound("Clínica não encontrada.");

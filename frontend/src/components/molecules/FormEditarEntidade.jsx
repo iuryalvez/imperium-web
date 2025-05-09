@@ -57,41 +57,68 @@ const FormEditarEntidade = ({
   const [perfisSelecionados, setPerfisSelecionados] = useState(valoresIniciais?.perfis || []);
   const [clinicas, setClinicas] = useState([]);
 
+  // useEffect executa sempre que ["changed"] muda, nesse caso, a entidade
   useEffect(() => {
-    if (entidade === "usuariosDoSistema") {
+    if (entidade === "usuariosDoSistema") { 
+      // carrega a lista de clínicas para funcionar a atualização de perfis no backend
       clinicasAPI.listar()
         .then((data) => {
+          console.log("Clínicas carregadas da api:", data); // debug
+          // formata os dados da clínica no formato esperado pelo Select (label e value) e conseguir captar no backend
           const clinicasFormatadas = data.map((clinica) => ({
             label: clinica.nomeClinica,
             value: clinica.id,
           }));
           setClinicas(clinicasFormatadas);
+          console.log("Clínicas formatadas para o Select:", clinicasFormatadas); // debug
         })
         .catch((err) => console.error("Erro ao carregar clínicas:", err));
-    }
-  }, [entidade]);
+    } 
+  }, [entidade]); // dependência: executa novamente se `entidade` mudar como dito anteriormente
 
+  // useEffect executa sempre que ["changed"] muda, nesse caso, os valores iniciais e o form
   useEffect(() => {
     if (valoresIniciais) {
-      form.setFieldsValue(valoresIniciais);
+      console.log("Valores iniciais recebidos:", valoresIniciais);
+      form.setFieldsValue(valoresIniciais); // popula o formulário com dados já existentes
     }
-  }, [valoresIniciais, form]);
+  }, [valoresIniciais, form]); // dependências: executa novamente como dito anteriormente
 
+  const sanitize = (value) => value?.replace(/\D/g, ""); // remove tudo que não for dígito
+
+  // função de submeter o formulário
   const handleFinish = async (values) => {
     try {
       setLoading(true);
-      console.log(valoresIniciais);
-      if (entidade === "usuariosDoSistema") values.id = valoresIniciais.upcId;
-      console.log(values);
-      const response = await onSubmit(values);
+      console.log(valoresIniciais); // ativa o loading (útil para botões/spinners)
+      
+      // TODO: ajustar para corrigir quando usuário é administrador e quando não é, aqui está só para os comuns
+      // e pode ser feito a mesma coisa no cadastro / visualização ! 
+      if (entidade === "usuariosDoSistema") values.id = valoresIniciais.upcId; 
+      if (entidade === "clinicas") {
+        values.cep = sanitize(values.cep);
+        values.cnpj = sanitize(values.cnpj);
+        values.telefone1 = sanitize(values.telefone1);
+        values.telefone2 = sanitize(values.telefone2);
+        values.whatsapp = sanitize(values.whatsapp);
+      }
+
+      console.log("Valores iniciais (antes da edição):", valoresIniciais); // debug
+      console.log("Valores submetidos no formulário (antes de ajuste):", values); // debug
+      
+      const response = await onSubmit(values); // função de envio
+      
       // essa mensagem aparece mesmo com fracasso enquanto a outra que está no componente pai de fato funciona
       // message.success(`${entidade} atualizado com sucesso.`); 
+      
+      // se tiver função de callback após o sucesso, executa
       if (onSuccess) onSuccess(response);
       setModalEdicaoVisivel(false);
     } catch (error) {
       console.error(`Erro ao atualizar ${entidade}:`, error);
       message.error(`Falha ao atualizar ${entidade}.`);
     } finally {
+      // com sucesso ou falha desativa o loading
       setLoading(false);
     }
   };
@@ -147,6 +174,15 @@ const FormEditarEntidade = ({
             {renderCampo(campo)}
           </Form.Item>
         ))}
+
+        <Form.Item
+          name="id"
+          label="id"
+          hidden // esconde o campo
+          initialValue={valoresIniciais.id} // valor do Id do DTO
+        >
+        <Input />
+        </Form.Item>
 
         {entidade === "usuariosDoSistema" && (
           <>
@@ -232,14 +268,6 @@ const FormEditarEntidade = ({
               <Input />
             </Form.Item>
             <Form.Item
-              name="id"
-              label="id"
-              hidden // Esta propriedade esconde o campo
-              initialValue={valoresIniciais.id} // Valor inicial do DTO
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
               name="upcId"
               label="upcId"
               hidden // Esta propriedade esconde o campo
@@ -257,13 +285,13 @@ const FormEditarEntidade = ({
               label="CNPJ"
               name="cnpj"
               rules={[
-                { required: true, message: "CNPJ é obrigatório" },
-                {
-                  validator: (_, value) =>
-                    value && value.replace(/\D/g, '').length === 14
-                      ? Promise.resolve()
-                      : Promise.reject(new Error('CNPJ inválido'))
-                }
+                // { required: true, message: "CNPJ é obrigatório" },
+                // {
+                //   validator: (_, value) =>
+                //     value && value.replace(/\D/g, '').length === 14
+                //       ? Promise.resolve()
+                //       : Promise.reject(new Error('CNPJ inválido'))
+                // }
               ]}
             >
               <InputMask
@@ -325,13 +353,13 @@ const FormEditarEntidade = ({
               label="CEP"
               name="cep"
               rules={[
-                { required: true, message: "CEP é obrigatório" },
-                {
-                  validator: (_, value) =>
-                    value && value.replace(/\D/g, '').length === 8
-                      ? Promise.resolve()
-                      : Promise.reject(new Error('CEP inválido'))
-                }
+                // { required: true, message: "CEP é obrigatório" },
+                // {
+                //   validator: (_, value) =>
+                //     value && value.replace(/\D/g, '').length === 8
+                //       ? Promise.resolve()
+                //       : Promise.reject(new Error('CEP inválido'))
+                // }
               ]}
             >
               <InputMask
