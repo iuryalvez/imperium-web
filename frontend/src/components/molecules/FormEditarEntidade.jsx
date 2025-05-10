@@ -34,6 +34,15 @@ const estadosBrasil = [
   { value: 'TO', label: 'Tocantins' }
 ];
 
+const perfisSistema = [
+  { label: "Administrador", value: "ADMINISTRADOR" },
+  { label: "Gestor", value: "GESTOR" },
+  { label: "Técnico", value: "TECNICO" },
+  { label: "Secretário", value: "SECRETARIO" },
+  { label: "Veterinário", value: "VETERINARIO" },
+  { label: "Inativo", value: "INATIVO" },
+];
+
 const perfisClinica = [
   { label: "Gestor", value: "GESTOR" },
   { label: "Técnico", value: "TECNICO" },
@@ -94,7 +103,7 @@ const FormEditarEntidade = ({
       
       // TODO: ajustar para corrigir quando usuário é administrador e quando não é, aqui está só para os comuns
       // e pode ser feito a mesma coisa no cadastro / visualização ! 
-      if (entidade === "usuariosDoSistema") values.id = valoresIniciais.upcId; 
+      // if (entidade === "usuariosDoSistema") values.id = valoresIniciais.upcId; 
       if (entidade === "clinicas") {
         values.cep = sanitize(values.cep);
         values.cnpj = sanitize(values.cnpj);
@@ -181,7 +190,7 @@ const FormEditarEntidade = ({
           hidden // esconde o campo
           initialValue={valoresIniciais.id} // valor do Id do DTO
         >
-        <Input />
+        {/* <Input /> */}
         </Form.Item>
 
         {entidade === "usuariosDoSistema" && (
@@ -194,11 +203,18 @@ const FormEditarEntidade = ({
               ]}
             >
               <Checkbox.Group
-                options={perfisClinica.map((perfil) => ({
-                  ...perfil,
-                  disabled:
-                    (inativoSelecionado && perfil.value !== "INATIVO")
-                }))}
+                options={
+                  perfisSistema
+                    .filter((perfil) =>
+                      entidade?.isAdmin
+                        ? ["ADMIN", "INATIVO"].includes(perfil.value)
+                        : ["GESTOR", "TECNICO", "SECRETARIO", "VETERINARIO", "INATIVO"].includes(perfil.value)
+                    )
+                    .map((perfil) => ({
+                      ...perfil,
+                      disabled: inativoSelecionado && perfil.value !== "INATIVO",
+                    }))
+                }
                 style={{ display: "flex", flexDirection: "column", gap: 8 }}
                 value={perfisSelecionados}
                 onChange={(values) => {
@@ -217,7 +233,14 @@ const FormEditarEntidade = ({
                 }}
               />
             </Form.Item>
-
+            <Form.Item
+              name="upcId"
+              label="upcId"
+              hidden // Esta propriedade esconde o campo
+              initialValue={valoresIniciais.upcId} // Valor inicial do DTO
+            >
+              {/* <Input /> */}
+            </Form.Item>
             <Form.Item label="Clínica">
               <div style={{ padding: "4px 11px", backgroundColor: "#f5f5f5", borderRadius: 4 }}>
                 {clinicas.find(c => c.value === form.getFieldValue("clinicaId"))?.label || "Clínica não encontrada"}

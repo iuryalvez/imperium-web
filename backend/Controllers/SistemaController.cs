@@ -65,8 +65,20 @@ namespace backend.Controllers
                     {
                         Id = c.Id,
                         NomeClinica = c.NomeClinica,
-                        IsAtiva = c.IsAtiva,
-                        DataCad = c.DataCad
+                        NomeFantasia = c.NomeFantasia,
+                        Cnpj = c.Cnpj,
+                        Endereco = c.Endereco,
+                        EndNumero = c.EndNumero,
+                        EndEstado = c.EndEstado,
+                        EndCidade = c.EndCidade,
+                        Cep = c.Cep,
+                        Telefone1 = c.Telefone1,
+                        Telefone2 = c.Telefone2,
+                        Whatsapp = c.Whatsapp,
+                        Email = c.Email,
+                        Instagram = c.Instagram,
+                        DataCad = c.DataCad,
+                        IsAtiva = c.IsAtiva
                     })
                     .ToListAsync();
 
@@ -338,7 +350,8 @@ namespace backend.Controllers
                         Nome = upc.Usuario.Nome ?? string.Empty,
                         Perfis = upc.Perfis,
                         DataCadastro = upc.Usuario.DataCad,
-                        DataUltimoAcesso = upc.Usuario.DataUltimoAcesso
+                        DataUltimoAcesso = upc.Usuario.DataUltimoAcesso,
+                        IsAdmin = upc.Usuario.IsAdmin
                     })
                     .ToListAsync();
             }
@@ -368,15 +381,16 @@ namespace backend.Controllers
                     .Select(u => new GetUsuariosSistemaDto
                     {
                         Id = u.Id,
-                        UpcId = 0, // sem vínculo
+                        UpcId = -1, // sem vínculo
                         UserName = u.UserName,
                         NomeClinica = "N/A",
-                        ClinicaId = 0,
+                        ClinicaId = -1,
                         Email = u.Email,
                         Nome = u.Nome ?? string.Empty,
                         Perfis = new List<string> { "ADMINISTRADOR" },
                         DataCadastro = u.DataCad,
-                        DataUltimoAcesso = u.DataUltimoAcesso
+                        DataUltimoAcesso = u.DataUltimoAcesso,
+                        IsAdmin = u.IsAdmin
                     })
                     .ToListAsync();
             }
@@ -517,80 +531,148 @@ namespace backend.Controllers
                 return BadRequest(ModelState);
             }
 
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            
-            try
+            if (dto.UpcId == -1)
             {
-                var vinculo = await _context.UsuariosPerfisClinicas
-                    .Include(upc => upc.Usuario)
-                    .FirstOrDefaultAsync(upc => upc.Id == dto.UpcId);
-
-                if (vinculo == null)
+                // ====== Edição de Usuário Administrador ======
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
                 {
-                    return NotFound(new { Success = false, Message = "Vínculo do usuário não encontrado." });
-                }
+                    var usuario = await _context.Usuarios
+                        .Where(u => u.IsAdmin == true)
+                        .FirstOrDefaultAsync(u => u.Id == dto.Id);
 
-                var usuario = vinculo.Usuario;
-                if (usuario == null)
-                {
-                    return NotFound(new { Success = false, Message = "Usuário associado ao vínculo não encontrado." });
-                }
-
-                // Validação de email
-                if (!string.IsNullOrWhiteSpace(dto.Email))
-                {
-                    var emailExistente = await _context.Usuarios
-                        .AnyAsync(u => u.Email == dto.Email && u.Id != usuario.Id);
-                    
-                    if (emailExistente)
+                    if (usuario == null)
                     {
-                        return BadRequest(new { Success = false, Message = "O email informado já está em uso." });
+                        return NotFound(new { Success = false, Message = "Usuário administrador não encontrado." });
                     }
-                    
-                    usuario.UserName = dto.Email;
-                    usuario.Email = dto.Email;
-                }
 
-                if (!string.IsNullOrWhiteSpace(dto.Nome))
+                    // Verifica email duplicado entre administradores
+                    if (!string.IsNullOrWhiteSpace(dto.Email))
+                    {
+                        var emailExistente = await _context.Usuarios
+                            .AnyAsync(u => u.IsAdmin == true && u.Email == dto.Email && u.Id != usuario.Id);
+
+                        if (emailExistente)
+                        {
+                            return BadRequest(new { Success = false, Message = "O email informado já está em uso por outro administrador." });
+                        }
+
+                        usuario.UserName = dto.Email;
+                        usuario.Email = dto.Email;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(dto.Nome))
+                    {
+                        usuario.Nome = dto.Nome;
+                    }
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
+                    return Ok(new {
+                        Success = true,
+                        Message = "Administrador atualizado com sucesso",
+                        Data = new { UserId = usuario.Id }
+                    });
+                }
+                catch (DbUpdateConcurrencyException ex)
                 {
-                    usuario.Nome = dto.Nome;
+                    await transaction.RollbackAsync();
+                    _logger.LogError(ex, $"Conflito de concorrência ao editar administrador {dto.Id}");
+                    return StatusCode(409, new {
+                        Success = false,
+                        Message = "Os dados foram modificados por outro usuário. Recarregue e tente novamente.",
+                        ErrorCode = "CONCURRENCY_ERROR"
+                    });
                 }
-
-                // Validação de perfis
-                if (dto.Perfis == null || !dto.Perfis.Any())
+                catch (Exception ex)
                 {
-                    return BadRequest(new { Success = false, Message = "O usuário deve ter pelo menos um perfil ativo." });
+                    await transaction.RollbackAsync();
+                    _logger.LogError(ex, $"Erro ao editar administrador com ID {dto.Id}");
+                    return StatusCode(500, new {
+                        Success = false,
+                        Message = "Erro interno ao editar administrador.",
+                        ErrorCode = "INTERNAL_ERROR"
+                    });
                 }
-                vinculo.Perfis = dto.Perfis;
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                return Ok(new {
-                    Success = true,
-                    Message = "Usuário atualizado com sucesso",
-                    Data = new { UserId = usuario.Id, VinculoId = vinculo.Id }
-                });
             }
-            catch (DbUpdateConcurrencyException ex)
+            else
             {
-                await transaction.RollbackAsync();
-                _logger.LogError(ex, $"Conflito de concorrência ao editar usuário {dto.UpcId}");
-                return StatusCode(409, new {
-                    Success = false,
-                    Message = "Os dados foram modificados por outro usuário. Recarregue e tente novamente.",
-                    ErrorCode = "CONCURRENCY_ERROR"
-                });
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                _logger.LogError(ex, $"Erro ao editar usuário com vínculo ID {dto.UpcId}");
-                return StatusCode(500, new {
-                    Success = false,
-                    Message = "Erro interno ao editar usuário.",
-                    ErrorCode = "INTERNAL_ERROR"
-                });
+                // ====== Edição de Usuário Vinculado a Clínica ======
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
+                {
+                    var vinculo = await _context.UsuariosPerfisClinicas
+                        .Include(upc => upc.Usuario)
+                        .FirstOrDefaultAsync(upc => upc.Id == dto.UpcId);
+
+                    if (vinculo == null)
+                    {
+                        return NotFound(new { Success = false, Message = "Vínculo do usuário não encontrado." });
+                    }
+
+                    var usuario = vinculo.Usuario;
+                    if (usuario == null)
+                    {
+                        return NotFound(new { Success = false, Message = "Usuário associado ao vínculo não encontrado." });
+                    }
+
+                    // Verifica email duplicado entre usuários não-administradores
+                    if (!string.IsNullOrWhiteSpace(dto.Email))
+                    {
+                        var emailExistente = await _context.Usuarios
+                            .AnyAsync(u => u.Email == dto.Email && u.Id != usuario.Id);
+
+                        if (emailExistente)
+                        {
+                            return BadRequest(new { Success = false, Message = "O email informado já está em uso." });
+                        }
+
+                        usuario.UserName = dto.Email;
+                        usuario.Email = dto.Email;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(dto.Nome))
+                    {
+                        usuario.Nome = dto.Nome;
+                    }
+
+                    if (dto.Perfis == null || !dto.Perfis.Any())
+                    {
+                        return BadRequest(new { Success = false, Message = "O usuário deve ter pelo menos um perfil ativo." });
+                    }
+
+                    vinculo.Perfis = dto.Perfis;
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
+                    return Ok(new {
+                        Success = true,
+                        Message = "Usuário atualizado com sucesso",
+                        Data = new { UserId = usuario.Id, VinculoId = vinculo.Id }
+                    });
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    await transaction.RollbackAsync();
+                    _logger.LogError(ex, $"Conflito de concorrência ao editar usuário {dto.UpcId}");
+                    return StatusCode(409, new {
+                        Success = false,
+                        Message = "Os dados foram modificados por outro usuário. Recarregue e tente novamente.",
+                        ErrorCode = "CONCURRENCY_ERROR"
+                    });
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    _logger.LogError(ex, $"Erro ao editar usuário com vínculo ID {dto.UpcId}");
+                    return StatusCode(500, new {
+                        Success = false,
+                        Message = "Erro interno ao editar usuário.",
+                        ErrorCode = "INTERNAL_ERROR"
+                    });
+                }
             }
         }
     }

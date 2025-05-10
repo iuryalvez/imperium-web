@@ -20,7 +20,7 @@ namespace backend.Models
         [Required(ErrorMessage = "O status de administrador é obrigatório.")]
         public bool IsAdmin { get; set; }
 
-        [StringLength(11, ErrorMessage = "O telefone 1 deve ter no máximo 11 dígitos.")]
+        [StringLength(11, ErrorMessage = "O telefone deve ter no máximo 11 dígitos.")]
         public string? Telefone1 { get; set; }
         
         [StringLength(11, ErrorMessage = "O telefone whatsapp deve ter no máximo 11 dígitos.")]

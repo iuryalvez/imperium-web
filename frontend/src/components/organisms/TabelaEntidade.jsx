@@ -91,7 +91,6 @@ const camposSimplesEditar = {
       type: "text",
       placeholder: "Digite o nome fantasia da clínica",
       rules: [
-        { type: "required", message: "O nome fantasia é obrigatório" },
         { type: "maxLength", value: 100, message: "O nome fantasia deve ter no máximo 100 caracteres" }
       ]
     }
@@ -105,28 +104,28 @@ const TabelaEntidade = ({
     entidadeAPI,
     onAtualizar
   }) => {
-    const [registros, setRegistros] = useState(dados);
-    const [backupRegistros, setBackupRegistros] = useState([]);
-    const [modalEdicaoVisivel, setModalEdicaoVisivel] = useState(false);
-    const [registroSelecionado, setRegistroSelecionado] = useState(null);
-    const [modalAcessoAberto, setModalAcessoAberto] = useState(false);
-    const [clinicaSelecionada, setClinicaSelecionada] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [registros, setRegistros] = useState(dados); // armazena os dados atuais da tabela, set atualiza
+    const [backupRegistros, setBackupRegistros] = useState([]); // guarda cópia de segurança antes de operações que alteram os registros
+    const [modalEdicaoVisivel, setModalEdicaoVisivel] = useState(false); // controla visualização do modal, inicialmente falsa
+    const [registroSelecionado, setRegistroSelecionado] = useState(null); // guarda registro selecionado, inicialmente null (nenhum)
+    const [modalAcessoAberto, setModalAcessoAberto] = useState(false); // controla visualização do modal, inicialmente falsa 
+    const [clinicaSelecionada, setClinicaSelecionada] = useState(null); // controla clinica selecionada, inicialmente null (nenhum) - no dto vem como clinicaId e não Id
+    const [loading, setLoading] = useState(false); // controla o estado de loading, inicialmente falso
 
     
     useEffect(() => {
       setRegistros(dados);
-    }, [dados]);
+    }, [dados]); // atualiza quando a entidade dados muda
     
-    // Edição otimista com rollback em caso de erro
-
+    
+    // edição otimista com rollback em caso de erro
     const editarRegistro = async (valores) => {
       setLoading(true);
       try {
-        // Salva estado atual para possível rollback
+        // salva estado atual para possível rollback
         setBackupRegistros(registros);
         
-        // Atualização otimista
+        // atualização otimista: já atualiza localmente antes de confirmar com o backend (?)
         setRegistros(prev => 
           prev.map(reg => reg.id === valores.id ? { ...reg, ...valores } : reg)
         );
@@ -135,10 +134,10 @@ const TabelaEntidade = ({
         
         setModalEdicaoVisivel(false);
         message.success(`${nomeEntidade} atualizado com sucesso!`);
-        
+        // callback do componente pai
         if (onAtualizar) onAtualizar();
       } catch (erro) {
-        // Rollback em caso de erro
+        // rollback em caso de erro
         setRegistros(backupRegistros);
         console.error("Erro ao editar registro:", erro);
         message.error(erro.response?.data?.message || 
@@ -149,12 +148,13 @@ const TabelaEntidade = ({
     };
   
     const deletarRegistro = async (registroId) => {
+      console.log("Iniciando deleção de registro com Id:", registroId);
       setLoading(true);
       try {
-        // Salva estado atual
+        // salva estado atual
         setBackupRegistros(registros);
         
-        // Atualização otimista
+        // atualização otimista: deleta no frontend
         setRegistros(prev => prev.filter(reg => reg.id !== registroId));
         
         await entidadeAPI.deletar(registroId);
@@ -163,8 +163,7 @@ const TabelaEntidade = ({
         
         if (onAtualizar) onAtualizar();
       } catch (error) {
-        // Rollback
-        setRegistros(backupRegistros);
+        setRegistros(backupRegistros); // rollback
         console.error("Erro ao deletar registro:", error);
         message.error(error.response?.data?.message || 
                     `Falha ao deletar ${nomeEntidade.toLowerCase()}`);
