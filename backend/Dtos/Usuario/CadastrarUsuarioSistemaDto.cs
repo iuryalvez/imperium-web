@@ -17,6 +17,8 @@ public class CadastrarUsuarioSistemaDto
 
     [Required(ErrorMessage = "O status de administrador é obrigatório.")]
     public bool IsAdmin { get; set; }
+    [Required(ErrorMessage = "O status de administrador é obrigatório.")]
+    public bool IsAtivo { get; set; }
     public List<int>? ClinicaIds { get; set; }
     public List<string>? Perfis { get; set; }
 }

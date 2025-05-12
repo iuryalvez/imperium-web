@@ -44,6 +44,10 @@ namespace backend.Services
                     throw new Exception("Usuário não encontrado.");
                 }
 
+                if(!usuario.IsAtivo) {
+                    _logger.LogInformation("Usuário de Id {usuarioId} está inativo no sistema.", usuarioId);
+                }
+
                 if (!usuario.IsAdmin) {
                     var upc = _context.UsuariosPerfisClinicas
                         .AsNoTracking()
@@ -80,6 +84,11 @@ namespace backend.Services
                 if (usuario.IsAdmin) claims.Add(new Claim("isAdmin", "true"));
                 else {
                     claims.Add(new Claim("isAdmin", "false"));
+                }
+                
+                if (usuario.IsAtivo) claims.Add(new Claim("isAtivo", "true"));
+                else {
+                    claims.Add(new Claim("isAtivo", "false"));
                 }
 
                 var tokenDescriptor = new SecurityTokenDescriptor
@@ -202,12 +211,13 @@ namespace backend.Services
                     throw new UnauthorizedAccessException("Usuário não autenticado.");
                 }
 
-                var isAdmin = userPrincipal.Claims.Any(c => c.Type == "isAdmin" && c.Value == "true");
+                var isAdmin = userPrincipal.GetClaimValue<bool>("isAdmin");
+                var isAtivo = userPrincipal.GetClaimValue<bool>("isAtivo");
                 var usuarioId = userPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                if (!isAdmin || string.IsNullOrEmpty(usuarioId))
+                if (!isAdmin || !isAtivo || string.IsNullOrEmpty(usuarioId))
                 {
-                    throw new UnauthorizedAccessException("Usuário não possui permissão de administrador.");
+                    throw new UnauthorizedAccessException("Usuário não possui permissão de acesso.");
                 }
 
                 var clinica = _context.Clinicas.AsNoTracking().FirstOrDefault(c => c.Id == clinicaId);
@@ -236,7 +246,8 @@ namespace backend.Services
                     new Claim("UsuarioAgent", usuarioAgent),
                     new Claim("nomeClinica", nomeClinica),
                     new Claim("clinicaId", clinicaId.ToString()),
-                    new Claim("isAdmin", "true"),
+                    new Claim("isAdmin", "true"), // TODO: fazer verificações nas funções do controlador com essa claim
+                    new Claim("isAtivo", "true"), // TODO: fazer verificações nas funções do controlador com essa claim
                     new Claim("Perfis", JsonSerializer.Serialize(perfisAtivos)) // lista de perfis ativos
                 };
                 

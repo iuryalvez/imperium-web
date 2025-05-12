@@ -84,8 +84,10 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel,
     }
   };
 
-  const inativoSelecionado = perfisSelecionados.includes("INATIVO");
   const adminSelecionado = perfisSelecionados.includes("ADMIN");
+  const outrosSelecionados = perfisSelecionados.some(val => 
+    ["GESTOR", "TECNICO", "SECRETARIO", "VETERINARIO"].includes(val)
+  );
 
   return (
     <div className="p-2">
@@ -123,20 +125,21 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel,
                 options={perfisSistema.map((perfil) => ({
                   ...perfil,
                   disabled:
-                    (inativoSelecionado && perfil.value !== "INATIVO") ||
-                    (adminSelecionado && perfil.value !== "ADMIN"),
+                    (adminSelecionado && !["ADMIN", "INATIVO"].includes(perfil.value)) ||
+                    (outrosSelecionados && perfil.value === "ADMIN")
                 }))}
                 style={{ display: "flex", flexDirection: "column", gap: 8 }}
                 value={perfisSelecionados}
                 onChange={(values) => {
                   let newValues = values;
 
+                  // Se selecionou ADMIN, mantém apenas ADMIN e INATIVO
                   if (values.includes("ADMIN")) {
-                    newValues = ["ADMIN"];
-                  } else if (values.includes("INATIVO")) {
-                    newValues = ["INATIVO"];
-                  } else {
-                    newValues = values.filter((val) => val !== "ADMIN" && val !== "INATIVO");
+                    newValues = values.filter(val => val === "ADMIN" || val === "INATIVO");
+                  } 
+                  // Se selecionou outros perfis, remove ADMIN se estiver presente
+                  else if (values.some(val => ["GESTOR", "TECNICO", "SECRETARIO", "VETERINARIO"].includes(val))) {
+                    newValues = values.filter(val => val !== "ADMIN");
                   }
 
                   setPerfisSelecionados(newValues);
@@ -195,21 +198,12 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel,
             >
               <Checkbox.Group
                 options={perfisClinica.map((perfil) => ({
-                  ...perfil,
-                  disabled:
-                    (inativoSelecionado && perfil.value !== "INATIVO")
+                  ...perfil
                 }))}
                 style={{ display: "flex", flexDirection: "column", gap: 8 }}
                 value={perfisSelecionados}
                 onChange={(values) => {
                   let newValues = values;
-
-                  if (values.includes("INATIVO")) {
-                    newValues = ["INATIVO"];
-                  } else {
-                    newValues = values.filter((val) => val !== "INATIVO");
-                  }
-
                   setPerfisSelecionados(newValues);
                   form.setFieldValue("perfis", newValues);
                 }}

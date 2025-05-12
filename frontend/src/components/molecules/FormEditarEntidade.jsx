@@ -35,7 +35,7 @@ const estadosBrasil = [
 ];
 
 const perfisSistema = [
-  { label: "Administrador", value: "ADMINISTRADOR" },
+  { label: "Administrador", value: "ADMIN" },
   { label: "Gestor", value: "GESTOR" },
   { label: "Técnico", value: "TECNICO" },
   { label: "Secretário", value: "SECRETARIO" },
@@ -103,7 +103,14 @@ const FormEditarEntidade = ({
       
       // TODO: ajustar para corrigir quando usuário é administrador e quando não é, aqui está só para os comuns
       // e pode ser feito a mesma coisa no cadastro / visualização ! 
-      // if (entidade === "usuariosDoSistema") values.id = valoresIniciais.upcId; 
+      if (entidade === "usuariosDoSistema") {
+        // Verifica se o array de perfis contém "INATIVO"
+        const contemInativo = values.perfis?.includes("INATIVO") || false;
+        
+        // Atualiza o valor de IsInativo
+        values.isAtivo = !contemInativo;
+      }
+
       if (entidade === "clinicas") {
         values.cep = sanitize(values.cep);
         values.cnpj = sanitize(values.cnpj);
@@ -158,8 +165,6 @@ const FormEditarEntidade = ({
     }
   };
 
-  const inativoSelecionado = perfisSelecionados.includes("INATIVO");
-
   return (
     <div className="p-2">
       <Form
@@ -206,32 +211,37 @@ const FormEditarEntidade = ({
                 options={
                   perfisSistema
                     .filter((perfil) =>
-                      entidade?.isAdmin
+                      valoresIniciais.isAdmin
                         ? ["ADMIN", "INATIVO"].includes(perfil.value)
                         : ["GESTOR", "TECNICO", "SECRETARIO", "VETERINARIO", "INATIVO"].includes(perfil.value)
                     )
                     .map((perfil) => ({
                       ...perfil,
-                      disabled: inativoSelecionado && perfil.value !== "INATIVO",
+                      ...(valoresIniciais.isAdmin && perfil.value === "ADMIN" ? { disabled: true } : {})
                     }))
                 }
                 style={{ display: "flex", flexDirection: "column", gap: 8 }}
-                value={perfisSelecionados}
+                value={
+                  valoresIniciais.isAdmin
+                    ? Array.from(new Set([...perfisSelecionados, "ADMIN"])) // Garante que ADMINISTRADOR está sempre selecionado
+                    : perfisSelecionados
+                }
                 onChange={(values) => {
-                  let newValues = values;
-
-                  if (values.includes("ADMIN")) {
-                    newValues = ["ADMIN"];
-                  } else if (values.includes("INATIVO")) {
-                    newValues = ["INATIVO"];
-                  } else {
-                    newValues = values.filter((val) => val !== "ADMIN" && val !== "INATIVO");
-                  }
-
+                  let newValues = valoresIniciais.isAdmin
+                    ? Array.from(new Set([...values, "ADMIN"])) // Mantém ADMINISTRADOR selecionado
+                    : values;
+                  
                   setPerfisSelecionados(newValues);
                   form.setFieldValue("perfis", newValues);
                 }}
               />
+            </Form.Item>
+            <Form.Item
+              name="isAdmin"
+              label="isAdmin"
+              hidden // Esta propriedade esconde o campo
+              initialValue={valoresIniciais.isAdmin} // Valor inicial do DTO
+            >
             </Form.Item>
             <Form.Item
               name="upcId"
@@ -261,8 +271,6 @@ const FormEditarEntidade = ({
               <Checkbox.Group
                 options={perfisClinica.map((perfil) => ({
                   ...perfil,
-                  disabled:
-                    (inativoSelecionado && perfil.value !== "INATIVO")
                 }))}
                 style={{ display: "flex", flexDirection: "column", gap: 8 }}
                 value={perfisSelecionados}
@@ -288,7 +296,6 @@ const FormEditarEntidade = ({
               hidden // Esta propriedade esconde o campo
               initialValue={valoresIniciais.clinicaId} // Valor inicial do DTO
             >
-              <Input />
             </Form.Item>
             <Form.Item
               name="upcId"
@@ -296,7 +303,6 @@ const FormEditarEntidade = ({
               hidden // Esta propriedade esconde o campo
               initialValue={valoresIniciais.upcId} // Valor inicial do DTO
             >
-              <Input />
             </Form.Item>
           </>
         )}

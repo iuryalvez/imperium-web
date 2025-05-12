@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using backend.Services;
 using System.Text.Json;
+using NuGet.Protocol.Plugins;
 
 namespace backend.Controllers
 {
@@ -46,7 +47,6 @@ namespace backend.Controllers
                 var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var userNameClaim = User.FindFirst(ClaimTypes.Name)?.Value;
                 var nomeClinicaClaim = User.FindFirst("nomeClinica")?.Value;
-                var isAdminClaim = User.FindFirst("isAdmin")?.Value;
                 var perfisClaim = User.FindFirst("Perfis")?.Value;
 
                 if (string.IsNullOrEmpty(userIdClaim))
@@ -54,7 +54,11 @@ namespace backend.Controllers
                     return Unauthorized(new { status = "invalido" });
                 }
 
-                bool IsAdmin = !string.IsNullOrEmpty(isAdminClaim) && bool.TryParse(isAdminClaim, out var parsedValue) && parsedValue;
+                if (!User.GetClaimValue<bool>("isAtivo")) {
+                    return Unauthorized(new { status = "inativo" });
+                }
+
+                bool IsAdmin = User.GetClaimValue<bool>("isAdmin");
 
                 var acessoLoginClaim = User.FindFirst("acessoLogin");
                 if (acessoLoginClaim != null)
@@ -257,7 +261,7 @@ namespace backend.Controllers
             }
 
             var vinculos = await _context.UsuariosPerfisClinicas
-                .Where(p => p.UsuarioId == usuarioId && p.Perfis.Any(perfil => perfil != "Inativo")) // Verifica se há perfis ativos
+                .Where(p => p.UsuarioId == usuarioId && p.Perfis.Any(perfil => perfil != "INATIVO")) // Verifica se há perfis ativos
                 .Select(p => new GetVinculoDto
                 {
                     Id = p.Id,
@@ -327,7 +331,7 @@ namespace backend.Controllers
                     .Include(v => v.Usuario)
                     .Include(v => v.Clinica)
                     .FirstOrDefaultAsync(v => v.Id == upcId && v.UsuarioId == usuarioId &&
-                                            !v.Perfis.Contains("Inativo")); // Garante que "Inativo" não esteja na lista
+                                            !v.Perfis.Contains("INATIVO")); // Garante que "Inativo" não esteja na lista
 
                 // Verifica se o vínculo foi encontrado
                 if (vinculo == null)

@@ -12,6 +12,6 @@ namespace backend.Dtos.Usuario
         public string? Nome { get; set; }
         public DateTime DataCadastro { get; set; }
         public DateTime DataUltimoAcesso { get; set; }
-        public List<string>? Perfis { get; set; }
+        public List<string>? Perfis { get; set; } // IsAtivo da clínica
     }
 }

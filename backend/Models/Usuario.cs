@@ -19,6 +19,8 @@ namespace backend.Models
 
         [Required(ErrorMessage = "O status de administrador é obrigatório.")]
         public bool IsAdmin { get; set; }
+        [Required(ErrorMessage = "O status de administrador é obrigatório.")]
+        public bool IsAtivo { get; set; }
 
         [StringLength(11, ErrorMessage = "O telefone deve ter no máximo 11 dígitos.")]
         public string? Telefone1 { get; set; }

@@ -13,5 +13,6 @@ namespace backend.Dtos.Usuario
         public DateTime? DataUltimoAcesso { get; set; }
         public List<string> Perfis { get; set; } = new();
         public bool IsAdmin { get; set; }
+        public bool IsAtivo { get; set; } // IsAtivo no sistema
     }
 }

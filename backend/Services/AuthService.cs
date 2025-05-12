@@ -83,9 +83,9 @@ namespace backend.Services
             var tokenIpClaim = principal.FindFirst("UsuarioIP")?.Value;
             var tokenUserAgentClaim = principal.FindFirst("UsuarioAgent")?.Value;
             var upcIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var isAdminClaim = principal.FindFirst("isAdmin")?.Value;
             var perfisClaim = principal.FindFirst("Perfis")?.Value;
-            bool isAdmin = isAdminClaim == "true";
+            bool isAdmin = principal.GetClaimValue<bool>("isAdmin");
+            bool isAtivo = principal.GetClaimValue<bool>("isAtivo");
 
             if (tokenIpClaim != currentIp || tokenUserAgentClaim != currentUserAgent)
             {

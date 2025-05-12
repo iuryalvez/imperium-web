@@ -251,7 +251,7 @@ const TabelaEntidade = ({
         dataIndex: "perfis",
         key: "perfis",
         filters: [
-          { text: "ADMINISTRADOR", value: "ADMINISTRADOR" },
+          { text: "ADMIN", value: "ADMIN" },
           { text: "INATIVO", value: "INATIVO" },
           { text: "GESTOR", value: "GESTOR" },
           { text: "TÉCNICO", value: "TECNICO" },
@@ -265,7 +265,7 @@ const TabelaEntidade = ({
             {perfis.map((perfil) => {
               let color = "green";
               if (perfil === "INATIVO") color = "red";
-              else if (perfil === "ADMINISTRADOR") color = "blue";
+              else if (perfil === "ADMIN") color = "blue";
               return (
                 <Tag color={color} key={perfil}>
                   {perfil}

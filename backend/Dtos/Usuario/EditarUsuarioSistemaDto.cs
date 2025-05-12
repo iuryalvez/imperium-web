@@ -10,6 +10,8 @@ namespace backend.Dtos.Usuario
         public int Id { get; set; }
         public int ClinicaId { get; set; }
         public int UpcId { get; set; }
+        public bool IsAdmin { get; set; }
+        public bool IsAtivo { get; set; }
 
         [Required(ErrorMessage = "O nome é obrigatório.")]
         [StringLength(100, ErrorMessage = "O nome deve ter no máximo 100 caracteres.")]

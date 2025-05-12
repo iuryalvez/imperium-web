@@ -30,8 +30,6 @@ const FormAcessarClinica = ({ clinica, onSucesso }) => {
             setCarregando(false);
         }
     };
-    
-    const inativoSelecionado = perfisSelecionados.includes("INATIVO");
   
     return (
         <Form form={form} onFinish={handleSubmit} layout="vertical">
@@ -42,19 +40,12 @@ const FormAcessarClinica = ({ clinica, onSucesso }) => {
         >
             <Checkbox.Group
                 options={perfisClinica.map((perfil) => ({
-                    ...perfil, disabled: (inativoSelecionado && perfil.value !== "INATIVO")
+                    ...perfil
                 }))}
                 style={{ display: "flex", flexDirection: "column", gap: 8 }}
                 value={perfisSelecionados}
                 onChange={(values) => {
                     let newValues = values;
-
-                    if (values.includes("INATIVO")) {
-                        newValues = ["INATIVO"];
-                    } else {
-                        newValues = values.filter((val) => val !== "INATIVO");
-                    }
-
                     setPerfisSelecionados(newValues);
                     form.setFieldValue("perfis", newValues);
                 }}

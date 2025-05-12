@@ -13,8 +13,8 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250506031431_initialCrete")]
-    partial class initialCrete
+    [Migration("20250512190700_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -622,6 +622,9 @@ namespace backend.Migrations
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsAtivo")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
 
@@ -684,85 +687,101 @@ namespace backend.Migrations
                         {
                             Id = -1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "016f185f-b64a-400a-a242-966abc1d660e",
-                            DataCad = new DateTime(2025, 5, 6, 3, 14, 30, 265, DateTimeKind.Utc).AddTicks(959),
-                            DataUltimoAcesso = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "iuryalves774@gmail.com",
+                            ConcurrencyStamp = "d98f443a-a5ee-487b-8f08-1197c1dd1f48",
+                            Cpf = "01234567890",
+                            DataCad = new DateTime(2025, 5, 12, 19, 6, 59, 386, DateTimeKind.Utc).AddTicks(1426),
+                            DataUltimoAcesso = new DateTime(2025, 5, 12, 19, 6, 59, 386, DateTimeKind.Utc).AddTicks(1440),
+                            Email = "iury@gsmail.com",
                             EmailConfirmed = true,
-                            Formacao = "Desenvolvedor do sistema",
+                            Formacao = "Desenvolvedor do Sistema",
                             IsAdmin = true,
+                            IsAtivo = true,
                             LockoutEnabled = false,
-                            Nome = "Iury Dev",
-                            NormalizedEmail = "IURYALVES774@GMAIL.COM",
-                            NormalizedUserName = "ADMIN.IURY",
-                            PasswordHash = "AQAAAAIAAYagAAAAEHg5umf6S2RmhjRZb2a9kljUFATEArQnJkiWKjmah41ddHU8SEA4FDPW8Qyz2njnsw==",
+                            Nome = "Admin Iury",
+                            NormalizedEmail = "IURY@GSMAIL.COM",
+                            NormalizedUserName = "IURY",
+                            PasswordHash = "AQAAAAIAAYagAAAAEM0COZEMdePNynkABt+ZeGZqb1qYzjdEAlxKwlEZ6PpZmMBUtp8sGGSQ3MWUGBPm9A==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "17bc2f4f-4a24-42b5-a962-16227484ed56",
+                            SecurityStamp = "41d6a625-c0c8-4a55-bbf6-8a96003c8fbb",
+                            Telefone1 = "62987654321",
                             TwoFactorEnabled = false,
-                            UserName = "admin.iury"
+                            UserName = "admin.iury",
+                            Whatsapp = "62987654321"
                         },
                         new
                         {
                             Id = -2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "84924ee6-33cf-4115-a9c7-16b0ae35b515",
-                            DataCad = new DateTime(2025, 5, 6, 3, 14, 30, 265, DateTimeKind.Utc).AddTicks(988),
-                            DataUltimoAcesso = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "rafaelnmcosta@gmail.com",
+                            ConcurrencyStamp = "8a52482b-1a31-4163-8a65-957995a994ef",
+                            Cpf = "01234567891",
+                            DataCad = new DateTime(2025, 5, 12, 19, 6, 59, 386, DateTimeKind.Utc).AddTicks(1469),
+                            DataUltimoAcesso = new DateTime(2025, 5, 12, 19, 6, 59, 386, DateTimeKind.Utc).AddTicks(1483),
+                            Email = "rafael@gsmail.com",
                             EmailConfirmed = true,
-                            Formacao = "Desenvolvedor do sistema",
+                            Formacao = "Desenvolvedor do Sistema",
                             IsAdmin = true,
+                            IsAtivo = true,
                             LockoutEnabled = false,
-                            Nome = "Rafael Dev",
-                            NormalizedEmail = "ADMIN@GMAIL.COM",
-                            NormalizedUserName = "ADMIN.RAFAEL",
-                            PasswordHash = "AQAAAAIAAYagAAAAENWRmLD90s/Krl9bxLp4fXQe9vBgWnX3jikYPiisBA0EVzEoiuMHtomQdqfmqhGUoQ==",
+                            Nome = "Admin Rafael",
+                            NormalizedEmail = "ADMIN@GSMAIL.COM",
+                            NormalizedUserName = "ADMIN",
+                            PasswordHash = "AQAAAAIAAYagAAAAENYI+2kR5mSejO5wwZ8tIFQWfx+za12DLreIr/JPOtCDg4bpAQYXnKSfStQDpVq70g==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "206afe52-98cd-4c60-a719-763a9a9ab88a",
+                            SecurityStamp = "876120d5-f7fa-4c7c-b01e-2e924f07a047",
+                            Telefone1 = "62912345678",
                             TwoFactorEnabled = false,
-                            UserName = "admin.rafael"
+                            UserName = "admin.rafael",
+                            Whatsapp = "62912345678"
                         },
                         new
                         {
                             Id = -3,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "8ed9458c-81ab-4ed2-81cd-731dde8654a1",
-                            DataCad = new DateTime(2025, 5, 6, 3, 14, 30, 265, DateTimeKind.Utc).AddTicks(1017),
-                            DataUltimoAcesso = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "ceron@ufg.br",
+                            ConcurrencyStamp = "2f2db6d9-3f36-420d-a5e2-b6eccd79710e",
+                            Cpf = "01234567892",
+                            DataCad = new DateTime(2025, 5, 12, 19, 6, 59, 386, DateTimeKind.Utc).AddTicks(1511),
+                            DataUltimoAcesso = new DateTime(2025, 5, 12, 19, 6, 59, 386, DateTimeKind.Utc).AddTicks(1526),
+                            Email = "hugo@gsmail.com",
                             EmailConfirmed = true,
-                            Formacao = "Administrador do sistema",
+                            Formacao = "Desenvolvedor do Sistema",
                             IsAdmin = true,
+                            IsAtivo = true,
                             LockoutEnabled = false,
-                            Nome = "Professor Ceron",
-                            NormalizedEmail = "CERON@UFG.BR",
-                            NormalizedUserName = "ADMIN.CERON",
-                            PasswordHash = "AQAAAAIAAYagAAAAEELsAF8rLFWaSnHzuof1RqnZ0SkWzTISuwg5WByS+/dFBc6vX1CWKN/+w5sY+o8gFw==",
+                            Nome = "Admin Hugo",
+                            NormalizedEmail = "HUGO@GSMAIL.COM",
+                            NormalizedUserName = "HUGO",
+                            PasswordHash = "AQAAAAIAAYagAAAAEPGiG6vZkdTruxsRoPff3gmoCWcfIDyiGBHnoWT7JbS/z4klalbZ6fFCA69dphQ8Ow==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "3625a9ab-19c7-42f9-a904-7bf988843337",
+                            SecurityStamp = "87b60ae8-59a7-4fc8-9839-03c1ed6d15f2",
+                            Telefone1 = "62910203040",
                             TwoFactorEnabled = false,
-                            UserName = "admin.ceron"
+                            UserName = "hugo",
+                            Whatsapp = "62910203040"
                         },
                         new
                         {
                             Id = -4,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "f410d2a0-b6d8-4cb6-b981-59014a5dab6f",
-                            DataCad = new DateTime(2025, 5, 6, 3, 14, 30, 265, DateTimeKind.Utc).AddTicks(1046),
-                            DataUltimoAcesso = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "hadn@ufg.br",
+                            ConcurrencyStamp = "baad72a2-6539-47fc-8497-769b73e44262",
+                            Cpf = "01234567893",
+                            DataCad = new DateTime(2025, 5, 12, 19, 6, 59, 386, DateTimeKind.Utc).AddTicks(1555),
+                            DataUltimoAcesso = new DateTime(2025, 5, 12, 19, 6, 59, 386, DateTimeKind.Utc).AddTicks(1564),
+                            Email = "ceron@gsmail.com",
                             EmailConfirmed = true,
-                            Formacao = "Desenvolvedor do sistema",
+                            Formacao = "Administrador do Sistema",
                             IsAdmin = true,
+                            IsAtivo = true,
                             LockoutEnabled = false,
-                            Nome = "Professor Hugo",
-                            NormalizedEmail = "HADN@UFG.BR",
-                            NormalizedUserName = "ADMIN.HUGO",
-                            PasswordHash = "AQAAAAIAAYagAAAAEE4HwfSCLHZLmELKhNWqwJ8N7IVx+iCpgt6jLIfkp0zaZNMB6DRNYcuqlNxMfRBq8g==",
+                            Nome = "Admin Ceron",
+                            NormalizedEmail = "CERON@GSMAIL.COM",
+                            NormalizedUserName = "CERON",
+                            PasswordHash = "AQAAAAIAAYagAAAAENOn7eCA5xP7XDmrCYQrqsxMXBvr00o/1n0Odt2I5fMTzuh+fle0I86EZ3L+cgVkDQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "e7d78ee9-cc2b-4177-84e7-5eb7996a4f2a",
+                            SecurityStamp = "49a8955d-8f61-4256-961b-5c9fd2a76704",
+                            Telefone1 = "62940302010",
                             TwoFactorEnabled = false,
-                            UserName = "admin.hugo"
+                            UserName = "ceron",
+                            Whatsapp = "62940302010"
                         });
                 });
 

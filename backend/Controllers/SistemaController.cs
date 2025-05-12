@@ -10,7 +10,7 @@ using backend.Dtos.Animal;
 using backend.Dtos.Usuario;
 using backend.Services;
 using System.Security.Claims;
-
+// TODO: modularizar funções repetidas em todos os controladores, usar services ou o que for necessário
 namespace backend.Controllers
 {
     [ApiController]
@@ -351,7 +351,8 @@ namespace backend.Controllers
                         Perfis = upc.Perfis,
                         DataCadastro = upc.Usuario.DataCad,
                         DataUltimoAcesso = upc.Usuario.DataUltimoAcesso,
-                        IsAdmin = upc.Usuario.IsAdmin
+                        IsAdmin = upc.Usuario.IsAdmin,
+                        IsAtivo = upc.Usuario.IsAtivo
                     })
                     .ToListAsync();
             }
@@ -387,10 +388,13 @@ namespace backend.Controllers
                         ClinicaId = -1,
                         Email = u.Email,
                         Nome = u.Nome ?? string.Empty,
-                        Perfis = new List<string> { "ADMINISTRADOR" },
+                        Perfis = u.IsAtivo ? 
+                            new List<string> { "ADMIN" } : 
+                            new List<string> { "ADMIN", "INATIVO" },
                         DataCadastro = u.DataCad,
                         DataUltimoAcesso = u.DataUltimoAcesso,
-                        IsAdmin = u.IsAdmin
+                        IsAdmin = u.IsAdmin,
+                        IsAtivo = u.IsAtivo
                     })
                     .ToListAsync();
             }
@@ -417,6 +421,7 @@ namespace backend.Controllers
             });
         }
 
+        // TODO: fazer a verificação do email duplicado (diferente para o administradores e usuarios comuns)
         [HttpPost("usuarios/cadastrar")]
         [Authorize(Policy = "GerenciaSistema")]
         public async Task<IActionResult> CadastrarUsuarioSistema([FromBody] CadastrarUsuarioSistemaDto cadastrarUsuarioSistemaDto)
@@ -442,6 +447,18 @@ namespace backend.Controllers
                 cadastrarUsuarioSistemaDto.IsAdmin = true;
                 cadastrarUsuarioSistemaDto.Perfis = new List<string>();
                 Console.WriteLine("[DEBUG] Usuário identificado como administrador (ADMIN)");
+            } else {
+                cadastrarUsuarioSistemaDto.IsAdmin = false;
+            }
+            
+            if (cadastrarUsuarioSistemaDto.Perfis != null && 
+                cadastrarUsuarioSistemaDto.Perfis.Contains("INATIVO", StringComparer.OrdinalIgnoreCase))
+            {
+                cadastrarUsuarioSistemaDto.IsAtivo = false;
+                cadastrarUsuarioSistemaDto.Perfis = new List<string>();
+                Console.WriteLine("[DEBUG] Usuário identificado como inativo (INATIVO)");
+            } else {
+                cadastrarUsuarioSistemaDto.IsAtivo = true;
             }
 
             if (!cadastrarUsuarioSistemaDto.IsAdmin &&
@@ -451,11 +468,13 @@ namespace backend.Controllers
                 return BadRequest("Pelo menos um perfil deve ser selecionado.");
             }
 
-            var existingUser = await _userManager.FindByEmailAsync(cadastrarUsuarioSistemaDto.Email);
-            if (existingUser != null)
-            {
-                Console.WriteLine("[DEBUG] E-mail já em uso.");
-                return BadRequest("O e-mail já está em uso.");
+            if (cadastrarUsuarioSistemaDto.IsAdmin) {
+                var existingUser = await _userManager.FindByEmailAsync(cadastrarUsuarioSistemaDto.Email); 
+                if (existingUser != null)
+                {
+                    Console.WriteLine("[DEBUG] E-mail já em uso.");
+                    return BadRequest("O e-mail já está em uso.");
+                }
             }
 
             var usuario = new Usuario
@@ -466,7 +485,8 @@ namespace backend.Controllers
                 DataCad = DateTime.UtcNow,
                 DataUltimoAcesso = DateTime.UtcNow,
                 EmailConfirmed = true,
-                IsAdmin = cadastrarUsuarioSistemaDto.IsAdmin
+                IsAdmin = cadastrarUsuarioSistemaDto.IsAdmin,
+                IsAtivo = cadastrarUsuarioSistemaDto.IsAtivo
             };
 
             var result = await _userManager.CreateAsync(usuario, cadastrarUsuarioSistemaDto.Senha);
@@ -497,6 +517,20 @@ namespace backend.Controllers
                     if (!clinicaExiste)
                     {
                         return BadRequest($"A clínica com ID {clinicaId} não existe.");
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(cadastrarUsuarioSistemaDto.Email))
+                    {
+                        var emailExistente = await _context.UsuariosPerfisClinicas
+                            .AnyAsync(upc => upc.Usuario.Email == cadastrarUsuarioSistemaDto.Email && upc.UsuarioId != usuario.Id && upc.ClinicaId == clinicaId);
+
+                        if (emailExistente)
+                        {
+                            return BadRequest(new { Success = false, Message = "O email informado já está em uso." });
+                        }
+
+                        usuario.UserName = cadastrarUsuarioSistemaDto.Email;
+                        usuario.Email = cadastrarUsuarioSistemaDto.Email;
                     }
 
                     var usuarioPerfilClinica = new UsuarioPerfilClinica
@@ -531,44 +565,59 @@ namespace backend.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (dto.UpcId == -1)
+            if (dto.IsAdmin)
             {
-                // ====== Edição de Usuário Administrador ======
+                _logger.LogInformation("===== INÍCIO EDIÇÃO USUÁRIO ADMINISTRADOR =====");
+                _logger.LogInformation($"ID Usuário: {dto.Id} | Email: {dto.Email} | Nome: {dto.Nome} | IsAtivo: {dto.IsAtivo}");
+
                 using var transaction = await _context.Database.BeginTransactionAsync();
                 try
                 {
+                    _logger.LogInformation("Buscando usuário administrador no banco de dados...");
                     var usuario = await _context.Usuarios
                         .Where(u => u.IsAdmin == true)
                         .FirstOrDefaultAsync(u => u.Id == dto.Id);
 
                     if (usuario == null)
                     {
+                        _logger.LogWarning($"Usuário administrador não encontrado. ID: {dto.Id}");
                         return NotFound(new { Success = false, Message = "Usuário administrador não encontrado." });
                     }
+
+                    _logger.LogInformation($"Usuário encontrado: ID {usuario.Id} | Email atual: {usuario.Email} | Nome atual: {usuario.Nome} | IsAtivo atual: {usuario.IsAtivo}");
 
                     // Verifica email duplicado entre administradores
                     if (!string.IsNullOrWhiteSpace(dto.Email))
                     {
+                        _logger.LogInformation("Verificando duplicidade de email...");
                         var emailExistente = await _context.Usuarios
-                            .AnyAsync(u => u.IsAdmin == true && u.Email == dto.Email && u.Id != usuario.Id);
+                            .AnyAsync(u => u.Email == dto.Email && u.Id != usuario.Id);
 
                         if (emailExistente)
                         {
+                            _logger.LogWarning($"Email já em uso: {dto.Email}");
                             return BadRequest(new { Success = false, Message = "O email informado já está em uso por outro administrador." });
                         }
 
+                        _logger.LogInformation($"Atualizando email de {usuario.Email} para {dto.Email}");
                         usuario.UserName = dto.Email;
                         usuario.Email = dto.Email;
                     }
 
                     if (!string.IsNullOrWhiteSpace(dto.Nome))
                     {
+                        _logger.LogInformation($"Atualizando nome de {usuario.Nome} para {dto.Nome}");
                         usuario.Nome = dto.Nome;
                     }
+                    
+                    _logger.LogInformation($"Atualizando status IsAtivo de {usuario.IsAtivo} para {dto.IsAtivo}");
+                    usuario.IsAtivo = dto.IsAtivo;
 
+                    _logger.LogInformation("Salvando alterações no banco de dados...");
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
 
+                    _logger.LogInformation($"Administrador ID {usuario.Id} atualizado com sucesso");
                     return Ok(new {
                         Success = true,
                         Message = "Administrador atualizado com sucesso",
@@ -578,7 +627,8 @@ namespace backend.Controllers
                 catch (DbUpdateConcurrencyException ex)
                 {
                     await transaction.RollbackAsync();
-                    _logger.LogError(ex, $"Conflito de concorrência ao editar administrador {dto.Id}");
+                    _logger.LogError(ex, $"CONFLITO DE CONCORRÊNCIA ao editar administrador {dto.Id}");
+                    _logger.LogError($"Detalhes: {ex.Message} | Inner: {ex.InnerException?.Message}");
                     return StatusCode(409, new {
                         Success = false,
                         Message = "Os dados foram modificados por outro usuário. Recarregue e tente novamente.",
@@ -588,65 +638,87 @@ namespace backend.Controllers
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    _logger.LogError(ex, $"Erro ao editar administrador com ID {dto.Id}");
+                    _logger.LogError(ex, $"ERRO CRÍTICO ao editar administrador com ID {dto.Id}");
+                    _logger.LogError($"StackTrace: {ex.StackTrace}");
                     return StatusCode(500, new {
                         Success = false,
                         Message = "Erro interno ao editar administrador.",
                         ErrorCode = "INTERNAL_ERROR"
                     });
                 }
+                finally
+                {
+                    _logger.LogInformation("===== FIM DA OPERAÇÃO DE EDIÇÃO =====");
+                }
             }
             else
             {
-                // ====== Edição de Usuário Vinculado a Clínica ======
+                _logger.LogInformation("===== INÍCIO EDIÇÃO USUÁRIO VINCULADO A CLÍNICA =====");
+                _logger.LogInformation($"ID Vínculo: {dto.UpcId} | ID Clínica: {dto.ClinicaId} | Email: {dto.Email} | Nome: {dto.Nome} | Perfis: {string.Join(", ", dto.Perfis ?? new List<string>())}");
+
                 using var transaction = await _context.Database.BeginTransactionAsync();
                 try
                 {
+                    _logger.LogInformation("Buscando vínculo do usuário no banco de dados...");
                     var vinculo = await _context.UsuariosPerfisClinicas
                         .Include(upc => upc.Usuario)
                         .FirstOrDefaultAsync(upc => upc.Id == dto.UpcId);
 
                     if (vinculo == null)
                     {
+                        _logger.LogWarning($"Vínculo não encontrado. ID: {dto.UpcId}");
                         return NotFound(new { Success = false, Message = "Vínculo do usuário não encontrado." });
                     }
+
+                    _logger.LogInformation($"Vínculo encontrado: ID {vinculo.Id} | Clínica ID: {vinculo.ClinicaId} | Perfis atuais: {string.Join(", ", vinculo.Perfis)}");
 
                     var usuario = vinculo.Usuario;
                     if (usuario == null)
                     {
+                        _logger.LogError($"Usuário associado ao vínculo não encontrado. Vínculo ID: {vinculo.Id}");
                         return NotFound(new { Success = false, Message = "Usuário associado ao vínculo não encontrado." });
                     }
 
-                    // Verifica email duplicado entre usuários não-administradores
+                    _logger.LogInformation($"Usuário encontrado: ID {usuario.Id} | Email atual: {usuario.Email} | Nome atual: {usuario.Nome}");
+
+                    // Verifica email duplicado
                     if (!string.IsNullOrWhiteSpace(dto.Email))
                     {
+                        _logger.LogInformation("Verificando duplicidade de email na clínica...");
                         var emailExistente = await _context.Usuarios
-                            .AnyAsync(u => u.Email == dto.Email && u.Id != usuario.Id);
+                            .AnyAsync(u => vinculo.ClinicaId == dto.ClinicaId && u.Email == dto.Email && u.Id != usuario.Id);
 
                         if (emailExistente)
                         {
+                            _logger.LogWarning($"Email já em uso na clínica: {dto.Email}");
                             return BadRequest(new { Success = false, Message = "O email informado já está em uso." });
                         }
 
+                        _logger.LogInformation($"Atualizando email de {usuario.Email} para {dto.Email}");
                         usuario.UserName = dto.Email;
                         usuario.Email = dto.Email;
                     }
 
                     if (!string.IsNullOrWhiteSpace(dto.Nome))
                     {
+                        _logger.LogInformation($"Atualizando nome de {usuario.Nome} para {dto.Nome}");
                         usuario.Nome = dto.Nome;
                     }
 
                     if (dto.Perfis == null || !dto.Perfis.Any())
                     {
+                        _logger.LogWarning("Tentativa de atualização sem perfis definidos");
                         return BadRequest(new { Success = false, Message = "O usuário deve ter pelo menos um perfil ativo." });
                     }
 
+                    _logger.LogInformation($"Atualizando perfis de {string.Join(", ", vinculo.Perfis)} para {string.Join(", ", dto.Perfis)}");
                     vinculo.Perfis = dto.Perfis;
 
+                    _logger.LogInformation("Salvando alterações no banco de dados...");
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
 
+                    _logger.LogInformation($"Usuário vinculado atualizado com sucesso. Usuário ID: {usuario.Id} | Vínculo ID: {vinculo.Id}");
                     return Ok(new {
                         Success = true,
                         Message = "Usuário atualizado com sucesso",
@@ -656,7 +728,8 @@ namespace backend.Controllers
                 catch (DbUpdateConcurrencyException ex)
                 {
                     await transaction.RollbackAsync();
-                    _logger.LogError(ex, $"Conflito de concorrência ao editar usuário {dto.UpcId}");
+                    _logger.LogError(ex, $"CONFLITO DE CONCORRÊNCIA ao editar usuário vinculado. Vínculo ID: {dto.UpcId}");
+                    _logger.LogError($"Detalhes: {ex.Message} | Inner: {ex.InnerException?.Message}");
                     return StatusCode(409, new {
                         Success = false,
                         Message = "Os dados foram modificados por outro usuário. Recarregue e tente novamente.",
@@ -666,12 +739,17 @@ namespace backend.Controllers
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    _logger.LogError(ex, $"Erro ao editar usuário com vínculo ID {dto.UpcId}");
+                    _logger.LogError(ex, $"ERRO CRÍTICO ao editar usuário vinculado. Vínculo ID: {dto.UpcId}");
+                    _logger.LogError($"StackTrace: {ex.StackTrace}");
                     return StatusCode(500, new {
                         Success = false,
-                        Message = "Erro interno ao editar usuário.",
+                        Message = "Erro interno ao editar usuário vinculado.",
                         ErrorCode = "INTERNAL_ERROR"
                     });
+                }
+                finally
+                {
+                    _logger.LogInformation("===== FIM DA OPERAÇÃO DE EDIÇÃO =====");
                 }
             }
         }

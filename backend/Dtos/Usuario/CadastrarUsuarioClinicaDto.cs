@@ -19,6 +19,8 @@ namespace backend.Dtos.Usuario
 
         [Required(ErrorMessage = "O status se é administrador ou não é obrigatório.")]
         public bool IsAdmin { get; set; }
+        [Required(ErrorMessage = "O status se é administrador ou não é obrigatório.")]
+        public bool IsAtivo { get; set; }
 
         [Required(ErrorMessage = "A clínica vinculada é obrigatória.")]
         public int ClinicaId { get; set; }

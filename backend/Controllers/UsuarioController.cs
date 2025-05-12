@@ -115,6 +115,8 @@ namespace backend.Controllers
                     DataCad = DateTime.UtcNow,
                     DataUltimoAcesso = DateTime.UtcNow,
                     EmailConfirmed = true,
+                    IsAdmin = false,
+                    IsAtivo = true
                 };
 
                 var result = await _userManager.CreateAsync(usuario, cadastrarUsuarioClinicaDto.Senha);
