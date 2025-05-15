@@ -23,27 +23,27 @@ namespace backend.Controllers
             _authService = authService;
         }
 
-        [HttpGet("tutores")]
-        [Authorize(Roles = "ADMIN,SECRETARIO")]
-        public async Task<IActionResult> GetTutoresByClinica()
-        {
-            var clinicaId = User.GetClaimValue<int>("clinicaId");
-            if (clinicaId == 0) {
-                return BadRequest("Acesso não permitido a esta clínica.");
-            }
+        // [HttpGet("tutores")]
+        // [Authorize(Roles = "ADMIN,SECRETARIO")]
+        // public async Task<IActionResult> GetTutoresByClinica()
+        // {
+        //     var clinicaId = User.GetClaimValue<int>("clinicaId");
+        //     if (clinicaId == 0) {
+        //         return BadRequest("Acesso não permitido a esta clínica.");
+        //     }
 
-            var tutores = await _context.TutoresAnimaisClinicas
-                .Where(tac => tac.ClinicaId == clinicaId)
-                .Select(tac => tac.Tutor)
-                .ToListAsync();
+        //     var tutores = await _context.TutoresAnimaisClinicas
+        //         .Where(tac => tac.ClinicaId == clinicaId)
+        //         .Select(tac => tac.Tutor)
+        //         .ToListAsync();
 
-            if (tutores == null || !tutores.Any())
-            {
-                return NotFound("Nenhuma consulta encontrada para a clínica.");
-            }
+        //     if (tutores == null || !tutores.Any())
+        //     {
+        //         return NotFound("Nenhuma consulta encontrada para a clínica.");
+        //     }
 
-            return Ok(tutores);
-        }
+        //     return Ok(tutores);
+        // }
 
         [HttpGet("tutor_{tutorId}")]
         [Authorize(Policy = "GerenciaTutores")]
@@ -66,7 +66,7 @@ namespace backend.Controllers
 
         [HttpPost("tutores/cadastrar")]
         [Authorize(Policy = "GerenciaTutores")]
-        public async Task<IActionResult> CreateTutor([FromBody] TutorDto tutorDto)
+        public async Task<IActionResult> CreateTutor([FromBody] CadastrarTutorClinicaDto CadastrarTutorClinicaDto)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId == 0) {
@@ -75,13 +75,13 @@ namespace backend.Controllers
 
             var tutor = new Tutor
             {
-                Nome = tutorDto.Nome,
-                Cpf = tutorDto.Cpf,
-                Endereco = tutorDto.Endereco,
-                Cep = tutorDto.Cep,
-                Whatsapp = tutorDto.Whatsapp,
-                Email = tutorDto.Email,
-                DataCad = tutorDto.DataCad
+                Nome = CadastrarTutorClinicaDto.Nome,
+                Cpf = CadastrarTutorClinicaDto.Cpf,
+                Endereco = CadastrarTutorClinicaDto.Endereco,
+                Cep = CadastrarTutorClinicaDto.Cep,
+                Whatsapp = CadastrarTutorClinicaDto.Whatsapp,
+                Email = CadastrarTutorClinicaDto.Email,
+                DataCad = CadastrarTutorClinicaDto.DataCad
             };
 
             _context.Tutores.Add(tutor);

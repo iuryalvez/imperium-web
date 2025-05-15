@@ -49,6 +49,7 @@ namespace backend.Models {
         public virtual ICollection<Consulta>? Consultas { get; set; }
         public virtual ICollection<Racao>? Racoes { get; set; }
         public virtual ICollection<UsuarioPerfilClinica>? UsuariosPerfisClinicas { get; set; }
-        public virtual ICollection<TutorAnimalClinica>? TutoresAnimaisClinicas { get; set; }
+        public virtual ICollection<TutorClinica>? TutoresClinicas { get; set; }
+        public virtual ICollection<AnimalClinica>? AnimaisClinicas { get; set; }
     }
 }

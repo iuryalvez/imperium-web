@@ -276,15 +276,6 @@ const FormEditarEntidade = ({
                 value={perfisSelecionados}
                 onChange={(values) => {
                   let newValues = values;
-
-                  if (values.includes("ADMIN")) {
-                    newValues = ["ADMIN"];
-                  } else if (values.includes("INATIVO")) {
-                    newValues = ["INATIVO"];
-                  } else {
-                    newValues = values.filter((val) => val !== "ADMIN" && val !== "INATIVO");
-                  }
-
                   setPerfisSelecionados(newValues);
                   form.setFieldValue("perfis", newValues);
                 }}

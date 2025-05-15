@@ -38,7 +38,8 @@ namespace backend.Models {
         [EmailAddress(ErrorMessage = "O e-mail não é válido.")]
         public string Email { get; set; }
         public DateTime DataCad { get; set; }
-        public virtual ICollection<TutorAnimalClinica>? TutoresAnimaisClinicas { get; set; }
+        public virtual ICollection<TutorClinica>? TutoresClinicas { get; set; }
+        public virtual ICollection<Animal>? Animais { get; set; } // navegação com o dependente
         public virtual ICollection<Consulta>? Consultas { get; set; }
     }
 }
