@@ -103,7 +103,7 @@ const FormEditarEntidade = ({
       
       // TODO: ajustar para corrigir quando usuário é administrador e quando não é, aqui está só para os comuns
       // e pode ser feito a mesma coisa no cadastro / visualização ! 
-      if (entidade === "usuariosDoSistema") {
+      if (entidade === "usuariosDoSistema" || "usuariosDaClinica") {
         // Verifica se o array de perfis contém "INATIVO"
         const contemInativo = values.perfis?.includes("INATIVO") || false;
         

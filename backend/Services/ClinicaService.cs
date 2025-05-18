@@ -1,10 +1,11 @@
 using System.ComponentModel;
 using backend.Data;
 using backend.Dtos.Tutor;
+using backend.Interfaces;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
-public class ClinicaService
+public class ClinicaService : IClinicaService
 {
     private readonly AppDbContext _context;
 

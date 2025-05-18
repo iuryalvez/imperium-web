@@ -368,7 +368,7 @@ const TabelaEntidade = ({
               Acessar
             </Button>
           )}
-          {entidade !== "usuariosDaClinica" && (
+          {!["usuariosDaClinica","usuariosDoSistema"].includes(entidade) && (
             <Popconfirm
             title="Tem certeza que deseja deletar este registro?"
             onConfirm={() => deletarRegistro(record.id)}

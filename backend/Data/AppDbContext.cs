@@ -31,6 +31,12 @@ namespace backend.Data
 
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Ignore<IdentityRole>();
+            modelBuilder.Ignore<IdentityUserRole<string>>();
+            modelBuilder.Ignore<IdentityUserClaim<string>>();
+            modelBuilder.Ignore<IdentityUserLogin<string>>();
+            modelBuilder.Ignore<IdentityUserToken<string>>();
+
             modelBuilder.Entity<Usuario>()
                 .Property(entidade => entidade.Id)
                 .ValueGeneratedOnAdd();

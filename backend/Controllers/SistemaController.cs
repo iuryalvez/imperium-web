@@ -529,7 +529,9 @@ namespace backend.Controllers
                         }
 
                         usuario.UserName = dto.Email;
+                        usuario.NormalizedUserName = _userManager.NormalizeEmail(dto.Email);
                         usuario.Email = dto.Email;
+                        usuario.NormalizedEmail = _userManager.NormalizeEmail(dto.Email);
                     }
 
                     var usuarioPerfilClinica = new UsuarioPerfilClinica
@@ -600,7 +602,10 @@ namespace backend.Controllers
 
                         _logger.LogInformation($"Atualizando email de {usuario.Email} para {dto.Email}");
                         usuario.UserName = dto.Email;
+                        _logger.LogInformation($"Atualizando NormalizedEmail de {usuario.NormalizedEmail} para {_userManager.NormalizeEmail(dto.Email)}");
+                        usuario.NormalizedEmail = _userManager.NormalizeEmail(dto.Email);
                         usuario.Email = dto.Email;
+                        usuario.NormalizedEmail = _userManager.NormalizeEmail(dto.Email);
                     }
 
                     if (!string.IsNullOrWhiteSpace(dto.Nome))
@@ -695,7 +700,10 @@ namespace backend.Controllers
 
                         _logger.LogInformation($"Atualizando email de {usuario.Email} para {dto.Email}");
                         usuario.UserName = dto.Email;
+                        _logger.LogInformation($"Atualizando NormalizedEmail de {usuario.NormalizedEmail} para {_userManager.NormalizeEmail(dto.Email)}");
+                        usuario.NormalizedUserName = _userManager.NormalizeEmail(dto.Email);
                         usuario.Email = dto.Email;
+                        usuario.NormalizedEmail = _userManager.NormalizeEmail(dto.Email);
                     }
 
                     if (!string.IsNullOrWhiteSpace(dto.Nome))

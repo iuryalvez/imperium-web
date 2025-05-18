@@ -6,6 +6,8 @@ using backend.Services;
 using backend.Data;
 using backend.Dtos.Clinica;
 using backend.Interfaces;
+using Microsoft.AspNetCore.Identity;
+using backend.Models;
 
 namespace backend.Controllers
 {

@@ -172,6 +172,7 @@ namespace backend.Services
                         new Claim("nomeClinica", nomeClinica),
                         new Claim("clinicaId", clinicaId.ToString()),
                         new Claim("isAdmin", "false"),
+                        new Claim("isAtivo", "true"),
                         new Claim("Perfis", JsonSerializer.Serialize(perfisAtivos)) // Lista de perfis ativos
                     }),
                     Expires = now.AddMinutes(Convert.ToDouble(_configuration["JWT:ExpiresInMinutes"])),

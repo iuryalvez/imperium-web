@@ -29,6 +29,7 @@ internal class Program
         builder.Services.AddScoped<IEmailService, EmailService>();
         builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddScoped<IClinicaService, ClinicaService>();
 
         // configuração do CORS
         builder.Services.AddCors(options =>
@@ -61,7 +62,7 @@ internal class Program
         builder.Services.AddDbContextFactory<AppDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-        builder.Services.AddIdentity<Usuario, IdentityRole<int>>(options =>
+        builder.Services.AddIdentityCore<Usuario>(options =>
         {
             options.Password.RequiredLength = 6;
             // options.Password.RequireDigit = true;
@@ -73,6 +74,7 @@ internal class Program
             options.Lockout.AllowedForNewUsers = false;
         })
         .AddEntityFrameworkStores<AppDbContext>()
+        .AddSignInManager()
         .AddDefaultTokenProviders();
 
         /// configuração da autenticação

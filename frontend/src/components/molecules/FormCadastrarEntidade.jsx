@@ -45,6 +45,15 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel,
   const handleFinish = async (values) => {
     try {
       setLoading(true);
+      
+      if (entidade === "usuariosDoSistema" || "usuariosDaClinica") {
+        // Verifica se o array de perfis contém "INATIVO"
+        const isInativo = values.perfis?.includes("INATIVO") || false;
+        
+        // Atualiza o valor de IsInativo
+        values.isAtivo = !isInativo;
+      }
+
       const response = await onSubmit(values);
       message.success(`${entidade} criado com sucesso.`);
       form.resetFields();
