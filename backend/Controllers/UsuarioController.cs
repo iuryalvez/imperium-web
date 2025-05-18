@@ -20,14 +20,14 @@ namespace backend.Controllers
     public class UsuarioController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IAuthService _authService;
         private readonly UserManager<Usuario> _userManager;
         private readonly ILogger<UsuarioController> _logger;
 
-        public UsuarioController(AppDbContext context, IAuthService authService, UserManager<Usuario> userManager, ILogger<UsuarioController> logger)
+        public UsuarioController(AppDbContext context,
+                                 UserManager<Usuario> userManager,
+                                 ILogger<UsuarioController> logger)
         {
             _context = context;
-            _authService = authService;
             _userManager = userManager;
             _logger = logger;
         }

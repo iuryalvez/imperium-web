@@ -5,6 +5,7 @@ namespace backend.Dtos.Tutor
 {
     public class CadastrarTutorClinicaDto
     {
+        public int ClinicaId { get; set; }
         [Required(ErrorMessage = "O nome do tutor é obrigatório.")]
         [StringLength(100, ErrorMessage = "O nome do tutor deve ter no máximo 100 caracteres.")]
         public string Nome { get; set; } = string.Empty;

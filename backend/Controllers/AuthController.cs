@@ -27,8 +27,11 @@ namespace backend.Controllers
         private readonly IEmailService _emailService;
         private readonly ITokenService _tokenService;
 
-        public AuthController(UserManager<Usuario> userManager, SignInManager<Usuario> signInManager, 
-                              ILogger<AuthController> logger, IEmailService emailService, ITokenService tokenService, 
+        public AuthController(UserManager<Usuario> userManager,
+                              SignInManager<Usuario> signInManager, 
+                              ILogger<AuthController> logger,
+                              IEmailService emailService,
+                              ITokenService tokenService, 
                               AppDbContext context)
         {
             _userManager = userManager;

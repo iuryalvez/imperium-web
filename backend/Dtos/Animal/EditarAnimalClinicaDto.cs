@@ -1,12 +1,13 @@
 namespace backend.Dtos.Animal
 {
-    public class AnimalDto
+    public class EditarAnimalClinicaDto
     {
+        public int TutorId { get; set; }
         public string Nome { get; set; } = string.Empty;
         public int Especie { get; set; } // 1-cao, 2-gato
-        public DateTime Nascimento { get; set; } 
+        public DateTime Nascimento { get; set; }
         public DateTime DataCad { get; set; }
-        public DateTime DataCadModificado { get; set; }
+        public DateTime DataModificado { get; set; }
         // public int Idade { get; set; } // derivado da data de nascimento
         // public int FaseVida { get; set; } // derivado da idade
         public int Sexo { get; set; } // 1-macho, 2-fêmea

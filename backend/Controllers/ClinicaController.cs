@@ -14,12 +14,11 @@ namespace backend.Controllers
     public class ClinicaController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IAuthService _authService;
         private readonly ILogger<ClinicaController> _logger;
-        public ClinicaController(AppDbContext context, IAuthService authService, ILogger<ClinicaController> logger)
+        public ClinicaController(AppDbContext context,
+                                 ILogger<ClinicaController> logger)
         {
             _context = context;
-            _authService = authService;
             _logger = logger;
         }
 

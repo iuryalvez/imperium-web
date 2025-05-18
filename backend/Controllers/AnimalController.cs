@@ -15,12 +15,11 @@ namespace backend.Controllers
     public class AnimalController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IAuthService _authService;
         private readonly ILogger<AnimalController> _logger;
-        public AnimalController(AppDbContext context, IAuthService authService, ILogger<AnimalController> logger)
+        public AnimalController(AppDbContext context,
+                                ILogger<AnimalController> logger)
         {
             _context = context;
-            _authService = authService;
             _logger = logger;
         }
 
@@ -38,60 +37,26 @@ namespace backend.Controllers
             return Ok(animal);
         }
 
-        // Obtém animais por tutorId
-        [HttpGet("animais/tutor_{tutorId}/animais")]
-        [Authorize(Policy = "VisualizaTudo")]
-        public async Task<ActionResult<IEnumerable<GetAnimaisDto>>> GetAnimaisByTutorId(int tutorId)
-        {
-            // Obter o valor da claim como inteiro
-            var clinicaId = User.GetClaimValue<int>("clinicaId");
-
-            if (clinicaId == 0) // Considerando 0 como default para int
-            {
-                return BadRequest("Claim 'clinicaId' não encontrada ou inválida.");
-            }
-
-            Console.WriteLine($"Acesso permitido à clínica {clinicaId}");
-            
-            var animais = await _context.TutoresAnimaisClinicas
-                .Where(tac => tac.TutorId == tutorId && tac.ClinicaId == clinicaId)
-                .Select(tac => new GetAnimaisDto
-                {
-                    Id = tac.Animal.Id,
-                    Nome = tac.Animal.Nome,
-                    Especie = tac.Animal.Especie,
-                    Sexo = tac.Animal.Sexo
-                })
-                .ToListAsync();
-
-            if (animais == null || !animais.Any())
-            {
-                return NotFound("Nenhum animal encontrado para o tutor especificado.");
-            }
-
-            return Ok(animais);
-        }
-
         [HttpPost("animais/cadastrar")]
         [Authorize(Policy = "GerenciaAnimal")]
-        public async Task<IActionResult> CadastrarAnimal(int tutorId, [FromBody] AnimalDto animalDto)
+        public async Task<IActionResult> CadastrarAnimal([FromBody] CadastrarAnimalClinicaDto cadastrarAnimalClinicaDto)
         {
             var animal = new Animal
             {
-                Nome = animalDto.Nome,
-                Especie = animalDto.Especie,
-                Nascimento = animalDto.Nascimento,
+                Nome = cadastrarAnimalClinicaDto.Nome,
+                Especie = cadastrarAnimalClinicaDto.Especie,
+                Nascimento = cadastrarAnimalClinicaDto.Nascimento,
                 DataCad = DateTime.UtcNow,
-                DataCadModificado = DateTime.UtcNow,
-                Sexo = animalDto.Sexo,
-                Castrado = animalDto.Castrado,
-                Peso = animalDto.Peso,
-                CondicaoCorporal = animalDto.CondicaoCorporal,
-                GrauAtividade = animalDto.GrauAtividade,
-                Gestacao = animalDto.Gestacao,
-                Lactacao = animalDto.Lactacao,
-                SemanaLactacao = animalDto.SemanaLactacao,
-                SemanaGestacao = animalDto.SemanaGestacao
+                DataModificado = DateTime.UtcNow,
+                Sexo = cadastrarAnimalClinicaDto.Sexo,
+                Castrado = cadastrarAnimalClinicaDto.Castrado,
+                Peso = cadastrarAnimalClinicaDto.Peso,
+                CondicaoCorporal = cadastrarAnimalClinicaDto.CondicaoCorporal,
+                GrauAtividade = cadastrarAnimalClinicaDto.GrauAtividade,
+                Gestacao = cadastrarAnimalClinicaDto.Gestacao,
+                Lactacao = cadastrarAnimalClinicaDto.Lactacao,
+                SemanaLactacao = cadastrarAnimalClinicaDto.SemanaLactacao,
+                SemanaGestacao = cadastrarAnimalClinicaDto.SemanaGestacao
             };
 
             _context.Animais.Add(animal);
@@ -107,14 +72,13 @@ namespace backend.Controllers
 
             Console.WriteLine($"Acesso permitido à clínica {clinicaId}");
 
-            var tutorAnimalClinica = new TutorAnimalClinica
+            var vinculoAnimalClinica = new AnimalClinica
             {
-                TutorId = tutorId,
                 AnimalId = animal.Id,
                 ClinicaId = clinicaId
             };
 
-            _context.TutoresAnimaisClinicas.Add(tutorAnimalClinica);
+            _context.AnimaisClinicas.Add(vinculoAnimalClinica);
             await _context.SaveChangesAsync();
 
             return Ok(new { Message = "Animal criado com sucesso.", AnimalId = animal.Id });
@@ -123,7 +87,7 @@ namespace backend.Controllers
         // Atualiza um animal de uma clínica
         [HttpPut("animais/{animalId}/editar")]
         [Authorize(Policy = "GerenciaAnimais")]
-        public async Task<IActionResult> UpdateAnimal(int animalId, [FromBody] AnimalDto animalDto)
+        public async Task<IActionResult> UpdateAnimal(int animalId, [FromBody] EditarAnimalClinicaDto editarAnimalClinicaDto)
         {
             var animal = await _context.Animais.FindAsync(animalId);
             if (animal == null)
@@ -131,19 +95,19 @@ namespace backend.Controllers
                 return NotFound("Animal não encontrado.");
             }
 
-            animal.Nome = animalDto.Nome;
-            animal.Especie = animalDto.Especie;
-            animal.Nascimento = animalDto.Nascimento;
-            animal.DataCadModificado = DateTime.UtcNow;
-            animal.Sexo = animalDto.Sexo;
-            animal.Castrado = animalDto.Castrado;
-            animal.Peso = animalDto.Peso;
-            animal.CondicaoCorporal = animalDto.CondicaoCorporal;
-            animal.GrauAtividade = animalDto.GrauAtividade;
-            animal.Gestacao = animalDto.Gestacao;
-            animal.Lactacao = animalDto.Lactacao;
-            animal.SemanaLactacao = animalDto.SemanaLactacao;
-            animal.SemanaGestacao = animalDto.SemanaGestacao;
+            animal.Nome = editarAnimalClinicaDto.Nome;
+            animal.Especie = editarAnimalClinicaDto.Especie;
+            animal.Nascimento = editarAnimalClinicaDto.Nascimento;
+            animal.DataModificado = DateTime.UtcNow;
+            animal.Sexo = editarAnimalClinicaDto.Sexo;
+            animal.Castrado = editarAnimalClinicaDto.Castrado;
+            animal.Peso = editarAnimalClinicaDto.Peso;
+            animal.CondicaoCorporal = editarAnimalClinicaDto.CondicaoCorporal;
+            animal.GrauAtividade = editarAnimalClinicaDto.GrauAtividade;
+            animal.Gestacao = editarAnimalClinicaDto.Gestacao;
+            animal.Lactacao = editarAnimalClinicaDto.Lactacao;
+            animal.SemanaLactacao = editarAnimalClinicaDto.SemanaLactacao;
+            animal.SemanaGestacao = editarAnimalClinicaDto.SemanaGestacao;
 
             _context.Animais.Update(animal);
             await _context.SaveChangesAsync();

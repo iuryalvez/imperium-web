@@ -11,7 +11,7 @@ namespace backend.Models {
         [StringLength(100, ErrorMessage = "O nome do tutor deve ter no máximo 100 caracteres.")]
         public string Nome { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "O CPF do tutor é obrigatório.")]
+        // [Required(ErrorMessage = "O CPF do tutor é obrigatório.")]
         [StringLength(11, ErrorMessage = "O CPF do tutor deve ter no máximo 11 dígitos.")]
         public string Cpf { get; set; } = string.Empty;
         
@@ -34,9 +34,9 @@ namespace backend.Models {
         [StringLength(11, ErrorMessage = "O telefone whatsapp deve ter no máximo 11 dígitos.")]
         public string? Whatsapp { get; set; }
         
-        [Required(ErrorMessage = "O e-mail é obrigatório.")]
+        // [Required(ErrorMessage = "O e-mail é obrigatório.")]
         [EmailAddress(ErrorMessage = "O e-mail não é válido.")]
-        public string Email { get; set; }
+        public string? Email { get; set; }
         public DateTime DataCad { get; set; }
         public virtual ICollection<TutorClinica>? TutoresClinicas { get; set; }
         public virtual ICollection<Animal>? Animais { get; set; } // navegação com o dependente

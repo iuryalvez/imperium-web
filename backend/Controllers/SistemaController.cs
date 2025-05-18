@@ -10,6 +10,7 @@ using backend.Dtos.Animal;
 using backend.Dtos.Usuario;
 using backend.Services;
 using System.Security.Claims;
+using backend.Interfaces;
 // TODO: modularizar funções repetidas em todos os controladores, usar services ou o que for necessário
 namespace backend.Controllers
 {
@@ -20,11 +21,16 @@ namespace backend.Controllers
         private readonly AppDbContext _context;
         private readonly UserManager<Usuario> _userManager;
         private readonly ILogger<SistemaController> _logger;
+        private readonly IClinicaService _clinicaService;
 
-        public SistemaController(AppDbContext context, UserManager<Usuario> userManager, ILogger<SistemaController> logger)
+        public SistemaController(AppDbContext context,
+                                 UserManager<Usuario> userManager,
+                                 IClinicaService clinicaService,
+                                 ILogger<SistemaController> logger)
         {
             _context = context;
             _userManager = userManager;
+            _clinicaService = clinicaService;
             _logger = logger;
         }
 
@@ -96,14 +102,7 @@ namespace backend.Controllers
         [Authorize(Policy = "GerenciaSistema")]
         public async Task<ActionResult<GetClinicaDto>> GetClinica(int clinicaId)
         {
-            var clinica = await _context.Clinicas
-                .Where(c => c.Id == clinicaId)
-                .Select(c => new GetClinicaDto
-                {
-                    Id = c.Id,
-                    NomeClinica = c.NomeClinica
-                })
-                .FirstOrDefaultAsync();
+            var clinica = await _clinicaService.ObterClinicaAsync(clinicaId);
 
             if (clinica == null)
             {
@@ -116,24 +115,24 @@ namespace backend.Controllers
         // criar clinica pelo sistema
         [HttpPost("clinicas/cadastrar")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<ActionResult<CadastrarClinicaDto>> CadastrarClinica([FromBody] CadastrarClinicaDto cadastrarClinicaDto)
+        public async Task<ActionResult<CadastrarClinicaDto>> CadastrarClinica([FromBody] CadastrarClinicaDto dto)
         {
             var novaClinica = new Clinica
             {
-                NomeClinica = cadastrarClinicaDto.NomeClinica,
-                IsAtiva = cadastrarClinicaDto.IsAtiva,
+                NomeClinica = dto.NomeClinica,
+                IsAtiva = dto.IsAtiva,
                 DataCad = DateTime.UtcNow
             };
 
             _context.Clinicas.Add(novaClinica);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetClinica), new { clinicaId = novaClinica.Id }, cadastrarClinicaDto);
+            return CreatedAtAction(nameof(GetClinica), new { clinicaId = novaClinica.Id }, dto);
         }
 
         [HttpPut("clinicas/editar")]
         [Authorize(Policy = "AcessoLoginOuTodosUsuarios")]
-        public async Task<IActionResult> EditarClinicaAdmin([FromBody] EditarClinicaAdminDto editarClinicaAdminDto)
+        public async Task<IActionResult> EditarClinicaAdmin([FromBody] EditarClinicaAdminDto dto)
         {
             try {
                 // Verifica se o usuário tem permissão de administrador
@@ -147,26 +146,26 @@ namespace backend.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var clinica = await _context.Clinicas.FindAsync(editarClinicaAdminDto.Id);
+                var clinica = await _context.Clinicas.FindAsync(dto.Id);
                 if (clinica == null)
                 {
                     return NotFound("Clínica não encontrada.");
                 }
 
-                clinica.NomeClinica = editarClinicaAdminDto.NomeClinica;
-                clinica.NomeFantasia = editarClinicaAdminDto.NomeFantasia;
-                clinica.Cnpj = editarClinicaAdminDto.Cnpj;
-                clinica.Endereco = editarClinicaAdminDto.Endereco;
-                clinica.EndNumero = editarClinicaAdminDto.EndNumero;
-                clinica.EndEstado = editarClinicaAdminDto.EndEstado;
-                clinica.EndCidade = editarClinicaAdminDto.EndCidade;
-                clinica.Cep = editarClinicaAdminDto.Cep;
-                clinica.Telefone1 = editarClinicaAdminDto.Telefone1;
-                clinica.Telefone2 = editarClinicaAdminDto.Telefone2;
-                clinica.Whatsapp = editarClinicaAdminDto.Whatsapp;
-                clinica.Email = editarClinicaAdminDto.Email;
-                clinica.Instagram = editarClinicaAdminDto.Instagram;
-                clinica.IsAtiva = editarClinicaAdminDto.IsAtiva;
+                clinica.NomeClinica = dto.NomeClinica;
+                clinica.NomeFantasia = dto.NomeFantasia;
+                clinica.Cnpj = dto.Cnpj;
+                clinica.Endereco = dto.Endereco;
+                clinica.EndNumero = dto.EndNumero;
+                clinica.EndEstado = dto.EndEstado;
+                clinica.EndCidade = dto.EndCidade;
+                clinica.Cep = dto.Cep;
+                clinica.Telefone1 = dto.Telefone1;
+                clinica.Telefone2 = dto.Telefone2;
+                clinica.Whatsapp = dto.Whatsapp;
+                clinica.Email = dto.Email;
+                clinica.Instagram = dto.Instagram;
+                clinica.IsAtiva = dto.IsAtiva;
 
                 // TODO: Validação adicional do CNPJ - 
                 // if (!ValidarCnpj(clinica.Cnpj))
@@ -183,12 +182,12 @@ namespace backend.Controllers
             } 
             catch (DbUpdateConcurrencyException ex) 
             {
-                _logger.LogError(ex, $"Conflito de concorrência ao editar clínica {editarClinicaAdminDto.NomeClinica}");
+                _logger.LogError(ex, $"Conflito de concorrência ao editar clínica {dto.NomeClinica}");
                 return StatusCode(409, $"Os dados foram modificados por outro usuário. Recarregue e tente novamente.");
             } 
             catch (Exception ex) 
             {
-                _logger.LogError(ex, $"Erro ao editar clínica {editarClinicaAdminDto.NomeClinica}");
+                _logger.LogError(ex, $"Erro ao editar clínica {dto.NomeClinica}");
                 return StatusCode(500, "Erro interno ao editar clínica.");
             }
         }
@@ -424,14 +423,14 @@ namespace backend.Controllers
         // TODO: fazer a verificação do email duplicado (diferente para o administradores e usuarios comuns)
         [HttpPost("usuarios/cadastrar")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> CadastrarUsuarioSistema([FromBody] CadastrarUsuarioSistemaDto cadastrarUsuarioSistemaDto)
+        public async Task<IActionResult> CadastrarUsuarioSistema([FromBody] CadastrarUsuarioSistemaDto dto)
         {
             Console.WriteLine("[DEBUG] Iniciando cadastro de usuário...");
 
-            if (cadastrarUsuarioSistemaDto.Perfis != null)
+            if (dto.Perfis != null)
             {
                 Console.WriteLine("[DEBUG] Perfis recebidos no DTO:");
-                foreach (var perfil in cadastrarUsuarioSistemaDto.Perfis)
+                foreach (var perfil in dto.Perfis)
                 {
                     Console.WriteLine($"[DEBUG] - {perfil}");
                 }
@@ -441,35 +440,35 @@ namespace backend.Controllers
                 Console.WriteLine("[DEBUG] Nenhum perfil recebido (null)");
             }
 
-            if (cadastrarUsuarioSistemaDto.Perfis != null && 
-                cadastrarUsuarioSistemaDto.Perfis.Contains("ADMIN", StringComparer.OrdinalIgnoreCase))
+            if (dto.Perfis != null && 
+                dto.Perfis.Contains("ADMIN", StringComparer.OrdinalIgnoreCase))
             {
-                cadastrarUsuarioSistemaDto.IsAdmin = true;
-                cadastrarUsuarioSistemaDto.Perfis = new List<string>();
+                dto.IsAdmin = true;
+                dto.Perfis = new List<string>();
                 Console.WriteLine("[DEBUG] Usuário identificado como administrador (ADMIN)");
             } else {
-                cadastrarUsuarioSistemaDto.IsAdmin = false;
+                dto.IsAdmin = false;
             }
             
-            if (cadastrarUsuarioSistemaDto.Perfis != null && 
-                cadastrarUsuarioSistemaDto.Perfis.Contains("INATIVO", StringComparer.OrdinalIgnoreCase))
+            if (dto.Perfis != null && 
+                dto.Perfis.Contains("INATIVO", StringComparer.OrdinalIgnoreCase))
             {
-                cadastrarUsuarioSistemaDto.IsAtivo = false;
-                cadastrarUsuarioSistemaDto.Perfis = new List<string>();
+                dto.IsAtivo = false;
+                dto.Perfis = new List<string>();
                 Console.WriteLine("[DEBUG] Usuário identificado como inativo (INATIVO)");
             } else {
-                cadastrarUsuarioSistemaDto.IsAtivo = true;
+                dto.IsAtivo = true;
             }
 
-            if (!cadastrarUsuarioSistemaDto.IsAdmin &&
-                (cadastrarUsuarioSistemaDto.Perfis == null || !cadastrarUsuarioSistemaDto.Perfis.Any()))
+            if (!dto.IsAdmin &&
+                (dto.Perfis == null || !dto.Perfis.Any()))
             {
                 Console.WriteLine("[DEBUG] Perfis obrigatórios ausentes para usuário não-admin.");
                 return BadRequest("Pelo menos um perfil deve ser selecionado.");
             }
 
-            if (cadastrarUsuarioSistemaDto.IsAdmin) {
-                var existingUser = await _userManager.FindByEmailAsync(cadastrarUsuarioSistemaDto.Email); 
+            if (dto.IsAdmin) {
+                var existingUser = await _userManager.FindByEmailAsync(dto.Email); 
                 if (existingUser != null)
                 {
                     Console.WriteLine("[DEBUG] E-mail já em uso.");
@@ -479,17 +478,17 @@ namespace backend.Controllers
 
             var usuario = new Usuario
             {
-                UserName = cadastrarUsuarioSistemaDto.UserName ?? cadastrarUsuarioSistemaDto.Email,
-                Email = cadastrarUsuarioSistemaDto.Email,
-                Nome = cadastrarUsuarioSistemaDto.Nome,
+                UserName = dto.UserName ?? dto.Email,
+                Email = dto.Email,
+                Nome = dto.Nome,
                 DataCad = DateTime.UtcNow,
                 DataUltimoAcesso = DateTime.UtcNow,
                 EmailConfirmed = true,
-                IsAdmin = cadastrarUsuarioSistemaDto.IsAdmin,
-                IsAtivo = cadastrarUsuarioSistemaDto.IsAtivo
+                IsAdmin = dto.IsAdmin,
+                IsAtivo = dto.IsAtivo
             };
 
-            var result = await _userManager.CreateAsync(usuario, cadastrarUsuarioSistemaDto.Senha);
+            var result = await _userManager.CreateAsync(usuario, dto.Senha);
             if (!result.Succeeded)
             {
                 Console.WriteLine("[DEBUG] Erro ao criar usuário:");
@@ -504,12 +503,12 @@ namespace backend.Controllers
 
             if (!usuario.IsAdmin)
             {
-                if (cadastrarUsuarioSistemaDto.ClinicaIds == null || !cadastrarUsuarioSistemaDto.ClinicaIds.Any())
+                if (dto.ClinicaIds == null || !dto.ClinicaIds.Any())
                 {
                     return BadRequest("Pelo menos uma clínica deve ser selecionada.");
                 }
 
-                foreach (var clinicaId in cadastrarUsuarioSistemaDto.ClinicaIds)
+                foreach (var clinicaId in dto.ClinicaIds)
                 {
                     var clinicaExiste = await _context.Clinicas.AnyAsync(c => c.Id == clinicaId);
                     Console.WriteLine($"[DEBUG] Clínica ID {clinicaId} existe? {clinicaExiste}");
@@ -519,25 +518,25 @@ namespace backend.Controllers
                         return BadRequest($"A clínica com ID {clinicaId} não existe.");
                     }
 
-                    if (!string.IsNullOrWhiteSpace(cadastrarUsuarioSistemaDto.Email))
+                    if (!string.IsNullOrWhiteSpace(dto.Email))
                     {
                         var emailExistente = await _context.UsuariosPerfisClinicas
-                            .AnyAsync(upc => upc.Usuario.Email == cadastrarUsuarioSistemaDto.Email && upc.UsuarioId != usuario.Id && upc.ClinicaId == clinicaId);
+                            .AnyAsync(upc => upc.Usuario.Email == dto.Email && upc.UsuarioId != usuario.Id && upc.ClinicaId == clinicaId);
 
                         if (emailExistente)
                         {
                             return BadRequest(new { Success = false, Message = "O email informado já está em uso." });
                         }
 
-                        usuario.UserName = cadastrarUsuarioSistemaDto.Email;
-                        usuario.Email = cadastrarUsuarioSistemaDto.Email;
+                        usuario.UserName = dto.Email;
+                        usuario.Email = dto.Email;
                     }
 
                     var usuarioPerfilClinica = new UsuarioPerfilClinica
                     {
                         UsuarioId = usuario.Id,
                         ClinicaId = clinicaId,
-                        Perfis = cadastrarUsuarioSistemaDto.Perfis
+                        Perfis = dto.Perfis
                     };
 
                     _context.UsuariosPerfisClinicas.Add(usuarioPerfilClinica);
