@@ -69,10 +69,37 @@ const camposSimplesEditar = {
       { name: "semanaLactacao", label: "Semana de Lactação", type: "number", placeholder: "Digite a semana de lactação (se aplicável)" },
       { name: "semanaGestacao", label: "Semana de Gestação", type: "number", placeholder: "Digite a semana de gestação (se aplicável)" }
   ],
-  tutores: [
-      { name: "nome", label: "Nome Completo", type: "text", placeholder: "Digite o nome completo", rules: [{ type: "required", message: "O nome é obrigatório." }, { type: "maxLength", value: 100, message: "O nome deve ter no máximo 100 caracteres." }] },
-      { name: "cpf", label: "CPF", type: "text", placeholder: "Digite o CPF (somente números)", rules: [{ type: "required", message: "O CPF é obrigatório." }, { type: "exactLength", value: 11, message: "O CPF deve ter 11 caracteres." }] },
-      { name: "email", label: "E-mail", type: "email", placeholder: "Digite o e-mail", rules: [{ type: "required", message: "O e-mail é obrigatório." }, { type: "email", message: "O e-mail não é válido." }] }
+  tutoresDaClinica: [
+      { 
+        name: "nome", 
+        label: "Nome Completo", 
+        type: "text", 
+        placeholder: "Digite o nome completo", 
+        rules: [
+          { type: "required", message: "O nome é obrigatório." }, 
+          { type: "maxLength", value: 100, message: "O nome deve ter no máximo 100 caracteres." }
+        ] 
+      },
+      { 
+        name: "cpf",
+        label: "CPF",
+        type: "text",
+        placeholder: "Digite o CPF (somente números)",
+        rules: [
+          { type: "required", message: "O CPF é obrigatório." }, 
+          { type: "exactLength", value: 11, message: "O CPF deve ter 11 caracteres." }
+        ] 
+      },
+      { 
+        name: "email", 
+        label: "E-mail", 
+        type: "email", 
+        placeholder: "Digite o e-mail", 
+        rules: [
+          { type: "required", message: "O e-mail é obrigatório." }, 
+          { type: "email", message: "O e-mail não é válido." }
+        ] 
+      }
   ],
   clinicas: [
     {
@@ -171,7 +198,7 @@ const TabelaEntidade = ({
         setLoading(false);
       }
     };
-    
+
     const abrirModalEdicao = (registro) => {
       setRegistroSelecionado(registro);
       setModalEdicaoVisivel(true);
@@ -301,9 +328,16 @@ const TabelaEntidade = ({
       { title: "Espécie", dataIndex: "especie", key: "especie" },
       { title: "Idade", dataIndex: "idade", key: "idade" },
     ],
-    tutores: [
+    tutoresDaClinica: [
       { title: "Nome", dataIndex: "nome", key: "nome", sorter: (a, b) => a.nome.localeCompare(b.nome) },
       { title: "E-mail", dataIndex: "email", key: "email" },
+      { 
+        title: "Data de Cadastro", 
+        dataIndex: "dataCad", 
+        key: "dataCadastro",
+        sorter: (a, b) => new Date(a.dataCadastro) - new Date(b.dataCadastro),
+        render: (data) => new Date(data).toLocaleDateString("pt-BR"),
+      },
     ],
     clinicas: [
       { 

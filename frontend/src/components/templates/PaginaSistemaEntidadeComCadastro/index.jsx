@@ -79,38 +79,161 @@ const camposSimplesCadastrar = {
     },
   ],
   animais: [
-      { name: "nome", label: "Nome do Animal", type: "text", placeholder: "Digite o nome", rules: [{ type: "required", message: "Nome obrigatório" }] },
-      { name: "especie", label: "Espécie", type: "select", placeholder: "Selecione a espécie", options: [
-          { label: "Cão", value: "1" },
-          { label: "Gato", value: "2" }
-      ], rules: [{ type: "required", message: "Espécie obrigatória" }] },
-      { name: "raca", label: "Raça", type: "select", placeholder: "Selecione a raça", options: [] },
-      { name: "nascimento", label: "Data de Nascimento", type: "date", placeholder: "Selecione a data de nascimento" },
-      { name: "sexo", label: "Sexo", type: "select", placeholder: "Selecione o sexo", options: [
-          { label: "Macho", value: "1" },
-          { label: "Fêmea", value: "2" }
-      ] },
-      { name: "castrado", label: "Castrado", type: "boolean", placeholder: "O animal é castrado?" },
-      { name: "peso", label: "Peso (kg)", type: "number", placeholder: "Digite o peso do animal" },
-      { name: "condicaoCorporal", label: "Condição Corporal", type: "select", placeholder: "Selecione a condição corporal", options: Array.from({ length: 10 }, (_, i) => ({ label: (i + 1).toString(), value: (i + 1).toString() })) },
-      { name: "grauAtividade", label: "Grau de Atividade", type: "select", placeholder: "Selecione o nível de atividade", options: [
-          { label: "Inativo", value: "1" },
-          { label: "Moderado", value: "2" },
-          { label: "Ativo", value: "3" }
-      ] },
-      { name: "gestacao", label: "Está em gestação?", type: "boolean", placeholder: "O animal está gestante?" },
-      { name: "lactacao", label: "Número de Filhotes", type: "number", placeholder: "Digite o número de filhotes (se aplicável)" },
-      { name: "semanaLactacao", label: "Semana de Lactação", type: "number", placeholder: "Digite a semana de lactação (se aplicável)" },
-      { name: "semanaGestacao", label: "Semana de Gestação", type: "number", placeholder: "Digite a semana de gestação (se aplicável)" }
+    {
+      name: "nome",
+      label: "Nome do Animal",
+      type: "text",
+      placeholder: "Digite o nome",
+      rules: [{ type: "required", message: "Nome obrigatório" }],
+    },
+    {
+      name: "especie",
+      label: "Espécie",
+      type: "select",
+      placeholder: "Selecione a espécie",
+      options: [
+        { label: "Cão", value: "1" },
+        { label: "Gato", value: "2" },
+      ],
+      rules: [{ type: "required", message: "Espécie obrigatória" }],
+    },
+    {
+      name: "raca",
+      label: "Raça",
+      type: "select",
+      placeholder: "Selecione a raça",
+      options: [],
+    },
+    {
+      name: "nascimento",
+      label: "Data de Nascimento",
+      type: "date",
+      placeholder: "Selecione a data de nascimento",
+    },
+    {
+      name: "sexo",
+      label: "Sexo",
+      type: "select",
+      placeholder: "Selecione o sexo",
+      options: [
+        { label: "Macho", value: "1" },
+        { label: "Fêmea", value: "2" },
+      ],
+    },
+    {
+      name: "castrado",
+      label: "Castrado",
+      type: "boolean",
+      placeholder: "O animal é castrado?",
+    },
+    {
+      name: "peso",
+      label: "Peso (kg)",
+      type: "number",
+      placeholder: "Digite o peso do animal",
+    },
+    {
+      name: "condicaoCorporal",
+      label: "Condição Corporal",
+      type: "select",
+      placeholder: "Selecione a condição corporal",
+      options: Array.from({ length: 10 }, (_, i) => ({
+        label: (i + 1).toString(),
+        value: (i + 1).toString(),
+      })),
+    },
+    {
+      name: "grauAtividade",
+      label: "Grau de Atividade",
+      type: "select",
+      placeholder: "Selecione o nível de atividade",
+      options: [
+        { label: "Inativo", value: "1" },
+        { label: "Moderado", value: "2" },
+        { label: "Ativo", value: "3" },
+      ],
+    },
+    {
+      name: "gestacao",
+      label: "Está em gestação?",
+      type: "boolean",
+      placeholder: "O animal está gestante?",
+    },
+    {
+      name: "lactacao",
+      label: "Número de Filhotes",
+      type: "number",
+      placeholder: "Digite o número de filhotes (se aplicável)",
+    },
+    {
+      name: "semanaLactacao",
+      label: "Semana de Lactação",
+      type: "number",
+      placeholder: "Digite a semana de lactação (se aplicável)",
+    },
+    {
+      name: "semanaGestacao",
+      label: "Semana de Gestação",
+      type: "number",
+      placeholder: "Digite a semana de gestação (se aplicável)",
+    },
   ],
   tutores: [
-      { name: "nome", label: "Nome Completo", type: "text", placeholder: "Digite o nome completo", rules: [{ type: "required", message: "O nome é obrigatório." }, { type: "maxLength", value: 100, message: "O nome deve ter no máximo 100 caracteres." }] },
-      { name: "cpf", label: "CPF", type: "text", placeholder: "Digite o CPF (somente números)", rules: [{ type: "required", message: "O CPF é obrigatório." }, { type: "exactLength", value: 11, message: "O CPF deve ter 11 caracteres." }] },
-      { name: "email", label: "E-mail", type: "email", placeholder: "Digite o e-mail", rules: [{ type: "required", message: "O e-mail é obrigatório." }, { type: "email", message: "O e-mail não é válido." }] }
+    {
+      name: "nome",
+      label: "Nome Completo",
+      type: "text",
+      placeholder: "Digite o nome completo",
+      rules: [
+        { type: "required", message: "O nome é obrigatório." },
+        {
+          type: "maxLength",
+          value: 100,
+          message: "O nome deve ter no máximo 100 caracteres.",
+        },
+      ],
+    },
+    {
+      name: "email",
+      label: "E-mail",
+      type: "email",
+      placeholder: "Digite o e-mail",
+      rules: [
+        { type: "required", message: "O e-mail é obrigatório." },
+        { type: "email", message: "O e-mail não é válido." },
+      ],
+    },
+    {
+      name: "cpf",
+      label: "CPF",
+      type: "text",
+      placeholder: "Digite o CPF (somente números)",
+      rules: [
+        { type: "required", message: "O CPF é obrigatório." },
+        {
+          type: "exactLength",
+          value: 11,
+          message: "O CPF deve ter 11 caracteres.",
+        },
+      ],
+    },
   ],
   clinicas: [
-      { name: "nomeClinica", label: "Nome da Clínica", type: "text", placeholder: "Digite o nome da clínica", rules: [{ type: "required", message: "O nome da clínica é obrigatório" }, { type: "maxLength", value: 100, message: "O nome deve ter no máximo 100 caracteres" }] }
-  ]
+    {
+      name: "nomeClinica",
+      label: "Nome da Clínica",
+      type: "text",
+      placeholder: "Digite o nome da clínica",
+      rules: [
+        { type: "required", message: "O nome da clínica é obrigatório" },
+        {
+          type: "maxLength",
+          value: 100,
+          message: "O nome deve ter no máximo 100 caracteres",
+        },
+      ],
+    },
+  ],
 };
 
 const PaginaSistemaEntidadeComCadastro = ({
@@ -131,7 +254,7 @@ const PaginaSistemaEntidadeComCadastro = ({
       setDados(response);
     } catch (err) {
       console.error(`Erro ao buscar ${entidade}: `, err);
-      message.error(`Falha ao carregar ${nomeEntidade.toLowerCase()}`);
+      message.error(`Falha ao carregar ${nomeEntidade}`);
     } finally {
       setLoading(false);
     }
@@ -177,7 +300,13 @@ const PaginaSistemaEntidadeComCadastro = ({
           </Button>
         </div>
 
-        <TabelaEntidade entidade={entidade} nomeEntidade={nomeEntidade} entidadeAPI={api} dados={dados} onAtualizar={buscarDados}/>
+        <TabelaEntidade
+          entidade={entidade}
+          nomeEntidade={nomeEntidade}
+          entidadeAPI={api}
+          dados={dados}
+          onAtualizar={buscarDados}
+        />
       </div>
       <div className="max-h-[80vh] overflow-y-auto">
         <Modal
@@ -190,6 +319,7 @@ const PaginaSistemaEntidadeComCadastro = ({
         >
           <FormCadastrarEntidade
             entidade={entidade}
+            nomeEntidade={nomeEntidade}
             onSubmit={handleCadastrar}
             onSuccess={handleSucesso}
             setModalVisivel={setModalVisivel}

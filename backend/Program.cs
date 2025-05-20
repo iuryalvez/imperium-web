@@ -171,15 +171,15 @@ internal class Program
 
             options.AddPolicy("GerenciaAnimais", policy =>
                 policy.RequireAssertion(context =>
-                    context.User.TemPerfil("isAdmin", "VETERINARIO")));
+                    context.User.TemPerfil("isAdmin", "GESTOR", "VETERINARIO")));
 
             options.AddPolicy("GerenciaTutores", policy =>
                 policy.RequireAssertion(context =>
-                    context.User.TemPerfil("isAdmin", "VETERINARIO", "SECRETARIO")));
+                    context.User.TemPerfil("isAdmin", "GESTOR", "VETERINARIO", "SECRETARIO")));
 
             options.AddPolicy("GerenciaConsultas", policy =>
                 policy.RequireAssertion(context =>
-                    context.User.TemPerfil("isAdmin", "VETERINARIO", "SECRETARIO")));
+                    context.User.TemPerfil("isAdmin", "GESTOR", "VETERINARIO", "SECRETARIO")));
 
             options.AddPolicy("GerenciaSistema", policy =>
                 policy.RequireClaim("isAdmin", "true"));

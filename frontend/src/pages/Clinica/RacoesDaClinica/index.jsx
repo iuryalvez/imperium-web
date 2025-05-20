@@ -9,7 +9,7 @@ const RacoesDaClinica = () => {
       entidade="racoesDaClinica"
       api={racoesDaClinicaAPI}
       nomeBotao="Cadastrar Ração"
-      nomeEntidade="Rações"
+      nomeEntidade="Ração"
     />
   );
 };

@@ -7,9 +7,9 @@ const TutoresDaClinica = () => {
     <PaginaClinicaEntidadeComCadastro
       titulo="Lista de Tutores"
       entidade="tutoresDaClinica"
+      nomeEntidade="Tutor"
       api={tutoresDaClinicaAPI}
       nomeBotao="Cadastrar Tutor"
-      nomeEntidade="Tutores"
     />
   );
 };

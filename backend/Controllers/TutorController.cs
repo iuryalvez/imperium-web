@@ -7,7 +7,6 @@ using backend.Models;
 using backend.Data;
 using backend.Dtos.Tutor;
 using backend.Interfaces;
-using System.Xml;
 
 namespace backend.Controllers
 {
@@ -16,11 +15,11 @@ namespace backend.Controllers
     public class TutorController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly ILogger _logger;
+        private readonly ILogger<TutorController> _logger;
         private readonly IClinicaService _clinicaService;
 
         public TutorController(AppDbContext context,
-                               ILogger logger,
+                               ILogger<TutorController> logger,
                                IClinicaService clinicaService)
         {
             _context = context;
@@ -48,21 +47,21 @@ namespace backend.Controllers
                 var getTutoresClinicaDtos = vinculosTutores
                     .Where(tc => tc.Tutor != null)
                     .Select(tc => new GetTutoresClinicaDto
-                        {
-                            Id = tc.Tutor.Id,
-                            Nome = tc.Tutor.Nome,
-                            Cpf = tc.Tutor.Cpf,
-                            Endereco = tc.Tutor.Endereco,
-                            EndNumero = tc.Tutor.EndNumero,
-                            EndEstado = tc.Tutor.EndEstado,
-                            EndCidade = tc.Tutor.EndCidade,
-                            Cep = tc.Tutor.Cep,
-                            Telefone1 = tc.Tutor.Telefone1,
-                            Telefone2 = tc.Tutor.Telefone2,
-                            Whatsapp = tc.Tutor.Whatsapp,
-                            Email = tc.Tutor.Email,
-                            DataCad = tc.Tutor.DataCad == default ? DateTime.UtcNow : tc.Tutor.DataCad
-                        }).ToList();
+                    {
+                        Id = tc.Tutor.Id,
+                        Nome = tc.Tutor.Nome,
+                        Cpf = tc.Tutor.Cpf,
+                        Endereco = tc.Tutor.Endereco,
+                        EndNumero = tc.Tutor.EndNumero,
+                        EndEstado = tc.Tutor.EndEstado,
+                        EndCidade = tc.Tutor.EndCidade,
+                        Cep = tc.Tutor.Cep,
+                        Telefone1 = tc.Tutor.Telefone1,
+                        Telefone2 = tc.Tutor.Telefone2,
+                        Whatsapp = tc.Tutor.Whatsapp,
+                        Email = tc.Tutor.Email,
+                        DataCad = tc.Tutor.DataCad == default ? DateTime.UtcNow : tc.Tutor.DataCad
+                    }).ToList();
 
                 _logger.LogInformation("Retornados {Qtd} tutores da clínica {ClinicaId}", getTutoresClinicaDtos.Count, clinicaId);
 
@@ -75,8 +74,23 @@ namespace backend.Controllers
             }
         }
 
+        // get tutor by tutorId
+        // [HttpGet("tutores/{tutorId}")]
+        // [Authorize(Policy = "GerenciaTutores")]
+        // public async Task<ActionResult<GetTutoresClinicaDto>> GetTutorById(int tutorId)
+        // {
+        //     var tutor = await _clinicaService.ObterTutorAsync(tutorId);
+
+        //     if (tutor == null)
+        //     {
+        //         return NotFound();
+        //     }
+
+        //     return Ok(tutor);
+        // }
+
         [HttpPost("tutores/cadastrar")]
-        [Authorize(Roles = "GerenciaTutores")]
+        [Authorize(Policy = "GerenciaTutores")]
         public async Task<IActionResult> CadastrarTutorClinica([FromBody] CadastrarTutorClinicaDto dto)
         {
             if (!ModelState.IsValid)
@@ -87,7 +101,7 @@ namespace backend.Controllers
 
             // Inicia transação única
             await using var transaction = await _context.Database.BeginTransactionAsync();
-            
+
             try
             {
                 _logger.LogInformation("Iniciando cadastro de tutor na clínica");
@@ -98,7 +112,7 @@ namespace backend.Controllers
                     _logger.LogWarning("Claim clinicaId ausente/inválida");
                     return Unauthorized("Claim clinicaId ausente ou inválida para usuário não administrador.");
                 }
-                
+
                 // Verifica clínica
                 _logger.LogInformation("Verificando clínica ID: {ClinicaId}", clinicaId);
                 var clinica = await _clinicaService.ObterClinicaAsync(clinicaId);
@@ -154,7 +168,8 @@ namespace backend.Controllers
                 await transaction.CommitAsync();
                 _logger.LogInformation("Tutor cadastrado com sucesso! ID: {TutorId}", tutor.Id);
 
-                return CreatedAtAction(nameof(tutor.Nome) , new { id = tutor.Id }, new { tutor.Id });
+                // return CreatedAtAction(nameof(GetTutoresClinicaDto) , new { id = tutor.Id }, new { tutor.Id });
+                return Ok(new { tutor.Id });
             }
             catch (DbUpdateException dbEx)
             {
@@ -171,7 +186,7 @@ namespace backend.Controllers
         }
 
         [HttpPut("tutores/editar")]
-        [Authorize(Roles = "GerenciaTutores")]
+        [Authorize(Policy = "GerenciaTutores")]
         public async Task<IActionResult> EditarTutorClinica([FromBody] EditarTutorClinicaDto dto)
         {
             if (!ModelState.IsValid)
@@ -254,7 +269,7 @@ namespace backend.Controllers
         }
 
         [HttpDelete("tutores/{tutorId}")]
-        [Authorize(Policy = "GerenciaSistema")]
+        [Authorize(Policy = "GerenciaTutores")]
         public async Task<IActionResult> DeleteTutor(int tutorId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");

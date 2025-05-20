@@ -5,7 +5,7 @@ import PaginaSistemaEntidadeComCadastro from "../../../components/templates/Pagi
 const Clinicas = () => {
   return (
     <PaginaSistemaEntidadeComCadastro
-      titulo="Lista de Clínicas"
+      titulo="Lista de Clínicas do Sistema"
       entidade="clinicas"
       api={clinicasAPI}
       nomeBotao="Cadastrar Clínica"

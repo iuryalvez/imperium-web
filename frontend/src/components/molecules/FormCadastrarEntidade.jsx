@@ -2,6 +2,37 @@ import React, { useState, useEffect } from "react";
 import { Input, Select, DatePicker, Checkbox, Button, Form, message, Typography, Switch } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { clinicasAPI } from "../../api/sistema/clinicasAPI";
+import { IMaskInput } from 'react-imask';
+
+// const estadosBrasil = [
+//   { value: 'AC', label: 'Acre' },
+//   { value: 'AL', label: 'Alagoas' },
+//   { value: 'AP', label: 'Amapá' },
+//   { value: 'AM', label: 'Amazonas' },
+//   { value: 'BA', label: 'Bahia' },
+//   { value: 'CE', label: 'Ceará' },
+//   { value: 'DF', label: 'Distrito Federal' },
+//   { value: 'ES', label: 'Espírito Santo' },
+//   { value: 'GO', label: 'Goiás' },
+//   { value: 'MA', label: 'Maranhão' },
+//   { value: 'MT', label: 'Mato Grosso' },
+//   { value: 'MS', label: 'Mato Grosso do Sul' },
+//   { value: 'MG', label: 'Minas Gerais' },
+//   { value: 'PA', label: 'Pará' },
+//   { value: 'PB', label: 'Paraíba' },
+//   { value: 'PR', label: 'Paraná' },
+//   { value: 'PE', label: 'Pernambuco' },
+//   { value: 'PI', label: 'Piauí' },
+//   { value: 'RJ', label: 'Rio de Janeiro' },
+//   { value: 'RN', label: 'Rio Grande do Norte' },
+//   { value: 'RS', label: 'Rio Grande do Sul' },
+//   { value: 'RO', label: 'Rondônia' },
+//   { value: 'RR', label: 'Roraima' },
+//   { value: 'SC', label: 'Santa Catarina' },
+//   { value: 'SP', label: 'São Paulo' },
+//   { value: 'SE', label: 'Sergipe' },
+//   { value: 'TO', label: 'Tocantins' }
+// ];
 
 const perfisSistema = [
   { label: "Administrador", value: "ADMIN" },
@@ -20,7 +51,7 @@ const perfisClinica = [
   { label: "Inativo", value: "INATIVO" },
 ];
 
-const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel, tituloModal, camposSimplesCadastrar }) => {
+const FormCadastrarEntidade = ({ entidade, nomeEntidade, onSubmit, onSuccess, setModalVisivel, tituloModal, camposSimplesCadastrar }) => {
   const campos = camposSimplesCadastrar[entidade] || [];
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -42,6 +73,8 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel,
     }
   }, [entidade]);
 
+  const sanitize = (value) => value?.replace(/\D/g, ""); 
+
   const handleFinish = async (values) => {
     try {
       setLoading(true);
@@ -54,14 +87,21 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel,
         values.isAtivo = !isInativo;
       }
 
+      if (values.cpf) values.cpf = sanitize(values.cpf);
+      if (values.cep) values.cep = sanitize(values.cep);
+      if (values.cnpj) values.cnpj = sanitize(values.cnpj);
+      if (values.telefone1) values.telefone1 = sanitize(values.telefone1);
+      if (values.telefone2) values.telefone2 = sanitize(values.telefone2);
+      if (values.whatsapp) values.whatsapp = sanitize(values.whatsapp);
+
       const response = await onSubmit(values);
-      message.success(`${entidade} criado com sucesso.`);
+      message.success(`${nomeEntidade} criado com sucesso.`);
       form.resetFields();
       setPerfisSelecionados([]);
       if (onSuccess) onSuccess(response);
     } catch (error) {
-      console.error(`Erro ao cadastrar ${entidade}:`, error);
-      message.error(`Falha ao cadastrar ${entidade}.`);
+      console.error(`Erro ao cadastrar ${nomeEntidade}:`, error);
+      message.error(`Falha ao cadastrar ${nomeEntidade}.`);
     } finally {
       setLoading(false);
     }
@@ -221,7 +261,7 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel,
           </>
         )}
 
-          {entidade === "clinicas" && (
+        {entidade === "clinicas" && (
           <>
             {/* Switch Ativo/Inativo */}
             <Form.Item
@@ -238,15 +278,122 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel,
           </>
         )}
 
+        {entidade === "tutoresDaClinica" && (
+          <>
+            {/* Campo CNPJ com máscara */}
+            <Form.Item label="CPF" name="cpf">
+              <IMaskInput
+                mask="000.000.000-00"
+                definitions={{ '0': /[0-9]/ }}
+                overwrite
+                unmask={false}
+                placeholder="000.000.000-00"
+                style={{
+                  width: '100%',
+                  padding: '4px 11px',
+                  border: '1px solid #d9d9d9',
+                  borderRadius: '6px',
+                  transition: 'all 0.3s',
+                }}
+              />
+            </Form.Item>
+
+            {/* Campo Telefone com máscara dinâmica */}
+            <Form.Item
+              label="Telefone/Whatsapp"
+              name="telefone1"
+            >
+              <IMaskInput
+                mask="(00) 90000-0000"
+                definitions={{ '0': /[0-9]/ }}
+                overwrite
+                unmask={false}
+                placeholder="(00) 90000-0000"
+                style={{
+                  width: '100%',
+                  padding: '4px 11px',
+                  border: '1px solid #d9d9d9',
+                  borderRadius: '6px',
+                  transition: 'all 0.3s',
+                }}
+              />
+            </Form.Item>
+
+            {/* Campo WhatsApp com máscara */}
+            {/* <Form.Item
+              label="WhatsApp"
+              name="whatsapp"
+            >
+              <IMaskInput
+                mask="(00) 90000-0000"
+                definitions={{ '0': /[0-9]/ }}
+                overwrite
+                unmask={false}
+                placeholder="(00) 90000-0000"
+                style={{
+                  width: '100%',
+                  padding: '4px 11px',
+                  border: '1px solid #d9d9d9',
+                  borderRadius: '6px',
+                  transition: 'all 0.3s',
+                }}
+              />
+            </Form.Item> */}
+
+            {/* Campo CEP com máscara */}
+            {/* <Form.Item
+              label="CEP"
+              name="cep"
+              rules={[
+                // { required: true, message: "CEP é obrigatório" },
+                // {
+                //   validator: (_, value) =>
+                //     value && value.replace(/\D/g, '').length === 8
+                //       ? Promise.resolve()
+                //       : Promise.reject(new Error('CEP inválido'))
+                // }
+              ]}
+            >
+              <IMaskInput
+                mask="00000-000"
+                definitions={{ '0': /[0-9]/ }}
+                overwrite
+                unmask={false}
+                placeholder="00000-000"
+                style={{
+                  width: '100%',
+                  padding: '4px 11px',
+                  border: '1px solid #d9d9d9',
+                  borderRadius: '6px',
+                  transition: 'all 0.3s',
+                }}
+              />
+            </Form.Item> */}
+
+            {/* Campo Estado */}
+            {/* <Form.Item
+              label="Estado"
+              name="endEstado"
+              // rules={[{ required: true, message: "Estado é obrigatório" }]}
+            >
+              <Select
+                options={estadosBrasil}
+                placeholder="Selecione o estado"
+                disabled={form.getFieldValue('isAtiva') === false}
+              />
+            </Form.Item> */}
+          </>
+        )}
+
         {/* <Button onClick={() => {
           console.log(form.getFieldsValue());
         }}>
           Ver campos do formulário
         </Button> */}
-        <div className="flex gap-4 justify-between">
+        <div className="flex gap-4">
           <Button
             onClick={() => setModalVisivel(false)}
-            className="w-1/2"
+            className="w-1/2 mt-2"
             style={{ backgroundColor: "#d9d9d9", color: "#000" }}
           >
             Cancelar
@@ -256,7 +403,7 @@ const FormCadastrarEntidade = ({ entidade, onSubmit, onSuccess, setModalVisivel,
             type="primary"
             icon={<PlusOutlined />}
             loading={loading}
-            className="w-1/2 bg-green-700 hover:bg-green-800 text-white"
+            className="w-1/2 mt-2 bg-green-700 hover:bg-green-800 text-white"
             onClick={() => form.submit()}
           >
             Cadastrar

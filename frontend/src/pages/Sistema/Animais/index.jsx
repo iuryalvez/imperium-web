@@ -5,11 +5,11 @@ import PaginaEntidadeComCadastro from "../../../components/templates/PaginaEntid
 const Animais = () => {
   return (
     <PaginaEntidadeComCadastro
-      titulo="Lista de Animais do Sistema"
+      titulo="Lista dos Animais do Sistema"
       entidade="animaisDoSistema"
       api={animaisAPI}
       nomeBotao="Cadastrar Animal"
-      nomeEntidade="Animais do Sistema"
+      nomeEntidade="Animal"
     />
   );
 };

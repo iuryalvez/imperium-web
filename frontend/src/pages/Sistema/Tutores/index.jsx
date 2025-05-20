@@ -9,7 +9,7 @@ const Tutores = () => {
       entidade="tutoresDoSistema"
       api={tutoresAPI}
       nomeBotao="Cadastrar Tutor"
-      nomeEntidade="Tutores do Sistema"
+      nomeEntidade="Tutor do Sistema"
     />
   );
 };

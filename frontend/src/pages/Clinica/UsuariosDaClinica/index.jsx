@@ -9,7 +9,7 @@ const UsuariosDaClinica = () => {
       entidade="usuariosDaClinica"
       api={usuariosDaClinicaAPI}
       nomeBotao="Cadastrar Usuário"
-      nomeEntidade="Usuários"
+      nomeEntidade="Usuário da Clínica"
     />
   );
 };

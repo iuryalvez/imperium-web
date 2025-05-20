@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Input, Select, DatePicker, Checkbox, Button, Form, message, Typography, Switch } from "antd";
 import { SaveOutlined } from "@ant-design/icons";
 import { clinicasAPI } from "../../api/sistema/clinicasAPI";
-import InputMask from 'react-input-mask';
+import { IMaskInput } from "react-imask";
 
 const estadosBrasil = [
   { value: 'AC', label: 'Acre' },
@@ -111,13 +111,21 @@ const FormEditarEntidade = ({
         values.isAtivo = !contemInativo;
       }
 
-      if (entidade === "clinicas") {
-        values.cep = sanitize(values.cep);
-        values.cnpj = sanitize(values.cnpj);
-        values.telefone1 = sanitize(values.telefone1);
-        values.telefone2 = sanitize(values.telefone2);
-        values.whatsapp = sanitize(values.whatsapp);
-      }
+      // if (entidade === "clinicas") {
+      //   values.cep = sanitize(values.cep);
+      //   values.cnpj = sanitize(values.cnpj);
+      //   values.telefone1 = sanitize(values.telefone1);
+      //   values.telefone2 = sanitize(values.telefone2);
+      //   values.whatsapp = sanitize(values.whatsapp);
+      // }
+
+      if (values.cpf) values.cpf = sanitize(values.cpf);
+      if (values.cep) values.cep = sanitize(values.cep);
+      if (values.cnpj) values.cnpj = sanitize(values.cnpj);
+      if (values.telefone1) values.telefone1 = sanitize(values.telefone1);
+      if (values.telefone2) values.telefone2 = sanitize(values.telefone2);
+      if (values.whatsapp) values.whatsapp = sanitize(values.whatsapp);
+      
 
       console.log("Valores iniciais (antes da edição):", valoresIniciais); // debug
       console.log("Valores submetidos no formulário (antes de ajuste):", values); // debug
@@ -314,18 +322,21 @@ const FormEditarEntidade = ({
                 // }
               ]}
             >
-              <InputMask
-                mask="99.999.999/9999-99"
-                maskChar={null}
+              <IMaskInput
+                mask="00.000.000/0000-00"
+                definitions={{ '0': /[0-9]/ }}
+                overwrite
+                unmask={false}
+                placeholder="00.000.000/0000-00"
+                style={{
+                  width: '100%',
+                  padding: '4px 11px',
+                  border: '1px solid #d9d9d9',
+                  borderRadius: '6px',
+                  transition: 'all 0.3s',
+                }}
                 disabled={form.getFieldValue('IsAtiva') === false}
-              >
-                {(inputProps) => (
-                  <Input 
-                    {...inputProps} 
-                    placeholder="00.000.000/0000-00" 
-                  />
-                )}
-              </InputMask>
+              />
             </Form.Item>
 
             {/* Campo Telefone com máscara dinâmica */}
@@ -333,20 +344,21 @@ const FormEditarEntidade = ({
               label="Telefone"
               name="telefone1"
             >
-              <InputMask
-                mask={form.getFieldValue('telefone1')?.replace(/\D/g, '').length > 10 
-                  ? "(99) 99999-9999" 
-                  : "(99) 9999-9999"}
-                maskChar={null}
+              <IMaskInput
+                mask="(00) 90000-0000"
+                definitions={{ '0': /[0-9]/ }}
+                overwrite
+                unmask={false}
+                placeholder="(00) 90000-0000"
+                style={{
+                  width: '100%',
+                  padding: '4px 11px',
+                  border: '1px solid #d9d9d9',
+                  borderRadius: '6px',
+                  transition: 'all 0.3s',
+                }}
                 disabled={form.getFieldValue('isAtiva') === false}
-              >
-                {(inputProps) => (
-                  <Input 
-                    {...inputProps} 
-                    placeholder="(00) 0000-0000" 
-                  />
-                )}
-              </InputMask>
+              />
             </Form.Item>
 
             {/* Campo WhatsApp com máscara */}
@@ -354,18 +366,21 @@ const FormEditarEntidade = ({
               label="WhatsApp"
               name="whatsapp"
             >
-              <InputMask
-                mask="(99) 99999-9999"
-                maskChar={null}
+              <IMaskInput
+                mask="(00) 90000-0000"
+                definitions={{ '0': /[0-9]/ }}
+                overwrite
+                unmask={false}
+                placeholder="(00) 90000-0000"
+                style={{
+                  width: '100%',
+                  padding: '4px 11px',
+                  border: '1px solid #d9d9d9',
+                  borderRadius: '6px',
+                  transition: 'all 0.3s',
+                }}
                 disabled={form.getFieldValue('isAtiva') === false}
-              >
-                {(inputProps) => (
-                  <Input 
-                    {...inputProps} 
-                    placeholder="(00) 00000-0000" 
-                  />
-                )}
-              </InputMask>
+              />
             </Form.Item>
 
             {/* Campo CEP com máscara */}
@@ -382,18 +397,21 @@ const FormEditarEntidade = ({
                 // }
               ]}
             >
-              <InputMask
-                mask="99999-999"
-                maskChar={null}
+              <IMaskInput
+                mask="00000-000"
+                definitions={{ '0': /[0-9]/ }}
+                overwrite
+                unmask={false}
+                placeholder="00000-000"
+                style={{
+                  width: '100%',
+                  padding: '4px 11px',
+                  border: '1px solid #d9d9d9',
+                  borderRadius: '6px',
+                  transition: 'all 0.3s',
+                }}
                 disabled={form.getFieldValue('isAtiva') === false}
-              >
-                {(inputProps) => (
-                  <Input 
-                    {...inputProps} 
-                    placeholder="00000-000" 
-                  />
-                )}
-              </InputMask>
+              />
             </Form.Item>
 
             {/* Campo Estado */}
@@ -430,6 +448,113 @@ const FormEditarEntidade = ({
                 }}
               />
             </Form.Item>
+          </>
+        )}
+
+        {entidade === "tutoresDaClinica" && (
+          <>
+            {/* Campo CNPJ com máscara */}
+            <Form.Item label="CPF" name="cpf">
+              <IMaskInput
+                mask="000.000.000-00"
+                definitions={{ '0': /[0-9]/ }}
+                overwrite
+                unmask={false}
+                placeholder="000.000.000-00"
+                style={{
+                  width: '100%',
+                  padding: '4px 11px',
+                  border: '1px solid #d9d9d9',
+                  borderRadius: '6px',
+                  transition: 'all 0.3s',
+                }}
+              />
+            </Form.Item>
+
+            {/* Campo Telefone com máscara dinâmica */}
+            <Form.Item
+              label="Telefone/Whatsapp"
+              name="telefone1"
+            >
+              <IMaskInput
+                mask="(00) 90000-0000"
+                definitions={{ '0': /[0-9]/ }}
+                overwrite
+                unmask={false}
+                placeholder="(00) 90000-0000"
+                style={{
+                  width: '100%',
+                  padding: '4px 11px',
+                  border: '1px solid #d9d9d9',
+                  borderRadius: '6px',
+                  transition: 'all 0.3s',
+                }}
+              />
+            </Form.Item>
+
+            {/* Campo WhatsApp com máscara */}
+            {/* <Form.Item
+              label="WhatsApp"
+              name="whatsapp"
+            >
+              <IMaskInput
+                mask="(00) 90000-0000"
+                definitions={{ '0': /[0-9]/ }}
+                overwrite
+                unmask={false}
+                placeholder="(00) 90000-0000"
+                style={{
+                  width: '100%',
+                  padding: '4px 11px',
+                  border: '1px solid #d9d9d9',
+                  borderRadius: '6px',
+                  transition: 'all 0.3s',
+                }}
+              />
+            </Form.Item> */}
+
+            {/* Campo CEP com máscara */}
+            {/* <Form.Item
+              label="CEP"
+              name="cep"
+              rules={[
+                // { required: true, message: "CEP é obrigatório" },
+                // {
+                //   validator: (_, value) =>
+                //     value && value.replace(/\D/g, '').length === 8
+                //       ? Promise.resolve()
+                //       : Promise.reject(new Error('CEP inválido'))
+                // }
+              ]}
+            >
+              <IMaskInput
+                mask="00000-000"
+                definitions={{ '0': /[0-9]/ }}
+                overwrite
+                unmask={false}
+                placeholder="00000-000"
+                style={{
+                  width: '100%',
+                  padding: '4px 11px',
+                  border: '1px solid #d9d9d9',
+                  borderRadius: '6px',
+                  transition: 'all 0.3s',
+                }}
+              />
+            </Form.Item> */}
+
+            {/* Campo Estado */}
+            {/* <Form.Item
+              label="Estado"
+              name="endEstado"
+              // rules={[{ required: true, message: "Estado é obrigatório" }]}
+            >
+              <Select
+                options={estadosBrasil}
+                placeholder="Selecione o estado"
+                disabled={form.getFieldValue('isAtiva') === false}
+              />
+            </Form.Item> */}
           </>
         )}
 
