@@ -18,7 +18,7 @@ const Login = () => {
   return (
     <Row className="h-full" style={{ }}>
       {/* Lado esquerdo - informações */}
-      <Col span={14} className="pt-20 pr-10 pl-20 flex flex-col justify-start text-green-dark">
+      <Col span={14} className="pt-20 pr-10 pl-20 flex flex-col justify-start text-[var(--verde-medio)]">
         <Title level={1} style={{ color: '#064e3b' }}>Bem-vindo ao Software IMPERIUM!</Title>
         <Paragraph className="text-lg" style={{ color: '#064e3b', fontSize: '16px', lineHeight: 1.75 }}>
           Este software tem como objetivo auxiliar no controle nutricional de cães e gatos, utilizando técnicas

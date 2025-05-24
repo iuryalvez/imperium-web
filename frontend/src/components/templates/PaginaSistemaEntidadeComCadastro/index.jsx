@@ -284,16 +284,16 @@ const PaginaSistemaEntidadeComCadastro = ({
       <div>
         <button
           onClick={() => window.history.back()}
-          className="flex items-center font-bold text-green-dark mb-2"
+          className="flex items-center font-bold text-[var(--verde-medio)] mb-2"
         >
           <ArrowLeftOutlined className="mr-2" /> Voltar
         </button>
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold text-green-dark">{titulo}</h1>
+          <h1 className="text-2xl font-bold text-[var(--verde-medio)]">{titulo}</h1>
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            className="bg-green-700 hover:bg-green-800 text-white focus:bg-green-300 active:bg-green-300 focus:shadow-none border-none"
+            className="bg-[var(--verde-medio)] hover:bg-[var(--verde-realce)] text-white"
             onClick={() => setModalVisivel(true)}
           >
             {nomeBotao}

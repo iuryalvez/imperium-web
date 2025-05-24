@@ -36,13 +36,13 @@ const camposSimplesCadastrar = {
       ],
     }
   ],
-  animais: [
+  animaisDaClinica: [
       { name: "nome", label: "Nome do Animal", type: "text", placeholder: "Digite o nome", rules: [{ type: "required", message: "Nome obrigatório" }] },
       { name: "especie", label: "Espécie", type: "select", placeholder: "Selecione a espécie", options: [
           { label: "Cão", value: "1" },
           { label: "Gato", value: "2" }
       ], rules: [{ type: "required", message: "Espécie obrigatória" }] },
-      { name: "raca", label: "Raça", type: "select", placeholder: "Selecione a raça", options: [] },
+      // { name: "raca", label: "Raça", type: "select", placeholder: "Selecione a raça", options: [] },
       { name: "nascimento", label: "Data de Nascimento", type: "date", placeholder: "Selecione a data de nascimento" },
       { name: "sexo", label: "Sexo", type: "select", placeholder: "Selecione o sexo", options: [
           { label: "Macho", value: "1" },
@@ -135,16 +135,16 @@ const PaginaClinicaEntidadeComCadastro = ({
       <div>
         {/* <button
           onClick={() => window.history.back()}
-          className="flex items-center font-bold text-green-dark mb-2"
+          className="flex items-center font-bold text-[var(--verde-medio)] mb-2"
         >
           <ArrowLeftOutlined className="mr-2" /> Voltar
         </button> */}
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold text-green-dark">{titulo}</h1>
+          <h1 className="text-2xl font-bold text-[var(--verde-medio)]">{titulo}</h1>
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            className="bg-green-700 hover:bg-green-800 text-white focus:bg-green-300 active:bg-green-300 focus:shadow-none border-none"
+            className="bg-[var(--verde-medio)] hover:bg-[var(--verde-relce)] text-white"
             onClick={() => setModalVisivel(true)}
           >
             {nomeBotao}

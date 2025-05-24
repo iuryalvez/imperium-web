@@ -14,7 +14,7 @@ const LoggedHeader = () => {
           <li>
             <button
               onClick={logout}
-              className="text-green-dark font-bold hover:text-green-light"
+              className="text-[var(--verde-medio)] font-bold hover:text-[var(--verde-realce)]"
             >
               Sair
             </button>

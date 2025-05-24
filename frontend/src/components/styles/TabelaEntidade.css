@@ -15,13 +15,3 @@
     background-color: var(--cinza-background);
   }
   
-  .custom-table .ant-checkbox-checked .ant-checkbox-inner {
-    background-color: var(--verde-medio);
-    border-color: var(--verde-escuro);
-  }
-  
-  .custom-table .ant-checkbox-inner {
-    border-color: var(--verde-medio);
-  }
-
-  

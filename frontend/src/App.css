@@ -1,6 +1,6 @@
 /* Estilo para o elemento com a classe .App */
 
-:root {
+/* :root {
   --cinza-background: #F7F7F7;
   --verde-fraco: #D9FFEC;
   --verde-realce: #21BA45;
@@ -8,17 +8,4 @@
   --verde-medio: #006634;
   --verde-escuro: #064420;
   --vermelho-delete: #D30A0A
-}
-
-.icone {
-  height: 1.3rem;
-  width: 1.3rem;
-  margin: 0 0.25rem;
-}
-
-.icone-botao {
-  fill: var(--cinza-background);
-  max-height: 0.9rem;
-  max-width: 0.9rem;
-  margin: 0 0.25rem;
-}
+} */

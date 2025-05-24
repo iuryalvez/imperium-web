@@ -25,14 +25,14 @@ const CardInfo = ({ tipoEntidade, entidade }) => {
   return (
     <div className="flex items-center justify-between p-4 mb-4 bg-white shadow-lg rounded-lg w-full">
       <div className="flex flex-col space-y-2">
-        <h3 className="font-bold text-lg text-green-dark">
+        <h3 className="font-bold text-lg text-[var(--verde-medio)]">
           {tipoEntidade} - {entidade.nomeClinica}
         </h3>
 
-        <div className="text-green-dark">
+        <div className="text-[var(--verde-medio)]">
           Clínica: {entidade.nomeClinica || "N/A"}
         </div>
-        <div className="text-green-dark">
+        <div className="text-[var(--verde-medio)]">
           Tipo de Usuário: {entidade.nomePerfil}
         </div>
       </div>

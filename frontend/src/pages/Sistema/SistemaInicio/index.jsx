@@ -26,9 +26,10 @@ const SistemaInicio = () => {
       );
   };
 
+//   bg-[var(--cinza-background)]
   return (
       <div>
-          <h1 className="text-2xl font-bold mb-4 text-green-dark">
+          <h1 className="text-2xl font-bold mb-4 text-[var(--verde-escuro)]">
               Bem-vindo, {userName || 'Usuário'}!
           </h1>
           <div className="flex flex-wrap justify-center gap-10 pt-8">

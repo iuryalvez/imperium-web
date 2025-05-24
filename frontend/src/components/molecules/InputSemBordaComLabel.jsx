@@ -6,7 +6,7 @@ const InputSemBordaComLabel = ({ label, value, onChange, placeholder, icone, suf
     case 'password':
       return (
         <div className="flex flex-col mb-4">
-          <label className="mb-2 text-sm font-medium text-green-dark">{label}</label>
+          <label className="mb-2 text-sm font-medium text-[var(--verde-medio)]">{label}</label>
           <Input.Password
             value={value}  // Agora estamos passando o valor do estado
             onChange={onChange}  // Passando a função de onChange para atualizar o estado
@@ -14,7 +14,7 @@ const InputSemBordaComLabel = ({ label, value, onChange, placeholder, icone, suf
             type={type} 
             placeholder={placeholder} 
             prefix={icone}
-            className="border-b-2 !border-green-dark hover:!border-green"
+            className="border-b-2 !border-[var(--verde-medio)] hover:!border-[var(--verde-escuro)"
           />
         </div>
       );
@@ -22,7 +22,7 @@ const InputSemBordaComLabel = ({ label, value, onChange, placeholder, icone, suf
     default:
       return (
         <div className="flex flex-col mb-4">
-          <label className="mb-2 text-sm font-medium text-green-dark">{label}</label>
+          <label className="mb-2 text-sm font-medium text-[var(--verde-medio)]">{label}</label>
           <Input
             value={value}  // Agora estamos passando o valor do estado
             onChange={onChange}  // Passando a função de onChange para atualizar o estado
@@ -31,7 +31,7 @@ const InputSemBordaComLabel = ({ label, value, onChange, placeholder, icone, suf
             placeholder={placeholder} 
             prefix={icone}
             suffix={suffix}
-            className="border-b-2 !border-green-dark hover:!border-green"
+            className="border-b-2 !border-[var(--verde-medio)] hover:!border-[var(--verde-realce)]"
           />
         </div>
       );

@@ -6,6 +6,7 @@
 
 html, body, #root {
     @apply font-sans;
+    font-family: 'Work Sans', sans-serif;
     font-optical-sizing: auto; /* Define o ajuste óptico da fonte como automático */
     font-weight: auto; /* Define o peso da fonte como automático */
     font-style: normal; /* Define o estilo da fonte como normal */
@@ -17,11 +18,15 @@ html, body, #root {
 #root {
     @apply pt-16; /* 4rem de padding no topo (16 Tailwind = 4rem) */
     box-sizing: border-box; /* Garante que o padding não afete o cálculo da largura total */
+    --branco: #FFFFFF;
     --cinza-background: #F7F7F7;
+    --cinza-escuro: #9E9E9E;
+    --cinza-desativado: #C0C0C0;
     --verde-fraco: #D9FFEC;
     --verde-realce: #21BA45;
     --verde-claro: #278F54;
     --verde-medio: #006634;
     --verde-escuro: #064420;
+    --vermelho-delete: #D30A0A;
 }
   

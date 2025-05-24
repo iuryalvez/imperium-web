@@ -25,6 +25,7 @@ namespace backend.Data
         public DbSet<UsuarioPerfilClinica> UsuariosPerfisClinicas { get; set; }
         public DbSet<TutorClinica> TutoresClinicas { get; set; }
         public DbSet<AnimalClinica> AnimaisClinicas { get; set; }
+        public DbSet<TutorAnimal> TutoresAnimais { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -62,6 +63,10 @@ namespace backend.Data
                 .ValueGeneratedOnAdd();
             
             modelBuilder.Entity<TutorClinica>()
+                .Property(entidade => entidade.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<TutorAnimal>()
                 .Property(entidade => entidade.Id)
                 .ValueGeneratedOnAdd();
             
@@ -102,9 +107,16 @@ namespace backend.Data
                 .HasForeignKey(dp => dp.AcompanhamentoIndId)
                 .OnDelete(DeleteBehavior.Restrict);                
 
-            // 1-N Animal e Clinicas
+            // 1-N Animal e ACs
             modelBuilder.Entity<Animal>()
                 .HasMany(a => a.AnimaisClinicas)
+                .WithOne(ac => ac.Animal)
+                .HasForeignKey(tac => tac.AnimalId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // 1-N Animal e TAs
+            modelBuilder.Entity<Animal>()
+                .HasMany(a => a.TutoresAnimais)
                 .WithOne(ac => ac.Animal)
                 .HasForeignKey(tac => tac.AnimalId)
                 .OnDelete(DeleteBehavior.Restrict);
@@ -140,6 +152,13 @@ namespace backend.Data
             // 1-N Tutor e TCs
             modelBuilder.Entity<Tutor>()
                 .HasMany(tutores => tutores.TutoresClinicas)
+                .WithOne(tc => tc.Tutor)
+                .HasForeignKey(tc => tc.TutorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // 1-N Tutor e TAs
+            modelBuilder.Entity<Tutor>()
+                .HasMany(tutores => tutores.TutoresAnimais)
                 .WithOne(tc => tc.Tutor)
                 .HasForeignKey(tc => tc.TutorId)
                 .OnDelete(DeleteBehavior.Restrict);

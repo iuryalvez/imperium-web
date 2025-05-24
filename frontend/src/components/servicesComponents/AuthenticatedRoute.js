@@ -2,7 +2,6 @@ import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../services/AuthContext';
 
-import "../../App.css";
 import LoadingSpinner from '../atoms/LoadingSpinner';
 import LayoutLogged from '../layout/LayoutLogged';
 

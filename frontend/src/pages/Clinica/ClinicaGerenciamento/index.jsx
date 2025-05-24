@@ -1,9 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import '../../../App.css';
 import '../../../components/styles/Gerenciamento.css';
-
 
 function ClinicaGerenciamento() {
   const navigate = useNavigate();

@@ -294,10 +294,13 @@ namespace backend.Controllers
                     return NotFound("Tutor não encontrado nesta clínica.");
                 }
 
-                // Remove animais vinculados ao tutor e à clínica
+                // Remove vinculos do animal e do tutor nessa clínica
                 var animaisClinicas = await _context.AnimaisClinicas
-                    .Include(ac => ac.Animal)
-                    .Where(ac => ac.ClinicaId == clinicaId && ac.Animal.TutorId == tutorId)
+                    .Include(ac => ac.Animal!)
+                        .ThenInclude(a => a.TutoresAnimais!)
+                        .ThenInclude(ta => ta.Tutor)
+                    .Where(ac => ac.ClinicaId == clinicaId && 
+                                ac.Animal!.TutoresAnimais!.Any(ta => ta.TutorId == tutorId))
                     .ToListAsync();
 
                 if (animaisClinicas.Any())

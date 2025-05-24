@@ -24,6 +24,6 @@ namespace backend.Models {
         public int SemanaGestacao { get; set; }
         public AcompanhamentoInd? AcompanhamentoInd { get; set; } // referência de navegação com o dependente
         public ICollection<AnimalClinica>? AnimaisClinicas { get; set; } // referência de navegação com o dependente
-        public int TutorId { get; set; }
+        public ICollection<TutorAnimal>? TutoresAnimais { get; set; }
     }
 }

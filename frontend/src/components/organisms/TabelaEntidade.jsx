@@ -81,16 +81,6 @@ const camposSimplesEditar = {
         ] 
       },
       { 
-        name: "cpf",
-        label: "CPF",
-        type: "text",
-        placeholder: "Digite o CPF (somente números)",
-        rules: [
-          { type: "required", message: "O CPF é obrigatório." }, 
-          { type: "exactLength", value: 11, message: "O CPF deve ter 11 caracteres." }
-        ] 
-      },
-      { 
         name: "email", 
         label: "E-mail", 
         type: "email", 
@@ -411,7 +401,7 @@ const TabelaEntidade = ({
             >
               <Button
                 icon={<DeleteOutlined />}
-                style={{ backgroundColor: "var(--vermelho-delete)", color: "white" }}
+                style={{ backgroundColor: 'var(--vermelho-delete)', color: "white" }}
               />
             </Popconfirm>
           )}

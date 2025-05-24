@@ -1,6 +1,5 @@
 import React from "react";
 
-import '../App.css';
 import logoUfg from "../assets/UFG_logo.png";
 import logoEvz from "../assets/EVZ_UFG.svg";
 import logoInf from "../assets/INF_UFG.svg";

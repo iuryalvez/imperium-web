@@ -39,7 +39,7 @@ namespace backend.Models {
         public string? Email { get; set; }
         public DateTime DataCad { get; set; }
         public virtual ICollection<TutorClinica>? TutoresClinicas { get; set; }
-        public virtual ICollection<Animal>? Animais { get; set; } // navegação com o dependente
+        public virtual ICollection<TutorAnimal>? TutoresAnimais { get; set; }
         public virtual ICollection<Consulta>? Consultas { get; set; }
     }
 }

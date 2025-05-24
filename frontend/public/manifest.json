@@ -2,7 +2,11 @@
   "short_name": "IMPERIUM",
   "name": "IMPERIUM WEB",
   "icons": [
-    
+    {
+      "src": "imperium-icon.png",
+      "sizes": "",
+      "type": "image/png"
+    }
   ],
   "start_url": ".",
   "display": "standalone",

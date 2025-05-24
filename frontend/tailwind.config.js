@@ -4,24 +4,29 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
-    extend: {
-      colors: {
-        green: {
-          DEFAULT: '#21BA45', // Verde de realce
-          //DEFAULT: '#4CAF50', // Verde secundario
-          light: '#278F54',  // Verde claro
-          dark: '#064420',   // Verde escuro
-        },
-        white: {
-          DEFAULT: '#FFFFFF',
-        },
-        gray: {
-          light: '#F7F7F7',
-          dark: '#9E9E9E',
-        },
-        'background-custom': '#278F54',
-      },
-    },
+    // extend: {
+    //   colors: {
+    //     verde: {
+    //       DEFAULT: '#006634',
+    //       medio: '#006634',
+    //       claro: '#278F54',
+    //       realce: '#21BA45', 
+    //       fraco: '#D9FFEC',  
+    //       escuro: '#064420',   
+    //     },
+    //     branco: {
+    //       DEFAULT: '#FFFFFF',
+    //     },
+    //     cinza: {
+    //       background: '#F7F7F7',
+    //       escuro: '#9E9E9E',
+    //     },
+    //     vermelho: {
+    //       delete: '#D30A0A',
+    //     },
+    //     'background-custom': '#278F54',
+    //   },
+    // },
   },
   plugins: [],
 };

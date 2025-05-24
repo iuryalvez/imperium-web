@@ -3,7 +3,7 @@ namespace backend.Dtos.Animal
     public class CadastrarAnimalClinicaDto
     {
         public int TutorId { get; set; }
-        public string Nome { get; set; } = string.Empty;
+        public string Nome { get; set; }
         public int Especie { get; set; } // 1-cao, 2-gato
         public DateTime Nascimento { get; set; }
         public DateTime DataCad { get; set; }

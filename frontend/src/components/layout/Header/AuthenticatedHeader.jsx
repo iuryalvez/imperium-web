@@ -15,25 +15,25 @@ const AuthenticatedHeader = () => {
           <li>
             <Link
               to="/clinica/perfil"
-              className="text-green-dark font-bold hover:text-green-light"
+              className="text-[var(--verde-medio)] font-bold hover:text-[var(--verde-realce)]"
             >
               Perfil
             </Link>
           </li>
-          <li className="text-green-dark">|</li>
+          <li className="text-[var(--verde-medio)]">|</li>
           <li>
             <button
               onClick={trocarVinculo}
-              className="text-green-dark font-bold hover:text-green-light"
+              className="text-[var(--verde-medio)] font-bold hover:text-[var(--verde-realce)]"
             >
               Trocar vínculo
             </button>
           </li>
-          <li className="text-green-dark">|</li>
+          <li className="text-[var(--verde-medio)]">|</li>
           <li>
             <button
               onClick={logout}
-              className="text-green-dark font-bold hover:text-green-light"
+              className="text-[var(--verde-medio)] font-bold hover:text-[var(--verde-realce)]"
             >
               Sair
             </button>
