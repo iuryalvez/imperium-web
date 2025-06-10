@@ -1,3 +1,5 @@
+using backend.Models;
+
 namespace backend.Dtos.Relatorio
 {
     public class RelatorioDto
@@ -7,8 +9,8 @@ namespace backend.Dtos.Relatorio
         public int AcompanhamentoIndId { get; set; } // foreign key
         public int Idade { get; set; }
         public float Peso { get; set; }
-        public int CondicaoCorporal { get; set; }
-        public int GrauAtividade { get; set; } // 0-inativo, 1-moderado, 2-ativo
+        public CondicaoCorporal CondicaoCorporal { get; set; }
+        public GrauAtividade GrauAtividade { get; set; } // 0-inativo, 1-moderado, 2-ativo
         public string Racao { get; set; } = string.Empty;
         public string DescDieta { get; set; } = string.Empty;
     }

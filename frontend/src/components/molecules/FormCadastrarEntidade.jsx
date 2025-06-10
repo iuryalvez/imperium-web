@@ -64,6 +64,7 @@ const perfisClinica = [
 
 // Listas de raças de cães e gatos
 const dogBreeds = [
+  "Sem Raça Definida - SRD",
   "Affenpinscher",
   "Afghan Hound",
   "Airedale Terrier",
@@ -235,6 +236,7 @@ const dogBreeds = [
 ];
 
 const catBreeds = [
+  "Sem Raça Definida - SRD",
   "Abyssinian",
   "American Bobtail",
   "American Curl",
@@ -293,15 +295,31 @@ const FormCadastrarEntidade = ({
   tituloModal,
   camposSimplesCadastrar,
 }) => {
-  const campos = camposSimplesCadastrar[entidade] || [];
+  const campos = camposSimplesCadastrar || [];
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+
+  // usuarios e usuariosDaClinica
   const [perfisSelecionados, setPerfisSelecionados] = useState([]);
+
+  // clinicas
   const [clinicas, setClinicas] = useState([]);
-    const [especieSelecionada, setEspecieSelecionada] = useState(null);
-  const [sexoSelecionado, setSexoSelecionado] = useState(null);
-  const [gestacaoSelecionada, setGestacaoSelecionada] = useState(false);
-  const [lactacaoSelecionada, setLactacaoSelecionada] = useState(0);
+
+  // animaisDaClinica
+  const [especieSelecionada, setEspecieSelecionada] = useState(
+    form.getFieldValue("especie")
+  );
+  const [sexoAnimal, setSexoAnimal] = useState(form.getFieldValue("sexo"));
+  const [emGestacao, setEmGestacao] = useState(
+    form.getFieldValue("gestacao") || false
+  );
+  const [numFilhotes, setNumFilhotes] = useState(
+    form.getFieldValue("lactacao") || 0
+  ); // 'lactacao' é o campo para número de filhotes
+
+  const isFemea = sexoAnimal === 2;
+  const isGestando = emGestacao;
+  const isLactando = numFilhotes > 0;
 
   useEffect(() => {
     if (entidade === "usuariosDoSistema") {
@@ -319,86 +337,156 @@ const FormCadastrarEntidade = ({
     }
   }, [entidade]);
 
-  // Efeito específico para animais
-  useEffect(() => {
-    if (entidade === "animaisDaClinica") {
-      // Observa mudanças nos campos relevantes
-      const valores = form.getFieldsValue();
-      setEspecieSelecionada(valores.especie);
-      setSexoSelecionado(valores.sexo);
-      setGestacaoSelecionada(valores.gestacao);
-      setLactacaoSelecionada(valores.lactacao || 0);
+  const sanitize = (value) => value?.replace(/\D/g, "");
 
-      // Resetar campos dependentes quando mudar para macho
-      if (valores.sexo === '1') {
-        form.setFieldsValue({
-          gestacao: false,
-          semanaGestacao: undefined,
-          lactacao: 0,
-          semanaLactacao: undefined
-        });
+  const handleValuesChange = (changedValues, allValues) => {
+    if (entidade === "animaisDaClinica") {
+      let formUpdates = {};
+      let stateNeedsUpdate = false;
+
+      if ("sexo" in changedValues) {
+        setSexoAnimal(changedValues.sexo);
+        stateNeedsUpdate = true;
+        if (changedValues.sexo !== 2) {
+          // Não é Fêmea (Macho ou indefinido)
+          setEmGestacao(false);
+          setNumFilhotes(0);
+          formUpdates = {
+            ...formUpdates,
+            gestacao: false,
+            semanaGestacao: undefined,
+            lactacao: 0,
+            semanaLactacao: undefined,
+          };
+        }
+      }
+      if ("gestacao" in changedValues) {
+        setEmGestacao(changedValues.gestacao);
+        stateNeedsUpdate = true;
+        if (!changedValues.gestacao) {
+          formUpdates.semanaGestacao = undefined;
+        }
+      }
+      if ("lactacao" in changedValues) {
+        // 'lactacao' é o campo para número de filhotes
+        setNumFilhotes(changedValues.lactacao || 0);
+        stateNeedsUpdate = true;
+        if (!changedValues.lactacao || changedValues.lactacao === 0) {
+          formUpdates.semanaLactacao = undefined;
+        }
+      }
+      if ("especie" in changedValues) {
+        setEspecieSelecionada(changedValues.especie);
+        stateNeedsUpdate = true;
+        formUpdates.raca = undefined;
+      }
+
+      if (Object.keys(formUpdates).length > 0) {
+        form.setFieldsValue(formUpdates);
       }
     }
-  }, [entidade, form]);
 
-  const sanitize = (value) => value?.replace(/\D/g, "");
+    if (entidade === "usuariosDoSistema" && "perfis" in changedValues) {
+      const currentPerfis = changedValues.perfis || [];
+      let newValues = [...currentPerfis];
+
+      if (currentPerfis.includes("ADMIN")) {
+        newValues = currentPerfis.filter(
+          (val) => val === "ADMIN" || val === "INATIVO"
+        );
+      } else if (
+        currentPerfis.some((val) =>
+          ["GESTOR", "TECNICO", "SECRETARIO", "VETERINARIO"].includes(val)
+        )
+      ) {
+        newValues = currentPerfis.filter((val) => val !== "ADMIN");
+      }
+      setPerfisSelecionados(newValues);
+      // Se os valores foram alterados pela lógica acima, atualize o formulário
+      if (
+        newValues.length !== currentPerfis.length ||
+        !newValues.every((val, index) => val === currentPerfis[index])
+      ) {
+        form.setFieldsValue({ perfis: newValues });
+      }
+    }
+  };
 
   const handleFinish = async (values) => {
     try {
       setLoading(true);
+      let processedValues = { ...values };
 
-      if (entidade === "usuariosDoSistema" || "usuariosDaClinica") {
-        // Verifica se o array de perfis contém "INATIVO"
-        const isInativo = values.perfis?.includes("INATIVO") || false;
-
-        // Atualiza o valor de IsInativo
-        values.isAtivo = !isInativo;
+      if (
+        entidade === "usuariosDoSistema" ||
+        entidade === "usuariosDaClinica"
+      ) {
+        const isInativo = processedValues.perfis?.includes("INATIVO") || false;
+        processedValues.isAtivo = !isInativo;
       }
 
-      if (values.cpf) values.cpf = sanitize(values.cpf);
-      if (values.cep) values.cep = sanitize(values.cep);
-      if (values.cnpj) values.cnpj = sanitize(values.cnpj);
-      if (values.telefone1) values.telefone1 = sanitize(values.telefone1);
-      if (values.telefone2) values.telefone2 = sanitize(values.telefone2);
-      if (values.whatsapp) values.whatsapp = sanitize(values.whatsapp);
+      if (entidade === "clinicas") {
+        if (processedValues.cpf)
+          processedValues.cpf = sanitize(processedValues.cpf);
+        if (processedValues.cep)
+          processedValues.cep = sanitize(processedValues.cep);
+        if (processedValues.cnpj)
+          processedValues.cnpj = sanitize(processedValues.cnpj);
+        if (processedValues.telefone1)
+          processedValues.telefone1 = sanitize(processedValues.telefone1);
+        if (processedValues.telefone2)
+          processedValues.telefone2 = sanitize(processedValues.telefone2);
+        if (processedValues.whatsapp)
+          processedValues.whatsapp = sanitize(processedValues.whatsapp);
+      }
 
-      const response = await onSubmit(values);
+      // Para animais, garantir que valores condicionais sejam enviados corretamente
+      if (entidade === "animaisDaClinica") {
+        if (processedValues.sexo === 1) {
+          // Macho
+          processedValues.gestacao = false;
+          processedValues.semanaGestacao = 0;
+          processedValues.lactacao = 0;
+          processedValues.semanaLactacao = 0;
+        } else {
+          // Fêmea
+          if (!processedValues.gestacao) {
+            processedValues.semanaGestacao = 0;
+          }
+          if (!processedValues.lactacao || processedValues.lactacao === 0) {
+            processedValues.lactacao = 0; // Garante 0 se for null/undefined
+            processedValues.semanaLactacao = 0;
+          }
+        }
+      }
+
+      const response = await onSubmit(processedValues);
       message.success(`${nomeEntidade} criado com sucesso.`);
       form.resetFields();
-      setPerfisSelecionados([]);
+      // Resetar estados de controle após o sucesso
+      if (entidade === "animaisDaClinica") {
+        setSexoAnimal(form.getFieldValue("sexo")); // Ou valor padrão
+        setEmGestacao(false);
+        setNumFilhotes(0);
+      }
+      if (
+        entidade === "usuariosDoSistema" ||
+        entidade === "usuariosDaClinica"
+      ) {
+        setPerfisSelecionados([]);
+      }
       if (onSuccess) onSuccess(response);
     } catch (error) {
       console.error(`Erro ao cadastrar ${nomeEntidade}:`, error);
-      message.error(`Falha ao cadastrar ${nomeEntidade}.`);
+      const errorMessage =
+        error.response?.data?.message || `Falha ao cadastrar ${nomeEntidade}.`;
+      message.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
   const renderCampo = (campo) => {
-    // Adicionando casos específicos para animais
-    if (entidade === "animaisDaClinica") {
-      if (campo.name === "raca") {
-        return (
-          <Select placeholder={campo.placeholder}>
-            {especieSelecionada === '1' && 
-              dogBreeds.map(breed => (
-                <Select.Option key={breed} value={breed}>
-                  {breed}
-                </Select.Option>
-              ))
-            }
-            {especieSelecionada === '2' && 
-              catBreeds.map(breed => (
-                <Select.Option key={breed} value={breed}>
-                  {breed}
-                </Select.Option>
-              ))
-            }
-          </Select>
-        );
-      }
-    }
     switch (campo.type) {
       case "text":
       case "email":
@@ -406,49 +494,50 @@ const FormCadastrarEntidade = ({
       case "password":
         return <Input.Password placeholder={campo.placeholder} />;
       case "select":
-        return (
-          <Select 
-            placeholder={campo.placeholder}
-            onChange={(value) => {
-              // Captura mudanças nos campos importantes para animais
-              if (entidade === "animaisDaClinica") {
-                if (campo.name === "especie") setEspecieSelecionada(value);
-                if (campo.name === "sexo") setSexoSelecionado(value);
-              }
-            }}
-          >
-            {campo.options?.map((opt) => (
-              <Select.Option key={opt.value} value={opt.value}>
-                {opt.label}
-              </Select.Option>
-            ))}
-          </Select>
-        );
+        if (entidade === "animaisDaClinica" && campo.name === "raca") {
+          return (
+            <Select
+              placeholder={campo.placeholder || "Selecione a raça"}
+              allowClear
+              // Desabilita o campo de raça se nenhuma espécie estiver selecionada,
+              // incentivando o usuário a escolher a espécie primeiro.
+              disabled={!especieSelecionada}
+            >
+              {/* Condição: Se a espécie selecionada for '1' (Cão). Adapte '1' ao valor real do seu Select. */}
+              {/* Porquê: Mostra a lista de raças de cães. */}
+              {especieSelecionada === 1 &&
+                dogBreeds.map((breed) => (
+                  <Select.Option key={breed} value={breed}>
+                    {breed}
+                  </Select.Option>
+                ))}
+              {/* Condição: Se a espécie selecionada for '2' (Gato). Adapte '2' ao valor real do seu Select. */}
+              {/* Porquê: Mostra a lista de raças de gatos. */}
+              {especieSelecionada === 2 &&
+                catBreeds.map((breed) => (
+                  <Select.Option key={breed} value={breed}>
+                    {breed}
+                  </Select.Option>
+                ))}
+            </Select>
+          );
+        } else {
+          return (
+            <Select placeholder={campo.placeholder}>
+              {campo.options?.map((opt) => (
+                <Select.Option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </Select.Option>
+              ))}
+            </Select>
+          );
+        }
       case "date":
         return <DatePicker style={{ width: "100%" }} />;
       case "boolean":
-        return (
-          <Switch 
-            checkedChildren="Sim" 
-            unCheckedChildren="Não"
-            onChange={(checked) => {
-              if (entidade === "animais" && campo.name === "gestacao") {
-                setGestacaoSelecionada(checked);
-              }
-            }}
-          />
-        );
+        return <Switch checkedChildren="Sim" unCheckedChildren="Não" />;
       case "number":
-        return (
-          <InputNumber 
-            style={{ width: "100%" }}
-            onChange={(value) => {
-              if (entidade === "animaisDaClinica" && campo.name === "lactacao") {
-                setLactacaoSelecionada(value || 0);
-              }
-            }}
-          />
-        );
+        return <InputNumber style={{ width: "100%" }} />;
       default:
         return null;
     }
@@ -459,6 +548,19 @@ const FormCadastrarEntidade = ({
     ["GESTOR", "TECNICO", "SECRETARIO", "VETERINARIO"].includes(val)
   );
 
+  // Inicializa os estados com os valores do formulário, se houver, após a primeira renderização
+  useEffect(() => {
+    if (entidade === "animaisDaClinica") {
+      setEspecieSelecionada(form.getFieldValue("especie"));
+      setSexoAnimal(form.getFieldValue("sexo"));
+      setEmGestacao(form.getFieldValue("gestacao") || false);
+      setNumFilhotes(form.getFieldValue("lactacao") || 0);
+    }
+    if (entidade === "usuariosDoSistema") {
+      setPerfisSelecionados(form.getFieldValue("perfis") || []);
+    }
+  }, [form, entidade]);
+
   return (
     <div className="p-2">
       <Form
@@ -467,14 +569,17 @@ const FormCadastrarEntidade = ({
         layout="vertical"
         onFinish={handleFinish}
         className="space-y-3"
-        onValuesChange={(changedValues) => {
-          if (entidade === "animaisDaClinica") {
-            if('especie' in changedValues) setEspecieSelecionada(changedValues.especie);
-            if('sexo' in changedValues) setSexoSelecionado(changedValues.sexo);
-            if('gestacao' in changedValues) setGestacaoSelecionada(changedValues.gestacao);
-            if('lactacao' in changedValues) setLactacaoSelecionada(changedValues.lactacao);
-          }
-        }}
+        onValuesChange={handleValuesChange}
+        initialValues={
+          entidade === "animaisDaClinica"
+            ? {
+                gestacao: false,
+                lactacao: 0, // Número de filhotes
+                // Defina um valor inicial para sexo se desejar, ex: '1' para Macho
+                // sexo: '1',
+              }
+            : {}
+        }
       >
         <Typography.Title level={4}>
           {tituloModal || "Cadastro de Entidade"}
@@ -732,43 +837,84 @@ const FormCadastrarEntidade = ({
           </>
         )}
 
-        {/* Campos condicionais específicos para animais */}
-        {entidade === "animaisDaClinica" && sexoSelecionado === '2' && (
+        {/* Campos condicionais específicos para animaisDaClinica */}
+        {entidade === "animaisDaClinica" && (
           <>
-            {gestacaoSelecionada && (
-              <Form.Item name="semanaGestacao" label="Semana de Gestação">
-                <InputNumber min={1} max={12} style={{ width: "100%" }} />
+            {isFemea && (
+              <>
+                <Form.Item
+                  name="gestacao"
+                  label="Em Gestação?"
+                  valuePropName="checked" // Para Switch
+                >
+                  <Switch />
+                </Form.Item>
+
+                <Form.Item
+                  name="lactacao" // Este é o campo para "Número de Filhotes"
+                  label="Número de Filhotes (Lactação)"
+                >
+                  <InputNumber min={0} style={{ width: "100%" }} />
+                </Form.Item>
+              </>
+            )}
+
+            {isFemea && isGestando && (
+              <Form.Item name="semanaGestacao" label="Semanas de Gestação">
+                <InputNumber
+                  min={1}
+                  max={45}
+                  style={{ width: "100%" }}
+                  placeholder="Nº de semanas"
+                />
               </Form.Item>
             )}
-            
-            {lactacaoSelecionada > 0 && (
-              <Form.Item name="semanaLactacao" label="Semana de Lactação">
-                <InputNumber min={1} style={{ width: "100%" }} />
-              </Form.Item>
-            )}
+
+            {isFemea &&
+              isLactando && ( // isLactando é true se numFilhotes > 0
+                <Form.Item name="semanaLactacao" label="Semanas de Lactação">
+                  <InputNumber
+                    min={1}
+                    max={20}
+                    style={{ width: "100%" }}
+                    placeholder="Nº de semanas"
+                  />
+                </Form.Item>
+              )}
           </>
         )}
-        
+
         {/* <Button onClick={() => {
           console.log(form.getFieldsValue());
         }}>
           Ver campos do formulário
         </Button> */}
-        <div className="flex gap-4">
+        <div className="flex gap-4 mt-6">
           <Button
-            onClick={() => setModalVisivel(false)}
-            className="w-1/2 mt-2"
-            style={{ backgroundColor: "#d9d9d9", color: "#000" }}
+            onClick={() => {
+              form.resetFields();
+              if (entidade === "animaisDaClinica") {
+                setSexoAnimal(form.getFieldValue("sexo"));
+                setEmGestacao(false);
+                setNumFilhotes(0);
+                setEspecieSelecionada(form.getFieldValue("especie"));
+              }
+              if (entidade === "usuariosDoSistema") {
+                setPerfisSelecionados([]);
+              }
+              setModalVisivel(false);
+            }}
+            className="w-1/2"
           >
             Cancelar
           </Button>
-
           <Button
             type="primary"
+            htmlType="submit" // Mudado para htmlType="submit" para acionar onFinish do Form
             icon={<PlusOutlined />}
             loading={loading}
-            className="w-1/2 mt-2 bg-[var(--verde-medio)] hover:bg-[var(--verde-realce)] text-white"
-            onClick={() => form.submit()}
+            className="w-1/2 bg-[var(--verde-medio)] hover:bg-[var(--verde-relce)] text-white"
+            // Removido onClick={() => form.submit()} pois htmlType="submit" já faz isso
           >
             Cadastrar
           </Button>

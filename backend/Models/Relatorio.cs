@@ -12,8 +12,8 @@ namespace backend.Models {
         public AcompanhamentoInd? AcompanhamentoInd { get; set; }
         public int Idade { get; set; }
         public float Peso { get; set; }
-        public int CondicaoCorporal { get; set; }
-        public int GrauAtividade { get; set; } // 0-inativo, 1-moderado, 2-ativo
+        public CondicaoCorporal CondicaoCorporal { get; set; }
+        public GrauAtividade GrauAtividade { get; set; } // 0-inativo, 1-moderado, 2-ativo
         public string? Racao { get; set; }
         public string? DescDieta { get; set; }
     }

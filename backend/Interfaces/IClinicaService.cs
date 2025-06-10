@@ -10,5 +10,6 @@ namespace backend.Interfaces
         // public Task<bool> AnimalExisteNaClinicaAsync(string cpf, int clinicaId); // passaporte ou algum outro id unico
         public Task<List<TutorClinica>> ObterVinculosTutoresDaClinicaAsync(int clinicaId);
         public Task<List<AnimalClinica>> ObterVinculosAnimaisDaClinicaAsync(int clinicaId);
+        public Task<List<AnimalClinica>> ObterVinculosAnimaisDaClinicaComTutoresAsync(int clinicaId);
     }
 }

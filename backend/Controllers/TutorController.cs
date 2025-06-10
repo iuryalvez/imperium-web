@@ -299,7 +299,7 @@ namespace backend.Controllers
                     .Include(ac => ac.Animal!)
                         .ThenInclude(a => a.TutoresAnimais!)
                         .ThenInclude(ta => ta.Tutor)
-                    .Where(ac => ac.ClinicaId == clinicaId && 
+                    .Where(ac => ac.ClinicaId == clinicaId &&
                                 ac.Animal!.TutoresAnimais!.Any(ta => ta.TutorId == tutorId))
                     .ToListAsync();
 
@@ -348,5 +348,88 @@ namespace backend.Controllers
                 return StatusCode(500, "Erro interno no servidor.");
             }
         }
+        
+        // [HttpDelete("tutores/{tutorId}")]
+        // [Authorize(Policy = "GerenciaTutores")]
+        // public async Task<IActionResult> DeleteTutor(int tutorId) // Pode ser renomeado para UnlinkTutorFromClinic se preferir
+        // {
+        //     var clinicaId = User.GetClaimValue<int>("clinicaId");
+        //     if (clinicaId <= 0)
+        //     {
+        //         _logger.LogWarning("Claim clinicaId inválida ou ausente ao tentar desvincular tutor {TutorId}.", tutorId);
+        //         return BadRequest("Acesso não permitido. ID da clínica inválido ou ausente.");
+        //     }
+
+        //     await using var transaction = await _context.Database.BeginTransactionAsync();
+
+        //     try
+        //     {
+        //         _logger.LogInformation("Iniciando desvinculação do tutor {TutorId} da clínica {ClinicaId}", tutorId, clinicaId);
+
+        //         // 1. Encontrar e remover o vínculo TutorClinica
+        //         var tutorClinica = await _context.TutoresClinicas
+        //             .FirstOrDefaultAsync(tc => tc.TutorId == tutorId && tc.ClinicaId == clinicaId);
+
+        //         if (tutorClinica == null)
+        //         {
+        //             // Não é necessário RollbackAsync aqui, pois nenhuma alteração foi feita ainda.
+        //             _logger.LogWarning("Tutor {TutorId} não encontrado ou não associado à clínica {ClinicaId} para desvinculação.", tutorId, clinicaId);
+        //             return NotFound("Tutor não encontrado nesta clínica.");
+        //         }
+
+        //         _context.TutoresClinicas.Remove(tutorClinica);
+        //         _logger.LogInformation("Vínculo TutorClinica removido para Tutor ID {TutorId} e Clínica ID {ClinicaId}", tutorId, clinicaId);
+
+        //         // 2. Identificar animais que estão NESTA clínica
+        //         var idsAnimaisNestaClinica = await _context.AnimaisClinicas
+        //             .Where(ac => ac.ClinicaId == clinicaId)
+        //             .Select(ac => ac.AnimalId)
+        //             .Distinct()
+        //             .ToListAsync();
+
+        //         if (idsAnimaisNestaClinica.Any())
+        //         {
+        //             // 3. Remover os vínculos TutorAnimal entre o tutor que está sendo desvinculado e os animais desta clínica
+        //             var vinculosTutorAnimalParaRemover = await _context.TutoresAnimais
+        //                 .Where(ta => ta.TutorId == tutorId && idsAnimaisNestaClinica.Contains(ta.AnimalId))
+        //                 .ToListAsync();
+
+        //             if (vinculosTutorAnimalParaRemover.Any())
+        //             {
+        //                 _context.TutoresAnimais.RemoveRange(vinculosTutorAnimalParaRemover);
+        //                 _logger.LogInformation("{Count} vínculos TutorAnimal removidos para Tutor ID {TutorId} com animais da Clínica ID {ClinicaId}", vinculosTutorAnimalParaRemover.Count, tutorId, clinicaId);
+        //             }
+        //             else
+        //             {
+        //                 _logger.LogInformation("Nenhum vínculo TutorAnimal encontrado para Tutor ID {TutorId} com animais da Clínica ID {ClinicaId}", tutorId, clinicaId);
+        //             }
+        //         }
+        //         else
+        //         {
+        //             _logger.LogInformation("Nenhum animal encontrado na Clínica ID {ClinicaId}. Nenhum vínculo TutorAnimal para verificar para o Tutor ID {TutorId}.", clinicaId, tutorId);
+        //         }
+
+        //         // A remoção física do Tutor da tabela Tutores FOI REMOVIDA, conforme solicitado.
+        //         // O tutor permanecerá no sistema mesmo sem vínculos com clínicas.
+
+        //         await _context.SaveChangesAsync();
+        //         await transaction.CommitAsync();
+
+        //         _logger.LogInformation("Desvinculação do tutor {TutorId} da clínica {ClinicaId} concluída com sucesso.", tutorId, clinicaId);
+        //         return NoContent(); // HTTP 204 No Content é apropriado para um DELETE bem-sucedido sem corpo de resposta.
+        //     }
+        //     catch (DbUpdateException dbEx)
+        //     {
+        //         await transaction.RollbackAsync();
+        //         _logger.LogError(dbEx, "Erro de banco de dados ao desvincular tutor {TutorId} da clínica {ClinicaId}", tutorId, clinicaId);
+        //         return StatusCode(500, "Erro de banco de dados ao processar a solicitação do tutor.");
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         await transaction.RollbackAsync();
+        //         _logger.LogError(ex, "Erro inesperado ao desvincular tutor {TutorId} da clínica {ClinicaId}", tutorId, clinicaId);
+        //         return StatusCode(500, "Erro interno no servidor ao processar a solicitação do tutor.");
+        //     }
+        // }
     }
 }

@@ -47,4 +47,15 @@ public class ClinicaService : IClinicaService
             .Where(ac => ac.ClinicaId == clinicaId)
             .ToListAsync();
     }
+
+    public async Task<List<AnimalClinica>> ObterVinculosAnimaisDaClinicaComTutoresAsync(int clinicaId)
+    {
+        return await _context.AnimaisClinicas
+            .AsNoTracking() // Use AsNoTracking para consultas de leitura, melhora o desempenho
+            .Include(ac => ac.Animal!)
+                .ThenInclude(a => a.TutoresAnimais!) // Inclui a coleção de vínculos TutorAnimal
+                    .ThenInclude(ta => ta.Tutor)   // Para cada TutorAnimal, inclui o Tutor
+            .Where(ac => ac.ClinicaId == clinicaId && ac.Animal != null) // Garante que o animal existe
+            .ToListAsync();
+    }
 }

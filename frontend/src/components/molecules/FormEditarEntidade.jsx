@@ -1,37 +1,273 @@
 import React, { useState, useEffect } from "react";
-import { Input, Select, DatePicker, Checkbox, Button, Form, message, Typography, Switch } from "antd";
+import {
+  Input,
+  Select,
+  DatePicker,
+  Checkbox,
+  Button,
+  Form,
+  message,
+  Typography,
+  Switch,
+  InputNumber,
+} from "antd";
 import { SaveOutlined } from "@ant-design/icons";
 import { clinicasAPI } from "../../api/sistema/clinicasAPI";
 import { IMaskInput } from "react-imask";
+import dayjs from "dayjs";
+
+// Listas de raças de cães e gatos
+const dogBreeds = [
+  "Sem Raça Definida - SRD",
+  "Affenpinscher",
+  "Afghan Hound",
+  "Airedale Terrier",
+  "Akita",
+  "Alaskan Malamute",
+  "American Bulldog",
+  "American Pit Bull Terrier",
+  "American Staffordshire Terrier",
+  "Anatolian Shepherd Dog",
+  "Australian Cattle Dog",
+  "Australian Shepherd",
+  "Australian Terrier",
+  "Basenji",
+  "Basset Hound",
+  "Beagle",
+  "Bearded Collie",
+  "Bedlington Terrier",
+  "Belgian Malinois",
+  "Belgian Sheepdog",
+  "Belgian Tervuren",
+  "Bernese Mountain Dog",
+  "Bichon Frise",
+  "Black and Tan Coonhound",
+  "Bloodhound",
+  "Border Collie",
+  "Border Terrier",
+  "Borzoi",
+  "Boston Terrier",
+  "Bouvier des Flandres",
+  "Boxer",
+  "Boykin Spaniel",
+  "Briard",
+  "Brittany",
+  "Brussels Griffon",
+  "Bull Terrier",
+  "Bulldog",
+  "Bullmastiff",
+  "Cairn Terrier",
+  "Canaan Dog",
+  "Cane Corso",
+  "Cardigan Welsh Corgi",
+  "Cavalier King Charles Spaniel",
+  "Chesapeake Bay Retriever",
+  "Chihuahua",
+  "Chinese Crested",
+  "Chinese Shar-Pei",
+  "Chow Chow",
+  "Clumber Spaniel",
+  "Cocker Spaniel",
+  "Collie",
+  "Coonhound",
+  "Coton de Tulear",
+  "Curly-Coated Retriever",
+  "Dachshund",
+  "Dalmatian",
+  "Dandie Dinmont Terrier",
+  "Doberman Pinscher",
+  "Dogue de Bordeaux",
+  "English Bulldog",
+  "English Cocker Spaniel",
+  "English Foxhound",
+  "English Setter",
+  "English Springer Spaniel",
+  "English Toy Spaniel",
+  "Eskimo Dog",
+  "Finnish Spitz",
+  "Flat-Coated Retriever",
+  "French Bulldog",
+  "German Pinscher",
+  "German Shepherd Dog",
+  "German Shorthaired Pointer",
+  "German Wirehaired Pointer",
+  "Giant Schnauzer",
+  "Glen of Imaal Terrier",
+  "Golden Retriever",
+  "Gordon Setter",
+  "Great Dane",
+  "Great Pyrenees",
+  "Greater Swiss Mountain Dog",
+  "Greyhound",
+  "Harrier",
+  "Havanese",
+  "Ibizan Hound",
+  "Icelandic Sheepdog",
+  "Irish Setter",
+  "Irish Terrier",
+  "Irish Water Spaniel",
+  "Irish Wolfhound",
+  "Italian Greyhound",
+  "Jack Russell Terrier",
+  "Japanese Chin",
+  "Japanese Spitz",
+  "Keeshond",
+  "Kerry Blue Terrier",
+  "Komondor",
+  "Kuvasz",
+  "Labrador Retriever",
+  "Lakeland Terrier",
+  "Lhasa Apso",
+  "Lowchen",
+  "Maltese",
+  "Manchester Terrier",
+  "Mastiff",
+  "Miniature Bull Terrier",
+  "Miniature Pinscher",
+  "Miniature Schnauzer",
+  "Neapolitan Mastiff",
+  "Newfoundland",
+  "Norfolk Terrier",
+  "Norwegian Elkhound",
+  "Norwich Terrier",
+  "Nova Scotia Duck Tolling Retriever",
+  "Old English Sheepdog",
+  "Otterhound",
+  "Papillon",
+  "Pekingese",
+  "Pembroke Welsh Corgi",
+  "Petit Basset Griffon Vendeen",
+  "Pharaoh Hound",
+  "Plott",
+  "Pointer",
+  "Polish Lowland Sheepdog",
+  "Pomeranian",
+  "Poodle",
+  "Portuguese Water Dog",
+  "Pug",
+  "Puli",
+  "Pumi",
+  "Rat Terrier",
+  "Redbone Coonhound",
+  "Rhodesian Ridgeback",
+  "Rottweiler",
+  "Saint Bernard",
+  "Saluki",
+  "Samoyed",
+  "Schipperke",
+  "Scottish Deerhound",
+  "Scottish Terrier",
+  "Sealyham Terrier",
+  "Shetland Sheepdog",
+  "Shiba Inu",
+  "Shih Tzu",
+  "Siberian Husky",
+  "Silky Terrier",
+  "Skye Terrier",
+  "Sloughi",
+  "Smooth Fox Terrier",
+  "Soft Coated Wheaten Terrier",
+  "Spanish Water Dog",
+  "Spinone Italiano",
+  "Staffordshire Bull Terrier",
+  "Standard Schnauzer",
+  "Sussex Spaniel",
+  "Swedish Vallhund",
+  "Tibetan Mastiff",
+  "Tibetan Spaniel",
+  "Tibetan Terrier",
+  "Toy Fox Terrier",
+  "Treeing Walker Coonhound",
+  "Vizsla",
+  "Weimaraner",
+  "Welsh Springer Spaniel",
+  "Welsh Terrier",
+  "West Highland White Terrier",
+  "Whippet",
+  "Wire Fox Terrier",
+  "Wirehaired Pointing Griffon",
+  "Yorkshire Terrier",
+];
+
+const catBreeds = [
+  "Sem Raça Definida - SRD",
+  "Abyssinian",
+  "American Bobtail",
+  "American Curl",
+  "American Shorthair",
+  "American Wirehair",
+  "Balinese",
+  "Bengal",
+  "Birman",
+  "Bombay",
+  "British Shorthair",
+  "Burmese",
+  "Burmilla",
+  "Chartreux",
+  "Cornish Rex",
+  "Devon Rex",
+  "Egyptian Mau",
+  "European Burmese",
+  "Exotic",
+  "Havana Brown",
+  "Himalayan",
+  "Japanese Bobtail",
+  "Khao Manee",
+  "Korat",
+  "LaPerm",
+  "Lykoi",
+  "Maine Coon",
+  "Manx",
+  "Norwegian Forest Cat",
+  "Ocicat",
+  "Oriental",
+  "Persian",
+  "Ragamuffin",
+  "Ragdoll",
+  "Russian Blue",
+  "Savannah",
+  "Scottish Fold",
+  "Selkirk Rex",
+  "Siamese",
+  "Siberian",
+  "Singapura",
+  "Snowshoe",
+  "Somali",
+  "Sphynx",
+  "Tonkinese",
+  "Toyger",
+  "Turkish Angora",
+  "Turkish Van",
+];
 
 const estadosBrasil = [
-  { value: 'AC', label: 'Acre' },
-  { value: 'AL', label: 'Alagoas' },
-  { value: 'AP', label: 'Amapá' },
-  { value: 'AM', label: 'Amazonas' },
-  { value: 'BA', label: 'Bahia' },
-  { value: 'CE', label: 'Ceará' },
-  { value: 'DF', label: 'Distrito Federal' },
-  { value: 'ES', label: 'Espírito Santo' },
-  { value: 'GO', label: 'Goiás' },
-  { value: 'MA', label: 'Maranhão' },
-  { value: 'MT', label: 'Mato Grosso' },
-  { value: 'MS', label: 'Mato Grosso do Sul' },
-  { value: 'MG', label: 'Minas Gerais' },
-  { value: 'PA', label: 'Pará' },
-  { value: 'PB', label: 'Paraíba' },
-  { value: 'PR', label: 'Paraná' },
-  { value: 'PE', label: 'Pernambuco' },
-  { value: 'PI', label: 'Piauí' },
-  { value: 'RJ', label: 'Rio de Janeiro' },
-  { value: 'RN', label: 'Rio Grande do Norte' },
-  { value: 'RS', label: 'Rio Grande do Sul' },
-  { value: 'RO', label: 'Rondônia' },
-  { value: 'RR', label: 'Roraima' },
-  { value: 'SC', label: 'Santa Catarina' },
-  { value: 'SP', label: 'São Paulo' },
-  { value: 'SE', label: 'Sergipe' },
-  { value: 'TO', label: 'Tocantins' }
+  { value: "AC", label: "Acre" },
+  { value: "AL", label: "Alagoas" },
+  { value: "AP", label: "Amapá" },
+  { value: "AM", label: "Amazonas" },
+  { value: "BA", label: "Bahia" },
+  { value: "CE", label: "Ceará" },
+  { value: "DF", label: "Distrito Federal" },
+  { value: "ES", label: "Espírito Santo" },
+  { value: "GO", label: "Goiás" },
+  { value: "MA", label: "Maranhão" },
+  { value: "MT", label: "Mato Grosso" },
+  { value: "MS", label: "Mato Grosso do Sul" },
+  { value: "MG", label: "Minas Gerais" },
+  { value: "PA", label: "Pará" },
+  { value: "PB", label: "Paraíba" },
+  { value: "PR", label: "Paraná" },
+  { value: "PE", label: "Pernambuco" },
+  { value: "PI", label: "Piauí" },
+  { value: "RJ", label: "Rio de Janeiro" },
+  { value: "RN", label: "Rio Grande do Norte" },
+  { value: "RS", label: "Rio Grande do Sul" },
+  { value: "RO", label: "Rondônia" },
+  { value: "RR", label: "Roraima" },
+  { value: "SC", label: "Santa Catarina" },
+  { value: "SP", label: "São Paulo" },
+  { value: "SE", label: "Sergipe" },
+  { value: "TO", label: "Tocantins" },
 ];
 
 const perfisSistema = [
@@ -60,17 +296,38 @@ const FormEditarEntidade = ({
   valoresIniciais,
   tituloModal,
 }) => {
-  const campos = camposSimplesEditar[entidade] || [];
+  const campos = camposSimplesEditar || [];
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [perfisSelecionados, setPerfisSelecionados] = useState(valoresIniciais?.perfis || []);
+
+  // usuarios e usuariosDaClinica
+  const [perfisSelecionados, setPerfisSelecionados] = useState(
+    valoresIniciais?.perfis || []
+  );
+
+  // Estados para controlar a lógica do formulário de animais
+  const [especieSelecionada, setEspecieSelecionada] = useState(
+    valoresIniciais?.especie
+  );
+  const [sexoAnimal, setSexoAnimal] = useState(valoresIniciais?.sexo);
+  const [emGestacao, setEmGestacao] = useState(valoresIniciais?.gestacao || false);
+  const [numFilhotes, setNumFilhotes] = useState(
+    valoresIniciais?.lactacao || 0
+  );
+
+  const isFemea = sexoAnimal === 2; // Supondo que 2 é 'Fêmea'
+  const isGestando = emGestacao;
+  const isLactando = numFilhotes > 0;
+
+  // clinicas
   const [clinicas, setClinicas] = useState([]);
 
   // useEffect executa sempre que ["changed"] muda, nesse caso, a entidade
   useEffect(() => {
-    if (entidade === "usuariosDoSistema") { 
+    if (entidade === "usuariosDoSistema") {
       // carrega a lista de clínicas para funcionar a atualização de perfis no backend
-      clinicasAPI.listar()
+      clinicasAPI
+        .listar()
         .then((data) => {
           console.log("Clínicas carregadas da api:", data); // debug
           // formata os dados da clínica no formato esperado pelo Select (label e value) e conseguir captar no backend
@@ -82,16 +339,49 @@ const FormEditarEntidade = ({
           console.log("Clínicas formatadas para o Select:", clinicasFormatadas); // debug
         })
         .catch((err) => console.error("Erro ao carregar clínicas:", err));
-    } 
+    }
   }, [entidade]); // dependência: executa novamente se `entidade` mudar como dito anteriormente
 
   // useEffect executa sempre que ["changed"] muda, nesse caso, os valores iniciais e o form
+  // useEffect(() => {
+  //   if (valoresIniciais) {
+  //     console.log("Valores iniciais recebidos:", valoresIniciais);
+
+  //     // ✅ CONVERSÃO DA DATA ACONTECE AQUI
+  //     const valoresFormatados = {
+  //       ...valoresIniciais,
+  //       // Se 'nascimento' existir, converte a string para um objeto dayjs
+  //       nascimento: valoresIniciais.nascimento
+  //         ? dayjs(valoresIniciais.nascimento)
+  //         : null,
+  //       // Faça o mesmo para qualquer outro campo de data que você tenha
+  //     };
+
+  //     form.setFieldsValue(valoresFormatados); // Popula o formulário com os valores já corrigidos
+  //   }
+  // }, [valoresIniciais, form]);
+
+  // Carrega e formata os dados iniciais quando o componente recebe os valores
   useEffect(() => {
     if (valoresIniciais) {
-      console.log("Valores iniciais recebidos:", valoresIniciais);
-      form.setFieldsValue(valoresIniciais); // popula o formulário com dados já existentes
+      // Converte a string de data para um objeto dayjs que o DatePicker entende
+      const valoresFormatados = {
+        ...valoresIniciais,
+        nascimento: valoresIniciais.nascimento
+          ? dayjs(valoresIniciais.nascimento)
+          : null,
+      };
+      form.setFieldsValue(valoresFormatados);
+
+      // <-- MUDANÇA AQUI: Sincroniza os estados locais com os dados carregados
+      if (entidade === "animaisDaClinica") {
+        setEspecieSelecionada(valoresIniciais.especie);
+        setSexoAnimal(valoresIniciais.sexo);
+        setEmGestacao(valoresIniciais.gestacao || false);
+        setNumFilhotes(valoresIniciais.lactacao || 0);
+      }
     }
-  }, [valoresIniciais, form]); // dependências: executa novamente como dito anteriormente
+  }, [valoresIniciais, form, entidade]);
 
   const sanitize = (value) => value?.replace(/\D/g, ""); // remove tudo que não for dígito
 
@@ -99,51 +389,159 @@ const FormEditarEntidade = ({
   const handleFinish = async (values) => {
     try {
       setLoading(true);
+      let processedValues = { ...values };
       console.log(valoresIniciais); // ativa o loading (útil para botões/spinners)
-      
-      // TODO: ajustar para corrigir quando usuário é administrador e quando não é, aqui está só para os comuns
-      // e pode ser feito a mesma coisa no cadastro / visualização ! 
-      if (entidade === "usuariosDoSistema" || "usuariosDaClinica") {
-        // Verifica se o array de perfis contém "INATIVO"
-        const contemInativo = values.perfis?.includes("INATIVO") || false;
-        
-        // Atualiza o valor de IsInativo
-        values.isAtivo = !contemInativo;
+
+      if (
+        entidade === "usuariosDoSistema" ||
+        entidade === "usuariosDaClinica"
+      ) {
+        const isInativo = processedValues.perfis?.includes("INATIVO") || false;
+        processedValues.isAtivo = !isInativo;
       }
 
-      // if (entidade === "clinicas") {
-      //   values.cep = sanitize(values.cep);
-      //   values.cnpj = sanitize(values.cnpj);
-      //   values.telefone1 = sanitize(values.telefone1);
-      //   values.telefone2 = sanitize(values.telefone2);
-      //   values.whatsapp = sanitize(values.whatsapp);
-      // }
+      if (entidade === "clinicas") {
+        if (processedValues.cpf)
+          processedValues.cpf = sanitize(processedValues.cpf);
+        if (processedValues.cep)
+          processedValues.cep = sanitize(processedValues.cep);
+        if (processedValues.cnpj)
+          processedValues.cnpj = sanitize(processedValues.cnpj);
+        if (processedValues.telefone1)
+          processedValues.telefone1 = sanitize(processedValues.telefone1);
+        if (processedValues.telefone2)
+          processedValues.telefone2 = sanitize(processedValues.telefone2);
+        if (processedValues.whatsapp)
+          processedValues.whatsapp = sanitize(processedValues.whatsapp);
+      }
 
-      if (values.cpf) values.cpf = sanitize(values.cpf);
-      if (values.cep) values.cep = sanitize(values.cep);
-      if (values.cnpj) values.cnpj = sanitize(values.cnpj);
-      if (values.telefone1) values.telefone1 = sanitize(values.telefone1);
-      if (values.telefone2) values.telefone2 = sanitize(values.telefone2);
-      if (values.whatsapp) values.whatsapp = sanitize(values.whatsapp);
-      
+      // Para animais, garantir que valores condicionais sejam enviados corretamente
+      if (entidade === "animaisDaClinica") {
+        if (processedValues.sexo === 1) {
+          // Macho
+          processedValues.gestacao = false;
+          processedValues.semanaGestacao = 0;
+          processedValues.lactacao = 0;
+          processedValues.semanaLactacao = 0;
+        } else {
+          // Fêmea
+          if (!processedValues.gestacao) {
+            processedValues.semanaGestacao = 0;
+          }
+          if (!processedValues.lactacao || processedValues.lactacao === 0) {
+            processedValues.lactacao = 0; // Garante 0 se for null/undefined
+            processedValues.semanaLactacao = 0;
+          }
+        }
+      }
 
       console.log("Valores iniciais (antes da edição):", valoresIniciais); // debug
-      console.log("Valores submetidos no formulário (antes de ajuste):", values); // debug
-      
+      console.log(
+        "Valores submetidos no formulário (antes de ajuste):",
+        values
+      ); // debug
+
       const response = await onSubmit(values); // função de envio
-      
+
       // essa mensagem aparece mesmo com fracasso enquanto a outra que está no componente pai de fato funciona
-      // message.success(`${entidade} atualizado com sucesso.`); 
-      
+      // message.success(`${entidade} atualizado com sucesso.`);
+
+      // Resetar estados de controle após o sucesso
+      if (entidade === "animaisDaClinica") {
+        setSexoAnimal(form.getFieldValue("sexo")); // Ou valor padrão
+        setEmGestacao(false);
+        setNumFilhotes(0);
+      }
+      if (
+        entidade === "usuariosDoSistema" ||
+        entidade === "usuariosDaClinica"
+      ) {
+        setPerfisSelecionados([]);
+      }
+
       // se tiver função de callback após o sucesso, executa
       if (onSuccess) onSuccess(response);
       setModalEdicaoVisivel(false);
+      form.resetFields();
     } catch (error) {
       console.error(`Erro ao atualizar ${entidade}:`, error);
       message.error(`Falha ao atualizar ${entidade}.`);
     } finally {
       // com sucesso ou falha desativa o loading
       setLoading(false);
+    }
+  };
+
+  const handleValuesChange = (changedValues, allValues) => {
+    if (entidade === "animaisDaClinica") {
+      let formUpdates = {};
+      let stateNeedsUpdate = false;
+
+      if ("sexo" in changedValues) {
+        setSexoAnimal(changedValues.sexo);
+        stateNeedsUpdate = true;
+        if (changedValues.sexo !== 2) {
+          // Não é Fêmea (Macho ou indefinido)
+          setEmGestacao(false);
+          setNumFilhotes(0);
+          formUpdates = {
+            ...formUpdates,
+            gestacao: false,
+            semanaGestacao: undefined,
+            lactacao: 0,
+            semanaLactacao: undefined,
+          };
+        }
+      }
+      if ("gestacao" in changedValues) {
+        setEmGestacao(changedValues.gestacao);
+        stateNeedsUpdate = true;
+        if (!changedValues.gestacao) {
+          formUpdates.semanaGestacao = undefined;
+        }
+      }
+      if ("lactacao" in changedValues) {
+        // 'lactacao' é o campo para número de filhotes
+        setNumFilhotes(changedValues.lactacao || 0);
+        stateNeedsUpdate = true;
+        if (!changedValues.lactacao || changedValues.lactacao === 0) {
+          formUpdates.semanaLactacao = undefined;
+        }
+      }
+      if ("especie" in changedValues) {
+        setEspecieSelecionada(changedValues.especie);
+        stateNeedsUpdate = true;
+        formUpdates.raca = undefined;
+      }
+
+      if (Object.keys(formUpdates).length > 0) {
+        form.setFieldsValue(formUpdates);
+      }
+    }
+
+    if (entidade === "usuariosDoSistema" && "perfis" in changedValues) {
+      const currentPerfis = changedValues.perfis || [];
+      let newValues = [...currentPerfis];
+
+      if (currentPerfis.includes("ADMIN")) {
+        newValues = currentPerfis.filter(
+          (val) => val === "ADMIN" || val === "INATIVO"
+        );
+      } else if (
+        currentPerfis.some((val) =>
+          ["GESTOR", "TECNICO", "SECRETARIO", "VETERINARIO"].includes(val)
+        )
+      ) {
+        newValues = currentPerfis.filter((val) => val !== "ADMIN");
+      }
+      setPerfisSelecionados(newValues);
+      // Se os valores foram alterados pela lógica acima, atualize o formulário
+      if (
+        newValues.length !== currentPerfis.length ||
+        !newValues.every((val, index) => val === currentPerfis[index])
+      ) {
+        form.setFieldsValue({ perfis: newValues });
+      }
     }
   };
 
@@ -155,19 +553,26 @@ const FormEditarEntidade = ({
       case "password":
         return <Input.Password placeholder={campo.placeholder} />;
       case "select":
-        return (
-          <Select placeholder={campo.placeholder}>
-            {campo.options?.map((opt) => (
-              <Select.Option key={opt.value} value={opt.value}>
-                {opt.label}
-              </Select.Option>
-            ))}
-          </Select>
-        );
+        if (entidade === "animaisDaClinica" && campo.name === "raca") {
+          return (
+            <Select placeholder={campo.placeholder || "Selecione a raça"} allowClear disabled={!especieSelecionada}>
+              {especieSelecionada === 1 && dogBreeds.map((breed) => (<Select.Option key={breed} value={breed}>{breed}</Select.Option>))}
+              {especieSelecionada === 2 && catBreeds.map((breed) => (<Select.Option key={breed} value={breed}>{breed}</Select.Option>))}
+            </Select>
+          );
+        } else {
+          return (
+            <Select placeholder={campo.placeholder}>
+              {campo.options?.map((opt) => (<Select.Option key={opt.value} value={opt.value}>{opt.label}</Select.Option>))}
+            </Select>
+          );
+        }
       case "date":
         return <DatePicker style={{ width: "100%" }} />;
       case "boolean":
         return <Checkbox>{campo.placeholder}</Checkbox>;
+      case "number":
+        return <InputNumber style={{ width: "100%" }} />;
       default:
         return null;
     }
@@ -180,6 +585,7 @@ const FormEditarEntidade = ({
         form={form}
         layout="vertical"
         onFinish={handleFinish}
+        onChange={handleValuesChange}
         className="space-y-3"
       >
         <Typography.Title level={4}>
@@ -203,7 +609,7 @@ const FormEditarEntidade = ({
           hidden // esconde o campo
           initialValue={valoresIniciais.id} // valor do Id do DTO
         >
-        {/* <Input /> */}
+          {/* <Input /> */}
         </Form.Item>
 
         {entidade === "usuariosDoSistema" && (
@@ -212,22 +618,31 @@ const FormEditarEntidade = ({
               label="Perfis"
               name="perfis"
               rules={[
-                { required: true, message: "Pelo menos um perfil deve ser selecionado" },
+                {
+                  required: true,
+                  message: "Pelo menos um perfil deve ser selecionado",
+                },
               ]}
             >
               <Checkbox.Group
-                options={
-                  perfisSistema
-                    .filter((perfil) =>
-                      valoresIniciais.isAdmin
-                        ? ["ADMIN", "INATIVO"].includes(perfil.value)
-                        : ["GESTOR", "TECNICO", "SECRETARIO", "VETERINARIO", "INATIVO"].includes(perfil.value)
-                    )
-                    .map((perfil) => ({
-                      ...perfil,
-                      ...(valoresIniciais.isAdmin && perfil.value === "ADMIN" ? { disabled: true } : {})
-                    }))
-                }
+                options={perfisSistema
+                  .filter((perfil) =>
+                    valoresIniciais.isAdmin
+                      ? ["ADMIN", "INATIVO"].includes(perfil.value)
+                      : [
+                          "GESTOR",
+                          "TECNICO",
+                          "SECRETARIO",
+                          "VETERINARIO",
+                          "INATIVO",
+                        ].includes(perfil.value)
+                  )
+                  .map((perfil) => ({
+                    ...perfil,
+                    ...(valoresIniciais.isAdmin && perfil.value === "ADMIN"
+                      ? { disabled: true }
+                      : {}),
+                  }))}
                 style={{ display: "flex", flexDirection: "column", gap: 8 }}
                 value={
                   valoresIniciais.isAdmin
@@ -238,7 +653,7 @@ const FormEditarEntidade = ({
                   let newValues = valoresIniciais.isAdmin
                     ? Array.from(new Set([...values, "ADMIN"])) // Mantém ADMINISTRADOR selecionado
                     : values;
-                  
+
                   setPerfisSelecionados(newValues);
                   form.setFieldValue("perfis", newValues);
                 }}
@@ -249,8 +664,7 @@ const FormEditarEntidade = ({
               label="isAdmin"
               hidden // Esta propriedade esconde o campo
               initialValue={valoresIniciais.isAdmin} // Valor inicial do DTO
-            >
-            </Form.Item>
+            ></Form.Item>
             <Form.Item
               name="upcId"
               label="upcId"
@@ -260,8 +674,16 @@ const FormEditarEntidade = ({
               {/* <Input /> */}
             </Form.Item>
             <Form.Item label="Clínica">
-              <div style={{ padding: "4px 11px", backgroundColor: "#f5f5f5", borderRadius: 4 }}>
-                {clinicas.find(c => c.value === form.getFieldValue("clinicaId"))?.label || "Clínica não encontrada"}
+              <div
+                style={{
+                  padding: "4px 11px",
+                  backgroundColor: "#f5f5f5",
+                  borderRadius: 4,
+                }}
+              >
+                {clinicas.find(
+                  (c) => c.value === form.getFieldValue("clinicaId")
+                )?.label || "Clínica não encontrada"}
               </div>
             </Form.Item>
           </>
@@ -273,7 +695,10 @@ const FormEditarEntidade = ({
               label="Perfis"
               name="perfis"
               rules={[
-                { required: true, message: "Pelo menos um perfil deve ser selecionado" },
+                {
+                  required: true,
+                  message: "Pelo menos um perfil deve ser selecionado",
+                },
               ]}
             >
               <Checkbox.Group
@@ -294,15 +719,13 @@ const FormEditarEntidade = ({
               label="clinicaId"
               hidden // Esta propriedade esconde o campo
               initialValue={valoresIniciais.clinicaId} // Valor inicial do DTO
-            >
-            </Form.Item>
+            ></Form.Item>
             <Form.Item
               name="upcId"
               label="upcId"
               hidden // Esta propriedade esconde o campo
               initialValue={valoresIniciais.upcId} // Valor inicial do DTO
-            >
-            </Form.Item>
+            ></Form.Item>
           </>
         )}
 
@@ -312,74 +735,70 @@ const FormEditarEntidade = ({
             <Form.Item
               label="CNPJ"
               name="cnpj"
-              rules={[
-                // { required: true, message: "CNPJ é obrigatório" },
-                // {
-                //   validator: (_, value) =>
-                //     value && value.replace(/\D/g, '').length === 14
-                //       ? Promise.resolve()
-                //       : Promise.reject(new Error('CNPJ inválido'))
-                // }
-              ]}
+              rules={
+                [
+                  // { required: true, message: "CNPJ é obrigatório" },
+                  // {
+                  //   validator: (_, value) =>
+                  //     value && value.replace(/\D/g, '').length === 14
+                  //       ? Promise.resolve()
+                  //       : Promise.reject(new Error('CNPJ inválido'))
+                  // }
+                ]
+              }
             >
               <IMaskInput
                 mask="00.000.000/0000-00"
-                definitions={{ '0': /[0-9]/ }}
+                definitions={{ 0: /[0-9]/ }}
                 overwrite
                 unmask={false}
                 placeholder="00.000.000/0000-00"
                 style={{
-                  width: '100%',
-                  padding: '4px 11px',
-                  border: '1px solid #d9d9d9',
-                  borderRadius: '6px',
-                  transition: 'all 0.3s',
+                  width: "100%",
+                  padding: "4px 11px",
+                  border: "1px solid #d9d9d9",
+                  borderRadius: "6px",
+                  transition: "all 0.3s",
                 }}
-                disabled={form.getFieldValue('IsAtiva') === false}
+                disabled={form.getFieldValue("IsAtiva") === false}
               />
             </Form.Item>
 
             {/* Campo Telefone com máscara dinâmica */}
-            <Form.Item
-              label="Telefone"
-              name="telefone1"
-            >
+            <Form.Item label="Telefone" name="telefone1">
               <IMaskInput
                 mask="(00) 90000-0000"
-                definitions={{ '0': /[0-9]/ }}
+                definitions={{ 0: /[0-9]/ }}
                 overwrite
                 unmask={false}
                 placeholder="(00) 90000-0000"
                 style={{
-                  width: '100%',
-                  padding: '4px 11px',
-                  border: '1px solid #d9d9d9',
-                  borderRadius: '6px',
-                  transition: 'all 0.3s',
+                  width: "100%",
+                  padding: "4px 11px",
+                  border: "1px solid #d9d9d9",
+                  borderRadius: "6px",
+                  transition: "all 0.3s",
                 }}
-                disabled={form.getFieldValue('isAtiva') === false}
+                disabled={form.getFieldValue("isAtiva") === false}
               />
             </Form.Item>
 
             {/* Campo WhatsApp com máscara */}
-            <Form.Item
-              label="WhatsApp"
-              name="whatsapp"
-            >
+            <Form.Item label="WhatsApp" name="whatsapp">
               <IMaskInput
                 mask="(00) 90000-0000"
-                definitions={{ '0': /[0-9]/ }}
+                definitions={{ 0: /[0-9]/ }}
                 overwrite
                 unmask={false}
                 placeholder="(00) 90000-0000"
                 style={{
-                  width: '100%',
-                  padding: '4px 11px',
-                  border: '1px solid #d9d9d9',
-                  borderRadius: '6px',
-                  transition: 'all 0.3s',
+                  width: "100%",
+                  padding: "4px 11px",
+                  border: "1px solid #d9d9d9",
+                  borderRadius: "6px",
+                  transition: "all 0.3s",
                 }}
-                disabled={form.getFieldValue('isAtiva') === false}
+                disabled={form.getFieldValue("isAtiva") === false}
               />
             </Form.Item>
 
@@ -387,30 +806,32 @@ const FormEditarEntidade = ({
             <Form.Item
               label="CEP"
               name="cep"
-              rules={[
-                // { required: true, message: "CEP é obrigatório" },
-                // {
-                //   validator: (_, value) =>
-                //     value && value.replace(/\D/g, '').length === 8
-                //       ? Promise.resolve()
-                //       : Promise.reject(new Error('CEP inválido'))
-                // }
-              ]}
+              rules={
+                [
+                  // { required: true, message: "CEP é obrigatório" },
+                  // {
+                  //   validator: (_, value) =>
+                  //     value && value.replace(/\D/g, '').length === 8
+                  //       ? Promise.resolve()
+                  //       : Promise.reject(new Error('CEP inválido'))
+                  // }
+                ]
+              }
             >
               <IMaskInput
                 mask="00000-000"
-                definitions={{ '0': /[0-9]/ }}
+                definitions={{ 0: /[0-9]/ }}
                 overwrite
                 unmask={false}
                 placeholder="00000-000"
                 style={{
-                  width: '100%',
-                  padding: '4px 11px',
-                  border: '1px solid #d9d9d9',
-                  borderRadius: '6px',
-                  transition: 'all 0.3s',
+                  width: "100%",
+                  padding: "4px 11px",
+                  border: "1px solid #d9d9d9",
+                  borderRadius: "6px",
+                  transition: "all 0.3s",
                 }}
-                disabled={form.getFieldValue('isAtiva') === false}
+                disabled={form.getFieldValue("isAtiva") === false}
               />
             </Form.Item>
 
@@ -423,7 +844,7 @@ const FormEditarEntidade = ({
               <Select
                 options={estadosBrasil}
                 placeholder="Selecione o estado"
-                disabled={form.getFieldValue('isAtiva') === false}
+                disabled={form.getFieldValue("isAtiva") === false}
               />
             </Form.Item>
 
@@ -440,10 +861,10 @@ const FormEditarEntidade = ({
                 onChange={(checked) => {
                   // Desabilita campos quando clínica está inativa
                   form.setFieldsValue({
-                    cnpj: checked ? form.getFieldValue('cnpj') : '',
-                    telefone1: checked ? form.getFieldValue('telefone1') : '',
-                    whatsapp: checked ? form.getFieldValue('whatsapp') : '',
-                    cep: checked ? form.getFieldValue('cep') : ''
+                    cnpj: checked ? form.getFieldValue("cnpj") : "",
+                    telefone1: checked ? form.getFieldValue("telefone1") : "",
+                    whatsapp: checked ? form.getFieldValue("whatsapp") : "",
+                    cep: checked ? form.getFieldValue("cep") : "",
                   });
                 }}
               />
@@ -457,37 +878,34 @@ const FormEditarEntidade = ({
             <Form.Item label="CPF" name="cpf">
               <IMaskInput
                 mask="000.000.000-00"
-                definitions={{ '0': /[0-9]/ }}
+                definitions={{ 0: /[0-9]/ }}
                 overwrite
                 unmask={false}
                 placeholder="000.000.000-00"
                 style={{
-                  width: '100%',
-                  padding: '4px 11px',
-                  border: '1px solid #d9d9d9',
-                  borderRadius: '6px',
-                  transition: 'all 0.3s',
+                  width: "100%",
+                  padding: "4px 11px",
+                  border: "1px solid #d9d9d9",
+                  borderRadius: "6px",
+                  transition: "all 0.3s",
                 }}
               />
             </Form.Item>
 
             {/* Campo Telefone com máscara dinâmica */}
-            <Form.Item
-              label="Telefone/Whatsapp"
-              name="telefone1"
-            >
+            <Form.Item label="Telefone/Whatsapp" name="telefone1">
               <IMaskInput
                 mask="(00) 90000-0000"
-                definitions={{ '0': /[0-9]/ }}
+                definitions={{ 0: /[0-9]/ }}
                 overwrite
                 unmask={false}
                 placeholder="(00) 90000-0000"
                 style={{
-                  width: '100%',
-                  padding: '4px 11px',
-                  border: '1px solid #d9d9d9',
-                  borderRadius: '6px',
-                  transition: 'all 0.3s',
+                  width: "100%",
+                  padding: "4px 11px",
+                  border: "1px solid #d9d9d9",
+                  borderRadius: "6px",
+                  transition: "all 0.3s",
                 }}
               />
             </Form.Item>
@@ -555,6 +973,68 @@ const FormEditarEntidade = ({
                 disabled={form.getFieldValue('isAtiva') === false}
               />
             </Form.Item> */}
+          </>
+        )}
+
+        {entidade === "animaisDaClinica" && (
+          <>
+            <Form.Item
+              name="id"
+              label="id"
+              hidden // Esta propriedade esconde o campo
+              initialValue={valoresIniciais.id} // Valor inicial do DTO
+            ></Form.Item>
+            {isFemea && (
+              <>
+                <Form.Item
+                  name="gestacao"
+                  label="Em Gestação?"
+                  valuePropName="checked" // Para Switch
+                  initialValue={valoresIniciais.gestacao}
+                >
+                  <Switch />
+                </Form.Item>
+
+                <Form.Item
+                  name="lactacao" // Este é o campo para "Número de Filhotes"
+                  label="Número de Filhotes (Lactação)"
+                  initialValue={valoresIniciais.lactacao}
+                >
+                  <InputNumber min={0} style={{ width: "100%" }} />
+                </Form.Item>
+              </>
+            )}
+
+            {isFemea && isGestando && (
+              <Form.Item
+                name="semanaGestacao"
+                label="Semanas de Gestação"
+                initialValue={valoresIniciais.semanaGestacao}
+              >
+                <InputNumber
+                  min={1}
+                  max={45}
+                  style={{ width: "100%" }}
+                  placeholder="Nº de semanas"
+                />
+              </Form.Item>
+            )}
+
+            {isFemea &&
+              isLactando && ( // isLactando é true se numFilhotes > 0
+                <Form.Item
+                  name="semanaLactacao"
+                  label="Semanas de Lactação"
+                  initialValue={valoresIniciais.semanaLactacao}
+                >
+                  <InputNumber
+                    min={1}
+                    max={20}
+                    style={{ width: "100%" }}
+                    placeholder="Nº de semanas"
+                  />
+                </Form.Item>
+              )}
           </>
         )}
 

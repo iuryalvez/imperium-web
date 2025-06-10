@@ -1,12 +1,10 @@
-import React from 'react';
-
 const BotaoPrimario = ({ texto, onClick, type = 'button' }) => {
   return (
     <div>
       <button
         type={type}
         onClick={onClick}
-        className="bg-verde-medio hover:bg-verde-realce text-white text-l font-bold py-3 rounded-2xl transition-all duration-300 min-w-full"
+        className="bg-[var(--verde-medio)] hover:bg-[var(--verde-realce)] text-white text-l font-bold py-3 rounded-2xl transition-all duration-300 min-w-full"
       >
         {texto}
       </button>
