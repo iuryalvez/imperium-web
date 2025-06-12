@@ -4,7 +4,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using backend.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using backend.Data;
+using backend.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol.Core.Types;
 using Microsoft.AspNetCore.Identity;

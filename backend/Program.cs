@@ -1,19 +1,17 @@
 using System.Text;
-using System.Security.Claims;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Microsoft.Extensions.Logging;
 
-using backend.Data;
+using backend.Infra.Data;
 using backend.Interfaces;
-using backend.Models;
 using backend.Services;
-using Microsoft.Build.Logging;
 using Microsoft.Extensions.Logging.Console;
+using backend.Domain.GestaoClinica.Interface;
+using backend.Domain.GestaoDeAcesso.Entities;
 
 
 internal class Program
@@ -29,7 +27,7 @@ internal class Program
         builder.Services.AddScoped<IEmailService, EmailService>();
         builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<IAuthService, AuthService>();
-        builder.Services.AddScoped<IClinicaService, ClinicaService>();
+        builder.Services.AddScoped<ClinicaInterface, ClinicaImpl>();
 
         // configuração do CORS
         builder.Services.AddCors(options =>
