@@ -10,39 +10,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace backend.Migrations
 {
     /// <inheritdoc />
-    public partial class initialCreate : Migration
+    public partial class CreateDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Animais",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Nome = table.Column<string>(type: "text", nullable: true),
-                    Especie = table.Column<int>(type: "integer", nullable: false),
-                    Nascimento = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    DataCad = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    DataModificado = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Idade = table.Column<int>(type: "integer", nullable: false),
-                    FaseVida = table.Column<int>(type: "integer", nullable: false),
-                    Sexo = table.Column<int>(type: "integer", nullable: false),
-                    Castrado = table.Column<bool>(type: "boolean", nullable: false),
-                    Peso = table.Column<float>(type: "real", nullable: false),
-                    CondicaoCorporal = table.Column<int>(type: "integer", nullable: false),
-                    GrauAtividade = table.Column<int>(type: "integer", nullable: false),
-                    Gestacao = table.Column<bool>(type: "boolean", nullable: false),
-                    Lactacao = table.Column<int>(type: "integer", nullable: false),
-                    SemanaLactacao = table.Column<int>(type: "integer", nullable: false),
-                    SemanaGestacao = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Animais", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -122,6 +94,22 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Raca",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nome = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Especie = table.Column<int>(type: "integer", nullable: false),
+                    PesoMinimoReferencia = table.Column<float>(type: "real", nullable: true),
+                    PesoMaximoReferencia = table.Column<float>(type: "real", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Raca", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Tutores",
                 columns: table => new
                 {
@@ -143,27 +131,6 @@ namespace backend.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tutores", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AcompanhamentosInds",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    AnimalId = table.Column<int>(type: "integer", nullable: false),
-                    DataInicio = table.Column<DateOnly>(type: "date", nullable: false),
-                    DataFim = table.Column<DateOnly>(type: "date", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AcompanhamentosInds", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AcompanhamentosInds_Animais_AnimalId",
-                        column: x => x.AnimalId,
-                        principalTable: "Animais",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -273,33 +240,6 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AnimaisClinicas",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    AnimalId = table.Column<int>(type: "integer", nullable: false),
-                    ClinicaId = table.Column<int>(type: "integer", nullable: false),
-                    DataAssociacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AnimaisClinicas", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AnimaisClinicas_Animais_AnimalId",
-                        column: x => x.AnimalId,
-                        principalTable: "Animais",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_AnimaisClinicas_Clinicas_ClinicaId",
-                        column: x => x.ClinicaId,
-                        principalTable: "Clinicas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Racoes",
                 columns: table => new
                 {
@@ -333,7 +273,8 @@ namespace backend.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UsuarioId = table.Column<int>(type: "integer", nullable: false),
                     ClinicaId = table.Column<int>(type: "integer", nullable: false),
-                    Perfis = table.Column<List<string>>(type: "text[]", nullable: true)
+                    Perfis = table.Column<List<string>>(type: "text[]", nullable: true),
+                    ClinicaID = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -348,6 +289,39 @@ namespace backend.Migrations
                         name: "FK_UsuariosPerfisClinicas_Clinicas_ClinicaId",
                         column: x => x.ClinicaId,
                         principalTable: "Clinicas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Animais",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nome = table.Column<string>(type: "text", nullable: true),
+                    Especie = table.Column<int>(type: "integer", nullable: false),
+                    RacaId = table.Column<int>(type: "integer", nullable: true),
+                    Nascimento = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DataCad = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DataModificado = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Sexo = table.Column<int>(type: "integer", nullable: false),
+                    Castrado = table.Column<bool>(type: "boolean", nullable: false),
+                    Peso = table.Column<float>(type: "real", nullable: false),
+                    CondicaoCorporal = table.Column<int>(type: "integer", nullable: false),
+                    GrauAtividade = table.Column<int>(type: "integer", nullable: false),
+                    Gestacao = table.Column<bool>(type: "boolean", nullable: false),
+                    Lactacao = table.Column<int>(type: "integer", nullable: false),
+                    SemanaLactacao = table.Column<int>(type: "integer", nullable: false),
+                    SemanaGestacao = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Animais", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Animais_Raca_RacaId",
+                        column: x => x.RacaId,
+                        principalTable: "Raca",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -387,33 +361,6 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TutoresAnimais",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TutorId = table.Column<int>(type: "integer", nullable: false),
-                    AnimalId = table.Column<int>(type: "integer", nullable: false),
-                    DataAssociacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TutoresAnimais", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TutoresAnimais_Animais_AnimalId",
-                        column: x => x.AnimalId,
-                        principalTable: "Animais",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_TutoresAnimais_Tutores_TutorId",
-                        column: x => x.TutorId,
-                        principalTable: "Tutores",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "TutoresClinicas",
                 columns: table => new
                 {
@@ -441,6 +388,81 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AcompanhamentosInds",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    AnimalId = table.Column<int>(type: "integer", nullable: false),
+                    DataInicio = table.Column<DateOnly>(type: "date", nullable: false),
+                    DataFim = table.Column<DateOnly>(type: "date", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AcompanhamentosInds", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AcompanhamentosInds_Animais_AnimalId",
+                        column: x => x.AnimalId,
+                        principalTable: "Animais",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AnimaisClinicas",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    AnimalId = table.Column<int>(type: "integer", nullable: false),
+                    ClinicaId = table.Column<int>(type: "integer", nullable: false),
+                    DataAssociacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AnimaisClinicas", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AnimaisClinicas_Animais_AnimalId",
+                        column: x => x.AnimalId,
+                        principalTable: "Animais",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AnimaisClinicas_Clinicas_ClinicaId",
+                        column: x => x.ClinicaId,
+                        principalTable: "Clinicas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TutoresAnimais",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TutorId = table.Column<int>(type: "integer", nullable: false),
+                    AnimalId = table.Column<int>(type: "integer", nullable: false),
+                    DataAssociacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TutoresAnimais", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TutoresAnimais_Animais_AnimalId",
+                        column: x => x.AnimalId,
+                        principalTable: "Animais",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_TutoresAnimais_Tutores_TutorId",
+                        column: x => x.TutorId,
+                        principalTable: "Tutores",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DietasPersonalizadas",
                 columns: table => new
                 {
@@ -453,7 +475,8 @@ namespace backend.Migrations
                     EnergiaMetabolizavel = table.Column<float>(type: "real", nullable: false),
                     PesoAtual = table.Column<float>(type: "real", nullable: false),
                     PesoObjetivo = table.Column<float>(type: "real", nullable: false),
-                    PesoIdeal = table.Column<float>(type: "real", nullable: false)
+                    PesoIdeal = table.Column<float>(type: "real", nullable: false),
+                    AcomapanhamentoIndId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -509,10 +532,113 @@ namespace backend.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Cpf", "DataCad", "DataUltimoAcesso", "Email", "EmailConfirmed", "Formacao", "IsAdmin", "IsAtivo", "LockoutEnabled", "LockoutEnd", "Nome", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "Telefone1", "TwoFactorEnabled", "UserName", "Whatsapp" },
                 values: new object[,]
                 {
-                    { -4, 0, "93945232-625e-43b9-b504-0925fd592633", "01234567893", new DateTime(2025, 5, 24, 18, 53, 54, 872, DateTimeKind.Utc).AddTicks(9530), new DateTime(2025, 5, 24, 18, 53, 54, 872, DateTimeKind.Utc).AddTicks(9544), "ceron@gsmail.com", true, "Administrador do Sistema", true, true, false, null, "Admin Ceron", "CERON@GSMAIL.COM", "ADMIN CERON", "AQAAAAIAAYagAAAAENhKIL7Iar4BdFNceluW7dFgf669SU0Ql9ZzoT23LkAnUh0/NB6PZDCrsbguU24WfQ==", null, false, "6388eebb-66da-4d59-b097-1bb5f9e596d2", "62940302010", false, "ceron", "62940302010" },
-                    { -3, 0, "b4f3d35d-c568-4ac6-b6aa-69bcfa17ef92", "01234567892", new DateTime(2025, 5, 24, 18, 53, 54, 872, DateTimeKind.Utc).AddTicks(9486), new DateTime(2025, 5, 24, 18, 53, 54, 872, DateTimeKind.Utc).AddTicks(9501), "hugo@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Hugo", "HUGO@GSMAIL.COM", "ADMIN HUGO", "AQAAAAIAAYagAAAAEKKg4aoymu0AgadnPvTAoPBt+q4SO3XSEErg8WrpSsXKADQ/ZBuiPYCVIHNU/Uh2Ug==", null, false, "7d16f7a6-536d-48ef-b052-743c548fffcd", "62910203040", false, "hugo", "62910203040" },
-                    { -2, 0, "78d1b238-dbcf-4abb-a662-b36562e8b285", "01234567891", new DateTime(2025, 5, 24, 18, 53, 54, 872, DateTimeKind.Utc).AddTicks(9444), new DateTime(2025, 5, 24, 18, 53, 54, 872, DateTimeKind.Utc).AddTicks(9458), "rafael@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Rafael", "RAFAEL@GSMAIL.COM", "ADMIN RAFAEL", "AQAAAAIAAYagAAAAEMGe5ftPCYMPNd57eXheMxaqYKYXdkttxq/dDNhTS5RslgQ3iZW/oXv+cnqAyiLboA==", null, false, "c81911d1-1874-4434-82ca-8c620400e2b1", "62912345678", false, "admin.rafael", "62912345678" },
-                    { -1, 0, "fd4fa1c6-c85b-4a55-b48b-274e9c7311e6", "01234567890", new DateTime(2025, 5, 24, 18, 53, 54, 872, DateTimeKind.Utc).AddTicks(9402), new DateTime(2025, 5, 24, 18, 53, 54, 872, DateTimeKind.Utc).AddTicks(9411), "iury@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Iury", "IURY@GSMAIL.COM", "IURY", "AQAAAAIAAYagAAAAEMEY1jj0QsHjnZVTB2mROimLBIwXH7sPaXIFJK2+yIOgTIb3Tz7vIe+xQygBy8sGWA==", null, false, "4ec6faa4-d57b-451a-816b-5aa5b8bd4ea8", "62987654321", false, "admin.iury", "62987654321" }
+                    { -4, 0, "af1d26d9-a99e-4bdb-81d6-0eb6c5607574", "01234567893", new DateTime(2025, 6, 16, 23, 58, 35, 778, DateTimeKind.Utc).AddTicks(5005), new DateTime(2025, 6, 16, 23, 58, 35, 778, DateTimeKind.Utc).AddTicks(5014), "ceron@gsmail.com", true, "Administrador do Sistema", true, true, false, null, "Admin Ceron", "CERON@GSMAIL.COM", "ADMIN CERON", "AQAAAAIAAYagAAAAEFtbbdQ4Fj7iXTILUpARIKCHMQm2z78VJr1qMdA2egrx0NE2Rw+IzIGnsrs8WanmDA==", null, false, "98c84698-f9ef-4cd1-8745-378209ceedb1", "62940302010", false, "ceron", "62940302010" },
+                    { -3, 0, "02a060b4-2761-461b-8e03-2b5fce27cf49", "01234567892", new DateTime(2025, 6, 16, 23, 58, 35, 778, DateTimeKind.Utc).AddTicks(4962), new DateTime(2025, 6, 16, 23, 58, 35, 778, DateTimeKind.Utc).AddTicks(4972), "hugo@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Hugo", "HUGO@GSMAIL.COM", "ADMIN HUGO", "AQAAAAIAAYagAAAAEIo5h5jEq5IPHRyo7Ytje65Ne1EZssa9DQPoQvKLHmyuQP5g8bbo6cPGG9VczMDlHg==", null, false, "831c62c0-5440-497c-8940-186207e29a63", "62910203040", false, "hugo", "62910203040" },
+                    { -2, 0, "94b557d3-2192-445b-91e9-76e00313de88", "01234567891", new DateTime(2025, 6, 16, 23, 58, 35, 778, DateTimeKind.Utc).AddTicks(4918), new DateTime(2025, 6, 16, 23, 58, 35, 778, DateTimeKind.Utc).AddTicks(4933), "rafael@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Rafael", "RAFAEL@GSMAIL.COM", "ADMIN RAFAEL", "AQAAAAIAAYagAAAAEPto5Eg1dD6aYiLl1Sgz1iLWaZ5zT7Dp8P7F8tOtJWqhM4jW9Q401PRP5YxJawiOUA==", null, false, "44be4680-6909-47c6-bb78-def1efb98bdd", "62912345678", false, "admin.rafael", "62912345678" },
+                    { -1, 0, "ce83ae22-ecf2-4314-b509-0dffa9dbbad3", "01234567890", new DateTime(2025, 6, 16, 23, 58, 35, 778, DateTimeKind.Utc).AddTicks(4875), new DateTime(2025, 6, 16, 23, 58, 35, 778, DateTimeKind.Utc).AddTicks(4889), "iury@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Iury", "IURY@GSMAIL.COM", "IURY", "AQAAAAIAAYagAAAAEN4rjnqYaBCzxGGp7aGA/Se5gRAwFLQTS6YJhJTtPfQ2pM0l2mGGdhGrTlHfQk7oiA==", null, false, "49e39cb7-98cd-4b74-a86d-99913aa13843", "62987654321", false, "admin.iury", "62987654321" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Raca",
+                columns: new[] { "Id", "Especie", "Nome", "PesoMaximoReferencia", "PesoMinimoReferencia" },
+                values: new object[,]
+                {
+                    { 1, 1, "Affenpinscher", null, null },
+                    { 2, 1, "Afghan Hound", null, null },
+                    { 3, 1, "Airedale Terrier", null, null },
+                    { 4, 1, "Akita", null, null },
+                    { 5, 1, "Alaskan Malamute", null, null },
+                    { 6, 1, "American Staffordshire Terrier", null, null },
+                    { 7, 1, "Australian Shepherd", null, null },
+                    { 8, 1, "Basset Hound", null, null },
+                    { 9, 1, "Beagle", null, null },
+                    { 10, 1, "Bernese Mountain Dog", null, null },
+                    { 11, 1, "Bichon Frise", null, null },
+                    { 12, 1, "Border Collie", null, null },
+                    { 13, 1, "Boston Terrier", null, null },
+                    { 14, 1, "Boxer", null, null },
+                    { 15, 1, "Bulldog", null, null },
+                    { 16, 1, "Bull Terrier", null, null },
+                    { 17, 1, "Cavalier King Charles Spaniel", null, null },
+                    { 18, 1, "Chihuahua", null, null },
+                    { 19, 1, "Chow Chow", null, null },
+                    { 20, 1, "Cocker Spaniel", null, null },
+                    { 21, 1, "Collie", null, null },
+                    { 22, 1, "Dachshund", null, null },
+                    { 23, 1, "Dalmatian", null, null },
+                    { 24, 1, "Doberman Pinscher", null, null },
+                    { 25, 1, "English Springer Spaniel", null, null },
+                    { 26, 1, "French Bulldog", null, null },
+                    { 27, 1, "German Shepherd", null, null },
+                    { 28, 1, "Golden Retriever", null, null },
+                    { 29, 1, "Great Dane", null, null },
+                    { 30, 1, "Irish Setter", null, null },
+                    { 31, 1, "Jack Russell Terrier", null, null },
+                    { 32, 1, "Labrador Retriever", null, null },
+                    { 33, 1, "Lhasa Apso", null, null },
+                    { 34, 1, "Maltese", null, null },
+                    { 35, 1, "Mastiff", null, null },
+                    { 36, 1, "Miniature Schnauzer", null, null },
+                    { 37, 1, "Newfoundland", null, null },
+                    { 38, 1, "Pomeranian", null, null },
+                    { 39, 1, "Poodle", null, null },
+                    { 40, 1, "Pug", null, null },
+                    { 41, 1, "Rottweiler", null, null },
+                    { 42, 1, "Saint Bernard", null, null },
+                    { 43, 1, "Samoyed", null, null },
+                    { 44, 1, "Scottish Terrier", null, null },
+                    { 45, 1, "Shetland Sheepdog", null, null },
+                    { 46, 1, "Shiba Inu", null, null },
+                    { 47, 1, "Shih Tzu", null, null },
+                    { 48, 1, "Siberian Husky", null, null },
+                    { 49, 1, "Weimaraner", null, null },
+                    { 50, 1, "Welsh Corgi (Cardigan)", null, null },
+                    { 51, 1, "Welsh Corgi (Pembroke)", null, null },
+                    { 52, 1, "West Highland White Terrier", null, null },
+                    { 53, 1, "Whippet", null, null },
+                    { 54, 1, "Yorkshire Terrier", null, null },
+                    { 55, 1, "Sem Raça Definida (SRD)", null, null },
+                    { 101, 2, "Abyssinian", null, null },
+                    { 102, 2, "American Bobtail", null, null },
+                    { 103, 2, "American Curl", null, null },
+                    { 104, 2, "American Shorthair", null, null },
+                    { 105, 2, "American Wirehair", null, null },
+                    { 106, 2, "Balinese", null, null },
+                    { 107, 2, "Bengal", null, null },
+                    { 108, 2, "Birman", null, null },
+                    { 109, 2, "Bombay", null, null },
+                    { 110, 2, "British Shorthair", null, null },
+                    { 111, 2, "Burmese", null, null },
+                    { 112, 2, "Chartreux", null, null },
+                    { 113, 2, "Cornish Rex", null, null },
+                    { 114, 2, "Devon Rex", null, null },
+                    { 115, 2, "Egyptian Mau", null, null },
+                    { 116, 2, "Exotic Shorthair", null, null },
+                    { 117, 2, "Havana Brown", null, null },
+                    { 118, 2, "Himalayan", null, null },
+                    { 119, 2, "Japanese Bobtail", null, null },
+                    { 120, 2, "Korat", null, null },
+                    { 121, 2, "LaPerm", null, null },
+                    { 122, 2, "Maine Coon", null, null },
+                    { 123, 2, "Manx", null, null },
+                    { 124, 2, "Norwegian Forest Cat", null, null },
+                    { 125, 2, "Ocicat", null, null },
+                    { 126, 2, "Oriental", null, null },
+                    { 127, 2, "Persian", null, null },
+                    { 128, 2, "Ragamuffin", null, null },
+                    { 129, 2, "Ragdoll", null, null },
+                    { 130, 2, "Russian Blue", null, null },
+                    { 131, 2, "Scottish Fold", null, null },
+                    { 132, 2, "Selkirk Rex", null, null },
+                    { 133, 2, "Siamese", null, null },
+                    { 134, 2, "Siberian", null, null },
+                    { 135, 2, "Singapura", null, null },
+                    { 136, 2, "Somali", null, null },
+                    { 137, 2, "Sphynx", null, null },
+                    { 138, 2, "Tonkinese", null, null },
+                    { 139, 2, "Turkish Angora", null, null },
+                    { 140, 2, "Turkish Van", null, null },
+                    { 141, 2, "Sem Raça Definida (SRD)", null, null }
                 });
 
             migrationBuilder.CreateIndex(
@@ -520,6 +646,11 @@ namespace backend.Migrations
                 table: "AcompanhamentosInds",
                 column: "AnimalId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Animais_RacaId",
+                table: "Animais",
+                column: "RacaId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AnimaisClinicas_AnimalId",
@@ -700,6 +831,9 @@ namespace backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "Tutores");
+
+            migrationBuilder.DropTable(
+                name: "Raca");
         }
     }
 }

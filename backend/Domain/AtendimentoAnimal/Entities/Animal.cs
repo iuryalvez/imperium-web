@@ -1,7 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace backend.Domain.AtendimentoAnimal.Entities {
+namespace backend.Domain.AtendimentoAnimal.Entities
+{
     public enum EspecieAnimal
     {
         Cao = 1,
@@ -31,8 +32,8 @@ namespace backend.Domain.AtendimentoAnimal.Entities {
     public enum FaseVidaAnimal
     {
         Desconhecida = 0,
-        Filhote,        // Ex: Puppy, Kitten
-        Jovem,          // Ex: Young, Juvenile
+        Filhote,
+        Jovem,
         Adulto,
         Senior,
         Geriatrico
@@ -43,7 +44,11 @@ namespace backend.Domain.AtendimentoAnimal.Entities {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string? Nome { get; set; }
-        public EspecieAnimal Especie { get; set; } // 1-cao, 2-gato
+        public EspecieAnimal Especie { get; set; } 
+        public int? RacaId { get; set; }
+        
+        [ForeignKey("RacaId")]
+        public Raca? Raca { get; set; }
         public DateTime Nascimento { get; set; }
         public DateTime DataCad { get; set; }
         public DateTime DataModificado { get; set; }
@@ -56,6 +61,7 @@ namespace backend.Domain.AtendimentoAnimal.Entities {
         public int Lactacao { get; set; } // numero de filhotes
         public int SemanaLactacao { get; set; }
         public int SemanaGestacao { get; set; }
+
         public AcompanhamentoInd? AcompanhamentoInd { get; set; } // referência de navegação com o dependente
         public ICollection<AnimalClinica>? AnimaisClinicas { get; set; } // referência de navegação com o dependente
         public ICollection<TutorAnimal>? TutoresAnimais { get; set; }

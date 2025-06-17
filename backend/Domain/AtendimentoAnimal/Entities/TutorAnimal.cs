@@ -9,10 +9,14 @@ namespace backend.Domain.AtendimentoAnimal.Entities {
         
         [Required(ErrorMessage = "O id do tutor é obrigatório.")]
         public int TutorId { get; set; }
+
+        [ForeignKey("TutorId")]
         public Tutor? Tutor { get; set; }
 
         [Required(ErrorMessage = "O id da clínica é obrigatório.")]
         public int AnimalId { get; set; }
+
+        [ForeignKey("AnimalId")]
         public Animal? Animal { get; set; }
         public DateTime DataAssociacao { get; set; }
     }

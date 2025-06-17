@@ -24,10 +24,22 @@ const SidebarDrawer = ({ collapsed, toggleCollapse }) => {
       path: "/clinica/editar"
     },
     {
+      key: "/clinica/tutores",
+      icon: TutoresIcon,
+      label: "Tutores",
+      path: "/clinica/tutores"
+    },
+    {
       key: "/clinica/animais",
       icon: AnimaisIcon,
       label: "Animais",
       path: "/clinica/animais"
+    },
+    {
+      key: "/clinica/racoes",
+      icon: RacoesIcon,
+      label: "Rações",
+      path: "/clinica/racoes"
     },
     {
       key: "/clinica/consultas",
@@ -36,25 +48,13 @@ const SidebarDrawer = ({ collapsed, toggleCollapse }) => {
       path: "/clinica/consultas"
     },
     {
-      key: "/clinica/tutores",
-      icon: TutoresIcon,
-      label: "Tutores",
-      path: "/clinica/tutores"
-    },
-    {
       key: "/clinica/usuarios",
       icon: UsuariosIcon,
       label: "Usuários",
       path: "/clinica/usuarios"
     },
-    {
-      key: "/clinica/racoes",
-      icon: RacoesIcon,
-      label: "Rações",
-      path: "/clinica/racoes"
-    }
   ];
-
+  
   return (
     <div className={`h-screen fixed h-full shadow-sm transition-all duration-300 ease-in-out ${collapsed ? 'w-20' : 'w-64'}`}>
       {/* Botão de toggle */}

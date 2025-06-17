@@ -10,6 +10,8 @@ namespace backend.Domain.SaudeAnimal.Entities {
         public int RacaoId { get; set; }
         public Racao? Racao { get; set; }
         public int AcompanhamentoIndId { get; set; }
+
+        [ForeignKey("AcomapanhamentoIndId")]
         public AcompanhamentoInd? AcompanhamentoInd { get; set; }
         public int TipoDieta { get; set; } // 1-manutenção, 2-crescimento, 3-lactação
         public float QtdAlimento { get; set; } // calculado

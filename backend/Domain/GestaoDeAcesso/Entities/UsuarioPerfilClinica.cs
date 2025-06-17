@@ -10,10 +10,14 @@ public class UsuarioPerfilClinica {
     
     [Required(ErrorMessage = "O id do usuário é obrigatório.")]
     public int UsuarioId { get; set; }
+
+    [ForeignKey("UsuarioId")]
     public Usuario? Usuario { get; set; }
 
     [Required(ErrorMessage = "O id da clínica é obrigatório.")]
     public int ClinicaId { get; set; }
+
+    [ForeignKey("ClinicaID")]
     public Clinica? Clinica { get; set; }
     public List<string>? Perfis { get; set; }
 }

@@ -8,6 +8,8 @@ namespace backend.Domain.SaudeAnimal.Entities {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int ClinicaId { get; set; }
+
+        [ForeignKey("ClinicaId")]
         public Clinica? Clinica { get; set; }
         public string Nome { get; set; } = string.Empty;
         
