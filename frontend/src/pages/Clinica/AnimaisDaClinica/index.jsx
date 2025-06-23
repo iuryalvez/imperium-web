@@ -39,12 +39,12 @@ const camposSimplesCadastrarAnimaisDaClinica = [
       { label: "Fêmea", value: 2 },
     ],
   },
-  {
-    name: "castrado",
-    label: "Castrado",
-    type: "boolean",
-    // placeholder: "O animal é castrado?",
-  },
+  // {
+  //   name: "castrado",
+  //   label: "Castrado",
+  //   type: "boolean",
+  //   // placeholder: "O animal é castrado?",
+  // },
   {
     name: "peso",
     label: "Peso (kg)",

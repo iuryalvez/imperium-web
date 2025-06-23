@@ -310,7 +310,9 @@ const FormEditarEntidade = ({
     valoresIniciais?.especie
   );
   const [sexoAnimal, setSexoAnimal] = useState(valoresIniciais?.sexo);
-  const [emGestacao, setEmGestacao] = useState(valoresIniciais?.gestacao || false);
+  const [emGestacao, setEmGestacao] = useState(
+    valoresIniciais?.gestacao || false
+  );
   const [numFilhotes, setNumFilhotes] = useState(
     valoresIniciais?.lactacao || 0
   );
@@ -555,24 +557,59 @@ const FormEditarEntidade = ({
       case "select":
         if (entidade === "animaisDaClinica" && campo.name === "raca") {
           return (
-            <Select placeholder={campo.placeholder || "Selecione a raça"} allowClear disabled={!especieSelecionada}>
-              {especieSelecionada === 1 && dogBreeds.map((breed) => (<Select.Option key={breed} value={breed}>{breed}</Select.Option>))}
-              {especieSelecionada === 2 && catBreeds.map((breed) => (<Select.Option key={breed} value={breed}>{breed}</Select.Option>))}
+            <Select
+              placeholder={campo.placeholder || "Selecione a raça"}
+              allowClear
+              disabled={!especieSelecionada}
+            >
+              {especieSelecionada === 1 &&
+                dogBreeds.map((breed) => (
+                  <Select.Option key={breed} value={breed}>
+                    {breed}
+                  </Select.Option>
+                ))}
+              {especieSelecionada === 2 &&
+                catBreeds.map((breed) => (
+                  <Select.Option key={breed} value={breed}>
+                    {breed}
+                  </Select.Option>
+                ))}
             </Select>
           );
         } else {
           return (
             <Select placeholder={campo.placeholder}>
-              {campo.options?.map((opt) => (<Select.Option key={opt.value} value={opt.value}>{opt.label}</Select.Option>))}
+              {campo.options?.map((opt) => (
+                <Select.Option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </Select.Option>
+              ))}
             </Select>
           );
         }
       case "date":
-        return <DatePicker style={{ width: "100%" }} />;
+        return (
+          <DatePicker
+            style={{ width: "100%" }}
+            placeholder="Selecione a data"
+            format="DD/MM/YYYY"
+          />
+        );
       case "boolean":
         return <Checkbox>{campo.placeholder}</Checkbox>;
       case "number":
-        return <InputNumber style={{ width: "100%" }} />;
+        return (
+          <InputNumber
+            prefix=""
+            style={{ width: "100%" }}
+            precision={2} // Duas casas decimais
+            step={0.01}
+            decimalSeparator="," // Mais simples para este caso
+            parser={(value) => value.replace(",", ".")}
+            min={0}
+            max={1000}
+          />
+        );
       default:
         return null;
     }
@@ -984,6 +1021,14 @@ const FormEditarEntidade = ({
               hidden // Esta propriedade esconde o campo
               initialValue={valoresIniciais.id} // Valor inicial do DTO
             ></Form.Item>
+            <Form.Item
+              name="castrado"
+              label="Castrado?"
+              valuePropName="checked" // Para Switch
+              initialValue={valoresIniciais.castrado}
+            >
+              <Switch checkedChildren="SIM" unCheckedChildren="NÃO" />
+            </Form.Item>
             {isFemea && (
               <>
                 <Form.Item

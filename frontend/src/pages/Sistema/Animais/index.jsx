@@ -62,8 +62,8 @@ const camposSimplesCadastrarAnimaisNoSistema = [
     type: "select",
     placeholder: "Selecione a condição corporal",
     options: Array.from({ length: 10 }, (_, i) => ({
-      label: (i + 1).toString(),
-      value: (i + 1).toString(),
+      label: (i + 1),
+      value: (i + 1),
     })),
   },
   {

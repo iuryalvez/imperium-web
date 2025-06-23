@@ -533,11 +533,28 @@ const FormCadastrarEntidade = ({
           );
         }
       case "date":
-        return <DatePicker style={{ width: "100%" }} />;
+        return (
+          <DatePicker
+            style={{ width: "100%" }}
+            placeholder="Selecione a data"
+            format="DD/MM/YYYY"
+          />
+        );
       case "boolean":
-        return <Switch checkedChildren="Sim" unCheckedChildren="Não" />;
+        return <Checkbox>{campo.placeholder}</Checkbox>;
       case "number":
-        return <InputNumber style={{ width: "100%" }} />;
+        return (
+          <InputNumber
+            prefix=""
+            style={{ width: "100%" }}
+            precision={2} // Duas casas decimais
+            step={0.01}
+            decimalSeparator="," // Mais simples para este caso
+            parser={(value) => value.replace(",", ".")}
+            min={0}
+            max={1000}
+          />
+        );
       default:
         return null;
     }
@@ -840,6 +857,13 @@ const FormCadastrarEntidade = ({
         {/* Campos condicionais específicos para animaisDaClinica */}
         {entidade === "animaisDaClinica" && (
           <>
+            <Form.Item
+              name="castrado"
+              label="Castrado?"
+              valuePropName="checked" // Para Switch
+            >
+              <Switch checkedChildren="SIM" unCheckedChildren="NÃO" />
+            </Form.Item>
             {isFemea && (
               <>
                 <Form.Item
