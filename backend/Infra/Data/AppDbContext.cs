@@ -28,6 +28,7 @@ namespace backend.Infra.Data
         public DbSet<TutorClinica> TutoresClinicas { get; set; }
         public DbSet<AnimalClinica> AnimaisClinicas { get; set; }
         public DbSet<TutorAnimal> TutoresAnimais { get; set; }
+        public DbSet<Raca> Racas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

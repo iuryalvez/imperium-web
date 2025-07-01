@@ -12,6 +12,11 @@ using backend.Services;
 using Microsoft.Extensions.Logging.Console;
 using backend.Domain.GestaoClinica.Interface;
 using backend.Domain.GestaoDeAcesso.Entities;
+using backend.Domain.AtendimentoAnimal.Interface;
+using backend.Domain.AtendimentoAnimal.Impl;
+using backend.Domain.AtendimentoAnimal.Repository;
+using backend.Domain.AtendimentoAnimal.Mappings;
+using AutoMapper;
 
 
 internal class Program
@@ -19,6 +24,8 @@ internal class Program
     private static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        builder.Services.AddAutoMapper(typeof(RacaMappingProfile).Assembly);
 
         // adiciona serviços ao contêiner
         builder.Services.AddControllers();
@@ -28,6 +35,8 @@ internal class Program
         builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<ClinicaInterface, ClinicaImpl>();
+        builder.Services.AddScoped<IRacaRepository, RacaRepository>();
+        builder.Services.AddScoped<RacaInterface, RacaImpl>();
 
         // configuração do CORS
         builder.Services.AddCors(options =>

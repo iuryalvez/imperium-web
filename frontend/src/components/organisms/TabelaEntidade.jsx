@@ -1,9 +1,23 @@
 import { useState, useEffect } from "react";
-import { Table, Button, Space, Modal, Popconfirm, message } from "antd";
-import { DeleteOutlined, EditOutlined, LoginOutlined } from "@ant-design/icons";
+import {
+  Table,
+  Button,
+  Space,
+  Modal,
+  Popconfirm,
+  message,
+  Tooltip,
+} from "antd";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  EyeOutlined,
+  LoginOutlined,
+} from "@ant-design/icons";
 import "../styles/TabelaEntidade.css";
 import FormEditarEntidade from "../molecules/FormEditarEntidade";
 import FormAcessarClinica from "../molecules/FormAcessarClinica";
+import FormDetalhesEntidade from "../molecules/FormDetalhesEntidade";
 
 const TabelaEntidade = ({
   entidade,
@@ -16,9 +30,10 @@ const TabelaEntidade = ({
 }) => {
   const [registros, setRegistros] = useState(dados); // armazena os dados atuais da tabela, set atualiza
   const [backupRegistros, setBackupRegistros] = useState([]); // guarda cópia de segurança antes de operações que alteram os registros
+  const [modalDetalhesVisivel, setModalDetalhesVisivel] = useState(false);
+  const [modalAcessoAberto, setModalAcessoAberto] = useState(false); // controla visualização do modal, inicialmente falsa
   const [modalEdicaoVisivel, setModalEdicaoVisivel] = useState(false); // controla visualização do modal, inicialmente falsa
   const [registroSelecionado, setRegistroSelecionado] = useState(null); // guarda registro selecionado, inicialmente null (nenhum)
-  const [modalAcessoAberto, setModalAcessoAberto] = useState(false); // controla visualização do modal, inicialmente falsa
   const [clinicaSelecionada, setClinicaSelecionada] = useState(null); // controla clinica selecionada, inicialmente null (nenhum) - no dto vem como clinicaId e não Id
   const [loading, setLoading] = useState(false); // controla o estado de loading, inicialmente falso
 
@@ -86,6 +101,11 @@ const TabelaEntidade = ({
     }
   };
 
+  const abrirModalDetalhes = (registro) => {
+    setRegistroSelecionado(registro);
+    setModalDetalhesVisivel(true);
+  };
+
   const abrirModalEdicao = (registro) => {
     setRegistroSelecionado(registro);
     setModalEdicaoVisivel(true);
@@ -109,6 +129,12 @@ const TabelaEntidade = ({
       width: "auto",
       render: (_, record) => (
         <Space>
+          <Tooltip title="Ver Detalhes">
+            <Button
+              icon={<EyeOutlined />}
+              onClick={() => abrirModalDetalhes(record)}
+            />
+          </Tooltip>
           <Button
             icon={<EditOutlined />}
             onClick={() => abrirModalEdicao(record)}
@@ -154,6 +180,29 @@ const TabelaEntidade = ({
         scroll={{ x: "max-content" }} // ativa scroll horizontal se necessário
       />
       <div className="max-h-[80vh] overflow-y-auto">
+        <Modal
+          open={modalDetalhesVisivel}
+          onCancel={() => setModalDetalhesVisivel(false)}
+          footer={[
+            <Button key="back" onClick={() => setModalDetalhesVisivel(false)}>
+              Fechar
+            </Button>,
+          ]}
+          centered
+          destroyOnClose
+        >
+          {registroSelecionado && (
+            <FormDetalhesEntidade
+              registro={registroSelecionado}
+              entidade={entidade}
+              nomeEntidade={nomeEntidade}
+              setModalDetalhesVisivel={setModalDetalhesVisivel}
+              tituloModal={`Detalhes de ${nomeEntidade}`}
+              valores={registroSelecionado}
+              camposDetalhes={camposSimplesEditar}
+            />
+          )}
+        </Modal>
         <Modal
           open={modalEdicaoVisivel}
           onCancel={() => setModalEdicaoVisivel(false)}

@@ -14,6 +14,7 @@ import {
 import { PlusOutlined } from "@ant-design/icons";
 import { clinicasAPI } from "../../api/sistema/clinicasAPI";
 import { IMaskInput } from "react-imask";
+import { racasAPI } from "../../api/sistema/racasAPI";
 
 // const estadosBrasil = [
 //   { value: 'AC', label: 'Acre' },
@@ -62,230 +63,6 @@ const perfisClinica = [
   { label: "Inativo", value: "INATIVO" },
 ];
 
-// Listas de raças de cães e gatos
-const dogBreeds = [
-  "Sem Raça Definida - SRD",
-  "Affenpinscher",
-  "Afghan Hound",
-  "Airedale Terrier",
-  "Akita",
-  "Alaskan Malamute",
-  "American Bulldog",
-  "American Pit Bull Terrier",
-  "American Staffordshire Terrier",
-  "Anatolian Shepherd Dog",
-  "Australian Cattle Dog",
-  "Australian Shepherd",
-  "Australian Terrier",
-  "Basenji",
-  "Basset Hound",
-  "Beagle",
-  "Bearded Collie",
-  "Bedlington Terrier",
-  "Belgian Malinois",
-  "Belgian Sheepdog",
-  "Belgian Tervuren",
-  "Bernese Mountain Dog",
-  "Bichon Frise",
-  "Black and Tan Coonhound",
-  "Bloodhound",
-  "Border Collie",
-  "Border Terrier",
-  "Borzoi",
-  "Boston Terrier",
-  "Bouvier des Flandres",
-  "Boxer",
-  "Boykin Spaniel",
-  "Briard",
-  "Brittany",
-  "Brussels Griffon",
-  "Bull Terrier",
-  "Bulldog",
-  "Bullmastiff",
-  "Cairn Terrier",
-  "Canaan Dog",
-  "Cane Corso",
-  "Cardigan Welsh Corgi",
-  "Cavalier King Charles Spaniel",
-  "Chesapeake Bay Retriever",
-  "Chihuahua",
-  "Chinese Crested",
-  "Chinese Shar-Pei",
-  "Chow Chow",
-  "Clumber Spaniel",
-  "Cocker Spaniel",
-  "Collie",
-  "Coonhound",
-  "Coton de Tulear",
-  "Curly-Coated Retriever",
-  "Dachshund",
-  "Dalmatian",
-  "Dandie Dinmont Terrier",
-  "Doberman Pinscher",
-  "Dogue de Bordeaux",
-  "English Bulldog",
-  "English Cocker Spaniel",
-  "English Foxhound",
-  "English Setter",
-  "English Springer Spaniel",
-  "English Toy Spaniel",
-  "Eskimo Dog",
-  "Finnish Spitz",
-  "Flat-Coated Retriever",
-  "French Bulldog",
-  "German Pinscher",
-  "German Shepherd Dog",
-  "German Shorthaired Pointer",
-  "German Wirehaired Pointer",
-  "Giant Schnauzer",
-  "Glen of Imaal Terrier",
-  "Golden Retriever",
-  "Gordon Setter",
-  "Great Dane",
-  "Great Pyrenees",
-  "Greater Swiss Mountain Dog",
-  "Greyhound",
-  "Harrier",
-  "Havanese",
-  "Ibizan Hound",
-  "Icelandic Sheepdog",
-  "Irish Setter",
-  "Irish Terrier",
-  "Irish Water Spaniel",
-  "Irish Wolfhound",
-  "Italian Greyhound",
-  "Jack Russell Terrier",
-  "Japanese Chin",
-  "Japanese Spitz",
-  "Keeshond",
-  "Kerry Blue Terrier",
-  "Komondor",
-  "Kuvasz",
-  "Labrador Retriever",
-  "Lakeland Terrier",
-  "Lhasa Apso",
-  "Lowchen",
-  "Maltese",
-  "Manchester Terrier",
-  "Mastiff",
-  "Miniature Bull Terrier",
-  "Miniature Pinscher",
-  "Miniature Schnauzer",
-  "Neapolitan Mastiff",
-  "Newfoundland",
-  "Norfolk Terrier",
-  "Norwegian Elkhound",
-  "Norwich Terrier",
-  "Nova Scotia Duck Tolling Retriever",
-  "Old English Sheepdog",
-  "Otterhound",
-  "Papillon",
-  "Pekingese",
-  "Pembroke Welsh Corgi",
-  "Petit Basset Griffon Vendeen",
-  "Pharaoh Hound",
-  "Plott",
-  "Pointer",
-  "Polish Lowland Sheepdog",
-  "Pomeranian",
-  "Poodle",
-  "Portuguese Water Dog",
-  "Pug",
-  "Puli",
-  "Pumi",
-  "Rat Terrier",
-  "Redbone Coonhound",
-  "Rhodesian Ridgeback",
-  "Rottweiler",
-  "Saint Bernard",
-  "Saluki",
-  "Samoyed",
-  "Schipperke",
-  "Scottish Deerhound",
-  "Scottish Terrier",
-  "Sealyham Terrier",
-  "Shetland Sheepdog",
-  "Shiba Inu",
-  "Shih Tzu",
-  "Siberian Husky",
-  "Silky Terrier",
-  "Skye Terrier",
-  "Sloughi",
-  "Smooth Fox Terrier",
-  "Soft Coated Wheaten Terrier",
-  "Spanish Water Dog",
-  "Spinone Italiano",
-  "Staffordshire Bull Terrier",
-  "Standard Schnauzer",
-  "Sussex Spaniel",
-  "Swedish Vallhund",
-  "Tibetan Mastiff",
-  "Tibetan Spaniel",
-  "Tibetan Terrier",
-  "Toy Fox Terrier",
-  "Treeing Walker Coonhound",
-  "Vizsla",
-  "Weimaraner",
-  "Welsh Springer Spaniel",
-  "Welsh Terrier",
-  "West Highland White Terrier",
-  "Whippet",
-  "Wire Fox Terrier",
-  "Wirehaired Pointing Griffon",
-  "Yorkshire Terrier",
-];
-
-const catBreeds = [
-  "Sem Raça Definida - SRD",
-  "Abyssinian",
-  "American Bobtail",
-  "American Curl",
-  "American Shorthair",
-  "American Wirehair",
-  "Balinese",
-  "Bengal",
-  "Birman",
-  "Bombay",
-  "British Shorthair",
-  "Burmese",
-  "Burmilla",
-  "Chartreux",
-  "Cornish Rex",
-  "Devon Rex",
-  "Egyptian Mau",
-  "European Burmese",
-  "Exotic",
-  "Havana Brown",
-  "Himalayan",
-  "Japanese Bobtail",
-  "Khao Manee",
-  "Korat",
-  "LaPerm",
-  "Lykoi",
-  "Maine Coon",
-  "Manx",
-  "Norwegian Forest Cat",
-  "Ocicat",
-  "Oriental",
-  "Persian",
-  "Ragamuffin",
-  "Ragdoll",
-  "Russian Blue",
-  "Savannah",
-  "Scottish Fold",
-  "Selkirk Rex",
-  "Siamese",
-  "Siberian",
-  "Singapura",
-  "Snowshoe",
-  "Somali",
-  "Sphynx",
-  "Tonkinese",
-  "Toyger",
-  "Turkish Angora",
-  "Turkish Van",
-];
-
 const FormCadastrarEntidade = ({
   entidade,
   nomeEntidade,
@@ -298,6 +75,7 @@ const FormCadastrarEntidade = ({
   const campos = camposSimplesCadastrar || [];
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // usuarios e usuariosDaClinica
   const [perfisSelecionados, setPerfisSelecionados] = useState([]);
@@ -321,6 +99,9 @@ const FormCadastrarEntidade = ({
   const isGestando = emGestacao;
   const isLactando = numFilhotes > 0;
 
+  const [racasDeCaes, setRacasDeCaes] = useState([]);
+  const [racasDeGatos, setRacasDeGatos] = useState([]);
+
   useEffect(() => {
     if (entidade === "usuariosDoSistema") {
       clinicasAPI
@@ -334,6 +115,37 @@ const FormCadastrarEntidade = ({
           setClinicas(clinicasFormatadas);
         })
         .catch((err) => console.error("Erro ao carregar clínicas:", err));
+    }
+    if (entidade === "animaisDaClinica") {
+      const carregarRacas = async () => {
+        try {
+          setLoading(true);
+
+          const [caesData, gatosData] = await Promise.all([
+            racasAPI.listar(1), // 1 = EspecieAnimal.Cao
+            racasAPI.listar(2), // 2 = EspecieAnimal.Gato
+          ]);
+
+          const caesFormatados = caesData.map((raca) => ({
+            label: raca.nome,
+            value: raca.id,
+          }));
+          setRacasDeCaes(caesFormatados);
+
+          const gatosFormatados = gatosData.map((raca) => ({
+            label: raca.nome,
+            value: raca.id,
+          }));
+          setRacasDeGatos(gatosFormatados);
+        } catch (err) {
+          setError("Não foi possível carregar as listas de raças.");
+          console.error("Erro ao carregar raças:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      carregarRacas();
     }
   }, [entidade]);
 
@@ -499,24 +311,29 @@ const FormCadastrarEntidade = ({
             <Select
               placeholder={campo.placeholder || "Selecione a raça"}
               allowClear
-              // Desabilita o campo de raça se nenhuma espécie estiver selecionada,
-              // incentivando o usuário a escolher a espécie primeiro.
+              // This logic correctly disables the dropdown if no species is selected.
+              // Comentário: Esta lógica desabilita corretamente o dropdown se nenhuma espécie for selecionada.
               disabled={!especieSelecionada}
             >
-              {/* Condição: Se a espécie selecionada for '1' (Cão). Adapte '1' ao valor real do seu Select. */}
-              {/* Porquê: Mostra a lista de raças de cães. */}
+              {/* Renders dog breeds if 'Cão' (value 1) is selected */}
+              {/* Comentário: Renderiza raças de cães se 'Cão' (valor 1) for selecionado */}
               {especieSelecionada === 1 &&
-                dogBreeds.map((breed) => (
-                  <Select.Option key={breed} value={breed}>
-                    {breed}
+                racasDeCaes.map((raca) => (
+                  // The key and value should be the breed's ID
+                  // Comentário: A chave e o valor devem ser o ID da raça
+                  <Select.Option key={raca.value} value={raca.value}>
+                    {/* The text shown to the user is the breed's name */}
+                    {/* Comentário: O texto mostrado para o usuário é o nome da raça */}
+                    {raca.label}
                   </Select.Option>
                 ))}
-              {/* Condição: Se a espécie selecionada for '2' (Gato). Adapte '2' ao valor real do seu Select. */}
-              {/* Porquê: Mostra a lista de raças de gatos. */}
+
+              {/* Renders cat breeds if 'Gato' (value 2) is selected */}
+              {/* Comentário: Renderiza raças de gatos se 'Gato' (valor 2) for selecionado */}
               {especieSelecionada === 2 &&
-                catBreeds.map((breed) => (
-                  <Select.Option key={breed} value={breed}>
-                    {breed}
+                racasDeGatos.map((raca) => (
+                  <Select.Option key={raca.value} value={raca.value}>
+                    {raca.label}
                   </Select.Option>
                 ))}
             </Select>

@@ -32,6 +32,18 @@ const endpoints = {
       editar: `${API_BASE_URL}/sistema/usuarios/editar`,
       // deletar: (usuarioId) => `${API_BASE_URL}/sistema/usuarios/${usuarioId}`,
     },
+    raca: {
+      // GET /api/sistema/raca?especie=1
+      listar: `${API_BASE_URL}/sistema/raca`,
+      // POST /api/sistema/raca
+      cadastrar: `${API_BASE_URL}/sistema/raca`, 
+      // GET /api/sistema/raca/{racaId}
+      detalhes: (racaId) => `${API_BASE_URL}/sistema/raca/${racaId}`,
+      // PUT /api/sistema/raca/{racaId}
+      editar: (racaId) => `${API_BASE_URL}/sistema/raca/${racaId}`,
+      // DELETE /api/sistema/raca/{racaId}
+      deletar: (racaId) => `${API_BASE_URL}/sistema/raca/${racaId}`,
+    },
   },
   clinica: {
     editar: `${API_BASE_URL}/clinica/editar`,

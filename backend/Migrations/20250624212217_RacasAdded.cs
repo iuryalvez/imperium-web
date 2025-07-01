@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace backend.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateDatabase : Migration
+    public partial class RacasAdded : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -94,7 +94,7 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Raca",
+                name: "Racas",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -106,7 +106,7 @@ namespace backend.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Raca", x => x.Id);
+                    table.PrimaryKey("PK_Racas", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -319,9 +319,9 @@ namespace backend.Migrations
                 {
                     table.PrimaryKey("PK_Animais", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Animais_Raca_RacaId",
+                        name: "FK_Animais_Racas_RacaId",
                         column: x => x.RacaId,
-                        principalTable: "Raca",
+                        principalTable: "Racas",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -532,14 +532,14 @@ namespace backend.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Cpf", "DataCad", "DataUltimoAcesso", "Email", "EmailConfirmed", "Formacao", "IsAdmin", "IsAtivo", "LockoutEnabled", "LockoutEnd", "Nome", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "Telefone1", "TwoFactorEnabled", "UserName", "Whatsapp" },
                 values: new object[,]
                 {
-                    { -4, 0, "af1d26d9-a99e-4bdb-81d6-0eb6c5607574", "01234567893", new DateTime(2025, 6, 16, 23, 58, 35, 778, DateTimeKind.Utc).AddTicks(5005), new DateTime(2025, 6, 16, 23, 58, 35, 778, DateTimeKind.Utc).AddTicks(5014), "ceron@gsmail.com", true, "Administrador do Sistema", true, true, false, null, "Admin Ceron", "CERON@GSMAIL.COM", "ADMIN CERON", "AQAAAAIAAYagAAAAEFtbbdQ4Fj7iXTILUpARIKCHMQm2z78VJr1qMdA2egrx0NE2Rw+IzIGnsrs8WanmDA==", null, false, "98c84698-f9ef-4cd1-8745-378209ceedb1", "62940302010", false, "ceron", "62940302010" },
-                    { -3, 0, "02a060b4-2761-461b-8e03-2b5fce27cf49", "01234567892", new DateTime(2025, 6, 16, 23, 58, 35, 778, DateTimeKind.Utc).AddTicks(4962), new DateTime(2025, 6, 16, 23, 58, 35, 778, DateTimeKind.Utc).AddTicks(4972), "hugo@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Hugo", "HUGO@GSMAIL.COM", "ADMIN HUGO", "AQAAAAIAAYagAAAAEIo5h5jEq5IPHRyo7Ytje65Ne1EZssa9DQPoQvKLHmyuQP5g8bbo6cPGG9VczMDlHg==", null, false, "831c62c0-5440-497c-8940-186207e29a63", "62910203040", false, "hugo", "62910203040" },
-                    { -2, 0, "94b557d3-2192-445b-91e9-76e00313de88", "01234567891", new DateTime(2025, 6, 16, 23, 58, 35, 778, DateTimeKind.Utc).AddTicks(4918), new DateTime(2025, 6, 16, 23, 58, 35, 778, DateTimeKind.Utc).AddTicks(4933), "rafael@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Rafael", "RAFAEL@GSMAIL.COM", "ADMIN RAFAEL", "AQAAAAIAAYagAAAAEPto5Eg1dD6aYiLl1Sgz1iLWaZ5zT7Dp8P7F8tOtJWqhM4jW9Q401PRP5YxJawiOUA==", null, false, "44be4680-6909-47c6-bb78-def1efb98bdd", "62912345678", false, "admin.rafael", "62912345678" },
-                    { -1, 0, "ce83ae22-ecf2-4314-b509-0dffa9dbbad3", "01234567890", new DateTime(2025, 6, 16, 23, 58, 35, 778, DateTimeKind.Utc).AddTicks(4875), new DateTime(2025, 6, 16, 23, 58, 35, 778, DateTimeKind.Utc).AddTicks(4889), "iury@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Iury", "IURY@GSMAIL.COM", "IURY", "AQAAAAIAAYagAAAAEN4rjnqYaBCzxGGp7aGA/Se5gRAwFLQTS6YJhJTtPfQ2pM0l2mGGdhGrTlHfQk7oiA==", null, false, "49e39cb7-98cd-4b74-a86d-99913aa13843", "62987654321", false, "admin.iury", "62987654321" }
+                    { -4, 0, "02f881df-a454-4f15-84f4-393cdb62edae", "01234567893", new DateTime(2025, 6, 24, 21, 22, 16, 584, DateTimeKind.Utc).AddTicks(5652), new DateTime(2025, 6, 24, 21, 22, 16, 584, DateTimeKind.Utc).AddTicks(5666), "ceron@gsmail.com", true, "Administrador do Sistema", true, true, false, null, "Admin Ceron", "CERON@GSMAIL.COM", "ADMIN CERON", "AQAAAAIAAYagAAAAEMf+1OsJguOq5FC2Tn5y8TdZFiMNmw+qgn1jeO5V2poHSSs7NPplI5F79IoP2+3N5g==", null, false, "913fc952-4753-4a4f-bdff-92e2506451f6", "62940302010", false, "ceron", "62940302010" },
+                    { -3, 0, "87b3f3b4-90cb-41aa-8483-a1a07d4209c1", "01234567892", new DateTime(2025, 6, 24, 21, 22, 16, 584, DateTimeKind.Utc).AddTicks(5608), new DateTime(2025, 6, 24, 21, 22, 16, 584, DateTimeKind.Utc).AddTicks(5623), "hugo@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Hugo", "HUGO@GSMAIL.COM", "ADMIN HUGO", "AQAAAAIAAYagAAAAEKkSbQ84UaXqfQPbcxMxY07yCYvCZTuTK9MkVfUTUG3CN7hGdmfZHWBTdQxRGolvZg==", null, false, "50e04dc6-09b8-42bf-95d5-e4ea136e9528", "62910203040", false, "hugo", "62910203040" },
+                    { -2, 0, "a05398d2-e0e7-459b-93b2-88c9fa59ae42", "01234567891", new DateTime(2025, 6, 24, 21, 22, 16, 584, DateTimeKind.Utc).AddTicks(5571), new DateTime(2025, 6, 24, 21, 22, 16, 584, DateTimeKind.Utc).AddTicks(5580), "rafael@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Rafael", "RAFAEL@GSMAIL.COM", "ADMIN RAFAEL", "AQAAAAIAAYagAAAAEHwrn8mvBeRnjYf/af/mS+0a6VUzaiIf5gp5yxfeLpBzoifduaMckwVUCtumjAjvwg==", null, false, "11c57fa4-a699-4afb-8e60-05b30eaf111f", "62912345678", false, "admin.rafael", "62912345678" },
+                    { -1, 0, "372ebf31-60ab-486b-8784-ed01ec90bfb5", "01234567890", new DateTime(2025, 6, 24, 21, 22, 16, 584, DateTimeKind.Utc).AddTicks(5522), new DateTime(2025, 6, 24, 21, 22, 16, 584, DateTimeKind.Utc).AddTicks(5537), "iury@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Iury", "IURY@GSMAIL.COM", "IURY", "AQAAAAIAAYagAAAAEObs3YFOK+zdtyRtqadLd7ac1X3QJNSLl7mEw/OTzX54Yd8JZ5ADJPjxK2X5bqAhWw==", null, false, "48270afb-6353-4364-b15b-1cd27af97f76", "62987654321", false, "admin.iury", "62987654321" }
                 });
 
             migrationBuilder.InsertData(
-                table: "Raca",
+                table: "Racas",
                 columns: new[] { "Id", "Especie", "Nome", "PesoMaximoReferencia", "PesoMinimoReferencia" },
                 values: new object[,]
                 {
@@ -833,7 +833,7 @@ namespace backend.Migrations
                 name: "Tutores");
 
             migrationBuilder.DropTable(
-                name: "Raca");
+                name: "Racas");
         }
     }
 }
