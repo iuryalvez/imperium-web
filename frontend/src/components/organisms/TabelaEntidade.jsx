@@ -133,37 +133,47 @@ const TabelaEntidade = ({
             <Button
               icon={<EyeOutlined />}
               onClick={() => abrirModalDetalhes(record)}
+              style={{ backgroundColor: "var(--verde-medio)", color: "white" }}
             />
           </Tooltip>
-          <Button
-            icon={<EditOutlined />}
-            onClick={() => abrirModalEdicao(record)}
-            style={{ backgroundColor: "var(--verde-medio)", color: "white" }}
-          />
-          {entidade === "clinicas" && (
+          <Tooltip title="Editar">
             <Button
-              icon={<LoginOutlined />}
-              onClick={() => abrirModalAcessoClinica(record)}
+              icon={<EditOutlined />}
+              onClick={() => abrirModalEdicao(record)}
               style={{ backgroundColor: "var(--verde-medio)", color: "white" }}
-            >
-              Acessar
-            </Button>
-          )}
-          {!["usuariosDaClinica", "usuariosDoSistema"].includes(entidade) && (
-            <Popconfirm
-              title="Tem certeza que deseja deletar este registro?"
-              onConfirm={() => deletarRegistro(record.id)}
-              okText="Sim"
-              cancelText="Não"
-            >
+            />
+          </Tooltip>
+          {entidade === "clinicas" && (
+            <Tooltip title="Acessar Clínica">
               <Button
-                icon={<DeleteOutlined />}
+                icon={<LoginOutlined />}
+                onClick={() => abrirModalAcessoClinica(record)}
                 style={{
-                  backgroundColor: "var(--vermelho-delete)",
+                  backgroundColor: "var(--verde-medio)",
                   color: "white",
                 }}
-              />
-            </Popconfirm>
+              >
+                Acessar
+              </Button>
+            </Tooltip>
+          )}
+          {!["usuariosDaClinica", "usuariosDoSistema"].includes(entidade) && (
+            <Tooltip title="Deletar">
+              <Popconfirm
+                title="Tem certeza que deseja deletar este registro?"
+                onConfirm={() => deletarRegistro(record.id)}
+                okText="Sim"
+                cancelText="Não"
+              >
+                <Button
+                  icon={<DeleteOutlined />}
+                  style={{
+                    backgroundColor: "var(--vermelho-delete)",
+                    color: "white",
+                  }}
+                />
+              </Popconfirm>
+            </Tooltip>
           )}
         </Space>
       ),
@@ -190,14 +200,14 @@ const TabelaEntidade = ({
           ]}
           centered
           destroyOnClose
+          width={'70vw'}
+          style={{ maxWidth: '800px', paddingTop: 24, paddingBottom: 24 }}
         >
           {registroSelecionado && (
             <FormDetalhesEntidade
               registro={registroSelecionado}
               entidade={entidade}
               nomeEntidade={nomeEntidade}
-              setModalDetalhesVisivel={setModalDetalhesVisivel}
-              tituloModal={`Detalhes de ${nomeEntidade}`}
               valores={registroSelecionado}
               camposDetalhes={camposSimplesEditar}
             />
@@ -209,6 +219,7 @@ const TabelaEntidade = ({
           footer={null}
           centered
           destroyOnClose
+          width={700}
           style={{ paddingTop: 24, paddingBottom: 24 }}
           className="modal-edicao"
         >
