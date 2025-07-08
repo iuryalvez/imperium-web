@@ -3,8 +3,8 @@ import { Modal, Button, message } from "antd";
 import { ArrowLeftOutlined, PlusOutlined } from "@ant-design/icons";
 
 import LoadingSpinner from "../../atoms/LoadingSpinner.jsx";
-import FormCadastrarEntidade from "../../molecules/FormCadastrarEntidade.jsx";
 import TabelaEntidade from "../../organisms/TabelaEntidade.jsx";
+import FormCadastroEntidade from "../../molecules/FormCadastroEntidade.jsx";
 
 const PaginaSistemaEntidadeComCadastro = ({
   titulo,
@@ -13,13 +13,13 @@ const PaginaSistemaEntidadeComCadastro = ({
   api,
   nomeBotao,
   colunasBase,
-  camposSimplesCadastrar,
   camposSimplesEditar,
 }) => {
   const [dados, setDados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalVisivel, setModalVisivel] = useState(false);
 
+  // A lógica de busca e estado está correta e permanece a mesma
   const buscarDados = useCallback(async () => {
     try {
       setLoading(true);
@@ -38,11 +38,7 @@ const PaginaSistemaEntidadeComCadastro = ({
   }, [buscarDados]);
 
   const handleCadastrar = async (formData) => {
-    try {
-      return await api.cadastrar(formData);
-    } catch (error) {
-      throw error; // Propaga o erro para ser tratado no FormCadastrarEntidade
-    }
+    return await api.cadastrar(formData);
   };
 
   const handleSucesso = () => {
@@ -83,26 +79,25 @@ const PaginaSistemaEntidadeComCadastro = ({
           camposSimplesEditar={camposSimplesEditar}
         />
       </div>
-      <div className="max-h-[80vh] overflow-y-auto">
-        <Modal
-          open={modalVisivel}
+
+      <Modal
+        open={modalVisivel}
+        onCancel={() => setModalVisivel(false)}
+        footer={null}
+        centered
+        width={600}
+        destroyOnClose
+        className="modal-detalhes-entidade"
+      >
+        {/* 2. Inserimos o novo formulário aqui, passando as props necessárias */}
+        <FormCadastroEntidade
+          entidade={entidade}
+          onSubmit={handleCadastrar}
+          onSuccess={handleSucesso}
           onCancel={() => setModalVisivel(false)}
-          footer={null}
-          centered
-          width={600}
-          style={{ paddingTop: 24, paddingBottom: 24 }}
-        >
-          <FormCadastrarEntidade
-            entidade={entidade}
-            nomeEntidade={nomeEntidade}
-            onSubmit={handleCadastrar}
-            onSuccess={handleSucesso}
-            setModalVisivel={setModalVisivel}
-            tituloModal={`Cadastro de ${nomeEntidade}`}
-            camposSimplesCadastrar={camposSimplesCadastrar}
-          />
-        </Modal>
-      </div>
+          tituloModal={`Cadastro de ${nomeEntidade}`}
+        />
+      </Modal>
     </div>
   );
 };

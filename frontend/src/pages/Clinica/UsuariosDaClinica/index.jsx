@@ -3,35 +3,6 @@ import PaginaClinicaEntidadeComCadastro from "../../../components/templates/Pagi
 import { usuariosDaClinicaAPI } from "../../../api/clinica/usuariosDaClinicaAPI.js";
 import { Tag } from "antd";
 
-const camposSimplesCadastrarUsuariosDaClinica = [
-  {
-    name: "nome",
-    label: "Nome",
-    type: "text",
-    placeholder: "Digite seu nome",
-    rules: [{ type: "required", message: "Nome obrigatório" }],
-  },
-  {
-    name: "email",
-    label: "E-mail",
-    type: "email",
-    placeholder: "Digite seu e-mail",
-    rules: [
-      { type: "required", message: "E-mail obrigatório" },
-      { type: "email", message: "Formato inválido" },
-    ],
-  },
-  {
-    name: "senha",
-    label: "Senha",
-    type: "password",
-    placeholder: "Digite sua senha",
-    rules: [
-      { type: "required", message: "Senha obrigatória" },
-      { type: "minLength", message: "Mínimo 6 caracteres" },
-    ],
-  },
-];
 const camposSimplesEditarUsuariosDaClinica = [
   {
     name: "nome",
@@ -96,7 +67,6 @@ const UsuariosDaClinica = () => {
       nomeBotao="Cadastrar Usuário"
       nomeEntidade="Usuário da Clínica"
       colunasBase={colunasUsuariosDaClinica}
-      camposSimplesCadastrar={camposSimplesCadastrarUsuariosDaClinica}
       camposSimplesEditar={camposSimplesEditarUsuariosDaClinica}
     />
   );

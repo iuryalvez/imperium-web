@@ -3,8 +3,8 @@ import { Modal, Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 import LoadingSpinner from "../../atoms/LoadingSpinner.jsx";
-import FormCadastrarEntidade from "../../molecules/FormCadastrarEntidade.jsx";
 import TabelaEntidade from "../../organisms/TabelaEntidade.jsx";
+import FormCadastroEntidade from "../../molecules/FormCadastroEntidade.jsx";
 
 const PaginaClinicaEntidadeComCadastro = ({
   titulo,
@@ -13,8 +13,7 @@ const PaginaClinicaEntidadeComCadastro = ({
   api,
   nomeBotao,
   colunasBase,
-  camposSimplesCadastrar,
-  camposSimplesEditar,
+  camposSimplesEditar, // A prop de campos de cadastro foi removida
 }) => {
   const [dados, setDados] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,10 +36,12 @@ const PaginaClinicaEntidadeComCadastro = ({
   }, [buscarDados]);
 
   const handleCadastrar = async (formData) => {
+    // Esta função permanece a mesma, ela é a ponte com a API
     return await api.cadastrar(formData);
   };
 
   const handleSucesso = () => {
+    // Esta também permanece a mesma, define o que acontece após o sucesso
     setModalVisivel(false);
     buscarDados();
   };
@@ -50,12 +51,6 @@ const PaginaClinicaEntidadeComCadastro = ({
   return (
     <div>
       <div>
-        {/* <button
-          onClick={() => window.history.back()}
-          className="flex items-center font-bold text-[var(--verde-medio)] mb-2"
-        >
-          <ArrowLeftOutlined className="mr-2" /> Voltar
-        </button> */}
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
             {titulo}
@@ -80,26 +75,26 @@ const PaginaClinicaEntidadeComCadastro = ({
           camposSimplesEditar={camposSimplesEditar}
         />
       </div>
-      <div className="max-h-[80vh] overflow-y-auto">
-        <Modal
-          open={modalVisivel}
-          onCancel={() => setModalVisivel(false)}
-          footer={null}
-          centered
-          width={600}
-          style={{ paddingTop: 24, paddingBottom: 24 }}
-        >
-          <FormCadastrarEntidade
-            entidade={entidade}
-            nomeEntidade={nomeEntidade}
-            onSubmit={handleCadastrar}
-            onSuccess={handleSucesso}
-            setModalVisivel={setModalVisivel}
-            tituloModal={`Cadastro de ${nomeEntidade}`}
-            camposSimplesCadastrar={camposSimplesCadastrar}
-          />
-        </Modal>
-      </div>
+      
+      {/* O Modal continua aqui, agindo como a "casca" */}
+      <Modal
+        open={modalVisivel}
+        onCancel={() => setModalVisivel(false)}
+        footer={null}
+        centered
+        width={600}
+        destroyOnClose // Boa prática: destrói os estados internos do form ao fechar
+        className="modal-detalhes-entidade" // Classe para estilização responsiva
+      >
+        {/* 2. A chamada ao formulário agora está com a sintaxe correta e as props necessárias */}
+        <FormCadastroEntidade
+          entidade={entidade}
+          onSubmit={handleCadastrar}
+          onSuccess={handleSucesso}
+          onCancel={() => setModalVisivel(false)} // Passa a função para fechar o modal
+          tituloModal={`Cadastro de ${nomeEntidade}`}
+        />
+      </Modal>
     </div>
   );
 };

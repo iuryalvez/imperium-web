@@ -3,36 +3,6 @@ import { usuariosDoSistemaAPI } from "../../../api/sistema/usuariosDoSistemaAPI.
 import PaginaEntidadeComCadastro from "../../../components/templates/PaginaSistemaEntidadeComCadastro/index.jsx";
 import { Tag } from "antd";
 
-const camposSimplesCadastrarUsuariosDoSistema = [
-  {
-    name: "nome",
-    label: "Nome",
-    type: "text",
-    placeholder: "Digite seu nome",
-    rules: [{ type: "required", message: "Nome obrigatório" }],
-  },
-  {
-    name: "email",
-    label: "E-mail",
-    type: "email",
-    placeholder: "Digite seu e-mail",
-    rules: [
-      { type: "required", message: "E-mail obrigatório" },
-      { type: "email", message: "Formato inválido" },
-    ],
-  },
-  {
-    name: "senha",
-    label: "Senha",
-    type: "password",
-    placeholder: "Digite sua senha",
-    rules: [
-      { type: "required", message: "Senha obrigatória" },
-      { type: "minLength", message: "Mínimo 6 caracteres" },
-    ],
-  },
-];
-
 const camposSimplesEditarUsuariosDoSistema = [
   {
     name: "nome",
@@ -121,7 +91,6 @@ const UsuariosDoSistema = () => {
       nomeBotao="Cadastrar Usuário do Sistema"
       nomeEntidade="Usuário do Sistema"
       colunasBase={colunasUsuariosDoSistema}
-      camposSimplesCadastrar={camposSimplesCadastrarUsuariosDoSistema}
       camposSimplesEditar={camposSimplesEditarUsuariosDoSistema}
     />
   );

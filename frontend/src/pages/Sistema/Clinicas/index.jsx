@@ -3,23 +3,6 @@ import { clinicasAPI } from "../../../api/sistema/clinicasAPI.js";
 import PaginaSistemaEntidadeComCadastro from "../../../components/templates/PaginaSistemaEntidadeComCadastro/index.jsx";
 import { Tag } from "antd";
 
-const camposSimplesCadastrarClinica = [
-  {
-    name: "nomeClinica",
-    label: "Nome da Clínica",
-    type: "text",
-    placeholder: "Digite o nome da clínica",
-    rules: [
-      { type: "required", message: "O nome da clínica é obrigatório" },
-      {
-        type: "maxLength",
-        value: 100,
-        message: "O nome deve ter no máximo 100 caracteres",
-      },
-    ],
-  },
-];
-
 const camposSimplesEditarClinica = [
   {
     name: "nomeClinica",
@@ -94,7 +77,6 @@ const Clinicas = () => {
       nomeBotao="Cadastrar Clínica"
       nomeEntidade="Clínica"
       colunasBase={colunasClinicas}
-      camposSimplesCadastrar={camposSimplesCadastrarClinica}
       camposSimplesEditar={camposSimplesEditarClinica}
     />
   );
