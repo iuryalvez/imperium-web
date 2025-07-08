@@ -5,11 +5,15 @@ import { PlusOutlined } from "@ant-design/icons";
 import FormularioCadastroUsuarioDoSistema from "./Cadastro/CadastroUsuariosDoSistema";
 import FormularioCadastroUsuarioDaClinica from "./Cadastro/CadastroUsuariosDaClinica";
 import FormularioCadastroClinica from "./Cadastro/CadastroClinicas";
+import FormularioCadastroAnimaisDaClinica from "./Cadastro/CadastroAnimaisDaClinica";
+import FormularioCadastroTutoresDaClinica from "./Cadastro/CadastroTutoresDaClinica";
 
 const formCadastro = {
   usuariosDoSistema: FormularioCadastroUsuarioDoSistema,
   usuariosDaClinica: FormularioCadastroUsuarioDaClinica,
   clinicas: FormularioCadastroClinica,
+  animaisDaClinica: FormularioCadastroAnimaisDaClinica,
+  tutoresDaClinica: FormularioCadastroTutoresDaClinica,
 };
 
 const FormCadastroEntidade = ({
@@ -46,37 +50,39 @@ const FormCadastroEntidade = ({
   const FormularioEspecifico = formCadastro[entidade];
 
   return (
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={handleFinish}
-      autoComplete="off"
-    >
-      <Typography.Title level={4}>{tituloModal}</Typography.Title>
-
-      {FormularioEspecifico ? (
-        <FormularioEspecifico form={form} />
-      ) : (
-        <Typography.Text type="danger">
-          Formulário para a entidade '{entidade}' não foi implementado.
-        </Typography.Text>
-      )}
-
-      <div className="flex gap-4 mt-6">
-        <Button onClick={onCancel} className="w-1/2">
-          Cancelar
-        </Button>
-        <Button
-          type="primary"
-          htmlType="submit"
-          icon={<PlusOutlined />}
-          loading={loading}
-          className="w-1/2"
+    <div className="p-2">
+        <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleFinish}
+        autoComplete="off"
         >
-          Cadastrar
-        </Button>
-      </div>
-    </Form>
+        <Typography.Title level={4}>{tituloModal}</Typography.Title>
+
+        {FormularioEspecifico ? (
+            <FormularioEspecifico form={form} />
+        ) : (
+            <Typography.Text type="danger">
+            Formulário para a entidade '{entidade}' não foi implementado.
+            </Typography.Text>
+        )}
+
+        <div className="flex gap-4 mt-6">
+            <Button onClick={onCancel} className="w-1/2">
+            Cancelar
+            </Button>
+            <Button
+            type="primary"
+            htmlType="submit"
+            icon={<PlusOutlined />}
+            loading={loading}
+            className="w-1/2"
+            >
+            Cadastrar
+            </Button>
+        </div>
+        </Form>
+    </div>
   );
 };
 

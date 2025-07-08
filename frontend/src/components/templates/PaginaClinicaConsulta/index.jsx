@@ -3,8 +3,8 @@ import { Modal, Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 import LoadingSpinner from "../../atoms/LoadingSpinner.jsx";
-import FormCadastrarEntidade from "../../molecules/FormCadastrarEntidade.jsx";
 import TabelaEntidade from "../../organisms/TabelaEntidade.jsx";
+import FormCadastroEntidade from "../../molecules/FormCadastroEntidade.jsx";
 
 const camposSimplesCadastrar = {
   
@@ -80,13 +80,12 @@ const PaginaClinicaConsulta = ({
           width={600}
           style={{ paddingTop: 24, paddingBottom: 24 }}
         >
-          <FormCadastrarEntidade
+          <FormCadastroEntidade
             entidade={entidade}
             onSubmit={handleCadastrar}
             onSuccess={handleSucesso}
-            setModalVisivel={setModalVisivel}
+            onCancel={() => setModalVisivel(false)}
             tituloModal={`Cadastro de ${nomeEntidade}`}
-            camposSimplesCadastrar={camposSimplesCadastrar}
           />
         </Modal>
       </div>

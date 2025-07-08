@@ -162,6 +162,34 @@ namespace backend.Domain.AtendimentoAnimal
                 };
 
                 _context.TutoresClinicas.Add(tutorClinica);
+
+                if (dto.AnimalId != null && dto.AnimalId.Any())
+                {
+                    _logger.LogInformation("Processando {Count} AnimalIDs para o novo tutor {TutorId}.", dto.AnimalId.Count, tutor.Id);
+                    foreach (var animalId in dto.AnimalId.Distinct())
+                    {
+                        // Valida se o animal existe e pertence à mesma clínica
+                        var animalValido = await _context.AnimaisClinicas
+                                                    .AnyAsync(ac => ac.AnimalId == animalId && ac.ClinicaId == clinicaId);
+
+                        if (!animalValido)
+                        {
+                            await transaction.RollbackAsync();
+                            _logger.LogWarning("Animal com ID {AnimalId} não encontrado ou não pertence à clínica ID {ClinicaId}. Rollback.", animalId, clinicaId);
+                            return BadRequest(new { Message = $"Animal com ID {animalId} não encontrado ou não pertence a esta clínica." });
+                        }
+
+                        var vinculoTutorAnimal = new TutorAnimal
+                        {
+                            TutorId = tutor.Id,
+                            AnimalId = animalId,
+                            DataAssociacao = DateTime.UtcNow
+                        };
+                        _context.TutoresAnimais.Add(vinculoTutorAnimal);
+                        _logger.LogInformation("Vínculo TutorAnimal criado para Tutor ID {TutorId} e Animal ID {AnimalId}.", tutor.Id, animalId);
+                    }
+                }
+
                 await _context.SaveChangesAsync();
 
                 // Commit da transação
@@ -348,7 +376,7 @@ namespace backend.Domain.AtendimentoAnimal
                 return StatusCode(500, "Erro interno no servidor.");
             }
         }
-        
+
         // [HttpDelete("tutores/{tutorId}")]
         // [Authorize(Policy = "GerenciaTutores")]
         // public async Task<IActionResult> DeleteTutor(int tutorId) // Pode ser renomeado para UnlinkTutorFromClinic se preferir

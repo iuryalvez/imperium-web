@@ -5,8 +5,7 @@ namespace backend.Domain.AtendimentoAnimal.DTOs
     public class CadastrarTutorClinicaDto
     {
         public int ClinicaId { get; set; }
-        [Required(ErrorMessage = "O nome do tutor é obrigatório.")]
-        [StringLength(100, ErrorMessage = "O nome do tutor deve ter no máximo 100 caracteres.")]
+        public List<int>? AnimalId { get; set; }
         public string Nome { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "O CPF do tutor é obrigatório.")]
@@ -15,7 +14,6 @@ namespace backend.Domain.AtendimentoAnimal.DTOs
         
         [StringLength(300, ErrorMessage = "O nome do tutor deve ter no máximo 300 caracteres.")]
         public string? Endereco { get; set; }
-        
         public int EndNumero { get; set; } 
         public string? EndEstado { get; set; }
         public string? EndCidade { get; set; }

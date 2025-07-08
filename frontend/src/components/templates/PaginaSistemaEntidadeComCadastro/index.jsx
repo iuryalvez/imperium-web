@@ -37,8 +37,23 @@ const PaginaSistemaEntidadeComCadastro = ({
     buscarDados();
   }, [buscarDados]);
 
+  const sanitize = (value) => {
+    if (!value) return "";
+    return value.replace(/\D/g, "");
+  };
+
   const handleCadastrar = async (formData) => {
-    return await api.cadastrar(formData);
+    let processedData = { ...formData };
+
+    processedData = {
+      ...processedData,
+      cpf: sanitize(formData.cpf),
+      cep: sanitize(formData.cep),
+      telefone1: sanitize(formData.telefone1),
+      whatsapp: sanitize(formData.whatsapp),
+    };
+
+    return await api.cadastrar(processedData);
   };
 
   const handleSucesso = () => {
@@ -58,7 +73,9 @@ const PaginaSistemaEntidadeComCadastro = ({
           <ArrowLeftOutlined className="mr-2" /> Voltar
         </button>
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold text-[var(--verde-medio)]">{titulo}</h1>
+          <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
+            {titulo}
+          </h1>
           <Button
             type="primary"
             icon={<PlusOutlined />}

@@ -35,9 +35,23 @@ const PaginaClinicaEntidadeComCadastro = ({
     buscarDados();
   }, [buscarDados]);
 
+  const sanitize = (value) => {
+    if (!value) return "";
+    return value.replace(/\D/g, "");
+  };
+
   const handleCadastrar = async (formData) => {
-    // Esta função permanece a mesma, ela é a ponte com a API
-    return await api.cadastrar(formData);
+    let processedData = { ...formData };
+
+    processedData = {
+      ...processedData,
+      cpf: sanitize(formData.cpf),
+      cep: sanitize(formData.cep),
+      telefone1: sanitize(formData.telefone1),
+      whatsapp: sanitize(formData.whatsapp),
+    };
+
+    return await api.cadastrar(processedData);
   };
 
   const handleSucesso = () => {
