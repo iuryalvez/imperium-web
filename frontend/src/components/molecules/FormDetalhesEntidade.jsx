@@ -2,11 +2,15 @@ import React from 'react';
 import DetalhesAnimal from './Detalhes/DetalhesAnimal';
 import DetalhesGenericos from './Detalhes/DetalhesGenericos';
 import DetalhesClinica from './Detalhes/DetalhesClinica';
+import DetalhesUsuariosDoSistema from './Detalhes/DetalhesUsuariosDoSistema';
+import DetalhesUsuariosDaClinica from './Detalhes/DetalhesUsuariosDaClinica';
 
 // O mapa de componentes continua o mesmo
 const componentesDeDetalhes = {
     animaisDaClinica: DetalhesAnimal,
     clinicas: DetalhesClinica,
+    usuariosDoSistema: DetalhesUsuariosDoSistema,
+    usuariosDaClinica: DetalhesUsuariosDaClinica
 };
 
 // Este componente agora é apenas um 'bloco de conteúdo'
