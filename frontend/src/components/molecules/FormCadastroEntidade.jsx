@@ -8,7 +8,7 @@ import FormularioCadastroClinica from "./Cadastro/CadastroClinicas";
 import FormularioCadastroAnimaisDaClinica from "./Cadastro/CadastroAnimaisDaClinica";
 import FormularioCadastroTutoresDaClinica from "./Cadastro/CadastroTutoresDaClinica";
 
-const formCadastro = {
+const componentesDeCadastro = {
   usuariosDoSistema: FormularioCadastroUsuarioDoSistema,
   clinicas: FormularioCadastroClinica,
   usuariosDaClinica: FormularioCadastroUsuarioDaClinica,
@@ -47,10 +47,10 @@ const FormCadastroEntidade = ({
     }
   };
 
-  const FormularioEspecifico = formCadastro[entidade];
+  const CadastroEntidade = componentesDeCadastro[entidade];
 
   return (
-    <div className="p-2">
+    <div className="p-4">
         <Form
         form={form}
         layout="vertical"
@@ -59,8 +59,8 @@ const FormCadastroEntidade = ({
         >
         <Typography.Title level={4}>{tituloModal}</Typography.Title>
 
-        {FormularioEspecifico ? (
-            <FormularioEspecifico form={form} />
+        {CadastroEntidade ? (
+            <CadastroEntidade form={form} />
         ) : (
             <Typography.Text type="danger">
             Formulário para a entidade '{entidade}' não foi implementado.

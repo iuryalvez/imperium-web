@@ -13,11 +13,11 @@ const formatarData = (data) => {
 // Mapeia nomes de perfis para cores de Tag para melhor visualização
 const getCorDoPerfil = (perfil) => {
     const perfilUpper = perfil.toUpperCase();
-    if (perfilUpper.includes('ADMIN')) return 'gold';
-    if (perfilUpper.includes('GESTOR')) return 'blue';
-    if (perfilUpper.includes('VETERINARIO')) return 'purple';
-    if (perfilUpper.includes('TECNICO')) return 'cyan';
-    if (perfilUpper.includes('SECRETARIO')) return 'geekblue';
+    if (perfilUpper.includes('ADMIN')) return 'blue';
+    if (perfilUpper.includes('GESTOR')) return 'green';
+    if (perfilUpper.includes('VETERINARIO')) return 'green';
+    if (perfilUpper.includes('TECNICO')) return 'green';
+    if (perfilUpper.includes('SECRETARIO')) return 'green';
     if (perfilUpper.includes('INATIVO')) return 'red';
     return 'default';
 };
@@ -62,7 +62,7 @@ const DetalhesUsuariosDoSistema = ({ valores }) => {
                     </Tag>
                 </Descriptions.Item>
                 <Descriptions.Item label="É Administrador?">
-                    <Tag color={valores.isAdmin ? 'gold' : 'default'}>
+                    <Tag color={valores.isAdmin ? 'green' : 'default'}>
                         {valores.isAdmin ? 'Sim' : 'Não'}
                     </Tag>
                 </Descriptions.Item>

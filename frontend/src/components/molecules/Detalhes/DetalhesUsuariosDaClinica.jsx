@@ -11,10 +11,10 @@ const formatarData = (data) => {
 
 const getCorDoPerfil = (perfil) => {
     const perfilUpper = perfil.toUpperCase();
-    if (perfilUpper.includes('GESTOR')) return 'blue';
-    if (perfilUpper.includes('VETERINARIO')) return 'purple';
-    if (perfilUpper.includes('TECNICO')) return 'cyan';
-    if (perfilUpper.includes('SECRETARIO')) return 'geekblue';
+    if (perfilUpper.includes('GESTOR')) return 'green';
+    if (perfilUpper.includes('VETERINARIO')) return 'green';
+    if (perfilUpper.includes('TECNICO')) return 'green';
+    if (perfilUpper.includes('SECRETARIO')) return 'green';
     return 'default';
 };
 

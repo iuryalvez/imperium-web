@@ -38,7 +38,7 @@ const renderTutores = (tutores = []) => {
 
 // --- Componente Principal de Detalhes ---
 
-const DetalhesAnimal = ({ valores }) => {
+const DetalhesAnimaisDaClinica = ({ valores }) => {
     const isFemea = valores.sexo === 2;
     const naoInformado = <Typography.Text type="secondary">Não informado</Typography.Text>;
 
@@ -93,4 +93,4 @@ const DetalhesAnimal = ({ valores }) => {
     );
 };
 
-export default DetalhesAnimal;
+export default DetalhesAnimaisDaClinica;

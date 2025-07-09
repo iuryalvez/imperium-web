@@ -15,9 +15,9 @@ import {
   LoginOutlined,
 } from "@ant-design/icons";
 import "../styles/TabelaEntidade.css";
-import FormEditarEntidade from "../molecules/FormEditarEntidade";
 import FormAcessarClinica from "../molecules/FormAcessarClinica";
 import FormDetalhesEntidade from "../molecules/FormDetalhesEntidade";
+import FormEdicaoEntidade from "../molecules/FormEdicaoEntidade";
 
 const TabelaEntidade = ({
   entidade,
@@ -41,37 +41,23 @@ const TabelaEntidade = ({
     setRegistros(dados);
   }, [dados]); // atualiza quando a entidade dados muda
 
-  // edição otimista com rollback em caso de erro
-  const editarRegistro = async (valores) => {
-    setLoading(true);
-    try {
-      // salva estado atual para possível rollback
-      setBackupRegistros(registros);
-
-      // atualização otimista: já atualiza localmente antes de confirmar com o backend (?)
-      setRegistros((prev) =>
-        prev.map((reg) =>
-          reg.id === valores.id ? { ...reg, ...valores } : reg
-        )
-      );
-
-      await entidadeAPI.editar(valores);
-
-      setModalEdicaoVisivel(false);
-      message.success(`${nomeEntidade} atualizado com sucesso!`);
-      // callback do componente pai
-      if (onAtualizar) onAtualizar();
-    } catch (erro) {
-      // rollback em caso de erro
-      setRegistros(backupRegistros);
-      console.error("Erro ao editar registro:", erro);
-      message.error(
-        erro.response?.data?.message ||
-          `Falha ao atualizar ${nomeEntidade.toLowerCase()}`
-      );
-    } finally {
-      setLoading(false);
+  const handleSucessoEdicao = () => {
+    setModalEdicaoVisivel(false); // Fecha o modal
+    if (onAtualizar) {
+      onAtualizar(); // Atualiza a tabela
     }
+  };
+
+    const editarRegistro = async (valores) => {
+    setBackupRegistros(registros);
+    setRegistros((prev) =>
+      prev.map((reg) =>
+        (reg.id === valores.id && reg.upcId === valores.upcId) ? { ...reg, ...valores } : reg
+      )
+    );
+    // O try/catch foi movido para o container do formulário, 
+    // mas a chamada da API permanece aqui, o que está correto.
+    await entidadeAPI.editar(valores); 
   };
 
   const deletarRegistro = async (registroId) => {
@@ -200,8 +186,8 @@ const TabelaEntidade = ({
           ]}
           centered
           destroyOnClose
-          width={'70vw'}
-          style={{ maxWidth: '800px', paddingTop: 24, paddingBottom: 24 }}
+          width={"70vw"}
+          style={{ maxWidth: "800px", paddingTop: 24, paddingBottom: 24 }}
         >
           {registroSelecionado && (
             <FormDetalhesEntidade
@@ -220,18 +206,20 @@ const TabelaEntidade = ({
           centered
           destroyOnClose
           width={700}
-          style={{ paddingTop: 24, paddingBottom: 24 }}
           className="modal-edicao"
         >
-          <FormEditarEntidade
-            entidade={entidade}
-            onSubmit={(valores) => editarRegistro(valores)}
-            onSuccess={onAtualizar}
-            setModalEdicaoVisivel={setModalEdicaoVisivel}
-            tituloModal={`Edição de ${nomeEntidade}`}
-            valoresIniciais={registroSelecionado}
-            camposSimplesEditar={camposSimplesEditar}
-          />
+          {/* Garante que o formulário só renderize quando tiver dados */}
+          {registroSelecionado && (
+            // 3. Chamada ao componente com a sintaxe correta e as props bem definidas
+            <FormEdicaoEntidade
+              entidade={entidade}
+              valoresIniciais={registroSelecionado}
+              onSubmit={editarRegistro} // Passa a função de edição
+              onSuccess={handleSucessoEdicao} // Passa a nova função de sucesso
+              onCancel={() => setModalEdicaoVisivel(false)}
+              tituloModal={`Edição de ${nomeEntidade}`}
+            />
+          )}
         </Modal>
         <Modal
           title={`Acessar Clínica`}
