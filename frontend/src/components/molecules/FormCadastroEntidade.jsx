@@ -10,8 +10,8 @@ import FormularioCadastroTutoresDaClinica from "./Cadastro/CadastroTutoresDaClin
 
 const formCadastro = {
   usuariosDoSistema: FormularioCadastroUsuarioDoSistema,
-  usuariosDaClinica: FormularioCadastroUsuarioDaClinica,
   clinicas: FormularioCadastroClinica,
+  usuariosDaClinica: FormularioCadastroUsuarioDaClinica,
   animaisDaClinica: FormularioCadastroAnimaisDaClinica,
   tutoresDaClinica: FormularioCadastroTutoresDaClinica,
 };

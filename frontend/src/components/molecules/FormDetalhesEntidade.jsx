@@ -4,13 +4,15 @@ import DetalhesGenericos from './Detalhes/DetalhesGenericos';
 import DetalhesClinica from './Detalhes/DetalhesClinica';
 import DetalhesUsuariosDoSistema from './Detalhes/DetalhesUsuariosDoSistema';
 import DetalhesUsuariosDaClinica from './Detalhes/DetalhesUsuariosDaClinica';
+import DetalhesTutoresDaClinica from './Detalhes/DetalhesTutoresDaClinica';
 
 // O mapa de componentes continua o mesmo
 const componentesDeDetalhes = {
     animaisDaClinica: DetalhesAnimal,
     clinicas: DetalhesClinica,
     usuariosDoSistema: DetalhesUsuariosDoSistema,
-    usuariosDaClinica: DetalhesUsuariosDaClinica
+    usuariosDaClinica: DetalhesUsuariosDaClinica,
+    tutoresDaClinica: DetalhesTutoresDaClinica
 };
 
 // Este componente agora é apenas um 'bloco de conteúdo'
