@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace backend.Migrations
 {
     /// <inheritdoc />
-    public partial class RacasAdded : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -273,8 +273,7 @@ namespace backend.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UsuarioId = table.Column<int>(type: "integer", nullable: false),
                     ClinicaId = table.Column<int>(type: "integer", nullable: false),
-                    Perfis = table.Column<List<string>>(type: "text[]", nullable: true),
-                    ClinicaID = table.Column<int>(type: "integer", nullable: true)
+                    Perfis = table.Column<List<string>>(type: "text[]", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -310,8 +309,8 @@ namespace backend.Migrations
                     Peso = table.Column<float>(type: "real", nullable: false),
                     CondicaoCorporal = table.Column<int>(type: "integer", nullable: false),
                     GrauAtividade = table.Column<int>(type: "integer", nullable: false),
-                    Gestacao = table.Column<bool>(type: "boolean", nullable: false),
-                    Lactacao = table.Column<int>(type: "integer", nullable: false),
+                    IsGestante = table.Column<bool>(type: "boolean", nullable: false),
+                    IsLactanteNumeroFilhotes = table.Column<int>(type: "integer", nullable: false),
                     SemanaLactacao = table.Column<int>(type: "integer", nullable: false),
                     SemanaGestacao = table.Column<int>(type: "integer", nullable: false)
                 },
@@ -322,40 +321,6 @@ namespace backend.Migrations
                         name: "FK_Animais_Racas_RacaId",
                         column: x => x.RacaId,
                         principalTable: "Racas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Consultas",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UsuarioId = table.Column<int>(type: "integer", nullable: false),
-                    ClinicaId = table.Column<int>(type: "integer", nullable: false),
-                    TutorId = table.Column<int>(type: "integer", nullable: false),
-                    DataConsulta = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Consultas", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Consultas_AspNetUsers_UsuarioId",
-                        column: x => x.UsuarioId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Consultas_Clinicas_ClinicaId",
-                        column: x => x.ClinicaId,
-                        principalTable: "Clinicas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Consultas_Tutores_TutorId",
-                        column: x => x.TutorId,
-                        principalTable: "Tutores",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -395,7 +360,7 @@ namespace backend.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     AnimalId = table.Column<int>(type: "integer", nullable: false),
                     DataInicio = table.Column<DateOnly>(type: "date", nullable: false),
-                    DataFim = table.Column<DateOnly>(type: "date", nullable: false)
+                    DataFim = table.Column<DateOnly>(type: "date", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -431,6 +396,47 @@ namespace backend.Migrations
                         name: "FK_AnimaisClinicas_Clinicas_ClinicaId",
                         column: x => x.ClinicaId,
                         principalTable: "Clinicas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Consultas",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UsuarioId = table.Column<int>(type: "integer", nullable: false),
+                    ClinicaId = table.Column<int>(type: "integer", nullable: false),
+                    TutorId = table.Column<int>(type: "integer", nullable: false),
+                    AnimalId = table.Column<int>(type: "integer", nullable: false),
+                    DataConsulta = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Consultas", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Consultas_Animais_AnimalId",
+                        column: x => x.AnimalId,
+                        principalTable: "Animais",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Consultas_AspNetUsers_UsuarioId",
+                        column: x => x.UsuarioId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Consultas_Clinicas_ClinicaId",
+                        column: x => x.ClinicaId,
+                        principalTable: "Clinicas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Consultas_Tutores_TutorId",
+                        column: x => x.TutorId,
+                        principalTable: "Tutores",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -475,8 +481,7 @@ namespace backend.Migrations
                     EnergiaMetabolizavel = table.Column<float>(type: "real", nullable: false),
                     PesoAtual = table.Column<float>(type: "real", nullable: false),
                     PesoObjetivo = table.Column<float>(type: "real", nullable: false),
-                    PesoIdeal = table.Column<float>(type: "real", nullable: false),
-                    AcomapanhamentoIndId = table.Column<int>(type: "integer", nullable: true)
+                    PesoIdeal = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -502,13 +507,13 @@ namespace backend.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ConsultaId = table.Column<int>(type: "integer", nullable: false),
-                    AcompanhamentoIndId = table.Column<int>(type: "integer", nullable: false),
                     Idade = table.Column<int>(type: "integer", nullable: false),
                     Peso = table.Column<float>(type: "real", nullable: false),
                     CondicaoCorporal = table.Column<int>(type: "integer", nullable: false),
                     GrauAtividade = table.Column<int>(type: "integer", nullable: false),
-                    Racao = table.Column<string>(type: "text", nullable: true),
-                    DescDieta = table.Column<string>(type: "text", nullable: true)
+                    RacaoId = table.Column<int>(type: "integer", nullable: false),
+                    DescricaoDieta = table.Column<string>(type: "text", nullable: true),
+                    AcompanhamentoIndId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -517,14 +522,19 @@ namespace backend.Migrations
                         name: "FK_Relatorios_AcompanhamentosInds_AcompanhamentoIndId",
                         column: x => x.AcompanhamentoIndId,
                         principalTable: "AcompanhamentosInds",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Relatorios_Consultas_ConsultaId",
                         column: x => x.ConsultaId,
                         principalTable: "Consultas",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Relatorios_Racoes_RacaoId",
+                        column: x => x.RacaoId,
+                        principalTable: "Racoes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.InsertData(
@@ -532,10 +542,10 @@ namespace backend.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Cpf", "DataCad", "DataUltimoAcesso", "Email", "EmailConfirmed", "Formacao", "IsAdmin", "IsAtivo", "LockoutEnabled", "LockoutEnd", "Nome", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "Telefone1", "TwoFactorEnabled", "UserName", "Whatsapp" },
                 values: new object[,]
                 {
-                    { -4, 0, "02f881df-a454-4f15-84f4-393cdb62edae", "01234567893", new DateTime(2025, 6, 24, 21, 22, 16, 584, DateTimeKind.Utc).AddTicks(5652), new DateTime(2025, 6, 24, 21, 22, 16, 584, DateTimeKind.Utc).AddTicks(5666), "ceron@gsmail.com", true, "Administrador do Sistema", true, true, false, null, "Admin Ceron", "CERON@GSMAIL.COM", "ADMIN CERON", "AQAAAAIAAYagAAAAEMf+1OsJguOq5FC2Tn5y8TdZFiMNmw+qgn1jeO5V2poHSSs7NPplI5F79IoP2+3N5g==", null, false, "913fc952-4753-4a4f-bdff-92e2506451f6", "62940302010", false, "ceron", "62940302010" },
-                    { -3, 0, "87b3f3b4-90cb-41aa-8483-a1a07d4209c1", "01234567892", new DateTime(2025, 6, 24, 21, 22, 16, 584, DateTimeKind.Utc).AddTicks(5608), new DateTime(2025, 6, 24, 21, 22, 16, 584, DateTimeKind.Utc).AddTicks(5623), "hugo@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Hugo", "HUGO@GSMAIL.COM", "ADMIN HUGO", "AQAAAAIAAYagAAAAEKkSbQ84UaXqfQPbcxMxY07yCYvCZTuTK9MkVfUTUG3CN7hGdmfZHWBTdQxRGolvZg==", null, false, "50e04dc6-09b8-42bf-95d5-e4ea136e9528", "62910203040", false, "hugo", "62910203040" },
-                    { -2, 0, "a05398d2-e0e7-459b-93b2-88c9fa59ae42", "01234567891", new DateTime(2025, 6, 24, 21, 22, 16, 584, DateTimeKind.Utc).AddTicks(5571), new DateTime(2025, 6, 24, 21, 22, 16, 584, DateTimeKind.Utc).AddTicks(5580), "rafael@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Rafael", "RAFAEL@GSMAIL.COM", "ADMIN RAFAEL", "AQAAAAIAAYagAAAAEHwrn8mvBeRnjYf/af/mS+0a6VUzaiIf5gp5yxfeLpBzoifduaMckwVUCtumjAjvwg==", null, false, "11c57fa4-a699-4afb-8e60-05b30eaf111f", "62912345678", false, "admin.rafael", "62912345678" },
-                    { -1, 0, "372ebf31-60ab-486b-8784-ed01ec90bfb5", "01234567890", new DateTime(2025, 6, 24, 21, 22, 16, 584, DateTimeKind.Utc).AddTicks(5522), new DateTime(2025, 6, 24, 21, 22, 16, 584, DateTimeKind.Utc).AddTicks(5537), "iury@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Iury", "IURY@GSMAIL.COM", "IURY", "AQAAAAIAAYagAAAAEObs3YFOK+zdtyRtqadLd7ac1X3QJNSLl7mEw/OTzX54Yd8JZ5ADJPjxK2X5bqAhWw==", null, false, "48270afb-6353-4364-b15b-1cd27af97f76", "62987654321", false, "admin.iury", "62987654321" }
+                    { -4, 0, "0d749bb4-6ed3-4497-b347-5dd7b821edbf", "01234567893", new DateTime(2025, 7, 17, 2, 51, 39, 174, DateTimeKind.Utc).AddTicks(5477), new DateTime(2025, 7, 17, 2, 51, 39, 174, DateTimeKind.Utc).AddTicks(5491), "ceron@gsmail.com", true, "Administrador do Sistema", true, true, false, null, "Admin Ceron", "CERON@GSMAIL.COM", "ADMIN CERON", "AQAAAAIAAYagAAAAEKG+4oQlxTU55oOtxh9NNRUSOFaFcKgWEbW2P3le1Nbbjl7AX89Bk7HHDb6o+qZaUw==", null, false, "2bb8dc0f-6ece-446d-bfa1-207fa29e44ea", "62940302010", false, "ceron", "62940302010" },
+                    { -3, 0, "da924918-cff2-4408-8c9a-2a1f01d5fc74", "01234567892", new DateTime(2025, 7, 17, 2, 51, 39, 174, DateTimeKind.Utc).AddTicks(5438), new DateTime(2025, 7, 17, 2, 51, 39, 174, DateTimeKind.Utc).AddTicks(5447), "hugo@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Hugo", "HUGO@GSMAIL.COM", "ADMIN HUGO", "AQAAAAIAAYagAAAAEHGrxMvem3b7iTgafsjqOYWK0VOEi5OEl1ZeKHIwSnt0J638u5Kn8n6JV04MqVzGuQ==", null, false, "5b0b1580-1674-404e-80be-fb95f1c2b9e1", "62910203040", false, "hugo", "62910203040" },
+                    { -2, 0, "e32620b8-6c4a-46f3-847c-f40ba4b6244a", "01234567891", new DateTime(2025, 7, 17, 2, 51, 39, 174, DateTimeKind.Utc).AddTicks(5395), new DateTime(2025, 7, 17, 2, 51, 39, 174, DateTimeKind.Utc).AddTicks(5405), "rafael@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Rafael", "RAFAEL@GSMAIL.COM", "ADMIN RAFAEL", "AQAAAAIAAYagAAAAEBoJ8MrDkFffmjrajS/fjyaS/mRJ2iU42tWvLZxCAmsO36g55dbkF4IaHfSGpa3g2w==", null, false, "10fd176e-0476-433a-88f5-c1365169ab54", "62912345678", false, "admin.rafael", "62912345678" },
+                    { -1, 0, "28eb9747-7b3f-4851-872f-0e9b7c847f95", "01234567890", new DateTime(2025, 7, 17, 2, 51, 39, 174, DateTimeKind.Utc).AddTicks(5347), new DateTime(2025, 7, 17, 2, 51, 39, 174, DateTimeKind.Utc).AddTicks(5362), "iury@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Iury", "IURY@GSMAIL.COM", "IURY", "AQAAAAIAAYagAAAAEDZxyh9+8SeVJimrg62LlWtLbwmWtx0VXdyBbCror9JalavvYwNhR1jvrgWHmvW4Mw==", null, false, "cbdfb863-ba8b-49ac-8bb1-f184705db90b", "62987654321", false, "admin.iury", "62987654321" }
                 });
 
             migrationBuilder.InsertData(
@@ -700,6 +710,11 @@ namespace backend.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Consultas_AnimalId",
+                table: "Consultas",
+                column: "AnimalId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Consultas_ClinicaId",
                 table: "Consultas",
                 column: "ClinicaId");
@@ -722,8 +737,7 @@ namespace backend.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_DietasPersonalizadas_RacaoId",
                 table: "DietasPersonalizadas",
-                column: "RacaoId",
-                unique: true);
+                column: "RacaoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Racoes_ClinicaId",
@@ -740,6 +754,11 @@ namespace backend.Migrations
                 table: "Relatorios",
                 column: "ConsultaId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Relatorios_RacaoId",
+                table: "Relatorios",
+                column: "RacaoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TutoresAnimais_AnimalId",
@@ -812,13 +831,13 @@ namespace backend.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Racoes");
-
-            migrationBuilder.DropTable(
                 name: "AcompanhamentosInds");
 
             migrationBuilder.DropTable(
                 name: "Consultas");
+
+            migrationBuilder.DropTable(
+                name: "Racoes");
 
             migrationBuilder.DropTable(
                 name: "Animais");
@@ -827,10 +846,10 @@ namespace backend.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Clinicas");
+                name: "Tutores");
 
             migrationBuilder.DropTable(
-                name: "Tutores");
+                name: "Clinicas");
 
             migrationBuilder.DropTable(
                 name: "Racas");

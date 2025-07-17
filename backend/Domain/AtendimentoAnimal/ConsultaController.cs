@@ -134,13 +134,11 @@ namespace backend.Domain.AtendimentoAnimal
                 {
                     Id = r.Id,
                     ConsultaId = r.ConsultaId,
-                    AcompanhamentoIndId = r.AcompanhamentoIndId,
                     Idade = r.Idade,
                     Peso = r.Peso,
                     CondicaoCorporal = r.CondicaoCorporal,
                     GrauAtividade = r.GrauAtividade,
-                    Racao = r.Racao,
-                    DescDieta = r.DescDieta
+                    DescDieta = r.DescricaoDieta
                 })
                 .FirstOrDefaultAsync();
 
@@ -164,13 +162,11 @@ namespace backend.Domain.AtendimentoAnimal
             var relatorio = new Relatorio
             {
                 ConsultaId = consultaId,
-                AcompanhamentoIndId = relatorioDto.AcompanhamentoIndId,
                 Idade = relatorioDto.Idade,
                 Peso = relatorioDto.Peso,
                 CondicaoCorporal = relatorioDto.CondicaoCorporal,
                 GrauAtividade = relatorioDto.GrauAtividade,
-                Racao = relatorioDto.Racao,
-                DescDieta = relatorioDto.DescDieta
+                DescricaoDieta = relatorioDto.DescDieta
             };
 
             _context.Relatorios.Add(relatorio);
@@ -189,13 +185,11 @@ namespace backend.Domain.AtendimentoAnimal
                 return NotFound("Relatório não encontrado para a consulta especificada.");
             }
 
-            relatorio.AcompanhamentoIndId = relatorioDto.AcompanhamentoIndId;
             relatorio.Idade = relatorioDto.Idade;
             relatorio.Peso = relatorioDto.Peso;
             relatorio.CondicaoCorporal = relatorioDto.CondicaoCorporal;
             relatorio.GrauAtividade = relatorioDto.GrauAtividade;
-            relatorio.Racao = relatorioDto.Racao;
-            relatorio.DescDieta = relatorioDto.DescDieta;
+            relatorio.DescricaoDieta = relatorioDto.DescDieta;
 
             _context.Relatorios.Update(relatorio);
             await _context.SaveChangesAsync();

@@ -57,12 +57,12 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         public float Peso { get; set; }
         public CondicaoCorporal CondicaoCorporal { get; set; } // valores: 1-10
         public GrauAtividade GrauAtividade { get; set; } // 1-inativo, 2-moderado, 3-ativo
-        public bool Gestacao { get; set; }
-        public int Lactacao { get; set; } // numero de filhotes
+        public bool IsGestante { get; set; }
+        public int IsLactanteNumeroFilhotes { get; set; } // numero de filhotes
         public int SemanaLactacao { get; set; }
         public int SemanaGestacao { get; set; }
-
         public AcompanhamentoInd? AcompanhamentoInd { get; set; } // referência de navegação com o dependente
+        public ICollection<Consulta>? Consultas { get; set; } // navegation
         public ICollection<AnimalClinica>? AnimaisClinicas { get; set; } // referência de navegação com o dependente
         public ICollection<TutorAnimal>? TutoresAnimais { get; set; }
 

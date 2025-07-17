@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using backend.Domain.SaudeAnimal.Entities;
 
 namespace backend.Domain.AtendimentoAnimal.Entities {
     public class Relatorio {
@@ -7,14 +8,15 @@ namespace backend.Domain.AtendimentoAnimal.Entities {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int ConsultaId { get; set; } // foreign Key para ConsultaId
-        public Consulta? Consulta { get; set; } // um relatorio para uma Consulta
-        public int AcompanhamentoIndId { get; set; }
-        public AcompanhamentoInd? AcompanhamentoInd { get; set; }
+        [ForeignKey("ConsultaId")]
+        public Consulta? Consulta { get; set; }
         public int Idade { get; set; }
         public float Peso { get; set; }
         public CondicaoCorporal CondicaoCorporal { get; set; }
         public GrauAtividade GrauAtividade { get; set; } // 0-inativo, 1-moderado, 2-ativo
-        public string? Racao { get; set; }
-        public string? DescDieta { get; set; }
+        public int RacaoId { get; set; }
+        [ForeignKey("RacaoId")]
+        public Racao? Racao { get; set; }
+        public string? DescricaoDieta { get; set; }
     }
 }

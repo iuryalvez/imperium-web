@@ -93,158 +93,130 @@ namespace backend.Infra.Data
                 .Property(entidade => entidade.Id)
                 .ValueGeneratedOnAdd();
 
-            // 1-1 Acompanhamento e Animal
+            // AcompanhamentoInd 1:1 Animal
             modelBuilder.Entity<AcompanhamentoInd>()
                 .HasOne(ai => ai.Animal)
                 .WithOne(a => a.AcompanhamentoInd)
                 .HasForeignKey<AcompanhamentoInd>(ai => ai.AnimalId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 1-N Acompanhamento e Consultas
-            modelBuilder.Entity<AcompanhamentoInd>()
-                .HasMany(ai => ai.Relatorios)
-                .WithOne(c => c.AcompanhamentoInd)
-                .HasForeignKey(c => c.AcompanhamentoIndId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // 1-N Acompanhamento e Dietas
+            // AcompanhamentoInd 1:N DietaPersonalizada
             modelBuilder.Entity<AcompanhamentoInd>()
                 .HasMany(ai => ai.DietasPersonalizadas)
                 .WithOne(dp => dp.AcompanhamentoInd)
                 .HasForeignKey(dp => dp.AcompanhamentoIndId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 1-N Animal e ACs
+            // Animal 1:N AnimalClinica
             modelBuilder.Entity<Animal>()
                 .HasMany(a => a.AnimaisClinicas)
                 .WithOne(ac => ac.Animal)
-                .HasForeignKey(tac => tac.AnimalId)
+                .HasForeignKey(ac => ac.AnimalId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 1-N Animal e TAs
+            // Animal 1:N TutorAnimal
             modelBuilder.Entity<Animal>()
                 .HasMany(a => a.TutoresAnimais)
-                .WithOne(ac => ac.Animal)
-                .HasForeignKey(tac => tac.AnimalId)
+                .WithOne(ta => ta.Animal)
+                .HasForeignKey(ta => ta.AnimalId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Animal N:1 Raca
+            // Animal 1:N Consulta
             modelBuilder.Entity<Animal>()
-                .HasOne(a => a.Raca)
-                .WithMany(r => r.Animais)
+                .HasMany(a => a.Consultas)
+                .WithOne(c => c.Animal)
+                .HasForeignKey(c => c.AnimalId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Raca 1:N Animal
+            modelBuilder.Entity<Raca>()
+                .HasMany(r => r.Animais)
+                .WithOne(a => a.Raca)
                 .HasForeignKey(a => a.RacaId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 1-N Clinica e Consultas
-            modelBuilder.Entity<Clinica>()
-                .HasMany(cli => cli.Consultas)
-                .WithOne(con => con.Clinica)
-                .HasForeignKey(con => con.ClinicaId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // 1-N Clinica e UPCs
-            modelBuilder.Entity<Clinica>()
-                .HasMany(c => c.UsuariosPerfisClinicas)
-                .WithOne(upc => upc.Clinica)
-                .HasForeignKey(upc => upc.ClinicaId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // 1-N Clinica e ACs
-            modelBuilder.Entity<Clinica>()
-                .HasMany(c => c.AnimaisClinicas)
-                .WithOne(tac => tac.Clinica)
-                .HasForeignKey(tac => tac.ClinicaId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // 1-N Clinica e TCs
-            modelBuilder.Entity<Clinica>()
-                .HasMany(c => c.TutoresClinicas)
-                .WithOne(tc => tc.Clinica)
-                .HasForeignKey(tc => tc.ClinicaId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // 1-N Tutor e TCs
-            modelBuilder.Entity<Tutor>()
-                .HasMany(tutores => tutores.TutoresClinicas)
-                .WithOne(tc => tc.Tutor)
-                .HasForeignKey(tc => tc.TutorId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // 1-N Tutor e TAs
-            modelBuilder.Entity<Tutor>()
-                .HasMany(tutores => tutores.TutoresAnimais)
-                .WithOne(tc => tc.Tutor)
-                .HasForeignKey(tc => tc.TutorId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // 1-N Clinica e Racoes
+            // Clinica 1:N Racao
             modelBuilder.Entity<Clinica>()
                 .HasMany(c => c.Racoes)
                 .WithOne(r => r.Clinica)
                 .HasForeignKey(r => r.ClinicaId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // N-1 Consultas e Usuario
-            modelBuilder.Entity<Consulta>()
-                .HasOne(c => c.Usuario)
-                .WithMany(u => u.Consultas)
-                .HasForeignKey(c => c.UsuarioId)
+            // Clinica 1:N Consulta
+            modelBuilder.Entity<Clinica>()
+                .HasMany(c => c.Consultas)
+                .WithOne(con => con.Clinica)
+                .HasForeignKey(con => con.ClinicaId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // N-1 Consultas e Tutor
-            modelBuilder.Entity<Consulta>()
-                .HasOne(c => c.Tutor) // consulta tem um tutor
-                .WithMany(t => t.Consultas) // tutor tem muitas consultas
-                .HasForeignKey(c => c.TutorId) // consulta tem a chave estrangeira do tutor
+            // Clinica 1:N TutorClinica
+            modelBuilder.Entity<Clinica>()
+                .HasMany(c => c.TutoresClinicas)
+                .WithOne(tc => tc.Clinica)
+                .HasForeignKey(tc => tc.ClinicaId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 1-1 Consulta e Relatorio
+            // Clinica 1:N UsuarioPerfilClinica
+            modelBuilder.Entity<Clinica>()
+                .HasMany(c => c.UsuariosPerfisClinicas)
+                .WithOne(upc => upc.Clinica)
+                .HasForeignKey(upc => upc.ClinicaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Consulta 1:1 Relatorio
             modelBuilder.Entity<Consulta>()
                 .HasOne(c => c.Relatorio)
                 .WithOne(r => r.Consulta)
                 .HasForeignKey<Relatorio>(r => r.ConsultaId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade); // Correct: a report is meaningless without its consultation.
 
-            // 1-1 Dieta e Racao
-            modelBuilder.Entity<DietaPersonalizada>()
-                .HasOne(dp => dp.Racao)
-                .WithOne(r => r.DietaPersonalizada)
-                .HasForeignKey<DietaPersonalizada>(dp => dp.RacaoId)
+            // Racao 1:N DietaPersonalizada
+            modelBuilder.Entity<Racao>()
+                .HasMany(r => r.DietasPersonalizadas)
+                .WithOne(dp => dp.Racao)
+                .HasForeignKey(dp => dp.RacaoId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // TutorClinica 1:N Tutor
-            modelBuilder.Entity<TutorClinica>()
-                .HasOne(tc => tc.Tutor) // tc tem um tutor
-                .WithMany(tutor => tutor.TutoresClinicas) // um tutor tem muitos upc
-                .HasForeignKey(tc => tc.TutorId) // a chave estrangeira de tc é tutorId
+            // Racao 1:N Relatorio
+            modelBuilder.Entity<Racao>()
+                .HasMany(r => r.Relatorios)
+                .WithOne(rel => rel.Racao)
+                .HasForeignKey(rel => rel.RacaoId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // TutorClinica 1:N Clinica
-            modelBuilder.Entity<TutorClinica>()
-                .HasOne(tc => tc.Clinica) // tc tem uma clinica
-                .WithMany(clinica => clinica.TutoresClinicas) // uma clinica tem muitos tc
-                .HasForeignKey(tc => tc.ClinicaId) // a chave estrangeira de tc é clinicaId
+            // Tutor 1:N Consulta
+            modelBuilder.Entity<Tutor>()
+                .HasMany(t => t.Consultas)
+                .WithOne(c => c.Tutor)
+                .HasForeignKey(c => c.TutorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // UsuarioPerfilClinica 1:N Usuario
-            modelBuilder.Entity<UsuarioPerfilClinica>()
-                .HasOne(upc => upc.Usuario) // upc tem um usuário
-                .WithMany(u => u.UsuariosPerfisClinicas) // um usuário tem muitos upc
-                .HasForeignKey(upc => upc.UsuarioId) // a chave estrangeira de upc é usuarioId
+            // Tutor 1:N TutorAnimal
+            modelBuilder.Entity<Tutor>()
+                .HasMany(t => t.TutoresAnimais)
+                .WithOne(ta => ta.Tutor)
+                .HasForeignKey(ta => ta.TutorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // UsuarioPerfilClinica 1:N Clinica
-            modelBuilder.Entity<UsuarioPerfilClinica>()
-                .HasOne(upc => upc.Clinica)
-                .WithMany(c => c.UsuariosPerfisClinicas)
-                .HasForeignKey(upc => upc.ClinicaId)
+            // Tutor 1:N TutorClinica
+            modelBuilder.Entity<Tutor>()
+                .HasMany(t => t.TutoresClinicas)
+                .WithOne(tc => tc.Tutor)
+                .HasForeignKey(tc => tc.TutorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Raca 1:N Animais
-            modelBuilder.Entity<Raca>()
-                .HasMany(raca => raca.Animais)
-                .WithOne(ani => ani.Raca)
-                .HasForeignKey(ani => ani.RacaId)
+            // Usuario 1:N Consulta
+            modelBuilder.Entity<Usuario>()
+                .HasMany(u => u.Consultas)
+                .WithOne(c => c.Usuario)
+                .HasForeignKey(c => c.UsuarioId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Usuario 1:N UsuarioPerfilClinica
+            modelBuilder.Entity<Usuario>()
+                .HasMany(u => u.UsuariosPerfisClinicas)
+                .WithOne(upc => upc.Usuario)
+                .HasForeignKey(upc => upc.UsuarioId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             DatabaseSeeder.Seed(modelBuilder);
@@ -252,27 +224,3 @@ namespace backend.Infra.Data
         }
     }
 }
-// modelBuilder.Entity<TutorAnimalClinica>()
-//     .Property(tac => tac.Id)
-//     .ValueGeneratedOnAdd();
-
-// // TutorAnimalClinica 1:N Tutor
-// modelBuilder.Entity<TutorAnimalClinica>()
-//     .HasOne(tac => tac.Tutor) // tac tem um tutor
-//     .WithMany(t => t.TutoresAnimaisClinicas) // um tutor tem muitos tac
-//     .HasForeignKey(tac => tac.TutorId) // a chave estrangeira de tac é tutorId
-//     .OnDelete(DeleteBehavior.Restrict);
-
-// // TutorAnimalClinica 1:N Animal
-// modelBuilder.Entity<TutorAnimalClinica>()
-//     .HasOne(tac => tac.Animal) // tac tem um animal
-//     .WithMany(a => a.TutoresAnimaisClinicas) // um animal tem muitos tac
-//     .HasForeignKey(tac => tac.AnimalId) // a chave estrangeira de tac é animalId
-//     .OnDelete(DeleteBehavior.Restrict);
-
-// // TutorAnimalClinica 1:N Clinica
-// modelBuilder.Entity<TutorAnimalClinica>()
-//     .HasOne(tac => tac.Clinica) // tac tem uma clinica
-//     .WithMany(c => c.TutoresAnimaisClinicas) // uma clinica tem muitos tac
-//     .HasForeignKey(tac => tac.ClinicaId) // a chave estrangeira de tac é clinicaId
-//     .OnDelete(DeleteBehavior.Restrict);
