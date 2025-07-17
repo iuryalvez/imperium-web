@@ -206,7 +206,7 @@ internal class Program
 
         builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
         {
-            options.TokenLifespan = TimeSpan.FromMinutes(30); // Define a validade do token para 30 minutos
+            options.TokenLifespan = TimeSpan.FromHours(12); // Define a validade do token para 12 horas
         });
 
         // configuração de Logging para o Console

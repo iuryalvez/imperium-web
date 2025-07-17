@@ -90,7 +90,7 @@ const TabelaEntidade = ({
       // A camada de API (`entidadeAPI`) vai descobrir o que fazer com ele.
       await entidadeAPI.setStatus(record, !estaAtivo);
 
-      message.success(`${nomeEntidade} ${acao.slice(0, -1)}ado com sucesso.`);
+      message.success(`${nomeEntidade} alterado com sucesso.`);
       if (onAtualizar) onAtualizar();
     } catch (error) {
       console.error(`Erro ao ${acao} usuário:`, error);

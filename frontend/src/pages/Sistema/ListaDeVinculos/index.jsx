@@ -8,10 +8,10 @@ import BotaoSecundario from "../../../components/atoms/BotaoSecundario";
 const { Title, Text } = Typography;
 
 const ListaDeVinculos = () => {
+  const { escolherVinculo, isLoading } = useAuth();
   const [vinculos, setVinculos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { escolherVinculo } = useAuth();
 
   useEffect(() => {
     const fetchVinculos = async () => {
@@ -21,23 +21,14 @@ const ListaDeVinculos = () => {
       } catch (err) {
         setError("Erro ao carregar os vínculos.");
       } finally {
-        setLoading(false);
+        setPageLoading(false);
       }
     };
 
     fetchVinculos();
   }, []);
 
-  const handleEscolherVinculo = async (vinculoId) => {
-    try {
-      await escolherVinculo(vinculoId);
-    } catch (error) {
-      console.error("Erro ao escolher vínculo:", error);
-      alert("Não foi possível selecionar o vínculo. Tente novamente.");
-    }
-  };
-
-  if (loading) {
+  if (pageLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Spin size="large" />
@@ -77,7 +68,8 @@ const ListaDeVinculos = () => {
               actions={[
                 <BotaoSecundario
                   texto="Selecionar"
-                  onClick={() => handleEscolherVinculo(vinculo.id)}
+                  onClick={() => escolherVinculo(vinculo.id)}
+                  disabled={isLoading}
                 />,
               ]}
             >

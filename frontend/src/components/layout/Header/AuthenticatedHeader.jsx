@@ -4,7 +4,7 @@ import logo from "../../../assets/logo-unificada.png";
 import { useAuth } from "../../../services/AuthContext";
 
 const AuthenticatedHeader = () => {
-  const { logout, trocarVinculo} = useAuth();
+  const { logout, trocarVinculo, isLoading } = useAuth();
   return (
     <header className="fixed top-0 left-0 w-full flex justify-between items-center px-8 py-2 border-b border-gray-300 bg-[var(--cinza-background)] shadow-md z-50">
       <div className="flex items-center">
@@ -24,7 +24,8 @@ const AuthenticatedHeader = () => {
           <li>
             <button
               onClick={trocarVinculo}
-              className="text-[var(--verde-medio)] font-bold hover:text-[var(--verde-realce)]"
+              disabled={isLoading}
+              className="text-[var(--verde-medio)] font-bold hover:text-[var(--verde-realce)] disabled:cursor-not-allowed"
             >
               Trocar vínculo
             </button>
@@ -33,7 +34,8 @@ const AuthenticatedHeader = () => {
           <li>
             <button
               onClick={logout}
-              className="text-[var(--verde-medio)] font-bold hover:text-[var(--verde-realce)]"
+              disabled={isLoading}
+              className="text-[var(--verde-medio)] font-bold hover:text-[var(--verde-realce)] disabled:cursor-not-allowed"
             >
               Sair
             </button>

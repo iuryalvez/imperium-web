@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import InputSemBordaComLabel from '../molecules/InputSemBordaComLabel';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import BotaoPrimario from '../atoms/BotaoPrimario';
+import { useAuth } from '../../services/AuthContext';
 
-const FormLogin = ({ handleLogin }) => {
+const FormLogin = () => {
+  const { login, isLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
 
   const onSubmit = (e) => {
     e.preventDefault();
-    handleLogin({ email, senha });
+    login({ email, senha });
   };
 
   return (
@@ -42,6 +44,7 @@ const FormLogin = ({ handleLogin }) => {
           <BotaoPrimario
             texto="Entrar"
             type="submit"
+            disabled={isLoading}
           />
         </div>
       </form>
