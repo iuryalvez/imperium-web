@@ -17,6 +17,7 @@ using backend.Domain.AtendimentoAnimal.Impl;
 using backend.Domain.AtendimentoAnimal.Repository;
 using backend.Domain.AtendimentoAnimal.Mappings;
 using AutoMapper;
+using backend.Domain.GestaoDeAcesso.Interfaces;
 
 
 internal class Program
@@ -30,10 +31,12 @@ internal class Program
         // adiciona serviços ao contêiner
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
-        
+
         builder.Services.AddScoped<IEmailService, EmailService>();
         builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+        builder.Services.AddScoped<IUsuarioService, UsuarioService>();
         builder.Services.AddScoped<ClinicaInterface, ClinicaImpl>();
         builder.Services.AddScoped<IRacaRepository, RacaRepository>();
         builder.Services.AddScoped<RacaInterface, RacaImpl>();
@@ -45,7 +48,7 @@ internal class Program
                 builder =>
                 {
                     builder.WithOrigins(
-                        "https://200.137.215.116:3001", 
+                        "https://200.137.215.116:3001",
                         "https://frontend-imperium:3001",
                         "http://localhost:5050",
                         "http://localhost:3000"
@@ -106,7 +109,7 @@ internal class Program
                 // RoleClaimType = ClaimTypes.Role, // define a claim de role
                 ClockSkew = TimeSpan.Zero // remove tolerância padrão de 5 minutos para expiração
             };
-            
+
             // define eventos personalizados no ciclo de autenticação
             options.Events = new JwtBearerEvents
             {
@@ -125,7 +128,7 @@ internal class Program
                         Console.WriteLine("Token encontrado no cookie.");
                     }
                     return Task.CompletedTask;
-                },  
+                },
 
                 // evento chamado após o token ser validado com sucesso
                 OnTokenValidated = async context =>
@@ -151,9 +154,9 @@ internal class Program
                         authService.ValidateUserClaims(principal, context.HttpContext);
 
                         var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
-                        
+
                         tokenService.RenovaToken(context);
-                        
+
                         Console.WriteLine("Validações de consistência concluídas com sucesso.");
                     }
                     catch (Exception ex)
@@ -205,7 +208,7 @@ internal class Program
         {
             options.TokenLifespan = TimeSpan.FromMinutes(30); // Define a validade do token para 30 minutos
         });
-        
+
         // configuração de Logging para o Console
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole(options =>
@@ -233,7 +236,7 @@ internal class Program
         app.MapControllers();
 
         app.UseSwagger();
-        
+
         app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1"); });
 
         app.Run();

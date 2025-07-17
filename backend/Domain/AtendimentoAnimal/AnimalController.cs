@@ -84,8 +84,8 @@ namespace backend.Domain.AtendimentoAnimal
                             Peso = ac.Animal.Peso,
                             CondicaoCorporal = ac.Animal.CondicaoCorporal,
                             GrauAtividade = ac.Animal.GrauAtividade,
-                            Gestacao = ac.Animal.Gestacao,
-                            Lactacao = ac.Animal.Lactacao,
+                            Gestacao = ac.Animal.IsGestante,
+                            Lactacao = ac.Animal.IsLactanteNumeroFilhotes,
                             SemanaLactacao = ac.Animal.SemanaLactacao,
                             SemanaGestacao = ac.Animal.SemanaGestacao,
                             DataCad = ac.Animal.DataCad,
@@ -193,8 +193,8 @@ namespace backend.Domain.AtendimentoAnimal
                     Peso = cadastrarAnimalClinicaDto.Peso,
                     CondicaoCorporal = cadastrarAnimalClinicaDto.CondicaoCorporal,
                     GrauAtividade = cadastrarAnimalClinicaDto.GrauAtividade,
-                    Gestacao = cadastrarAnimalClinicaDto.Gestacao,
-                    Lactacao = cadastrarAnimalClinicaDto.Lactacao,
+                    IsGestante = cadastrarAnimalClinicaDto.Gestacao,
+                    IsLactanteNumeroFilhotes = cadastrarAnimalClinicaDto.Lactacao,
                     SemanaLactacao = cadastrarAnimalClinicaDto.SemanaLactacao,
                     SemanaGestacao = cadastrarAnimalClinicaDto.SemanaGestacao
                 };
@@ -313,8 +313,8 @@ namespace backend.Domain.AtendimentoAnimal
                 animal.Peso = editarAnimalClinicaDto.Peso;
                 animal.CondicaoCorporal = editarAnimalClinicaDto.CondicaoCorporal;
                 animal.GrauAtividade = editarAnimalClinicaDto.GrauAtividade;
-                animal.Gestacao = editarAnimalClinicaDto.Gestacao;
-                animal.Lactacao = editarAnimalClinicaDto.Lactacao;
+                animal.IsGestante = editarAnimalClinicaDto.Gestacao;
+                animal.IsLactanteNumeroFilhotes = editarAnimalClinicaDto.Lactacao;
                 animal.SemanaLactacao = editarAnimalClinicaDto.SemanaLactacao;
                 animal.SemanaGestacao = editarAnimalClinicaDto.SemanaGestacao;
 

@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Identity;
-
 namespace backend.Domain.GestaoDeAcesso.DTOs
 {
     public class GetUsuariosClinicaDto
@@ -12,6 +10,7 @@ namespace backend.Domain.GestaoDeAcesso.DTOs
         public string? Nome { get; set; }
         public DateTime DataCadastro { get; set; }
         public DateTime DataUltimoAcesso { get; set; }
-        public List<string>? Perfis { get; set; } // IsAtivo da clínica
+        public List<string>? Perfis { get; set; } 
+        public bool IsAtivoNaClinica { get; set; }
     }
 }

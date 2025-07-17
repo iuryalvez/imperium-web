@@ -1,25 +1,27 @@
-using System;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Identity;
 
-namespace backend.Domain.GestaoDeAcesso.DTOs
+public class EditarUsuarioSistemaDto
 {
-    public class EditarUsuarioSistemaDto
-    {
-        [Required(ErrorMessage = "O id do usuário é obrigatório.")]
-        public int Id { get; set; }
-        public int ClinicaId { get; set; }
-        public int UpcId { get; set; }
-        public bool IsAdmin { get; set; }
-        public bool IsAtivo { get; set; }
+    // IDs essenciais para encontrar o registro certo
+    [Required]
+    public int Id { get; set; }
+    public int UpcId { get; set; } // ID do vínculo UsuarioPerfilClinica
 
-        [Required(ErrorMessage = "O nome é obrigatório.")]
-        [StringLength(100, ErrorMessage = "O nome deve ter no máximo 100 caracteres.")]
-        public string Nome { get; set; }
+    // Campos principais
+    [Required]
+    public string Nome { get; set; }
+    [Required, EmailAddress]
+    public string Email { get; set; }
+    public List<string>? Perfis { get; set; }
+    
+    // Status
+    public bool IsAdmin { get; set; } // Determina o fluxo da lógica
+    public bool IsAtivo { get; set; }
 
-        [Required(ErrorMessage = "O e-mail é obrigatório.")]
-        [EmailAddress(ErrorMessage = "O e-mail não é válido.")]
-        public string Email { get; set; }
-        public List<string>? Perfis { get; set; } 
-    }
+    // --- NOVOS CAMPOS OPCIONAIS ---
+    public string? Senha { get; set; } // Opcional: preencha apenas se for alterar
+    public string? Cpf { get; set; }
+    public string? Formacao { get; set; }
+    public string? Telefone1 { get; set; }
+    public string? Whatsapp { get; set; }
 }

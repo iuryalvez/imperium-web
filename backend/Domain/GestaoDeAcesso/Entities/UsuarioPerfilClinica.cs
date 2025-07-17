@@ -17,7 +17,7 @@ public class UsuarioPerfilClinica {
     [Required(ErrorMessage = "O id da clínica é obrigatório.")]
     public int ClinicaId { get; set; }
 
-    [ForeignKey("ClinicaID")]
+    [ForeignKey("ClinicaId")]
     public Clinica? Clinica { get; set; }
-    public List<string>? Perfis { get; set; }
+    public List<string>? Perfis { get; set; } // o usuário só possui o isAtivo = false se todos seus vínculos estiverem com um perfil INATIVO
 }

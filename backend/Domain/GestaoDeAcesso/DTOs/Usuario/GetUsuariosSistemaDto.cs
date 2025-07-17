@@ -2,6 +2,7 @@ namespace backend.Domain.GestaoDeAcesso.DTOs
 {
     public class GetUsuariosSistemaDto 
     {
+        public string CompositeKey { get; set; } // NOVO CAMPO PARA O ROWKEY
         public int Id { get; set; }
         public int UpcId { get; set; }
         public int ClinicaId { get; set; }

@@ -1,4 +1,4 @@
-const API_BASE_URL = '/api';
+const API_BASE_URL = "/api";
 
 const endpoints = {
   autenticacao: {
@@ -26,17 +26,22 @@ const endpoints = {
       listar: `${API_BASE_URL}/sistema/animais`,
     },
     usuario: {
-      buscarPorNome: (nome) => `${API_BASE_URL}/sistema/usuarios/buscar?nome=${encodeURIComponent(nome)}`,
+      buscarPorNome: (nome) =>
+        `${API_BASE_URL}/sistema/usuarios/buscar?nome=${encodeURIComponent(
+          nome
+        )}`,
       listar: `${API_BASE_URL}/sistema/usuarios`,
       cadastrar: `${API_BASE_URL}/sistema/usuarios/cadastrar`,
       editar: `${API_BASE_URL}/sistema/usuarios/editar`,
+      setStatus: (usuarioId) =>
+        `${API_BASE_URL}/sistema/usuarios/${usuarioId}/status`,
       // deletar: (usuarioId) => `${API_BASE_URL}/sistema/usuarios/${usuarioId}`,
     },
     raca: {
       // GET /api/sistema/raca?especie=1
       listar: `${API_BASE_URL}/sistema/raca`,
       // POST /api/sistema/raca
-      cadastrar: `${API_BASE_URL}/sistema/raca`, 
+      cadastrar: `${API_BASE_URL}/sistema/raca`,
       // GET /api/sistema/raca/{racaId}
       detalhes: (racaId) => `${API_BASE_URL}/sistema/raca/${racaId}`,
       // PUT /api/sistema/raca/{racaId}
@@ -83,10 +88,11 @@ const endpoints = {
     },
     usuario: {
       listar: `${API_BASE_URL}/clinica/usuarios`,
-      cadastrar:`${API_BASE_URL}/clinica/usuarios/cadastrar`,
+      cadastrar: `${API_BASE_URL}/clinica/usuarios/cadastrar`,
       editar: `${API_BASE_URL}/clinica/usuarios/editar`,
+      setStatus: (upcId) => `${API_BASE_URL}/clinica/vinculos/${upcId}/status`,
     },
-  }
+  },
 };
 
 export default endpoints;

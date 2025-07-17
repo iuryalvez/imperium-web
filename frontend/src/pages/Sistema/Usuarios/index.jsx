@@ -43,10 +43,10 @@ const colunasUsuariosDoSistema = [
       { text: "SECRETÁRIO", value: "SECRETARIO" },
     ],
     onFilter: (value, record) => record.perfis.includes(value),
-    sorter: (a, b) => a.especie.join(", ").localeCompare(b.especie.join(", ")),
-    render: (especie) => (
+    sorter: (a, b) => a.perfis.join(", ").localeCompare(b.perfis.join(", ")),
+    render: (perfis) => (
       <>
-        {especie.map((perfil) => {
+        {perfis.map((perfil) => {
           let color = "green";
           if (perfil === "INATIVO") color = "red";
           else if (perfil === "ADMIN") color = "blue";

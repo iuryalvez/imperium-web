@@ -8,10 +8,11 @@ namespace backend.Domain.SaudeAnimal.Entities {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int RacaoId { get; set; }
+        [ForeignKey("RacaoId")]
         public Racao? Racao { get; set; }
         public int AcompanhamentoIndId { get; set; }
 
-        [ForeignKey("AcomapanhamentoIndId")]
+        [ForeignKey("AcompanhamentoIndId")]
         public AcompanhamentoInd? AcompanhamentoInd { get; set; }
         public int TipoDieta { get; set; } // 1-manutenção, 2-crescimento, 3-lactação
         public float QtdAlimento { get; set; } // calculado

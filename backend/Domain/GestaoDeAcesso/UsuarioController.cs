@@ -8,6 +8,7 @@ using backend.Infra.Data;
 using System.Security.Claims;
 using backend.Domain.GestaoDeAcesso.Entities;
 using backend.Domain.GestaoDeAcesso.DTOs;
+using backend.Domain.GestaoDeAcesso.Interfaces;
 
 namespace backend.Domain.GestaoDeAcesso
 {
@@ -17,56 +18,30 @@ namespace backend.Domain.GestaoDeAcesso
     {
         private readonly AppDbContext _context;
         private readonly UserManager<Usuario> _userManager;
+        private readonly IUsuarioService _usuarioService;
         private readonly ILogger<UsuarioController> _logger;
 
         public UsuarioController(AppDbContext context,
                                  UserManager<Usuario> userManager,
+                                 IUsuarioService usuarioService,
                                  ILogger<UsuarioController> logger)
         {
             _context = context;
             _userManager = userManager;
+            _usuarioService = usuarioService;
             _logger = logger;
         }
-        
+
         [HttpGet("usuarios")]
         [Authorize(Policy = "GerenciaClinica")]
         public async Task<IActionResult> GetUsuariosByClinicaId()
         {
-            try
-            {
-                var clinicaId = User.GetClaimValue<int>("clinicaId");
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                // Console.WriteLine("clinicaId encontrada na claim: " + clinicaId);
+            var usuarios = await _usuarioService.GetUsuariosByClinicIdAsync(clinicaId, userId);
 
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-                // Realiza a consulta com as devidas inclusões e mapeia para o DTO
-                var usuarios = await _context.UsuariosPerfisClinicas
-                    .AsNoTracking() // Melhora o desempenho em consultas somente leitura
-                    .Include(upc => upc.Usuario) // Inclui os dados do usuário
-                    .Where(upc => upc.ClinicaId == clinicaId)
-                    .Where(upc => upc.UsuarioId.ToString() != userId)
-                    .Select(upc => new GetUsuariosClinicaDto
-                    {
-                        Id = upc.Usuario.Id,
-                        UpcId = upc.Id,
-                        ClinicaId = upc.ClinicaId,
-                        UserName = upc.Usuario.UserName,
-                        Email = upc.Usuario.Email,
-                        Nome = upc.Usuario.Nome ?? string.Empty, // Garante que Nome nunca seja nulo
-                        Perfis = upc.Perfis,
-                        DataCadastro = upc.Usuario.DataCad,
-                        DataUltimoAcesso = upc.Usuario.DataUltimoAcesso,
-                    })
-                    .ToListAsync();
-
-                return Ok(usuarios);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao buscar usuários da clínica.");
-                return StatusCode(500, "Erro interno ao buscar usuários da clínica.");
-            }
+            return Ok(usuarios);
         }
 
         [HttpPost("usuarios/cadastrar")]
@@ -81,7 +56,7 @@ namespace backend.Domain.GestaoDeAcesso
 
             // Inicia a transação atômica
             await using var transaction = await _context.Database.BeginTransactionAsync();
-            
+
             try
             {
                 var clinicaId = User.GetClaimValue<int>("clinicaId");
@@ -142,10 +117,10 @@ namespace backend.Domain.GestaoDeAcesso
             {
                 // Rollback automático em caso de erro não tratado
                 await transaction.RollbackAsync();
-                
+
                 // Log do erro completo
                 _logger.LogError(ex, "Erro durante o cadastro de usuário");
-                
+
                 return StatusCode(500, "Ocorreu um erro durante o cadastro. Por favor, tente novamente.");
             }
         }
@@ -160,7 +135,7 @@ namespace backend.Domain.GestaoDeAcesso
             }
 
             using var transaction = await _context.Database.BeginTransactionAsync();
-            
+
             try
             {
                 Console.WriteLine("EditarUsuarioClinicaDto.UpcId: " + dto.UpcId);
@@ -194,7 +169,8 @@ namespace backend.Domain.GestaoDeAcesso
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                return Ok(new {
+                return Ok(new
+                {
                     Success = true,
                     Message = "Usuário atualizado com sucesso",
                     Data = new { UserId = usuario.Id, VinculoId = vinculo.Id }
@@ -204,7 +180,8 @@ namespace backend.Domain.GestaoDeAcesso
             {
                 await transaction.RollbackAsync();
                 _logger.LogError(ex, $"Conflito de concorrência ao editar usuário {dto.UpcId}");
-                return StatusCode(409, new {
+                return StatusCode(409, new
+                {
                     Success = false,
                     Message = "Os dados foram modificados por outro usuário. Recarregue e tente novamente.",
                     ErrorCode = "CONCURRENCY_ERROR"
@@ -214,12 +191,38 @@ namespace backend.Domain.GestaoDeAcesso
             {
                 await transaction.RollbackAsync();
                 _logger.LogError(ex, $"Erro ao editar usuário com vínculo ID {dto.UpcId}");
-                return StatusCode(500, new {
+                return StatusCode(500, new
+                {
                     Success = false,
                     Message = "Erro interno ao editar usuário.",
                     ErrorCode = "INTERNAL_ERROR"
                 });
             }
+        }
+
+        [HttpDelete("vinculos/{upcId}")]
+        [Authorize(Policy = "GerenciaSistema")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UnlinkUserFromClinic(int upcId)
+        {
+            _logger.LogInformation("Recebida requisição para desvincular o vínculo ID: {UpcId}", upcId);
+
+            // 1. Delega toda a lógica para o serviço
+            var result = await _usuarioService.UnlinkUserFromClinicAsync(upcId);
+
+            // 2. Interpreta o resultado do serviço e retorna a resposta HTTP apropriada
+            if (!result.Succeeded)
+            {
+                // O serviço já tratou as regras de "não encontrado" e "último vínculo".
+                // Ambas podem ser retornadas como um BadRequest para o cliente.
+                _logger.LogWarning("Falha ao desvincular o vínculo ID {UpcId}. Motivo: {Message}", upcId, result.Message);
+                return BadRequest(new { Message = result.Message });
+            }
+
+            _logger.LogInformation("Vínculo ID {UpcId} desvinculado com sucesso.", upcId);
+            return Ok(result);
         }
 
         [HttpDelete("usuarios/{usuarioId}")]
@@ -261,6 +264,24 @@ namespace backend.Domain.GestaoDeAcesso
             }
 
             return Ok(vinculos);
+        }
+
+        // Rota age sobre o ID do VÍNCULO (upcId)
+        [HttpPut("vinculos/{upcId}/status")]
+        [Authorize(Policy = "GerenciaClinica")]
+        public async Task<IActionResult> SetClinicUserStatus(int upcId, [FromBody] SetActivationPayload payload)
+        {
+            var dto = new SetUserStatusDto
+            {
+                Id = upcId,
+                IsAdmin = false, // Informa ao serviço que NÃO é um admin
+                Activate = payload.Activate
+            };
+
+            var result = await _usuarioService.SetUserActivationStatusAsync(dto);
+
+            if (!result.Succeeded) return BadRequest(result);
+            return Ok(result);
         }
     }
 }

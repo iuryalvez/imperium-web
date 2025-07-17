@@ -13,6 +13,8 @@ import {
   EditOutlined,
   EyeOutlined,
   LoginOutlined,
+  StopOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import "../styles/TabelaEntidade.css";
 import FormAcessarClinica from "../molecules/FormAcessarClinica";
@@ -48,16 +50,56 @@ const TabelaEntidade = ({
     }
   };
 
-    const editarRegistro = async (valores) => {
+  const sanitize = (value) => {
+    if (!value) return ""; // Retorna string vazia se o valor for nulo/undefined
+    return String(value).replace(/\D/g, "");
+  };
+
+  const editarRegistro = async (valores) => {
     setBackupRegistros(registros);
     setRegistros((prev) =>
       prev.map((reg) =>
-        (reg.id === valores.id && reg.upcId === valores.upcId) ? { ...reg, ...valores } : reg
+        reg.id === valores.id && reg.upcId === valores.upcId
+          ? { ...reg, ...valores }
+          : reg
       )
     );
-    // O try/catch foi movido para o container do formulário, 
-    // mas a chamada da API permanece aqui, o que está correto.
-    await entidadeAPI.editar(valores); 
+    let processedValues = { ...valores };
+
+    processedValues = {
+      ...processedValues,
+      cpf: sanitize(valores.cpf),
+      telefone1: sanitize(valores.telefone1),
+      whatsapp: sanitize(valores.whatsapp),
+      cep: sanitize(valores.cep),
+    };
+
+    await entidadeAPI.editar(processedValues);
+  };
+
+  const handleToggleAtivacao = async (record) => {
+    const estaAtivo =
+      entidade === "usuariosDoSistema"
+        ? record.isAtivo
+        : record.isAtivoNaClinica;
+    const acao = estaAtivo ? "inativar" : "ativar";
+
+    setLoading(true);
+    try {
+      // A chamada agora é simples. Passamos o registro inteiro e a ação desejada.
+      // A camada de API (`entidadeAPI`) vai descobrir o que fazer com ele.
+      await entidadeAPI.setStatus(record, !estaAtivo);
+
+      message.success(`${nomeEntidade} ${acao.slice(0, -1)}ado com sucesso.`);
+      if (onAtualizar) onAtualizar();
+    } catch (error) {
+      console.error(`Erro ao ${acao} usuário:`, error);
+      message.error(
+        error.response?.data?.message || `Falha ao ${acao} usuário.`
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const deletarRegistro = async (registroId) => {
@@ -113,65 +155,113 @@ const TabelaEntidade = ({
       title: "Ações",
       key: "acoes",
       width: "auto",
-      render: (_, record) => (
-        <Space>
-          <Tooltip title="Ver Detalhes">
-            <Button
-              icon={<EyeOutlined />}
-              onClick={() => abrirModalDetalhes(record)}
-              style={{ backgroundColor: "var(--verde-medio)", color: "white" }}
-            />
-          </Tooltip>
-          <Tooltip title="Editar">
-            <Button
-              icon={<EditOutlined />}
-              onClick={() => abrirModalEdicao(record)}
-              style={{ backgroundColor: "var(--verde-medio)", color: "white" }}
-            />
-          </Tooltip>
-          {entidade === "clinicas" && (
-            <Tooltip title="Acessar Clínica">
+      render: (_, record) => {
+        // Determina o status com base no tipo de entidade
+        const estaAtivo =
+          entidade === "usuariosDoSistema"
+            ? record.isAtivo
+            : record.isAtivoNaClinica;
+
+        return (
+          <Space>
+            <Tooltip title="Ver Detalhes">
               <Button
-                icon={<LoginOutlined />}
-                onClick={() => abrirModalAcessoClinica(record)}
+                icon={<EyeOutlined />}
+                onClick={() => abrirModalDetalhes(record)}
                 style={{
                   backgroundColor: "var(--verde-medio)",
                   color: "white",
                 }}
-              >
-                Acessar
-              </Button>
+              />
             </Tooltip>
-          )}
-          {!["usuariosDaClinica", "usuariosDoSistema"].includes(entidade) && (
-            <Tooltip title="Deletar">
-              <Popconfirm
-                title="Tem certeza que deseja deletar este registro?"
-                onConfirm={() => deletarRegistro(record.id)}
-                okText="Sim"
-                cancelText="Não"
-              >
+            <Tooltip title="Editar">
+              <Button
+                icon={<EditOutlined />}
+                onClick={() => abrirModalEdicao(record)}
+                style={{
+                  backgroundColor: "var(--verde-medio)",
+                  color: "white",
+                }}
+              />
+            </Tooltip>
+            {entidade === "clinicas" && (
+              <Tooltip title="Acessar Clínica">
                 <Button
-                  icon={<DeleteOutlined />}
+                  icon={<LoginOutlined />}
+                  onClick={() => abrirModalAcessoClinica(record)}
                   style={{
-                    backgroundColor: "var(--vermelho-delete)",
+                    backgroundColor: "var(--verde-medio)",
                     color: "white",
                   }}
-                />
-              </Popconfirm>
-            </Tooltip>
-          )}
-        </Space>
-      ),
+                >
+                  Acessar
+                </Button>
+              </Tooltip>
+            )}
+
+            {["usuariosDaClinica", "usuariosDoSistema"].includes(entidade) && (
+              <Tooltip title={estaAtivo ? "Inativar" : "Ativar"}>
+                <Popconfirm
+                  title={`Tem certeza que deseja ${
+                    estaAtivo ? "inativar" : "ativar"
+                  } este usuário?`}
+                  onConfirm={() => handleToggleAtivacao(record)}
+                  okText="Sim"
+                  cancelText="Não"
+                >
+                  <Button
+                    icon={
+                      estaAtivo ? <StopOutlined /> : <CheckCircleOutlined />
+                    }
+                    style={{
+                      backgroundColor: estaAtivo
+                        ? "var(--vermelho-delete)"
+                        : "var(--verde-medio)",
+                      color: "white",
+                    }}
+                  />
+                </Popconfirm>
+              </Tooltip>
+            )}
+
+            {!["usuariosDaClinica", "usuariosDoSistema"].includes(entidade) && (
+              <Tooltip title="Deletar">
+                <Popconfirm
+                  title="Tem certeza que deseja deletar este registro?"
+                  onConfirm={() => deletarRegistro(record.id)}
+                  okText="Sim"
+                  cancelText="Não"
+                >
+                  <Button
+                    icon={<DeleteOutlined />}
+                    style={{
+                      backgroundColor: "var(--vermelho-delete)",
+                      color: "white",
+                    }}
+                  />
+                </Popconfirm>
+              </Tooltip>
+            )}
+          </Space>
+        );
+      },
     },
   ];
+
+  const getRowKey = (record) => {
+    if (entidade === "usuariosDoSistema") {
+      return record.compositeKey;
+    }
+    // Para outras entidades, o Id principal é suficiente.
+    return record.id;
+  };
 
   return (
     <div>
       <Table
         dataSource={registros}
         columns={colunasComAcoes}
-        rowKey={(record) => record.id}
+        rowKey={getRowKey}
         pagination={{ pageSize: 10 }}
         scroll={{ x: "max-content" }} // ativa scroll horizontal se necessário
       />

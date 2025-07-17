@@ -41,7 +41,7 @@ const colunasUsuariosDaClinica = [
       { text: "SECRETÁRIO", value: "SECRETARIO" },
     ],
     onFilter: (value, record) => record.perfis.includes(value),
-    sorter: (a, b) => a.perfis.join(", ").localeCompare(b.perfis.join(", ")),
+    // sorter: (a, b) => a.perfis.join(", ").localeCompare(b.perfis.join(", ")),
     render: (perfis) => (
       <>
         {perfis.map((perfil) => {
