@@ -37,7 +37,11 @@ public class UsuarioService : IUsuarioService
                 DataCadastro = upc.Usuario.DataCad,
                 DataUltimoAcesso = upc.Usuario.DataUltimoAcesso,
                 IsAdmin = upc.Usuario.IsAdmin,
-                IsAtivo = upc.Usuario.IsAtivo
+                IsAtivo = upc.Usuario.IsAtivo,
+                Cpf = upc.Usuario.Cpf,
+                Formacao = upc.Usuario.Formacao,
+                Telefone1 = upc.Usuario.Telefone1,
+                Whatsapp = upc.Usuario.Whatsapp
             }).ToList();
 
             // 2. Busca administradores sem vínculo
@@ -58,7 +62,11 @@ public class UsuarioService : IUsuarioService
                 DataCadastro = u.DataCad,
                 DataUltimoAcesso = u.DataUltimoAcesso,
                 IsAdmin = u.IsAdmin,
-                IsAtivo = u.IsAtivo
+                IsAtivo = u.IsAtivo,
+                Cpf = u.Cpf,
+                Formacao = u.Formacao,
+                Telefone1 = u.Telefone1,
+                Whatsapp = u.Whatsapp
             }).ToList();
 
             // 3. Combina os resultados
@@ -95,7 +103,11 @@ public class UsuarioService : IUsuarioService
                 Perfis = upc.Perfis,
                 IsAtivoNaClinica = !(upc.Perfis?.Contains("INATIVO") ?? false),
                 DataCadastro = upc.Usuario.DataCad,
-                DataUltimoAcesso = upc.Usuario.DataUltimoAcesso
+                DataUltimoAcesso = upc.Usuario.DataUltimoAcesso,
+                Cpf = upc.Usuario.Cpf,
+                Formacao = upc.Usuario.Formacao,
+                Telefone1 = upc.Usuario.Telefone1,
+                Whatsapp = upc.Usuario.Whatsapp
             });
     }
 

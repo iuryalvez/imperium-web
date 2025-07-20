@@ -1,39 +1,10 @@
-import React from 'react';
 import { Descriptions, Tag, Typography, Divider } from 'antd';
-import dayjs from 'dayjs';
 
-// --- Funções Auxiliares (podem ser importadas de um arquivo comum 'utils.js') ---
-
-const formatarData = (data) => {
-    if (!data) return <Typography.Text type="secondary">Nunca</Typography.Text>;
-    return dayjs(data).format('DD/MM/YYYY [às] HH:mm');
-};
-
-const getCorDoPerfil = (perfil) => {
-    const perfilUpper = perfil.toUpperCase();
-    if (perfilUpper.includes('GESTOR')) return 'green';
-    if (perfilUpper.includes('VETERINARIO')) return 'green';
-    if (perfilUpper.includes('TECNICO')) return 'green';
-    if (perfilUpper.includes('SECRETARIO')) return 'green';
-    return 'default';
-};
-
-const renderPerfis = (perfis = []) => {
-    if (!perfis || perfis.length === 0) {
-        return <Typography.Text type="secondary">Nenhum perfil ativo nesta clínica</Typography.Text>;
-    }
-    return (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-            {perfis.map(perfil => (
-                <Tag key={perfil} color={getCorDoPerfil(perfil)}>
-                    {perfil.toUpperCase()}
-                </Tag>
-            ))}
-        </div>
-    );
-};
-
-// --- Componente Principal ---
+import {
+    getCorDoPerfil,
+    formatarData,
+    renderPerfis
+} from '../../../utils/formatters';
 
 const DetalhesUsuariosDaClinica = ({ valores }) => {
     const naoInformado = <Typography.Text type="secondary">Não informado</Typography.Text>;

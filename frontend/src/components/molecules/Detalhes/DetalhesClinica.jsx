@@ -1,12 +1,7 @@
 import React from 'react';
 import { Descriptions, Tag, Typography, Divider } from 'antd';
-import dayjs from 'dayjs';
 
-// As funções de formatação continuam úteis
-const formatarData = (data) => {
-    if (!data) return <Typography.Text type="secondary">Não informada</Typography.Text>;
-    return dayjs(data).format('DD/MM/YYYY [às] HH:mm');
-};
+import { formatarData } from '../../../utils/formatters';
 
 const DetalhesClinica = ({ valores }) => {
     const naoInformado = <Typography.Text type="secondary">Não informado</Typography.Text>;

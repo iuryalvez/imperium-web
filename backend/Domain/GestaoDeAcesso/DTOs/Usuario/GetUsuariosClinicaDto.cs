@@ -10,7 +10,11 @@ namespace backend.Domain.GestaoDeAcesso.DTOs
         public string? Nome { get; set; }
         public DateTime DataCadastro { get; set; }
         public DateTime DataUltimoAcesso { get; set; }
-        public List<string>? Perfis { get; set; } 
+        public List<string>? Perfis { get; set; }
         public bool IsAtivoNaClinica { get; set; }
+        public string? Cpf { get; set; }
+        public string? Formacao { get; set; }
+        public string? Telefone1 { get; set; }
+        public string? Whatsapp { get; set; }
     }
 }

@@ -1,8 +1,8 @@
 namespace backend.Domain.GestaoDeAcesso.DTOs
 {
-    public class GetUsuariosSistemaDto 
+    public class GetUsuariosSistemaDto
     {
-        public string CompositeKey { get; set; } // NOVO CAMPO PARA O ROWKEY
+        public string? CompositeKey { get; set; } // NOVO CAMPO PARA O ROWKEY
         public int Id { get; set; }
         public int UpcId { get; set; }
         public int ClinicaId { get; set; }
@@ -15,5 +15,9 @@ namespace backend.Domain.GestaoDeAcesso.DTOs
         public List<string> Perfis { get; set; } = new();
         public bool IsAdmin { get; set; }
         public bool IsAtivo { get; set; } // IsAtivo no sistema
+        public string? Cpf { get; set; }
+        public string? Formacao { get; set; }
+        public string? Telefone1 { get; set; }
+        public string? Whatsapp { get; set; }
     }
 }
