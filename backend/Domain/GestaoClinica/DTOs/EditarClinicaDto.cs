@@ -28,9 +28,6 @@ namespace backend.Domain.GestaoClinica.DTOs {
         public string? Telefone1 { get; set; }
 
         [StringLength(11, ErrorMessage = "O telefone deve ter no máximo 11 dígitos.")]
-        public string? Telefone2 { get; set; }
-
-        [StringLength(11, ErrorMessage = "O telefone deve ter no máximo 11 dígitos.")]
         public string? Whatsapp { get; set; }
 
         [StringLength(30, ErrorMessage = "O instagram da clínica deve ter no máximo 30 caracteres.")]

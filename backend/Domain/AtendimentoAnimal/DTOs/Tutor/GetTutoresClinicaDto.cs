@@ -12,7 +12,6 @@ namespace backend.Domain.AtendimentoAnimal.DTOs
         public string? EndCidade { get; set; }
         public string? Cep { get; set; }
         public string? Telefone1 { get; set; }
-        public string? Telefone2 { get; set; }
         public string? Whatsapp { get; set; }
         public string? Email { get; set; }
         public DateTime DataCad { get; set; }

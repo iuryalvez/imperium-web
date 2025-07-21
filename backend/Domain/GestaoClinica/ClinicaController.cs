@@ -62,7 +62,6 @@ namespace backend.Domain.GestaoClinica
                 clinica.EndCidade = editarClinicaDto.EndCidade;
                 clinica.Cep = editarClinicaDto.Cep;
                 clinica.Telefone1 = editarClinicaDto.Telefone1;
-                clinica.Telefone2 = editarClinicaDto.Telefone2;
                 clinica.Whatsapp = editarClinicaDto.Whatsapp;
                 clinica.Email = editarClinicaDto.Email;
                 clinica.Instagram = editarClinicaDto.Instagram;

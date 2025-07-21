@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace backend.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class ImperiumDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -80,7 +80,6 @@ namespace backend.Migrations
                     EndCidade = table.Column<string>(type: "text", nullable: true),
                     Cep = table.Column<string>(type: "character varying(9)", maxLength: 9, nullable: true),
                     Telefone1 = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
-                    Telefone2 = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
                     Email = table.Column<string>(type: "text", nullable: true),
                     Whatsapp = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
                     Instagram = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
@@ -123,7 +122,6 @@ namespace backend.Migrations
                     EndCidade = table.Column<string>(type: "text", nullable: true),
                     Cep = table.Column<string>(type: "character varying(8)", maxLength: 8, nullable: true),
                     Telefone1 = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
-                    Telefone2 = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
                     Whatsapp = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
                     Email = table.Column<string>(type: "text", nullable: true),
                     DataCad = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
@@ -409,6 +407,9 @@ namespace backend.Migrations
                     UsuarioId = table.Column<int>(type: "integer", nullable: false),
                     ClinicaId = table.Column<int>(type: "integer", nullable: false),
                     TutorId = table.Column<int>(type: "integer", nullable: false),
+                    TutorNome = table.Column<string>(type: "text", nullable: true),
+                    TutorCpf = table.Column<string>(type: "text", nullable: true),
+                    TutorIsCadastrado = table.Column<bool>(type: "boolean", nullable: false),
                     AnimalId = table.Column<int>(type: "integer", nullable: false),
                     DataConsulta = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -542,10 +543,10 @@ namespace backend.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Cpf", "DataCad", "DataUltimoAcesso", "Email", "EmailConfirmed", "Formacao", "IsAdmin", "IsAtivo", "LockoutEnabled", "LockoutEnd", "Nome", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "Telefone1", "TwoFactorEnabled", "UserName", "Whatsapp" },
                 values: new object[,]
                 {
-                    { -4, 0, "0d749bb4-6ed3-4497-b347-5dd7b821edbf", "01234567893", new DateTime(2025, 7, 17, 2, 51, 39, 174, DateTimeKind.Utc).AddTicks(5477), new DateTime(2025, 7, 17, 2, 51, 39, 174, DateTimeKind.Utc).AddTicks(5491), "ceron@gsmail.com", true, "Administrador do Sistema", true, true, false, null, "Admin Ceron", "CERON@GSMAIL.COM", "ADMIN CERON", "AQAAAAIAAYagAAAAEKG+4oQlxTU55oOtxh9NNRUSOFaFcKgWEbW2P3le1Nbbjl7AX89Bk7HHDb6o+qZaUw==", null, false, "2bb8dc0f-6ece-446d-bfa1-207fa29e44ea", "62940302010", false, "ceron", "62940302010" },
-                    { -3, 0, "da924918-cff2-4408-8c9a-2a1f01d5fc74", "01234567892", new DateTime(2025, 7, 17, 2, 51, 39, 174, DateTimeKind.Utc).AddTicks(5438), new DateTime(2025, 7, 17, 2, 51, 39, 174, DateTimeKind.Utc).AddTicks(5447), "hugo@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Hugo", "HUGO@GSMAIL.COM", "ADMIN HUGO", "AQAAAAIAAYagAAAAEHGrxMvem3b7iTgafsjqOYWK0VOEi5OEl1ZeKHIwSnt0J638u5Kn8n6JV04MqVzGuQ==", null, false, "5b0b1580-1674-404e-80be-fb95f1c2b9e1", "62910203040", false, "hugo", "62910203040" },
-                    { -2, 0, "e32620b8-6c4a-46f3-847c-f40ba4b6244a", "01234567891", new DateTime(2025, 7, 17, 2, 51, 39, 174, DateTimeKind.Utc).AddTicks(5395), new DateTime(2025, 7, 17, 2, 51, 39, 174, DateTimeKind.Utc).AddTicks(5405), "rafael@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Rafael", "RAFAEL@GSMAIL.COM", "ADMIN RAFAEL", "AQAAAAIAAYagAAAAEBoJ8MrDkFffmjrajS/fjyaS/mRJ2iU42tWvLZxCAmsO36g55dbkF4IaHfSGpa3g2w==", null, false, "10fd176e-0476-433a-88f5-c1365169ab54", "62912345678", false, "admin.rafael", "62912345678" },
-                    { -1, 0, "28eb9747-7b3f-4851-872f-0e9b7c847f95", "01234567890", new DateTime(2025, 7, 17, 2, 51, 39, 174, DateTimeKind.Utc).AddTicks(5347), new DateTime(2025, 7, 17, 2, 51, 39, 174, DateTimeKind.Utc).AddTicks(5362), "iury@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Iury", "IURY@GSMAIL.COM", "IURY", "AQAAAAIAAYagAAAAEDZxyh9+8SeVJimrg62LlWtLbwmWtx0VXdyBbCror9JalavvYwNhR1jvrgWHmvW4Mw==", null, false, "cbdfb863-ba8b-49ac-8bb1-f184705db90b", "62987654321", false, "admin.iury", "62987654321" }
+                    { -4, 0, "b5d29e94-239d-4267-a9a1-f121394c4232", "01234567893", new DateTime(2025, 7, 21, 5, 17, 2, 485, DateTimeKind.Utc).AddTicks(1911), new DateTime(2025, 7, 21, 5, 17, 2, 485, DateTimeKind.Utc).AddTicks(1926), "ceron@gsmail.com", true, "Administrador do Sistema", true, true, false, null, "Admin Ceron", "CERON@GSMAIL.COM", "ADMIN CERON", "AQAAAAIAAYagAAAAEKV0Xr505ydKgJt2CW+dI0nzKkb6tJAdiPK4bSpxlDN/vtc19Q8ffUaNHwN55gYNaA==", null, false, "294da1be-0edb-43b4-a69a-a89aed069b49", "62940302010", false, "ceron", "62940302010" },
+                    { -3, 0, "162a78d1-d96c-4f63-a905-72aa09a5c67f", "01234567892", new DateTime(2025, 7, 21, 5, 17, 2, 485, DateTimeKind.Utc).AddTicks(1872), new DateTime(2025, 7, 21, 5, 17, 2, 485, DateTimeKind.Utc).AddTicks(1887), "hugo@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Hugo", "HUGO@GSMAIL.COM", "ADMIN HUGO", "AQAAAAIAAYagAAAAEL5lfTEepY/jPjxTt1aVGC7Wf/znzQTEGoMMNmq02raKhyQAgruTq5guy8OwJ0v1Xg==", null, false, "c5474512-5bd5-4220-9ce8-e4e755195ef6", "62910203040", false, "hugo", "62910203040" },
+                    { -2, 0, "6d80c6eb-741a-4c59-8fdd-7c69584a1b90", "01234567891", new DateTime(2025, 7, 21, 5, 17, 2, 485, DateTimeKind.Utc).AddTicks(1833), new DateTime(2025, 7, 21, 5, 17, 2, 485, DateTimeKind.Utc).AddTicks(1848), "rafael@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Rafael", "RAFAEL@GSMAIL.COM", "ADMIN RAFAEL", "AQAAAAIAAYagAAAAEMJuoO/04u7JstPWQNrNhie55ciliXVdFOgkwMyqVy8XZL6gTt+sXoFDr2jNz3stAg==", null, false, "fdc305cb-a725-4d77-87aa-7247eb80b954", "62912345678", false, "admin.rafael", "62912345678" },
+                    { -1, 0, "cabfd487-cb66-4b42-8858-a244ae45657d", "01234567890", new DateTime(2025, 7, 21, 5, 17, 2, 485, DateTimeKind.Utc).AddTicks(1758), new DateTime(2025, 7, 21, 5, 17, 2, 485, DateTimeKind.Utc).AddTicks(1772), "iury@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Iury", "IURY@GSMAIL.COM", "IURY", "AQAAAAIAAYagAAAAEIQPxDB9ISjr+LdPcKyBuBqy8gz97Jk2Fxe/BVnAulbAjcD2lGrfBp6XMiRVCIlmjw==", null, false, "1601d5c6-2663-4e5b-af1a-0dbb68ec8eda", "62987654321", false, "admin.iury", "62987654321" }
                 });
 
             migrationBuilder.InsertData(

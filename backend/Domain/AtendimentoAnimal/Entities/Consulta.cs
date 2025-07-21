@@ -19,6 +19,9 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         public int TutorId { get; set; }
         [ForeignKey("TutorId")]
         public Tutor? Tutor { get; set; }
+        public string? TutorNome { get; set; }
+        public string? TutorCpf { get; set; }
+        public bool TutorIsCadastrado { get; set; }
         public int AnimalId { get; set; } // Foreign Key for the specific animal
         [ForeignKey("AnimalId")]
         public Animal? Animal { get; set; } // Navigation property to the animal

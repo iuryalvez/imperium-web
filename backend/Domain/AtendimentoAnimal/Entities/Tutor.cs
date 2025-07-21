@@ -17,7 +17,6 @@ namespace backend.Domain.AtendimentoAnimal.Entities {
         
         [StringLength(300, ErrorMessage = "O nome do tutor deve ter no máximo 300 caracteres.")]
         public string? Endereco { get; set; }
-        
         public int EndNumero { get; set; } 
         public string? EndEstado { get; set; }
         public string? EndCidade { get; set; }
@@ -27,9 +26,6 @@ namespace backend.Domain.AtendimentoAnimal.Entities {
         
         [StringLength(11, ErrorMessage = "O telefone 1 deve ter no máximo 11 dígitos.")]
         public string? Telefone1 { get; set; }
-        
-        [StringLength(11, ErrorMessage = "O telefone 2 deve ter no máximo 11 dígitos.")]
-        public string? Telefone2 { get; set; }
         
         [StringLength(11, ErrorMessage = "O telefone whatsapp deve ter no máximo 11 dígitos.")]
         public string? Whatsapp { get; set; }

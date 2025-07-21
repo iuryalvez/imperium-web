@@ -8,6 +8,11 @@ using backend.Domain.GestaoClinica.Interface;
 using backend.Domain.AtendimentoAnimal.DTOs;
 using backend.Domain.AtendimentoAnimal.Entities;
 
+// TODO: Refatorar e usar lógica de Interface + Service (impl) + Repository se houver tempo
+// TODO: Ver possibilidade de refatorar a lógica da persistência dos dados dos tutores:
+//  -> manter o tutor cadastrado no banco e no cadastro de tutor ver se já existe um cadastro
+//     proveniente de outra clínica para aproveitar dados antigos/existentes de outras clínicas
+
 namespace backend.Domain.AtendimentoAnimal
 {
     [ApiController]
@@ -57,7 +62,6 @@ namespace backend.Domain.AtendimentoAnimal
                         EndCidade = tc.Tutor.EndCidade,
                         Cep = tc.Tutor.Cep,
                         Telefone1 = tc.Tutor.Telefone1,
-                        Telefone2 = tc.Tutor.Telefone2,
                         Whatsapp = tc.Tutor.Whatsapp,
                         Email = tc.Tutor.Email,
                         DataCad = tc.Tutor.DataCad == default ? DateTime.UtcNow : tc.Tutor.DataCad
@@ -142,7 +146,6 @@ namespace backend.Domain.AtendimentoAnimal
                     EndCidade = dto.EndCidade?.Trim(),
                     Cep = dto.Cep?.Trim(),
                     Telefone1 = dto.Telefone1?.Trim(),
-                    Telefone2 = dto.Telefone2?.Trim(),
                     Whatsapp = dto.Whatsapp?.Trim(),
                     Email = dto.Email.Trim(),
                     DataCad = dto.DataCad == default ? DateTime.UtcNow : dto.DataCad
@@ -270,7 +273,6 @@ namespace backend.Domain.AtendimentoAnimal
                 tutor.EndCidade = dto.EndCidade?.Trim();
                 tutor.Cep = dto.Cep?.Trim();
                 tutor.Telefone1 = dto.Telefone1?.Trim();
-                tutor.Telefone2 = dto.Telefone2?.Trim();
                 tutor.Whatsapp = dto.Whatsapp?.Trim();
                 tutor.Email = dto.Email.Trim();
 
@@ -300,6 +302,7 @@ namespace backend.Domain.AtendimentoAnimal
         [Authorize(Policy = "GerenciaTutores")]
         public async Task<IActionResult> DeleteTutor(int tutorId)
         {
+            // Check for a valid clinic ID from the user's claims.
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId <= 0)
             {
@@ -307,157 +310,80 @@ namespace backend.Domain.AtendimentoAnimal
                 return BadRequest("Acesso não permitido à clínica.");
             }
 
+            // Use a transaction to ensure all database operations succeed or fail together.
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
-                _logger.LogInformation("Iniciando exclusão do tutor {TutorId} da clínica {ClinicaId}", tutorId, clinicaId);
+                _logger.LogInformation("Iniciando remoção do vínculo do tutor {TutorId} com a clínica {ClinicaId}", tutorId, clinicaId);
 
-                var tutorClinica = await _context.TutoresClinicas
+                // Find the specific link between the tutor and the clinic.
+                var tutorClinicaParaRemover = await _context.TutoresClinicas
                     .FirstOrDefaultAsync(tc => tc.TutorId == tutorId && tc.ClinicaId == clinicaId);
 
-                if (tutorClinica == null)
+                if (tutorClinicaParaRemover == null)
                 {
-                    _logger.LogWarning("Relação TutorClinica não encontrada para tutor {TutorId} na clínica {ClinicaId}", tutorId, clinicaId);
+                    _logger.LogWarning("Vínculo Tutor-Clínica não encontrado para tutor {TutorId} na clínica {ClinicaId}", tutorId, clinicaId);
                     return NotFound("Tutor não encontrado nesta clínica.");
                 }
 
-                // Remove vinculos do animal e do tutor nessa clínica
-                var animaisClinicas = await _context.AnimaisClinicas
-                    .Include(ac => ac.Animal!)
-                        .ThenInclude(a => a.TutoresAnimais!)
-                        .ThenInclude(ta => ta.Tutor)
-                    .Where(ac => ac.ClinicaId == clinicaId &&
-                                ac.Animal!.TutoresAnimais!.Any(ta => ta.TutorId == tutorId))
+                // Find all Tutor-Animal links for this tutor, but only for animals registered in the current clinic.
+                var tutoresAnimaisParaRemover = await _context.TutoresAnimais
+                    .Where(ta => ta.TutorId == tutorId &&
+                                 _context.AnimaisClinicas.Any(ac => ac.AnimalId == ta.AnimalId && ac.ClinicaId == clinicaId))
                     .ToListAsync();
 
-                if (animaisClinicas.Any())
+                if (tutoresAnimaisParaRemover.Any())
                 {
-                    _logger.LogInformation("Removendo {Qtd} animal(is) do tutor {TutorId} na clínica {ClinicaId}", animaisClinicas.Count, tutorId, clinicaId);
-                    _context.AnimaisClinicas.RemoveRange(animaisClinicas);
+                    _logger.LogInformation("Removendo {Qtd} vínculo(s) tutor-animal na clínica {ClinicaId}", tutoresAnimaisParaRemover.Count, clinicaId);
+                    _context.TutoresAnimais.RemoveRange(tutoresAnimaisParaRemover);
                 }
 
-                // Remove vínculo com a clínica
-                _logger.LogInformation("Removendo vínculo do tutor {TutorId} com clínica {ClinicaId}", tutorId, clinicaId);
-                _context.TutoresClinicas.Remove(tutorClinica);
+                // Stage the removal of the main Tutor-Clinic link.
+                _logger.LogInformation("Removendo vínculo do tutor {TutorId} com a clínica {ClinicaId}", tutorId, clinicaId);
+                _context.TutoresClinicas.Remove(tutorClinicaParaRemover);
 
-                await _context.SaveChangesAsync();
-
-                // Verifica se o tutor ainda possui vínculo com outra clínica
+                // Check if the tutor has links to any *other* clinics.
                 bool possuiOutrosVinculos = await _context.TutoresClinicas
-                    .AnyAsync(tc => tc.TutorId == tutorId);
+                    .AnyAsync(tc => tc.TutorId == tutorId && tc.ClinicaId != clinicaId);
 
                 if (!possuiOutrosVinculos)
                 {
-                    var tutor = await _context.Tutores.FindAsync(tutorId);
-                    if (tutor != null)
+                    _logger.LogInformation("Tutor {TutorId} não possui vínculos com outras clínicas. Removendo entidade principal.", tutorId);
+                    var tutorParaDeletar = await _context.Tutores.FindAsync(tutorId);
+                    if (tutorParaDeletar != null)
                     {
-                        _logger.LogInformation("Removendo tutor {TutorId}, sem vínculos restantes com clínicas", tutorId);
-                        _context.Tutores.Remove(tutor);
-                        await _context.SaveChangesAsync();
+                        // Also remove any associated consultations, as they have a required foreign key.
+                        var consultasParaRemover = await _context.Consultas
+                            .Where(c => c.TutorId == tutorId)
+                            .ToListAsync();
+
+                        if (consultasParaRemover.Any())
+                        {
+                            _logger.LogInformation("Removendo {Qtd} consulta(s) associada(s) ao tutor {TutorId}", consultasParaRemover.Count, tutorId);
+                            _context.Consultas.RemoveRange(consultasParaRemover);
+                        }
+
+                        _context.Tutores.Remove(tutorParaDeletar);
                     }
                 }
 
-                await transaction.CommitAsync();
-                _logger.LogInformation("Exclusão concluída para tutor {TutorId} na clínica {ClinicaId}", tutorId, clinicaId);
+                // Execute all staged changes (removals) in a single database command.
+                await _context.SaveChangesAsync();
 
+                // Commit the transaction if all operations were successful.
+                await transaction.CommitAsync();
+
+                _logger.LogInformation("Operação de exclusão concluída para o tutor {TutorId} na clínica {ClinicaId}", tutorId, clinicaId);
                 return NoContent();
-            }
-            catch (DbUpdateException dbEx)
-            {
-                await transaction.RollbackAsync();
-                _logger.LogError(dbEx, "Erro de banco ao deletar tutor {TutorId} da clínica {ClinicaId}", tutorId, clinicaId);
-                return StatusCode(500, "Erro ao deletar dados do tutor.");
             }
             catch (Exception ex)
             {
+                // Rollback the transaction in case of any error.
                 await transaction.RollbackAsync();
-                _logger.LogError(ex, "Erro inesperado ao deletar tutor {TutorId}", tutorId);
-                return StatusCode(500, "Erro interno no servidor.");
+                _logger.LogError(ex, "Erro inesperado ao processar exclusão do tutor {TutorId} na clínica {ClinicaId}", tutorId, clinicaId);
+                return StatusCode(500, "Ocorreu um erro interno ao processar a solicitação.");
             }
         }
-
-        // [HttpDelete("tutores/{tutorId}")]
-        // [Authorize(Policy = "GerenciaTutores")]
-        // public async Task<IActionResult> DeleteTutor(int tutorId) // Pode ser renomeado para UnlinkTutorFromClinic se preferir
-        // {
-        //     var clinicaId = User.GetClaimValue<int>("clinicaId");
-        //     if (clinicaId <= 0)
-        //     {
-        //         _logger.LogWarning("Claim clinicaId inválida ou ausente ao tentar desvincular tutor {TutorId}.", tutorId);
-        //         return BadRequest("Acesso não permitido. ID da clínica inválido ou ausente.");
-        //     }
-
-        //     await using var transaction = await _context.Database.BeginTransactionAsync();
-
-        //     try
-        //     {
-        //         _logger.LogInformation("Iniciando desvinculação do tutor {TutorId} da clínica {ClinicaId}", tutorId, clinicaId);
-
-        //         // 1. Encontrar e remover o vínculo TutorClinica
-        //         var tutorClinica = await _context.TutoresClinicas
-        //             .FirstOrDefaultAsync(tc => tc.TutorId == tutorId && tc.ClinicaId == clinicaId);
-
-        //         if (tutorClinica == null)
-        //         {
-        //             // Não é necessário RollbackAsync aqui, pois nenhuma alteração foi feita ainda.
-        //             _logger.LogWarning("Tutor {TutorId} não encontrado ou não associado à clínica {ClinicaId} para desvinculação.", tutorId, clinicaId);
-        //             return NotFound("Tutor não encontrado nesta clínica.");
-        //         }
-
-        //         _context.TutoresClinicas.Remove(tutorClinica);
-        //         _logger.LogInformation("Vínculo TutorClinica removido para Tutor ID {TutorId} e Clínica ID {ClinicaId}", tutorId, clinicaId);
-
-        //         // 2. Identificar animais que estão NESTA clínica
-        //         var idsAnimaisNestaClinica = await _context.AnimaisClinicas
-        //             .Where(ac => ac.ClinicaId == clinicaId)
-        //             .Select(ac => ac.AnimalId)
-        //             .Distinct()
-        //             .ToListAsync();
-
-        //         if (idsAnimaisNestaClinica.Any())
-        //         {
-        //             // 3. Remover os vínculos TutorAnimal entre o tutor que está sendo desvinculado e os animais desta clínica
-        //             var vinculosTutorAnimalParaRemover = await _context.TutoresAnimais
-        //                 .Where(ta => ta.TutorId == tutorId && idsAnimaisNestaClinica.Contains(ta.AnimalId))
-        //                 .ToListAsync();
-
-        //             if (vinculosTutorAnimalParaRemover.Any())
-        //             {
-        //                 _context.TutoresAnimais.RemoveRange(vinculosTutorAnimalParaRemover);
-        //                 _logger.LogInformation("{Count} vínculos TutorAnimal removidos para Tutor ID {TutorId} com animais da Clínica ID {ClinicaId}", vinculosTutorAnimalParaRemover.Count, tutorId, clinicaId);
-        //             }
-        //             else
-        //             {
-        //                 _logger.LogInformation("Nenhum vínculo TutorAnimal encontrado para Tutor ID {TutorId} com animais da Clínica ID {ClinicaId}", tutorId, clinicaId);
-        //             }
-        //         }
-        //         else
-        //         {
-        //             _logger.LogInformation("Nenhum animal encontrado na Clínica ID {ClinicaId}. Nenhum vínculo TutorAnimal para verificar para o Tutor ID {TutorId}.", clinicaId, tutorId);
-        //         }
-
-        //         // A remoção física do Tutor da tabela Tutores FOI REMOVIDA, conforme solicitado.
-        //         // O tutor permanecerá no sistema mesmo sem vínculos com clínicas.
-
-        //         await _context.SaveChangesAsync();
-        //         await transaction.CommitAsync();
-
-        //         _logger.LogInformation("Desvinculação do tutor {TutorId} da clínica {ClinicaId} concluída com sucesso.", tutorId, clinicaId);
-        //         return NoContent(); // HTTP 204 No Content é apropriado para um DELETE bem-sucedido sem corpo de resposta.
-        //     }
-        //     catch (DbUpdateException dbEx)
-        //     {
-        //         await transaction.RollbackAsync();
-        //         _logger.LogError(dbEx, "Erro de banco de dados ao desvincular tutor {TutorId} da clínica {ClinicaId}", tutorId, clinicaId);
-        //         return StatusCode(500, "Erro de banco de dados ao processar a solicitação do tutor.");
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         await transaction.RollbackAsync();
-        //         _logger.LogError(ex, "Erro inesperado ao desvincular tutor {TutorId} da clínica {ClinicaId}", tutorId, clinicaId);
-        //         return StatusCode(500, "Erro interno no servidor ao processar a solicitação do tutor.");
-        //     }
-        // }
     }
 }

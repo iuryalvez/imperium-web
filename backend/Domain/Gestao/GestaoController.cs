@@ -86,7 +86,6 @@ namespace backend.Domain.Gestao
                         EndCidade = c.EndCidade,
                         Cep = c.Cep,
                         Telefone1 = c.Telefone1,
-                        Telefone2 = c.Telefone2,
                         Whatsapp = c.Whatsapp,
                         Email = c.Email,
                         Instagram = c.Instagram,
@@ -170,7 +169,6 @@ namespace backend.Domain.Gestao
                 clinica.EndCidade = dto.EndCidade;
                 clinica.Cep = dto.Cep;
                 clinica.Telefone1 = dto.Telefone1;
-                clinica.Telefone2 = dto.Telefone2;
                 clinica.Whatsapp = dto.Whatsapp;
                 clinica.Email = dto.Email;
                 clinica.Instagram = dto.Instagram;

@@ -21,7 +21,6 @@ namespace backend.Domain.GestaoClinica.Entities {
         
         [StringLength(300, ErrorMessage = "O endereço deve ter no máximo 300 caracteres.")]
         public string? Endereco { get; set; }
-        
         public int EndNumero { get; set; }
         public string? EndEstado { get; set; }
         public string? EndCidade { get; set; }
@@ -31,9 +30,6 @@ namespace backend.Domain.GestaoClinica.Entities {
         
         [StringLength(11, ErrorMessage = "O telefone deve ter no máximo 11 dígitos.")]
         public string? Telefone1 { get; set; }
-        
-        [StringLength(11, ErrorMessage = "O telefone deve ter no máximo 11 dígitos.")]
-        public string? Telefone2 { get; set; }
         
         [EmailAddress(ErrorMessage = "O e-mail não é válido.")]
         public string? Email { get; set; }

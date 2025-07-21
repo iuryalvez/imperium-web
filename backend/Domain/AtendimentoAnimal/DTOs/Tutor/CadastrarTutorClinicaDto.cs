@@ -24,9 +24,6 @@ namespace backend.Domain.AtendimentoAnimal.DTOs
         [StringLength(11, ErrorMessage = "O telefone 1 deve ter no máximo 11 dígitos.")]
         public string? Telefone1 { get; set; }
         
-        [StringLength(11, ErrorMessage = "O telefone 2 deve ter no máximo 11 dígitos.")]
-        public string? Telefone2 { get; set; }
-        
         [StringLength(11, ErrorMessage = "O telefone whatsapp deve ter no máximo 11 dígitos.")]
         public string? Whatsapp { get; set; }
         
