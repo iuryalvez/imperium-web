@@ -74,7 +74,7 @@ const DetalhesAnimaisDaClinica = ({ valores }) => {
           {formatarEspecie(valores.especie)}
         </Descriptions.Item>
         <Descriptions.Item label="Raça">
-          {valores.raca?.nome ?? naoInformado}
+          {valores.racaNome ?? naoInformado}
         </Descriptions.Item>
       </Descriptions>
 

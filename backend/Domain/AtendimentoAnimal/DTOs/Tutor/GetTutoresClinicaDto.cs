@@ -7,7 +7,7 @@ namespace backend.Domain.AtendimentoAnimal.DTOs
         public string? Nome { get; set; }
         public string? Cpf { get; set; }
         public string? Endereco { get; set; }
-        public int EndNumero { get; set; }
+        public int? EndNumero { get; set; }
         public string? EndEstado { get; set; }
         public string? EndCidade { get; set; }
         public string? Cep { get; set; }

@@ -45,35 +45,12 @@ namespace backend.Domain.AtendimentoAnimal
                 var clinicaId = User.GetClaimValue<int>("clinicaId");
                 if (clinicaId == 0)
                 {
-                    _logger.LogWarning("Usuário sem permissão tentou acessar tutores de clínica. Claims: {@Claims}", User.Claims.Select(c => new { c.Type, c.Value }));
                     return BadRequest("Acesso não permitido a esta clínica.");
                 }
 
-                _logger.LogInformation("Consultando tutores da clínica {ClinicaId}", clinicaId);
+                var tutoresDto = await _tutorService.GetAllByClinicIdAsync(clinicaId);
 
-                var vinculosTutores = await _clinicaService.ObterVinculosTutoresDaClinicaAsync(clinicaId);
-
-                var getTutoresClinicaDtos = vinculosTutores
-                    .Where(tc => tc.Tutor != null)
-                    .Select(tc => new GetTutoresClinicaDto
-                    {
-                        Id = tc.Tutor.Id,
-                        Nome = tc.Tutor.Nome,
-                        Cpf = tc.Tutor.Cpf,
-                        Endereco = tc.Tutor.Endereco,
-                        EndNumero = tc.Tutor.EndNumero,
-                        EndEstado = tc.Tutor.EndEstado,
-                        EndCidade = tc.Tutor.EndCidade,
-                        Cep = tc.Tutor.Cep,
-                        Telefone1 = tc.Tutor.Telefone1,
-                        Whatsapp = tc.Tutor.Whatsapp,
-                        Email = tc.Tutor.Email,
-                        DataCad = tc.Tutor.DataCad == default ? DateTime.UtcNow : tc.Tutor.DataCad
-                    }).ToList();
-
-                _logger.LogInformation("Retornados {Qtd} tutores da clínica {ClinicaId}", getTutoresClinicaDtos.Count, clinicaId);
-
-                return Ok(getTutoresClinicaDtos);
+                return Ok(tutoresDto);
             }
             catch (Exception ex)
             {
