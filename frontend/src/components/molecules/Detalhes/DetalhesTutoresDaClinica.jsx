@@ -14,6 +14,7 @@ const DetalhesTutoresDaClinica = ({ valores }) => {
 
     return (
         <>
+        <Typography.Title level={4}>{`Dados do Tutor`}</Typography.Title>
             <Descriptions title="Informações Pessoais" bordered column={1}>
                 <Descriptions.Item label="Nome Completo">{valores.nome ?? naoInformado}</Descriptions.Item>
                 <Descriptions.Item label="CPF">{formatarCPF(valores.cpf) ?? naoInformado}</Descriptions.Item>

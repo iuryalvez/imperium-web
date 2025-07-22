@@ -1,3 +1,4 @@
+using backend.Domain.AtendimentoAnimal.DTOs;
 using backend.Domain.AtendimentoAnimal.Entities;
 
 namespace backend.Domain.AtendimentoAnimal
@@ -5,7 +6,7 @@ namespace backend.Domain.AtendimentoAnimal
     public class GetAnimaisClinicaDto
     {
         public int Id { get; set; }
-        public List<int> TutorId { get; set; }
+        public List<int> TutorIds { get; set; }
         public string Nome { get; set; } = string.Empty;
         public EspecieAnimal Especie { get; set; } // 1-cao, 2-gato
         public DateTime Nascimento { get; set; }
@@ -18,7 +19,7 @@ namespace backend.Domain.AtendimentoAnimal
         public int Lactacao { get; set; } // numero de filhotes
         public int SemanaLactacao { get; set; }
         public int SemanaGestacao { get; set; }
-        // public List<TutorInfoSimplesDto> Tutores { get; set; } = new List<TutorInfoSimplesDto>();
+        public List<TutorInfoSimplesDto>? Tutores { get; set; }
         public DateTime DataCad { get; set; }
     }
 }

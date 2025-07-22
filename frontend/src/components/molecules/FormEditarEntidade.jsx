@@ -78,11 +78,6 @@ const FormEditarEntidade = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // usuarios e usuariosDaClinica
-  const [perfisSelecionados, setPerfisSelecionados] = useState(
-    valoresIniciais?.perfis || []
-  );
-
   // Estados para controlar a lógica do formulário de animais
   const [especieSelecionada, setEspecieSelecionada] = useState(
     valoresIniciais?.especie
@@ -107,22 +102,7 @@ const FormEditarEntidade = ({
 
   // useEffect executa sempre que ["changed"] muda, nesse caso, a entidade
   useEffect(() => {
-    if (entidade === "usuariosDoSistema") {
-      // carrega a lista de clínicas para funcionar a atualização de perfis no backend
-      clinicasAPI
-        .listar()
-        .then((data) => {
-          console.log("Clínicas carregadas da api:", data); // debug
-          // formata os dados da clínica no formato esperado pelo Select (label e value) e conseguir captar no backend
-          const clinicasFormatadas = data.map((clinica) => ({
-            label: clinica.nomeClinica,
-            value: clinica.id,
-          }));
-          setClinicas(clinicasFormatadas);
-          console.log("Clínicas formatadas para o Select:", clinicasFormatadas); // debug
-        })
-        .catch((err) => console.error("Erro ao carregar clínicas:", err));
-    }
+  
     if (entidade === "animaisDaClinica") {
       const carregarRacas = async () => {
         try {
@@ -156,25 +136,6 @@ const FormEditarEntidade = ({
     }
   }, [entidade]); // dependência: executa novamente se `entidade` mudar como dito anteriormente
 
-  // useEffect executa sempre que ["changed"] muda, nesse caso, os valores iniciais e o form
-  // useEffect(() => {
-  //   if (valoresIniciais) {
-  //     console.log("Valores iniciais recebidos:", valoresIniciais);
-
-  //     // ✅ CONVERSÃO DA DATA ACONTECE AQUI
-  //     const valoresFormatados = {
-  //       ...valoresIniciais,
-  //       // Se 'nascimento' existir, converte a string para um objeto dayjs
-  //       nascimento: valoresIniciais.nascimento
-  //         ? dayjs(valoresIniciais.nascimento)
-  //         : null,
-  //       // Faça o mesmo para qualquer outro campo de data que você tenha
-  //     };
-
-  //     form.setFieldsValue(valoresFormatados); // Popula o formulário com os valores já corrigidos
-  //   }
-  // }, [valoresIniciais, form]);
-
   // Carrega e formata os dados iniciais quando o componente recebe os valores
   useEffect(() => {
     if (valoresIniciais) {
@@ -205,14 +166,6 @@ const FormEditarEntidade = ({
       setLoading(true);
       let processedValues = { ...values };
       console.log(valoresIniciais); // ativa o loading (útil para botões/spinners)
-
-      if (
-        entidade === "usuariosDoSistema" ||
-        entidade === "usuariosDaClinica"
-      ) {
-        const isInativo = processedValues.perfis?.includes("INATIVO") || false;
-        processedValues.isAtivo = !isInativo;
-      }
 
       if (entidade === "clinicas") {
         if (processedValues.cpf)
@@ -265,12 +218,6 @@ const FormEditarEntidade = ({
         setSexoAnimal(form.getFieldValue("sexo")); // Ou valor padrão
         setEmGestacao(false);
         setNumFilhotes(0);
-      }
-      if (
-        entidade === "usuariosDoSistema" ||
-        entidade === "usuariosDaClinica"
-      ) {
-        setPerfisSelecionados([]);
       }
 
       // se tiver função de callback após o sucesso, executa
@@ -332,32 +279,6 @@ const FormEditarEntidade = ({
         form.setFieldsValue(formUpdates);
       }
     }
-
-    if (entidade === "usuariosDoSistema" && "perfis" in changedValues) {
-      const currentPerfis = changedValues.perfis || [];
-      let newValues = [...currentPerfis];
-
-      if (currentPerfis.includes("ADMIN")) {
-        newValues = currentPerfis.filter(
-          (val) => val === "ADMIN" || val === "INATIVO"
-        );
-      } else if (
-        currentPerfis.some((val) =>
-          ["GESTOR", "TECNICO", "SECRETARIO", "VETERINARIO"].includes(val)
-        )
-      ) {
-        newValues = currentPerfis.filter((val) => val !== "ADMIN");
-      }
-      setPerfisSelecionados(newValues);
-      // Se os valores foram alterados pela lógica acima, atualize o formulário
-      if (
-        newValues.length !== currentPerfis.length ||
-        !newValues.every((val, index) => val === currentPerfis[index])
-      ) {
-        form.setFieldsValue({ perfis: newValues });
-      }
-    }
-  };
 
   const renderCampo = (campo) => {
     switch (campo.type) {
@@ -471,123 +392,6 @@ const FormEditarEntidade = ({
         >
           {/* <Input /> */}
         </Form.Item>
-
-        {entidade === "usuariosDoSistema" && (
-          <>
-            <Form.Item
-              label="Perfis"
-              name="perfis"
-              rules={[
-                {
-                  required: true,
-                  message: "Pelo menos um perfil deve ser selecionado",
-                },
-              ]}
-            >
-              <Checkbox.Group
-                options={perfisSistema
-                  .filter((perfil) =>
-                    valoresIniciais.isAdmin
-                      ? ["ADMIN", "INATIVO"].includes(perfil.value)
-                      : [
-                          "GESTOR",
-                          "TECNICO",
-                          "SECRETARIO",
-                          "VETERINARIO",
-                          "INATIVO",
-                        ].includes(perfil.value)
-                  )
-                  .map((perfil) => ({
-                    ...perfil,
-                    ...(valoresIniciais.isAdmin && perfil.value === "ADMIN"
-                      ? { disabled: true }
-                      : {}),
-                  }))}
-                style={{ display: "flex", flexDirection: "column", gap: 8 }}
-                value={
-                  valoresIniciais.isAdmin
-                    ? Array.from(new Set([...perfisSelecionados, "ADMIN"])) // Garante que ADMINISTRADOR está sempre selecionado
-                    : perfisSelecionados
-                }
-                onChange={(values) => {
-                  let newValues = valoresIniciais.isAdmin
-                    ? Array.from(new Set([...values, "ADMIN"])) // Mantém ADMINISTRADOR selecionado
-                    : values;
-
-                  setPerfisSelecionados(newValues);
-                  form.setFieldValue("perfis", newValues);
-                }}
-              />
-            </Form.Item>
-            <Form.Item
-              name="isAdmin"
-              label="isAdmin"
-              hidden // Esta propriedade esconde o campo
-              initialValue={valoresIniciais.isAdmin} // Valor inicial do DTO
-            ></Form.Item>
-            <Form.Item
-              name="upcId"
-              label="upcId"
-              hidden // Esta propriedade esconde o campo
-              initialValue={valoresIniciais.upcId} // Valor inicial do DTO
-            >
-              {/* <Input /> */}
-            </Form.Item>
-            <Form.Item label="Clínica">
-              <div
-                style={{
-                  padding: "4px 11px",
-                  backgroundColor: "#f5f5f5",
-                  borderRadius: 4,
-                }}
-              >
-                {clinicas.find(
-                  (c) => c.value === form.getFieldValue("clinicaId")
-                )?.label || "Clínica não encontrada"}
-              </div>
-            </Form.Item>
-          </>
-        )}
-
-        {entidade === "usuariosDaClinica" && (
-          <>
-            <Form.Item
-              label="Perfis"
-              name="perfis"
-              rules={[
-                {
-                  required: true,
-                  message: "Pelo menos um perfil deve ser selecionado",
-                },
-              ]}
-            >
-              <Checkbox.Group
-                options={perfisClinica.map((perfil) => ({
-                  ...perfil,
-                }))}
-                style={{ display: "flex", flexDirection: "column", gap: 8 }}
-                value={perfisSelecionados}
-                onChange={(values) => {
-                  let newValues = values;
-                  setPerfisSelecionados(newValues);
-                  form.setFieldValue("perfis", newValues);
-                }}
-              />
-            </Form.Item>
-            <Form.Item
-              name="clinicaId"
-              label="clinicaId"
-              hidden // Esta propriedade esconde o campo
-              initialValue={valoresIniciais.clinicaId} // Valor inicial do DTO
-            ></Form.Item>
-            <Form.Item
-              name="upcId"
-              label="upcId"
-              hidden // Esta propriedade esconde o campo
-              initialValue={valoresIniciais.upcId} // Valor inicial do DTO
-            ></Form.Item>
-          </>
-        )}
 
         {entidade === "clinicas" && (
           <>

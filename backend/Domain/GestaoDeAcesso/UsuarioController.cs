@@ -134,70 +134,14 @@ namespace backend.Domain.GestaoDeAcesso
                 return BadRequest(ModelState);
             }
 
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            var result = await _usuarioService.UpdateUsuarioClinicaAsync(dto);
 
-            try
+            if (!result.Succeeded)
             {
-                Console.WriteLine("EditarUsuarioClinicaDto.UpcId: " + dto.UpcId);
-                var vinculo = await _context.UsuariosPerfisClinicas
-                    .Include(upc => upc.Usuario)
-                    .FirstOrDefaultAsync(upc => upc.Id == dto.UpcId);
-
-                if (vinculo == null)
-                {
-                    return NotFound(new { Success = false, Message = "Vínculo do usuário não encontrado." });
-                }
-
-                var usuario = vinculo.Usuario;
-                if (usuario == null)
-                {
-                    return NotFound(new { Success = false, Message = "Usuário associado ao vínculo não encontrado." });
-                }
-
-                if (!string.IsNullOrWhiteSpace(dto.Nome))
-                {
-                    usuario.Nome = dto.Nome;
-                }
-
-                // Validação de perfis
-                if (dto.Perfis == null || !dto.Perfis.Any())
-                {
-                    return BadRequest(new { Success = false, Message = "O usuário deve ter pelo menos um perfil ativo." });
-                }
-                vinculo.Perfis = dto.Perfis;
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                return Ok(new
-                {
-                    Success = true,
-                    Message = "Usuário atualizado com sucesso",
-                    Data = new { UserId = usuario.Id, VinculoId = vinculo.Id }
-                });
+                return BadRequest(result);
             }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                await transaction.RollbackAsync();
-                _logger.LogError(ex, $"Conflito de concorrência ao editar usuário {dto.UpcId}");
-                return StatusCode(409, new
-                {
-                    Success = false,
-                    Message = "Os dados foram modificados por outro usuário. Recarregue e tente novamente.",
-                    ErrorCode = "CONCURRENCY_ERROR"
-                });
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                _logger.LogError(ex, $"Erro ao editar usuário com vínculo ID {dto.UpcId}");
-                return StatusCode(500, new
-                {
-                    Success = false,
-                    Message = "Erro interno ao editar usuário.",
-                    ErrorCode = "INTERNAL_ERROR"
-                });
-            }
+
+            return Ok(result);
         }
 
         [HttpDelete("vinculos/{upcId}")]

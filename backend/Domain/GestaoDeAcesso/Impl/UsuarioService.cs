@@ -359,6 +359,7 @@ public class UsuarioService : IUsuarioService
         usuario.Email = dto.Email;
         usuario.UserName = dto.Email;
         vinculo.Perfis = dto.Perfis ?? vinculo.Perfis;
+        
         // Atualiza campos opcionais
         if (!string.IsNullOrWhiteSpace(dto.Cpf)) usuario.Cpf = dto.Cpf;
         if (!string.IsNullOrWhiteSpace(dto.Formacao)) usuario.Formacao = dto.Formacao;
@@ -377,5 +378,61 @@ public class UsuarioService : IUsuarioService
 
         await _userRepository.SaveChangesAsync();
         return new ServiceResult { Succeeded = true, Message = "Usuário atualizado com sucesso." };
+    }
+
+    public async Task<ServiceResult> UpdateUsuarioClinicaAsync(EditarUsuarioClinicaDto dto)
+    {
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            var vinculo = await _userRepository.GetUserClinicLinkByIdAsync(dto.UpcId);
+            if (vinculo?.Usuario == null)
+            {
+                await transaction.RollbackAsync();
+                return new ServiceResult { Succeeded = false, Message = "Vínculo do usuário não encontrado." };
+            }
+
+            var usuario = vinculo.Usuario;
+
+            // A validação de email duplicado deve ser no escopo da clínica
+            if (await _userRepository.EmailExistsInClinicForAnotherUserAsync(dto.Email, vinculo.ClinicaId, usuario.Id))
+            {
+                await transaction.RollbackAsync();
+                return new ServiceResult { Succeeded = false, Message = "O e-mail informado já está em uso nesta clínica." };
+            }
+
+            // Atualiza os campos do usuário e do vínculo
+            usuario.Nome = dto.Nome;
+            usuario.Email = dto.Email;
+            usuario.UserName = dto.Email; // Garante consistência
+            vinculo.Perfis = dto.Perfis ?? vinculo.Perfis;
+
+            // Atualiza campos opcionais
+            if (!string.IsNullOrWhiteSpace(dto.Cpf)) usuario.Cpf = dto.Cpf;
+            if (!string.IsNullOrWhiteSpace(dto.Formacao)) usuario.Formacao = dto.Formacao;
+            if (!string.IsNullOrWhiteSpace(dto.Telefone1)) usuario.Telefone1 = dto.Telefone1;
+            if (!string.IsNullOrWhiteSpace(dto.Whatsapp)) usuario.Whatsapp = dto.Whatsapp;
+
+            // Altera a senha, se uma nova foi fornecida
+            if (!string.IsNullOrWhiteSpace(dto.Senha))
+            {
+                var passwordResult = await _userRepository.UpdateUserPasswordAsync(usuario, dto.Senha);
+                if (!passwordResult.Succeeded)
+                {
+                    await transaction.RollbackAsync();
+                    return new ServiceResult { Succeeded = false, Errors = passwordResult.Errors.Select(e => e.Description).ToList() };
+                }
+            }
+
+            await _userRepository.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return new ServiceResult { Succeeded = true, Message = "Usuário atualizado com sucesso." };
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            // Logar erro 'ex'
+            return new ServiceResult { Succeeded = false, Message = "Erro inesperado ao atualizar usuário." };
+        }
     }
 }

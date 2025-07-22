@@ -5,12 +5,12 @@ using backend.Domain.AtendimentoAnimal.DTOs.Raca; // You might want to use a map
 
 namespace backend.Domain.AtendimentoAnimal.Impl
 {
-    public class RacaImpl : RacaInterface
+    public class RacaService : IRacaService
     {
         private readonly IRacaRepository _racaRepository;
         private readonly IMapper _mapper; // Injected mapper
 
-        public RacaImpl(IRacaRepository racaRepository, IMapper mapper)
+        public RacaService(IRacaRepository racaRepository, IMapper mapper)
         {
             _racaRepository = racaRepository;
             _mapper = mapper;

@@ -9,7 +9,7 @@ const DetalhesClinica = ({ valores }) => {
     return (
         // Usamos um Fragment <> pois o Descriptions já provê a estrutura.
         <>
-            <Typography.Title level={4}>{`Detalhes da Clínica`}</Typography.Title>
+            <Typography.Title level={4}>{`Informações da Clínica`}</Typography.Title>
             <Descriptions title="Informações Gerais" bordered column={2}>
                 <Descriptions.Item label="Nome da Clínica" span={2}>
                     {valores.nomeClinica}

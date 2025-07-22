@@ -10,6 +10,7 @@ public class EditarUsuarioSistemaDto
     // Campos principais
     [Required]
     public string Nome { get; set; }
+    
     [Required, EmailAddress]
     public string Email { get; set; }
     public List<string>? Perfis { get; set; }

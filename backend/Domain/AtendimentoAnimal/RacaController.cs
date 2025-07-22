@@ -14,9 +14,9 @@ namespace backend.Domain.AtendimentoAnimal
     [Route("api/sistema/raca")]
     public class RacaController : ControllerBase
     {
-        private readonly RacaInterface _racaInterface;
+        private readonly IRacaService _racaInterface;
 
-        public RacaController(RacaInterface racaInterface)
+        public RacaController(IRacaService racaInterface)
         {
             _racaInterface = racaInterface;
         }

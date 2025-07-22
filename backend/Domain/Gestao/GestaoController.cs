@@ -24,12 +24,12 @@ namespace backend.Domain.Gestao
         private readonly AppDbContext _context;
         private readonly UserManager<Usuario> _userManager;
         private readonly ILogger<GestaoController> _logger;
-        private readonly ClinicaInterface _clinicaInterface;
+        private readonly IClinicaService _clinicaInterface;
         private readonly IUsuarioService _usuarioService;
 
         public GestaoController(AppDbContext context,
                                  UserManager<Usuario> userManager,
-                                 ClinicaInterface clinicaInterface,
+                                 IClinicaService clinicaInterface,
                                  IUsuarioService usuarioService,
                                  ILogger<GestaoController> logger)
         {
@@ -284,32 +284,6 @@ namespace backend.Domain.Gestao
                     ErrorCode = "INTERNAL_ERROR",
                     Detailed = ex.Message
                 });
-            }
-        }
-
-        // obtém todos os animais cadastrados
-        [HttpGet("animais")]
-        [Authorize(Policy = "GerenciaSistema")]
-        public async Task<ActionResult<IEnumerable<GetAnimaisDto>>> GetAllAnimais()
-        {
-            try
-            {
-                var animais = await _context.Animais
-                .Select(a => new GetAnimaisDto
-                {
-                    Id = a.Id,
-                    Nome = a.Nome,
-                    Especie = a.Especie,
-                    Sexo = a.Sexo
-                })
-                .ToListAsync();
-
-                return Ok(animais);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao buscar animais");
-                return StatusCode(500, "Erro interno ao buscar animais.");
             }
         }
 

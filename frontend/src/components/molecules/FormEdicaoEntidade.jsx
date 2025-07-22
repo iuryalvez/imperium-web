@@ -3,14 +3,20 @@ import React, { useState, useEffect } from 'react';
 import { Button, Form, Typography, message } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
 
-import EdicaoUsuarioDoSistema from './Edicao/EdicaoUsuariosDoSistema';
+import EdicaoUsuariosDoSistema from './Edicao/EdicaoUsuariosDoSistema';
+import EdicaoUsuariosDaClinica from './Edicao/EdicaoUsuariosDaClinica';
+import EdicaoAnimaisDaClinica from './Edicao/EdicaoAnimaisDaClinica';
+import EdicaoTutoresDaClinica from './Edicao/EdicaoTutoresDaClinica';
+
 
 const componentesDeEdicao = {
-    usuariosDoSistema: EdicaoUsuarioDoSistema,
-    // ... outros componentes
+    usuariosDoSistema: EdicaoUsuariosDoSistema,
+    usuariosDaClinica: EdicaoUsuariosDaClinica,
+    animaisDaClinica: EdicaoAnimaisDaClinica,
+    tutoresDaClinica: EdicaoTutoresDaClinica
 };
 
-const FormEdicaoEntidade = ({ entidade, valoresIniciais, onSubmit, onSuccess, onCancel, tituloModal }) => {
+const FormEdicaoEntidade = ({ entidade, valoresIniciais, onSubmit, onSuccess, onCancel }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
 
@@ -27,7 +33,7 @@ const FormEdicaoEntidade = ({ entidade, valoresIniciais, onSubmit, onSuccess, on
             // Inclui o ID nos valores a serem submetidos, caso não esteja visível
             const finalValues = { ...valoresIniciais, ...values };
             await onSubmit(finalValues);
-            message.success(`${tituloModal.replace('Edição de', 'Editado(a)')} com sucesso.`);
+            message.success(`Editado com sucesso.`);
             if (onSuccess) onSuccess();
         } catch (error) {
             console.error("Erro ao editar:", error);
@@ -41,8 +47,6 @@ const FormEdicaoEntidade = ({ entidade, valoresIniciais, onSubmit, onSuccess, on
 
     return (
         <Form form={form} layout="vertical" onFinish={handleFinish} autoComplete="off">
-            <Typography.Title level={4}>{tituloModal}</Typography.Title>
-            
             {EdicaoEntidade ? (
                 // Passamos `form` e `valoresIniciais` para o componente filho
                 <EdicaoEntidade form={form} valoresIniciais={valoresIniciais} />

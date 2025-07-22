@@ -28,7 +28,6 @@ const TabelaEntidade = ({
   entidadeAPI,
   onAtualizar,
   colunasBase,
-  camposSimplesEditar,
 }) => {
   const [registros, setRegistros] = useState(dados); // armazena os dados atuais da tabela, set atualiza
   const [backupRegistros, setBackupRegistros] = useState([]); // guarda cópia de segurança antes de operações que alteram os registros
@@ -269,11 +268,7 @@ const TabelaEntidade = ({
         <Modal
           open={modalDetalhesVisivel}
           onCancel={() => setModalDetalhesVisivel(false)}
-          footer={[
-            <Button key="back" onClick={() => setModalDetalhesVisivel(false)}>
-              Fechar
-            </Button>,
-          ]}
+          footer={null}
           centered
           destroyOnClose
           width={"70vw"}
@@ -281,11 +276,9 @@ const TabelaEntidade = ({
         >
           {registroSelecionado && (
             <FormDetalhesEntidade
-              registro={registroSelecionado}
               entidade={entidade}
-              nomeEntidade={nomeEntidade}
               valores={registroSelecionado}
-              camposDetalhes={camposSimplesEditar}
+              onCancel={() => setModalDetalhesVisivel(false)}
             />
           )}
         </Modal>
@@ -307,7 +300,6 @@ const TabelaEntidade = ({
               onSubmit={editarRegistro} // Passa a função de edição
               onSuccess={handleSucessoEdicao} // Passa a nova função de sucesso
               onCancel={() => setModalEdicaoVisivel(false)}
-              tituloModal={`Edição de ${nomeEntidade}`}
             />
           )}
         </Modal>

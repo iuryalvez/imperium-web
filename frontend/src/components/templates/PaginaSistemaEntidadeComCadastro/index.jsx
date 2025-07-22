@@ -12,8 +12,7 @@ const PaginaSistemaEntidadeComCadastro = ({
   nomeEntidade,
   api,
   nomeBotao,
-  colunasBase,
-  camposSimplesEditar,
+  colunasBase
 }) => {
   const [dados, setDados] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -93,7 +92,6 @@ const PaginaSistemaEntidadeComCadastro = ({
           dados={dados}
           onAtualizar={buscarDados}
           colunasBase={colunasBase}
-          camposSimplesEditar={camposSimplesEditar}
         />
       </div>
 

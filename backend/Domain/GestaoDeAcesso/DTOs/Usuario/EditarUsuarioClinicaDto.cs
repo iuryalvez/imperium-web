@@ -6,18 +6,24 @@ namespace backend.Domain.GestaoDeAcesso.DTOs
 {
     public class EditarUsuarioClinicaDto
     {
-        [Required(ErrorMessage = "O id do usuário é obrigatório.")]
-        public int Id { get; set; }
+        [Required]
+        public int UpcId { get; set; } // O ID do vínculo é a chave principal aqui
 
-        [Required(ErrorMessage = "O id da clínica vinculada é obrigatório.")]
-        public int ClinicaId { get; set; }
+        // Campos principais
+        [Required]
+        public string Nome { get; set; }
+        [Required, EmailAddress]
+        public string Email { get; set; }
+        public List<string>? Perfis { get; set; }
 
-        [Required(ErrorMessage = "O id do upc é obrigatório.")]
-        public int UpcId { get; set; }
+        // Campos opcionais
+        public string? Senha { get; set; }
+        public string? Cpf { get; set; }
+        public string? Formacao { get; set; }
+        public string? Telefone1 { get; set; }
+        public string? Whatsapp { get; set; }
 
-        [Required(ErrorMessage = "O nome é obrigatório.")]
-        [StringLength(100, ErrorMessage = "O nome deve ter no máximo 100 caracteres.")]
-        public string Nome { get; set; } = string.Empty;
-        public List<string> Perfis { get; set; }
+        // Os campos Id e ClinicaId podem ser obtidos no backend a partir do UpcId
+        // Não precisam vir do frontend
     }
 }

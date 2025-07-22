@@ -7,6 +7,7 @@ using backend.Infra.Data;
 using backend.Domain.GestaoClinica.Interface;
 using backend.Domain.AtendimentoAnimal.DTOs;
 using backend.Domain.AtendimentoAnimal.Entities;
+using backend.Domain.AtendimentoAnimal.Interface;
 
 // TODO: Refatorar e usar lógica de Interface + Service (impl) + Repository se houver tempo
 // TODO: Ver possibilidade de refatorar a lógica da persistência dos dados dos tutores:
@@ -21,15 +22,18 @@ namespace backend.Domain.AtendimentoAnimal
     {
         private readonly AppDbContext _context;
         private readonly ILogger<TutorController> _logger;
-        private readonly ClinicaInterface _clinicaInterface;
+        private readonly IClinicaService _clinicaService;
+        private readonly ITutorService _tutorService;
 
         public TutorController(AppDbContext context,
                                ILogger<TutorController> logger,
-                               ClinicaInterface clinicaInterface)
+                               IClinicaService clinicaService,
+                               ITutorService tutorService)
         {
             _context = context;
             _logger = logger;
-            _clinicaInterface = clinicaInterface;
+            _clinicaService = clinicaService;
+            _tutorService = tutorService;
         }
 
         [HttpGet("tutores")]
@@ -47,7 +51,7 @@ namespace backend.Domain.AtendimentoAnimal
 
                 _logger.LogInformation("Consultando tutores da clínica {ClinicaId}", clinicaId);
 
-                var vinculosTutores = await _clinicaInterface.ObterVinculosTutoresDaClinicaAsync(clinicaId);
+                var vinculosTutores = await _clinicaService.ObterVinculosTutoresDaClinicaAsync(clinicaId);
 
                 var getTutoresClinicaDtos = vinculosTutores
                     .Where(tc => tc.Tutor != null)
@@ -78,21 +82,6 @@ namespace backend.Domain.AtendimentoAnimal
             }
         }
 
-        // get tutor by tutorId
-        // [HttpGet("tutores/{tutorId}")]
-        // [Authorize(Policy = "GerenciaTutores")]
-        // public async Task<ActionResult<GetTutoresClinicaDto>> GetTutorById(int tutorId)
-        // {
-        //     var tutor = await _clinicaInterface.ObterTutorAsync(tutorId);
-
-        //     if (tutor == null)
-        //     {
-        //         return NotFound();
-        //     }
-
-        //     return Ok(tutor);
-        // }
-
         [HttpPost("tutores/cadastrar")]
         [Authorize(Policy = "GerenciaTutores")]
         public async Task<IActionResult> CadastrarTutorClinica([FromBody] CadastrarTutorClinicaDto dto)
@@ -119,7 +108,7 @@ namespace backend.Domain.AtendimentoAnimal
 
                 // Verifica clínica
                 _logger.LogInformation("Verificando clínica ID: {ClinicaId}", clinicaId);
-                var clinica = await _clinicaInterface.ObterClinicaAsync(clinicaId);
+                var clinica = await _clinicaService.ObterClinicaAsync(clinicaId);
                 if (clinica == null)
                 {
                     _logger.LogWarning("Clínica não encontrada: {ClinicaId}", clinicaId);
@@ -128,7 +117,7 @@ namespace backend.Domain.AtendimentoAnimal
 
                 // Valida CPF
                 _logger.LogInformation("Verificando CPF: {Cpf}", dto.Cpf);
-                if (await _clinicaInterface.TutorCpfExisteNaClinicaAsync(dto.Cpf, clinicaId))
+                if (await _clinicaService.TutorCpfExisteNaClinicaAsync(dto.Cpf, clinicaId))
                 {
                     _logger.LogWarning("CPF já cadastrado: {Cpf}", dto.Cpf);
                     return Conflict("Já existe um tutor com este CPF associado a esta clínica.");
@@ -220,82 +209,18 @@ namespace backend.Domain.AtendimentoAnimal
         [Authorize(Policy = "GerenciaTutores")]
         public async Task<IActionResult> EditarTutorClinica([FromBody] EditarTutorClinicaDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("ModelState inválido: {@Errors}", ModelState);
-                return BadRequest(ModelState);
-            }
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            await using var transaction = await _context.Database.BeginTransactionAsync();
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId <= 0)
+                return Unauthorized("Acesso restrito à clínica.");
 
-            try
-            {
-                _logger.LogInformation("Iniciando edição de tutor ID: {TutorId}", dto.Id);
+            var result = await _tutorService.UpdateTutorAsync(dto, clinicaId);
 
-                var clinicaId = User.GetClaimValue<int>("clinicaId");
-                if (clinicaId <= 0)
-                {
-                    _logger.LogWarning("Claim clinicaId ausente/inválida");
-                    return Unauthorized("Acesso restrito à clínica.");
-                }
+            if (!result.Succeeded)
+                return BadRequest(result);
 
-                // Valida associação tutor x clínica
-                _logger.LogInformation("Validando vínculo tutor {TutorId} com clínica {ClinicaId}", dto.Id, clinicaId);
-                var vinculosTutores = await _clinicaInterface.ObterVinculosTutoresDaClinicaAsync(clinicaId);
-
-                var tutorClinica = vinculosTutores.FirstOrDefault(tc => tc.TutorId == dto.Id);
-
-                if (tutorClinica == null)
-                {
-                    _logger.LogWarning("Relação TutorClinica não encontrada para tutor de Id: {dto.Id} na clínica de Id: {clinicaId}", dto.Id, clinicaId);
-                    return NotFound("Tutor não encontrado nesta clíncia.");
-                }
-
-                var tutor = tutorClinica.Tutor;
-
-                // Verifica se o CPF foi alterado e se já existe outro tutor com o novo CPF
-                if (!string.Equals(tutor.Cpf, dto.Cpf.Trim(), StringComparison.OrdinalIgnoreCase))
-                {
-                    _logger.LogInformation("Verificando duplicidade de CPF: {Cpf}", dto.Cpf);
-                    if (await _clinicaInterface.TutorCpfExisteNaClinicaAsync(dto.Cpf, clinicaId))
-                    {
-                        _logger.LogWarning("CPF já em uso: {Cpf}", dto.Cpf);
-                        return Conflict("Já existe um tutor com este CPF nesta clínica.");
-                    }
-                }
-
-                // Atualiza campos
-                tutor.Nome = dto.Nome.Trim();
-                tutor.Cpf = dto.Cpf.Trim();
-                tutor.Endereco = dto.Endereco?.Trim();
-                tutor.EndNumero = dto.EndNumero;
-                tutor.EndEstado = dto.EndEstado?.Trim();
-                tutor.EndCidade = dto.EndCidade?.Trim();
-                tutor.Cep = dto.Cep?.Trim();
-                tutor.Telefone1 = dto.Telefone1?.Trim();
-                tutor.Whatsapp = dto.Whatsapp?.Trim();
-                tutor.Email = dto.Email.Trim();
-
-                _context.Tutores.Update(tutor);
-                await _context.SaveChangesAsync();
-
-                await transaction.CommitAsync();
-                _logger.LogInformation("Tutor atualizado com sucesso: {TutorId}", tutor.Id);
-
-                return Ok(new { tutor.Id });
-            }
-            catch (DbUpdateException dbEx)
-            {
-                await transaction.RollbackAsync();
-                _logger.LogError(dbEx, "Erro de banco ao editar tutor");
-                return StatusCode(500, "Erro ao atualizar os dados do tutor.");
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                _logger.LogError(ex, "Erro inesperado ao editar tutor");
-                return StatusCode(500, "Erro interno no servidor.");
-            }
+            return Ok(result);
         }
 
         [HttpDelete("tutores/{tutorId}")]

@@ -4,11 +4,11 @@ using backend.Domain.GestaoClinica.Interface;
 using Microsoft.EntityFrameworkCore;
 using backend.Domain.AtendimentoAnimal.Entities;
 
-public class ClinicaImpl : ClinicaInterface
+public class ClinicaService : IClinicaService
 {
     private readonly AppDbContext _context;
 
-    public ClinicaImpl(AppDbContext context)
+    public ClinicaService(AppDbContext context)
     {
         _context = context;
     }

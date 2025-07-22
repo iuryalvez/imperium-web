@@ -60,6 +60,12 @@ public class UsuarioRepository : IUsuarioRepository
             .AnyAsync(upc => upc.Usuario.Email == email && upc.ClinicaId == clinicaId);
     }
 
+    public async Task<bool> EmailExistsInClinicForAnotherUserAsync(string email, int clinicaId, int userId)
+    {
+        return await _context.UsuariosPerfisClinicas
+        .AnyAsync(upc => upc.Usuario.Email == email && upc.ClinicaId == clinicaId && upc.UsuarioId != userId);
+    }
+
     public async Task<(IdentityResult, Usuario)> CreateUserAsync(Usuario user, string password)
     {
         var result = await _userManager.CreateAsync(user, password);
@@ -106,7 +112,7 @@ public class UsuarioRepository : IUsuarioRepository
             .Where(upc => upc.UsuarioId == userId)
             .ToListAsync();
     }
-    
+
     public async Task<UsuarioPerfilClinica> GetVinculoByIdAsync(int upcId)
     {
         return await _context.UsuariosPerfisClinicas.FindAsync(upcId);

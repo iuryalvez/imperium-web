@@ -1,4 +1,3 @@
-// src/components/formularios/FormCadastroEntidade.jsx
 import React, { useState } from "react";
 import { Form, Button, message, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";

@@ -5,7 +5,8 @@ namespace backend.Domain.AtendimentoAnimal
     public class EditarAnimalClinicaDto
     {
         public int Id { get; set; }
-        public List<int>? TutorId { get; set; }
+        public List<int>? TutorIds { get; set; }
+        public int RacaId { get; set; }
         public string Nome { get; set; } = string.Empty;
         public EspecieAnimal Especie { get; set; } // 1-cao, 2-gato
         public DateTime Nascimento { get; set; }

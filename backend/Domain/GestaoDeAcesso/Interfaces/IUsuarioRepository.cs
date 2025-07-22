@@ -14,12 +14,13 @@ namespace backend.Domain.GestaoDeAcesso.Interfaces
         Task<IEnumerable<UsuarioPerfilClinica>> GetVinculosByClinicIdAsync(int clinicaId);
         Task<bool> EmailExistsAsync(string email);
         Task<bool> EmailExistsInClinicAsync(string email, int clinicaId);
+        Task<bool> EmailExistsForAnotherUserAsync(string email, int excludeUserId);
+        Task<bool> EmailExistsInClinicForAnotherUserAsync(string email, int clinicaId, int userId);
         Task<(IdentityResult, Usuario)> CreateUserAsync(Usuario user, string password);
         Task AddUserClinicLinkAsync(UsuarioPerfilClinica link);
         Task<bool> ClinicaExistsAsync(int clinicaId);
         Task<Usuario> GetAdminUserByIdAsync(int userId);
         Task<UsuarioPerfilClinica> GetUserClinicLinkByIdAsync(int upcId);
-        Task<bool> EmailExistsForAnotherUserAsync(string email, int excludeUserId);
         Task<IdentityResult> UpdateUserPasswordAsync(Usuario user, string newPassword);
         Task<IEnumerable<UsuarioPerfilClinica>> GetAllVinculosSistemaAsync();
         Task<List<UsuarioPerfilClinica>> GetAllVinculosByUserIdAsync(int userId);

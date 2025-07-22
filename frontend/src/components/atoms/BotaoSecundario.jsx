@@ -6,7 +6,7 @@ const BotaoSecundario = ({ texto, onClick, type = 'button' }) => {
       <button
         type={type}
         onClick={onClick}
-        className="bg-verde-medio hover:bg-verde-realce text-white font-bold px-10 rounded-lg h-10 transition-all duration-300"
+        className="bg-[var(--verde-medio)] hover:bg-[var(--verde-realce)] text-white font-bold px-10 rounded-lg h-10 transition-all duration-300 disabled:cursor-not-allowed"
       >
         {texto}
       </button>
