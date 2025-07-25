@@ -39,15 +39,15 @@ const endpoints = {
     },
     raca: {
       // GET /api/sistema/raca?especie=1
-      listar: `${API_BASE_URL}/sistema/raca`,
+      listar: `${API_BASE_URL}/sistema/racas`,
       // POST /api/sistema/raca
-      cadastrar: `${API_BASE_URL}/sistema/raca`,
+      cadastrar: `${API_BASE_URL}/sistema/racas`,
       // GET /api/sistema/raca/{racaId}
-      detalhes: (racaId) => `${API_BASE_URL}/sistema/raca/${racaId}`,
+      detalhes: (racaId) => `${API_BASE_URL}/sistema/racas/${racaId}`,
       // PUT /api/sistema/raca/{racaId}
-      editar: (racaId) => `${API_BASE_URL}/sistema/raca/${racaId}`,
+      editar: `${API_BASE_URL}/sistema/racas/editar`,
       // DELETE /api/sistema/raca/{racaId}
-      deletar: (racaId) => `${API_BASE_URL}/sistema/raca/${racaId}`,
+      deletar: (racaId) => `${API_BASE_URL}/sistema/racas/${racaId}`,
     },
   },
   clinica: {

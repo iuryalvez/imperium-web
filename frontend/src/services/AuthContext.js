@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
   const [nomeClinica, setNomeClinica] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  const abrirNotificacao = useNotification(); // Contexto de notificação
+  const abrirNotificacao = useNotification(); 
 
   const checkAuth = useCallback(async () => {
     try {
@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
           break;
       }
 
-      return resposta; // <-- Retorna os dados
+      return resposta;
     } catch (error) {
       abrirNotificacao(
         "error",
@@ -71,7 +71,7 @@ export const AuthProvider = ({ children }) => {
       setUserName("");
       setNomeClinica("");
       setPerfis([]);
-      return null; // <-- Em caso de erro
+      return null; 
     } finally {
       setIsLoading(false);
     }

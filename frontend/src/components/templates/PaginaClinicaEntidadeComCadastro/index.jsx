@@ -5,6 +5,7 @@ import { PlusOutlined } from "@ant-design/icons";
 import LoadingSpinner from "../../atoms/LoadingSpinner.jsx";
 import TabelaEntidade from "../../organisms/TabelaEntidade.jsx";
 import FormCadastroEntidade from "../../molecules/FormCadastroEntidade.jsx";
+import GerenciadorDeRacas from "../../organisms/GerenciadorDeRacas.jsx";
 
 const PaginaClinicaEntidadeComCadastro = ({
   titulo,
@@ -13,11 +14,11 @@ const PaginaClinicaEntidadeComCadastro = ({
   api,
   nomeBotao,
   colunasBase,
-  camposSimplesEditar, // A prop de campos de cadastro foi removida
 }) => {
   const [dados, setDados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalVisivel, setModalVisivel] = useState(false);
+  const [modalRacasVisivel, setModalRacasVisivel] = useState(false);
 
   const buscarDados = useCallback(async () => {
     try {
@@ -55,7 +56,6 @@ const PaginaClinicaEntidadeComCadastro = ({
   };
 
   const handleSucesso = () => {
-    // Esta também permanece a mesma, define o que acontece após o sucesso
     setModalVisivel(false);
     buscarDados();
   };
@@ -69,14 +69,25 @@ const PaginaClinicaEntidadeComCadastro = ({
           <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
             {titulo}
           </h1>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            className="bg-[var(--verde-medio)] hover:bg-[var(--verde-relce)] text-white"
-            onClick={() => setModalVisivel(true)}
-          >
-            {nomeBotao}
-          </Button>
+          <div className="flex gap-2">
+            {entidade === "animaisDaClinica" && (
+              <Button
+                icon={<PlusOutlined />}
+                onClick={() => setModalRacasVisivel(true)}
+              >
+                Cadastrar Raça
+              </Button>
+            )}
+
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              className="bg-[var(--verde-medio)] hover:bg-[var(--verde-relce)] text-white"
+              onClick={() => setModalVisivel(true)}
+            >
+              {nomeBotao}
+            </Button>
+          </div>
         </div>
 
         <TabelaEntidade
@@ -86,11 +97,9 @@ const PaginaClinicaEntidadeComCadastro = ({
           dados={dados}
           onAtualizar={buscarDados}
           colunasBase={colunasBase}
-          camposSimplesEditar={camposSimplesEditar}
         />
       </div>
-      
-      {/* O Modal continua aqui, agindo como a "casca" */}
+
       <Modal
         open={modalVisivel}
         onCancel={() => setModalVisivel(false)}
@@ -100,14 +109,24 @@ const PaginaClinicaEntidadeComCadastro = ({
         destroyOnClose // Boa prática: destrói os estados internos do form ao fechar
         className="modal-detalhes-entidade" // Classe para estilização responsiva
       >
-        {/* 2. A chamada ao formulário agora está com a sintaxe correta e as props necessárias */}
         <FormCadastroEntidade
           entidade={entidade}
           onSubmit={handleCadastrar}
           onSuccess={handleSucesso}
-          onCancel={() => setModalVisivel(false)} // Passa a função para fechar o modal
-          tituloModal={`Cadastro de ${nomeEntidade}`}
+          onCancel={() => setModalVisivel(false)}
         />
+      </Modal>
+
+      <Modal
+        title="Gerenciamento de Raças"
+        open={modalRacasVisivel}
+        onCancel={() => setModalRacasVisivel(false)}
+        footer={null}
+        width={800} // Um pouco mais largo para a tabela
+        destroyOnClose
+        centered
+      >
+        <GerenciadorDeRacas />
       </Modal>
     </div>
   );

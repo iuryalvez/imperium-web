@@ -1,7 +1,7 @@
 import React from 'react';
 import { Descriptions, Tag, Typography, Divider } from 'antd';
 
-import { formatarData } from '../../../utils/formatters';
+import { formatarData, formatarCNPJ } from '../../../utils/formatters';
 
 const DetalhesClinica = ({ valores }) => {
     const naoInformado = <Typography.Text type="secondary">Não informado</Typography.Text>;
@@ -18,7 +18,7 @@ const DetalhesClinica = ({ valores }) => {
                     {valores.nomeFantasia ?? naoInformado}
                 </Descriptions.Item>
                 <Descriptions.Item label="CNPJ">
-                    {valores.cnpj ?? naoInformado}
+                    {formatarCNPJ(valores.cnpj) ?? naoInformado}
                 </Descriptions.Item>
                 <Descriptions.Item label="Status">
                     {/* Usar Tag é a forma ideal de exibir status */}

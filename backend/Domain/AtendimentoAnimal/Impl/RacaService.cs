@@ -16,12 +16,12 @@ namespace backend.Domain.AtendimentoAnimal.Impl
             _mapper = mapper;
         }
 
-        public async Task<RacaDto> CreateAsync(CriarRacaoDto criarRacaDto)
+        public async Task<GetRacaDto> CreateAsync(CadastrarRacaoDto criarRacaDto)
         {
             var raca = _mapper.Map<Raca>(criarRacaDto);
             await _racaRepository.AddAsync(raca);
             await _racaRepository.SaveChangesAsync();
-            return _mapper.Map<RacaDto>(raca);
+            return _mapper.Map<GetRacaDto>(raca);
         }
 
         public async Task<bool> DeleteAsync(int id)
@@ -34,24 +34,24 @@ namespace backend.Domain.AtendimentoAnimal.Impl
             return result > 0;
         }
 
-        public async Task<RacaDto?> GetByIdAsync(int id)
+        public async Task<GetRacaDto?> GetByIdAsync(int id)
         {
             var raca = await _racaRepository.GetByIdAsync(id);
-            return _mapper.Map<RacaDto>(raca);
+            return _mapper.Map<GetRacaDto>(raca);
         }
 
-        public async Task<List<RacaDto>> ListAllAsync(EspecieAnimal? especie)
+        public async Task<List<GetRacaDto>> ListAllAsync(EspecieAnimal? especie)
         {
             var racas = especie.HasValue
                 ? await _racaRepository.ListByEspecieAsync(especie.Value)
                 : await _racaRepository.ListAllAsync();
             
-            return _mapper.Map<List<RacaDto>>(racas);
+            return _mapper.Map<List<GetRacaDto>>(racas);
         }
 
-        public async Task<bool> UpdateAsync(int id, AtualizarRacaDto atualizarRacaDto)
+        public async Task<bool> UpdateAsync(UpdateRacaDto atualizarRacaDto)
         {
-            var raca = await _racaRepository.GetByIdAsync(id);
+            var raca = await _racaRepository.GetByIdAsync(atualizarRacaDto.Id);
             if (raca == null) return false;
 
             // Map the changes from DTO to the entity

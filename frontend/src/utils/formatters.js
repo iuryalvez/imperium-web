@@ -24,9 +24,9 @@ export const getCorDoPerfil = (perfil) => {
     const perfilUpper = perfil.toUpperCase();
     if (perfilUpper.includes('ADMIN')) return 'gold';
     if (perfilUpper.includes('GESTOR')) return 'blue';
-    if (perfilUpper.includes('VETERINARIO')) return 'purple';
-    if (perfilUpper.includes('TECNICO')) return 'cyan';
-    if (perfilUpper.includes('SECRETARIO')) return 'geekblue';
+    if (perfilUpper.includes('VETERINARIO')) return 'green';
+    if (perfilUpper.includes('TECNICO')) return 'green';
+    if (perfilUpper.includes('SECRETARIO')) return 'green';
     if (perfilUpper.includes('INATIVO')) return 'red';
     return 'default';
 };
@@ -39,6 +39,16 @@ export const getCorDoPerfil = (perfil) => {
 export const formatarCPF = (cpf) => {
     if (!cpf || cpf.length !== 11) return cpf;
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+};
+
+/**
+ * Formata um CNPJ (12345678000199 -> 12.345.678/0001-99).
+ * @param {string} cnpj - String contendo 14 dígitos.
+ * @returns {string} O CNPJ formatado.
+ */
+export const formatarCNPJ = (cnpj) => {
+    if (!cnpj || cnpj.length !== 14) return cnpj;
+    return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
 };
 
 /**

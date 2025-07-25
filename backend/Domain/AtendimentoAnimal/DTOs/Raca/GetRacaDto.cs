@@ -1,13 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace backend.Domain.AtendimentoAnimal.DTOs.Raca
 {
-    // DTO for returning breed data to the client
-    // Comentário: DTO para retornar dados de raça para o cliente
-    public class RacaDto
+    public class GetRacaDto
     {
         public int Id { get; set; }
         public string Nome { get; set; } = string.Empty;

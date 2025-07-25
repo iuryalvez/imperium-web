@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using backend.Domain.GestaoClinica.DTOs;
 using backend.Domain.GestaoClinica.Entities;
 using backend.Domain.GestaoClinica.Interface;
@@ -19,29 +15,28 @@ namespace backend.Domain.GestaoClinica.Impl
 
         public async Task<IEnumerable<GetClinicaDto>> GetAllAsync()
         {
-                // O AsNoTracking() é uma ótima otimização para consultas de apenas leitura
-    return await _context.Clinicas
-        .AsNoTracking()
-        .Select(c => new GetClinicaDto
-        {
-            // --- MAPEAMENTO COMPLETO ---
-            Id = c.Id,
-            NomeClinica = c.NomeClinica ?? string.Empty, // Garante que não será nulo
-            NomeFantasia = c.NomeFantasia,
-            Cnpj = c.Cnpj,
-            Endereco = c.Endereco,
-            EndNumero = c.EndNumero,
-            EndEstado = c.EndEstado,
-            EndCidade = c.EndCidade,
-            Cep = c.Cep,
-            Telefone1 = c.Telefone1,
-            Whatsapp = c.Whatsapp,
-            Email = c.Email,
-            Instagram = c.Instagram,
-            DataCad = c.DataCad,
-            IsAtiva = c.IsAtiva
-        })
-        .ToListAsync();
+            // O AsNoTracking() é uma ótima otimização para consultas de apenas leitura
+            return await _context.Clinicas
+                .AsNoTracking()
+                .Select(c => new GetClinicaDto
+                {
+                    Id = c.Id,
+                    NomeClinica = c.NomeClinica ?? string.Empty, // Garante que não será nulo
+                    NomeFantasia = c.NomeFantasia,
+                    Cnpj = c.Cnpj,
+                    Endereco = c.Endereco,
+                    EndNumero = c.EndNumero,
+                    EndEstado = c.EndEstado,
+                    EndCidade = c.EndCidade,
+                    Cep = c.Cep,
+                    Telefone1 = c.Telefone1,
+                    Whatsapp = c.Whatsapp,
+                    Email = c.Email,
+                    Instagram = c.Instagram,
+                    DataCad = c.DataCad,
+                    IsAtiva = c.IsAtiva
+                })
+                .ToListAsync();
         }
 
         public async Task<bool> CnpjExistsForAnotherClinicAsync(string cnpj, int excludeClinicaId)

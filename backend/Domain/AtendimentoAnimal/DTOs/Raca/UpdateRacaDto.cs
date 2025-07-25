@@ -1,14 +1,12 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 using backend.Domain.AtendimentoAnimal.Entities;
 
 namespace backend.Domain.AtendimentoAnimal.DTOs.Raca
 {
-    public class CriarRacaoDto
+    public class UpdateRacaDto
     {
+        public int Id { get; set; }
+
         [Required(ErrorMessage = "O nome da raça é obrigatório.")]
         [StringLength(100)]
         public string Nome { get; set; } = string.Empty;

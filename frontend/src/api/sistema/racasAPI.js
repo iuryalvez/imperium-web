@@ -61,12 +61,12 @@ export const racasAPI = {
    * @param {object} dadosRaca - Os dados atualizados para a raça (AtualizarRacaDto).
    * @returns {Promise<Object>} A resposta do servidor.
    */
-  editar: async (id, dadosRaca) => {
+  editar: async (dadosRaca) => {
     try {
-      const response = await api.put(endpoints.sistema.raca.editar(id), dadosRaca);
+      const response = await api.put(endpoints.sistema.raca.editar(), dadosRaca);
       return response; // PUT retorna NoContent (204), então retornamos a resposta completa
     } catch (error) {
-      console.error(`Erro ao editar raça ${id}:`, error);
+      console.error(`Erro ao editar raça.`, error);
       throw error;
     }
   },

@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using backend.Domain.AtendimentoAnimal.DTOs.Raca;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interface;
@@ -11,44 +7,44 @@ using Microsoft.AspNetCore.Mvc;
 namespace backend.Domain.AtendimentoAnimal
 {
     [ApiController]
-    [Route("api/sistema/raca")]
+    [Route("api/sistema/racas")]
     public class RacaController : ControllerBase
     {
-        private readonly IRacaService _racaInterface;
+        private readonly IRacaService _racaService;
 
-        public RacaController(IRacaService racaInterface)
+        public RacaController(IRacaService racaService)
         {
-            _racaInterface = racaInterface;
+            _racaService = racaService;
         }
 
         [HttpGet]
         public async Task<IActionResult> ListarRacas([FromQuery] EspecieAnimal? especie)
         {
-            var racas = await _racaInterface.ListAllAsync(especie);
+            var racas = await _racaService.ListAllAsync(especie);
             return Ok(racas);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> ObterRacaPorId(int id)
         {
-            var raca = await _racaInterface.GetByIdAsync(id);
+            var raca = await _racaService.GetByIdAsync(id);
             if (raca == null) return NotFound();
             return Ok(raca);
         }
 
         [HttpPost]
         [Authorize(Policy = "GerenciaSistema")] // Example of more specific policy
-        public async Task<IActionResult> CriarRaca([FromBody] CriarRacaoDto criarRacaDto)
+        public async Task<IActionResult> CriarRaca([FromBody] CadastrarRacaoDto criarRacaDto)
         {
-            var racaCriada = await _racaInterface.CreateAsync(criarRacaDto);
+            var racaCriada = await _racaService.CreateAsync(criarRacaDto);
             return CreatedAtAction(nameof(ObterRacaPorId), new { id = racaCriada.Id }, racaCriada);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("editar")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> AtualizarRaca(int id, [FromBody] AtualizarRacaDto atualizarRacaDto)
+        public async Task<IActionResult> AtualizarRaca([FromBody] UpdateRacaDto atualizarRacaDto)
         {
-            var sucesso = await _racaInterface.UpdateAsync(id, atualizarRacaDto);
+            var sucesso = await _racaService.UpdateAsync(atualizarRacaDto);
             if (!sucesso) return NotFound();
             return NoContent();
         }
@@ -57,7 +53,7 @@ namespace backend.Domain.AtendimentoAnimal
         [Authorize(Policy = "GerenciaSistema")]
         public async Task<IActionResult> DeletarRaca(int id)
         {
-            var sucesso = await _racaInterface.DeleteAsync(id);
+            var sucesso = await _racaService.DeleteAsync(id);
             if (!sucesso) return NotFound();
             return NoContent();
         }
