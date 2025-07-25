@@ -24,7 +24,7 @@ namespace backend.Domain.Gestao
         private readonly AppDbContext _context;
         private readonly UserManager<Usuario> _userManager;
         private readonly ILogger<GestaoController> _logger;
-        private readonly IClinicaService _clinicaInterface;
+        private readonly IClinicaService _clinicaService;
         private readonly IUsuarioService _usuarioService;
 
         public GestaoController(AppDbContext context,
@@ -35,7 +35,7 @@ namespace backend.Domain.Gestao
         {
             _context = context;
             _userManager = userManager;
-            _clinicaInterface = clinicaInterface;
+            _clinicaService = clinicaInterface;
             _usuarioService = usuarioService;
             _logger = logger;
         }
@@ -69,38 +69,10 @@ namespace backend.Domain.Gestao
 
         [HttpGet("clinicas")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<ActionResult<IEnumerable<GetClinicaDto>>> GetClinicas()
+        public async Task<IActionResult> GetClinicas()
         {
-            try
-            {
-                var clinicas = await _context.Clinicas
-                    .Select(c => new GetClinicaDto
-                    {
-                        Id = c.Id,
-                        NomeClinica = c.NomeClinica,
-                        NomeFantasia = c.NomeFantasia,
-                        Cnpj = c.Cnpj,
-                        Endereco = c.Endereco,
-                        EndNumero = c.EndNumero,
-                        EndEstado = c.EndEstado,
-                        EndCidade = c.EndCidade,
-                        Cep = c.Cep,
-                        Telefone1 = c.Telefone1,
-                        Whatsapp = c.Whatsapp,
-                        Email = c.Email,
-                        Instagram = c.Instagram,
-                        DataCad = c.DataCad,
-                        IsAtiva = c.IsAtiva
-                    })
-                    .ToListAsync();
-
-                return Ok(clinicas); // retorna lista vazia (200) se não houver clínicas
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao buscar clínicas");
-                return StatusCode(500, "Erro interno ao buscar clínicas.");
-            }
+            var clinicas = await _clinicaService.GetAllAsync();
+            return Ok(clinicas);
         }
 
         // get clinica by clinicaId
@@ -108,7 +80,7 @@ namespace backend.Domain.Gestao
         [Authorize(Policy = "GerenciaSistema")]
         public async Task<ActionResult<GetClinicaDto>> GetClinica(int clinicaId)
         {
-            var clinica = await _clinicaInterface.ObterClinicaAsync(clinicaId);
+            var clinica = await _clinicaService.ObterClinicaAsync(clinicaId);
 
             if (clinica == null)
             {
@@ -137,67 +109,15 @@ namespace backend.Domain.Gestao
         }
 
         [HttpPut("clinicas/editar")]
-        [Authorize(Policy = "AcessoLoginOuTodosUsuarios")]
+        [Authorize(Policy = "GerenciaSistema")]
         public async Task<IActionResult> EditarClinicaAdmin([FromBody] EditarClinicaAdminDto dto)
         {
-            try
-            {
-                // Verifica se o usuário tem permissão de administrador
-                var isAdmin = User.Claims.Any(c => c.Type == "isAdmin" && c.Value == "true");
-                if (!isAdmin)
-                {
-                    return Forbid("Apenas administradores podem acessar esse recurso.");
-                }
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
+            var result = await _clinicaService.UpdateClinicaAsync(dto);
 
-                var clinica = await _context.Clinicas.FindAsync(dto.Id);
-                if (clinica == null)
-                {
-                    return NotFound("Clínica não encontrada.");
-                }
-
-                clinica.NomeClinica = dto.NomeClinica;
-                clinica.NomeFantasia = dto.NomeFantasia;
-                clinica.Cnpj = dto.Cnpj;
-                clinica.Endereco = dto.Endereco;
-                clinica.EndNumero = dto.EndNumero;
-                clinica.EndEstado = dto.EndEstado;
-                clinica.EndCidade = dto.EndCidade;
-                clinica.Cep = dto.Cep;
-                clinica.Telefone1 = dto.Telefone1;
-                clinica.Whatsapp = dto.Whatsapp;
-                clinica.Email = dto.Email;
-                clinica.Instagram = dto.Instagram;
-                clinica.IsAtiva = dto.IsAtiva;
-
-                // TODO: Validação adicional do CNPJ - 
-                // if (!ValidarCnpj(clinica.Cnpj))
-                // {
-                //     return BadRequest("CNPJ inválido");
-                // }
-
-                await _context.SaveChangesAsync();
-                return Ok(new
-                {
-                    Success = true,
-                    Message = "Clínica atualizada com sucesso.",
-                    Data = clinica
-                });
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                _logger.LogError(ex, $"Conflito de concorrência ao editar clínica {dto.NomeClinica}");
-                return StatusCode(409, $"Os dados foram modificados por outro usuário. Recarregue e tente novamente.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Erro ao editar clínica {dto.NomeClinica}");
-                return StatusCode(500, "Erro interno ao editar clínica.");
-            }
+            if (!result.Succeeded) return BadRequest(result);
+            return Ok(result);
         }
 
 

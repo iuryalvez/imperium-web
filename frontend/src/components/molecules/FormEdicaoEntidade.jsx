@@ -7,13 +7,15 @@ import EdicaoUsuariosDoSistema from './Edicao/EdicaoUsuariosDoSistema';
 import EdicaoUsuariosDaClinica from './Edicao/EdicaoUsuariosDaClinica';
 import EdicaoAnimaisDaClinica from './Edicao/EdicaoAnimaisDaClinica';
 import EdicaoTutoresDaClinica from './Edicao/EdicaoTutoresDaClinica';
+import EdicaoClinica from './Edicao/EdicaoClinica';
 
 
 const componentesDeEdicao = {
     usuariosDoSistema: EdicaoUsuariosDoSistema,
     usuariosDaClinica: EdicaoUsuariosDaClinica,
     animaisDaClinica: EdicaoAnimaisDaClinica,
-    tutoresDaClinica: EdicaoTutoresDaClinica
+    tutoresDaClinica: EdicaoTutoresDaClinica,
+    clinicas: EdicaoClinica
 };
 
 const FormEdicaoEntidade = ({ entidade, valoresIniciais, onSubmit, onSuccess, onCancel }) => {

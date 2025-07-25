@@ -18,6 +18,7 @@ using backend.Domain.AtendimentoAnimal.Repository;
 using backend.Domain.AtendimentoAnimal.Mappings;
 using backend.Domain.GestaoDeAcesso.Interfaces;
 using backend.Infra.Data.Repositories;
+using backend.Domain.GestaoClinica.Impl;
 
 
 internal class Program
@@ -38,6 +39,7 @@ internal class Program
         builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         builder.Services.AddScoped<IUsuarioService, UsuarioService>();
         builder.Services.AddScoped<IClinicaService, ClinicaService>();
+        builder.Services.AddScoped<IClinicaRepository, ClinicaRepository>();
         builder.Services.AddScoped<IAnimalService, AnimalService>();
         builder.Services.AddScoped<IAnimalRepository, AnimalRepository>();
         builder.Services.AddScoped<ITutorService, TutorService>();

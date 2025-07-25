@@ -7,7 +7,7 @@ namespace backend.Domain.GestaoClinica.DTOs {
 
         [Required(ErrorMessage = "O nome da clínica é obrigatório.")]
         [StringLength(100, ErrorMessage = "A clínica deve ter um nome entre 0 e 100 caracteres.")]
-        public string NomeClinica { get; set; } = string.Empty;
+        public string? NomeClinica { get; set; }
 
         [StringLength(100, ErrorMessage = "O nome fantasia da clínica deve ter no máximo 100 caracteres.")]
         public string? NomeFantasia { get; set; }
@@ -17,7 +17,7 @@ namespace backend.Domain.GestaoClinica.DTOs {
 
         [StringLength(300, ErrorMessage = "O endereço deve ter no máximo 300 caracteres.")]
         public string? Endereco { get; set; }
-        public int EndNumero { get; set; }
+        public int? EndNumero { get; set; }
         public string? EndEstado { get; set; }
         public string? EndCidade { get; set; }
 

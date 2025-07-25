@@ -71,6 +71,7 @@ const TabelaEntidade = ({
       telefone1: sanitize(valores.telefone1),
       whatsapp: sanitize(valores.whatsapp),
       cep: sanitize(valores.cep),
+      cnpj: sanitize(valores.cnpj)
     };
 
     await entidadeAPI.editar(processedValues);
