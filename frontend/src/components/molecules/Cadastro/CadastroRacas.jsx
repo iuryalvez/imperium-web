@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Input, Button, Radio, InputNumber, Space, message } from 'antd';
+import { Form, Input, Button, Radio, InputNumber, Space, message, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { racasAPI } from '../../../api/sistema/racasAPI'; 
 
@@ -34,6 +34,7 @@ const FormularioCadastroRaca = ({ onSuccess, onCancel }) => {
             onFinish={handleFinish}
             autoComplete="off"
         >
+            <Typography.Title level={4}>{`Raças`}</Typography.Title>
             <Form.Item
                 name="nome"
                 label="Nome da Raça"

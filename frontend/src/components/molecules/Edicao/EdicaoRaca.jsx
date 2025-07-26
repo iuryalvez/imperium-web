@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Form, Input, Button, Radio, InputNumber, Space, message } from 'antd';
+import { Form, Input, Button, Radio, InputNumber, Space, message, Typography } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
 import { racasAPI } from '../../../api/sistema/racasAPI';
 
@@ -15,14 +15,24 @@ const FormularioEdicaoRaca = ({ onSuccess, onCancel, valoresIniciais }) => {
     // Popula o formulário com os dados da raça a ser editada
     useEffect(() => {
         if (valoresIniciais) {
-            form.setFieldsValue(valoresIniciais);
+            const especieComoNumero = valoresIniciais.especie === 'Cao' ? 1 : 2;
+
+            const valoresParaForm = {
+                ...valoresIniciais,
+                especie: especieComoNumero,
+            };
+
+            console.log("Valores Iniciais Recebidos:", valoresIniciais);
+            console.log("Valores que serão setados no formulário:", valoresParaForm);
+
+            form.setFieldsValue(valoresParaForm);
         }
     }, [valoresIniciais, form]);
 
     const handleFinish = async (values) => {
         setLoading(true);
         try {
-            await racasAPI.editar(valoresIniciais.id, values);
+            await racasAPI.editar(values);
             message.success("Raça atualizada com sucesso!");
             if (onSuccess) onSuccess();
         } catch (error) {
@@ -35,6 +45,7 @@ const FormularioEdicaoRaca = ({ onSuccess, onCancel, valoresIniciais }) => {
 
     return (
         <Form form={form} layout="vertical" onFinish={handleFinish} autoComplete="off">
+            <Typography.Title level={4}>{`Raças`}</Typography.Title>
             <Form.Item name="id" hidden><Input /></Form.Item>
             <Form.Item name="nome" label="Nome da Raça" rules={[{ required: true }]}>
                 <Input placeholder="Ex: Golden Retriever" />

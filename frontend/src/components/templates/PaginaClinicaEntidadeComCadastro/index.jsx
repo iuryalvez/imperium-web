@@ -108,6 +108,9 @@ const PaginaClinicaEntidadeComCadastro = ({
         width={600}
         destroyOnClose // Boa prática: destrói os estados internos do form ao fechar
         className="modal-detalhes-entidade" // Classe para estilização responsiva
+        styles={{
+          body: { maxHeight: "70vh", overflowY: "auto" },
+        }}
       >
         <FormCadastroEntidade
           entidade={entidade}
@@ -124,6 +127,9 @@ const PaginaClinicaEntidadeComCadastro = ({
         footer={null}
         width={800} // Um pouco mais largo para a tabela
         destroyOnClose
+        styles={{
+          body: { maxHeight: "70vh", overflowY: "auto" },
+        }}
         centered
       >
         <GerenciadorDeRacas />

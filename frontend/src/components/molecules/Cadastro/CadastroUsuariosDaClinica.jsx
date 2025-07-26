@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Input, Checkbox } from 'antd';
+import { Form, Input, Checkbox, Typography } from 'antd';
 
 const perfisClinica = [
   { label: "Gestor", value: "GESTOR" },
@@ -11,7 +11,8 @@ const perfisClinica = [
 
 const FormularioCadastroUsuarioDaClinica = () => {
     return (
-        <>
+        <Form>
+            <Typography.Title level={4}>{`Cadastro de Usuário`}</Typography.Title>
             <Form.Item label="Nome Completo" name="nome" rules={[{ required: true, message: "O nome é obrigatório" }]}>
                 <Input placeholder="Digite o nome completo" />
             </Form.Item>
@@ -42,7 +43,7 @@ const FormularioCadastroUsuarioDaClinica = () => {
             <Form.Item label="Perfis na Clínica" name="perfis" rules={[{ required: true, message: "Selecione ao menos um perfil" }]}>
                 <Checkbox.Group options={perfisClinica} style={{ display: 'flex', flexDirection: 'column', gap: 8 }} />
             </Form.Item>
-        </>
+        </Form>
     );
 };
 

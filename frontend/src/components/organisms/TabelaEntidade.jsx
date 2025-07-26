@@ -71,7 +71,7 @@ const TabelaEntidade = ({
       telefone1: sanitize(valores.telefone1),
       whatsapp: sanitize(valores.whatsapp),
       cep: sanitize(valores.cep),
-      cnpj: sanitize(valores.cnpj)
+      cnpj: sanitize(valores.cnpj),
     };
 
     await entidadeAPI.editar(processedValues);
@@ -265,57 +265,61 @@ const TabelaEntidade = ({
         pagination={{ pageSize: 10 }}
         scroll={{ x: "max-content" }} // ativa scroll horizontal se necessário
       />
-      <div className="max-h-[80vh] overflow-y-auto">
-        <Modal
-          open={modalDetalhesVisivel}
-          onCancel={() => setModalDetalhesVisivel(false)}
-          footer={null}
-          centered
-          destroyOnClose
-          width={"70vw"}
-          style={{ maxWidth: "800px", paddingTop: 24, paddingBottom: 24 }}
-        >
-          {registroSelecionado && (
-            <FormDetalhesEntidade
-              entidade={entidade}
-              valores={registroSelecionado}
-              onCancel={() => setModalDetalhesVisivel(false)}
-            />
-          )}
-        </Modal>
-        <Modal
-          open={modalEdicaoVisivel}
-          onCancel={() => setModalEdicaoVisivel(false)}
-          footer={null}
-          centered
-          destroyOnClose
-          width={700}
-          className="modal-edicao"
-        >
-          {/* Garante que o formulário só renderize quando tiver dados */}
-          {registroSelecionado && (
-            // 3. Chamada ao componente com a sintaxe correta e as props bem definidas
-            <FormEdicaoEntidade
-              entidade={entidade}
-              valoresIniciais={registroSelecionado}
-              onSubmit={editarRegistro} // Passa a função de edição
-              onSuccess={handleSucessoEdicao} // Passa a nova função de sucesso
-              onCancel={() => setModalEdicaoVisivel(false)}
-            />
-          )}
-        </Modal>
-        <Modal
-          title={`Acessar Clínica`}
-          open={modalAcessoAberto}
-          onCancel={fecharModalAcessoClinica}
-          footer={null}
-        >
-          <FormAcessarClinica
-            clinica={clinicaSelecionada}
-            onSucesso={fecharModalAcessoClinica}
+
+      <Modal
+        open={modalDetalhesVisivel}
+        onCancel={() => setModalDetalhesVisivel(false)}
+        footer={null}
+        centered
+        destroyOnClose
+        styles={{
+          body: { maxHeight: "70vh", overflowY: "auto" },
+        }}
+      >
+        {registroSelecionado && (
+          <FormDetalhesEntidade
+            entidade={entidade}
+            valores={registroSelecionado}
+            onCancel={() => setModalDetalhesVisivel(false)}
           />
-        </Modal>
-      </div>
+        )}
+      </Modal>
+      <Modal
+        open={modalEdicaoVisivel}
+        onCancel={() => setModalEdicaoVisivel(false)}
+        footer={null}
+        centered
+        destroyOnClose
+        styles={{
+          body: { maxHeight: "70vh", maxWidth: "70vh", overflowY: "auto" },
+        }}
+      >
+        {/* Garante que o formulário só renderize quando tiver dados */}
+        {registroSelecionado && (
+          // 3. Chamada ao componente com a sintaxe correta e as props bem definidas
+          <FormEdicaoEntidade
+            entidade={entidade}
+            valoresIniciais={registroSelecionado}
+            onSubmit={editarRegistro} // Passa a função de edição
+            onSuccess={handleSucessoEdicao} // Passa a nova função de sucesso
+            onCancel={() => setModalEdicaoVisivel(false)}
+          />
+        )}
+      </Modal>
+      <Modal
+        title={`Acessar Clínica`}
+        open={modalAcessoAberto}
+        onCancel={fecharModalAcessoClinica}
+        footer={null}
+        styles={{
+          body: { maxHeight: "70vh", overflowY: "auto" },
+        }}
+      >
+        <FormAcessarClinica
+          clinica={clinicaSelecionada}
+          onSucesso={fecharModalAcessoClinica}
+        />
+      </Modal>
     </div>
   );
 };

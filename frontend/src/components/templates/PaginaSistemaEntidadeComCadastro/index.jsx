@@ -12,7 +12,7 @@ const PaginaSistemaEntidadeComCadastro = ({
   nomeEntidade,
   api,
   nomeBotao,
-  colunasBase
+  colunasBase,
 }) => {
   const [dados, setDados] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -102,15 +102,15 @@ const PaginaSistemaEntidadeComCadastro = ({
         centered
         width={600}
         destroyOnClose
-        className="modal-detalhes-entidade"
+        styles={{
+          body: { maxHeight: "70vh", overflowY: "auto" },
+        }}
       >
-        {/* 2. Inserimos o novo formulário aqui, passando as props necessárias */}
         <FormCadastroEntidade
           entidade={entidade}
           onSubmit={handleCadastrar}
           onSuccess={handleSucesso}
           onCancel={() => setModalVisivel(false)}
-          tituloModal={`Cadastro de ${nomeEntidade}`}
         />
       </Modal>
     </div>

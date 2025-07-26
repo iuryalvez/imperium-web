@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Input, Select, Checkbox } from 'antd';
+import { Form, Input, Select, Checkbox, Typography } from 'antd';
 import { clinicasAPI } from '../../../api/sistema/clinicasAPI'; // Ajuste o caminho
 
 const perfisSistema = [
@@ -60,7 +60,10 @@ const FormularioCadastroUsuarioDoSistema = ({ form }) => {
     };
 
     return (
-        <>
+        <Form
+            layout='vertical'
+        >
+            <Typography.Title level={4}>{`Cadastro de Usuário`}</Typography.Title>
             <Form.Item label="Nome Completo" name="nome" rules={[{ required: true, message: "O nome é obrigatório" }]}>
                 <Input placeholder="Digite o nome completo" />
             </Form.Item>
@@ -108,7 +111,7 @@ const FormularioCadastroUsuarioDoSistema = ({ form }) => {
                     />
                 </Form.Item>
             )}
-        </>
+        </Form>
     );
 };
 

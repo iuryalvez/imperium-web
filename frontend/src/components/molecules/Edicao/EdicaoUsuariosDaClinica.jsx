@@ -25,7 +25,7 @@ const perfisClinica = [
 
 const EdicaoUsuarioDaClinica = ({ form, valoresIniciais }) => {
   return (
-    <div>
+    <Form>
       <Typography.Title
         level={4}
       >{`Edição de Dados do Usuário`}</Typography.Title>
@@ -116,7 +116,7 @@ const EdicaoUsuarioDaClinica = ({ form, valoresIniciais }) => {
           </Form.Item>
         </Col>
       </Row>
-    </div>
+    </Form>
   );
 };
 

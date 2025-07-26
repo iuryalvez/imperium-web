@@ -1,5 +1,5 @@
 import React from "react";
-import { Descriptions, Tag, Typography, Divider } from "antd";
+import { Descriptions, Tag, Typography, Divider, Form } from "antd";
 
 import {
   formatarCPF,
@@ -14,7 +14,7 @@ const DetalhesUsuariosDoSistema = ({ valores }) => {
   );
 
   return (
-    <>
+    <Form>
       <Typography.Title
         level={4}
       >{`Dados do Usuário`}</Typography.Title>
@@ -94,7 +94,7 @@ const DetalhesUsuariosDoSistema = ({ valores }) => {
           {formatarData(valores.dataUltimoAcesso)}
         </Descriptions.Item>
       </Descriptions>
-    </>
+    </Form>
   );
 };
 

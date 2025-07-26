@@ -36,7 +36,7 @@ const EdicaoUsuarioDoSistema = ({ form, valoresIniciais }) => {
   const isAdmin = valoresIniciais?.isAdmin || false;
 
   return (
-    <div>
+    <Form>
       <Typography.Title level={4}>{`Edição de Dados do Usuário`}</Typography.Title>
       <Row gutter={24}>
         {/* --- Coluna 1: Informações Pessoais --- */}
@@ -116,7 +116,7 @@ const EdicaoUsuarioDoSistema = ({ form, valoresIniciais }) => {
 
           {isAdmin ? (
             // --- Lógica para Administradores ---
-            <div>
+            <Form>
               <Typography.Text strong>Perfil de Acesso: </Typography.Text>
               <Tag color="blue" style={{ fontSize: "14px" }}>
                 ADMINISTRADOR
@@ -130,7 +130,7 @@ const EdicaoUsuarioDoSistema = ({ form, valoresIniciais }) => {
               >
                 <Checkbox>Usuário Ativo</Checkbox>
               </Form.Item>
-            </div>
+            </Form>
           ) : (
             // --- Lógica para Usuários de Clínica ---
             <>
@@ -184,7 +184,7 @@ const EdicaoUsuarioDoSistema = ({ form, valoresIniciais }) => {
           </Form.Item>
         </Col>
       </Row>
-    </div>
+    </Form>
   );
 };
 

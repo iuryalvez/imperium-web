@@ -2,7 +2,7 @@ import api from "../index"; // Configuração do axios
 import endpoints from "../../services/Endpoints"; // Endpoints
 
 export const racasAPI = {
-    /**
+  /**
    * Lista todas as raças, opcionalmente filtradas por espécie.
    * @param {number | null} [especie] - O ID da espécie (1 para Cão, 2 para Gato). Opcional.
    * @returns {Promise<Array>} Uma lista de raças.
@@ -47,9 +47,13 @@ export const racasAPI = {
    */
   cadastrar: async (dadosRaca) => {
     try {
-      const response = await api.post(endpoints.sistema.raca.cadastrar, dadosRaca);
+      const response = await api.post(
+        endpoints.sistema.raca.cadastrar,
+        dadosRaca
+      );
       return response.data;
-    } catch (error) { // The missing braces were here
+    } catch (error) {
+      // The missing braces were here
       console.error("Erro ao cadastrar raça:", error);
       throw error;
     }
@@ -63,7 +67,11 @@ export const racasAPI = {
    */
   editar: async (dadosRaca) => {
     try {
-      const response = await api.put(endpoints.sistema.raca.editar(), dadosRaca);
+      const response = await api.put(endpoints.sistema.raca.editar, dadosRaca, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       return response; // PUT retorna NoContent (204), então retornamos a resposta completa
     } catch (error) {
       console.error(`Erro ao editar raça.`, error);

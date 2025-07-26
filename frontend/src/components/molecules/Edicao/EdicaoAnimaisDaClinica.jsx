@@ -76,7 +76,7 @@ const EdicaoAnimalDaClinica = ({ form, valoresIniciais }) => {
   }, [valoresIniciais, loading, form]); // AGORA DEPENDE DO ESTADO DE 'loading'
 
   return (
-    <div>
+    <Form>
       <Typography.Title level={4}>{`Edição de Dados do Animal`}</Typography.Title>
       <Row gutter={24}>
         {/* Campos ocultos */}
@@ -142,7 +142,7 @@ const EdicaoAnimalDaClinica = ({ form, valoresIniciais }) => {
           </Form.Item>
         </Col>
       </Row>
-    </div>
+    </Form>
   );
 };
 

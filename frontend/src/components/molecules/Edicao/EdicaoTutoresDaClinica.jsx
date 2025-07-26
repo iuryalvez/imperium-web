@@ -49,7 +49,7 @@ const EdicaoTutoresDaClinica = ({ form, valoresIniciais }) => {
   }, [valoresIniciais, form]);
 
   return (
-    <div>
+    <Form>
       <Typography.Title
         level={4}
       >{`Edição de Dados do Tutor`}</Typography.Title>
@@ -154,7 +154,7 @@ const EdicaoTutoresDaClinica = ({ form, valoresIniciais }) => {
           </Form.Item>
         </Col>
       </Row>
-    </div>
+    </Form>
   );
 };
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Descriptions, Tag, Typography, Divider } from 'antd';
+import { Descriptions, Tag, Typography, Divider, Form } from 'antd';
 import {
     formatarData,
     renderPerfis,
@@ -11,7 +11,7 @@ const DetalhesUsuariosDaClinica = ({ valores }) => {
     const naoInformado = <Typography.Text type="secondary">Não informado</Typography.Text>;
 
     return (
-        <>
+        <Form>
         <Typography.Title level={4}>{`Dados do Usuário`}</Typography.Title>
             <Descriptions title="Informações Pessoais" bordered column={2}>
                 <Descriptions.Item label="Nome Completo" span={2}>{valores.nome ?? naoInformado}</Descriptions.Item>
@@ -50,7 +50,7 @@ const DetalhesUsuariosDaClinica = ({ valores }) => {
                 <Descriptions.Item label="Data de Cadastro">{formatarData(valores.dataCadastro)}</Descriptions.Item>
                 <Descriptions.Item label="Último Acesso">{formatarData(valores.dataUltimoAcesso)}</Descriptions.Item>
             </Descriptions>
-        </>
+        </Form>
     );
 };
 
