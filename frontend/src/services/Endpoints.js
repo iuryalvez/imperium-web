@@ -71,7 +71,7 @@ const endpoints = {
       listar: `${API_BASE_URL}/clinica/racoes`,
       cadastrar: `${API_BASE_URL}/clinica/racoes/cadastrar`,
       detalhes: (racaoId) => `${API_BASE_URL}/clinica/racoes/${racaoId}`,
-      editar: (racaoId) => `${API_BASE_URL}/clinica/racoes/editar`,
+      editar: `${API_BASE_URL}/clinica/racoes/editar`,
       deletar: (racaoId) => `${API_BASE_URL}/clinica/racoes/${racaoId}`,
     },
     tutor: {

@@ -28,7 +28,8 @@ import UsuariosDaClinica from './pages/Clinica/UsuariosDaClinica/index.jsx';
 import TutoresDaClinica from './pages/Clinica/TutoresDaClinica/index.jsx';
 import ConsultasDaClinica from './pages/Clinica/ConsultasDaClinica/index.jsx';
 import AnimaisDaClinica from './pages/Clinica/AnimaisDaClinica/index.jsx';
-import RacoesDaClinica from './pages/Clinica/RacoesDaClinica/index.jsx';
+
+import RacoesDaClinica from './features/RacoesDaClinica/RacoesDaClinica.jsx'; // teste para refatoração
 
 const App = () => {
   return (

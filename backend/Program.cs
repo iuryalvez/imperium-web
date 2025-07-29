@@ -19,6 +19,9 @@ using backend.Domain.AtendimentoAnimal.Mappings;
 using backend.Domain.GestaoDeAcesso.Interfaces;
 using backend.Infra.Data.Repositories;
 using backend.Domain.GestaoClinica.Impl;
+using backend.Domain.SaudeAnimal.Impl;
+using backend.Domain.SaudeAnimal.Interfaces;
+using backend.Domain.SaudeAnimal.Repository;
 
 
 internal class Program
@@ -27,7 +30,7 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddAutoMapper(typeof(RacaMappingProfile).Assembly);
+        builder.Services.AddAutoMapper(typeof(Program));
 
         // adiciona serviços ao contêiner
         builder.Services.AddControllers();
@@ -46,6 +49,8 @@ internal class Program
         builder.Services.AddScoped<ITutorRepository, TutorRepository>();
         builder.Services.AddScoped<IRacaService, RacaService>();
         builder.Services.AddScoped<IRacaRepository, RacaRepository>();
+        builder.Services.AddScoped<IRacaoService, RacaoService>();
+        builder.Services.AddScoped<IRacaoRepository, RacaoRepository>();
 
         // configuração do CORS
         builder.Services.AddCors(options =>
