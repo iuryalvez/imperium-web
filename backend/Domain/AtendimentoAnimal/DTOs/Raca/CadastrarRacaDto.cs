@@ -3,7 +3,7 @@ using backend.Domain.AtendimentoAnimal.Entities;
 
 namespace backend.Domain.AtendimentoAnimal.DTOs.Raca
 {
-    public class CadastrarRacaoDto
+    public class CadastrarRacaDto
     {
         [Required(ErrorMessage = "O nome da raça é obrigatório.")]
         [StringLength(100)]

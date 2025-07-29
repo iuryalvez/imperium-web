@@ -1,131 +1,71 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 using backend.Services;
-using backend.Infra.Data;
-using backend.Interfaces;
-using backend.Domain.SaudeAnimal.DTOs;
-using backend.Domain.SaudeAnimal.Entities;
+using backend.Domain.SaudeAnimal.Interfaces;
+using backend.Domain.AtendimentoAnimal.Entities;
 
-namespace backend.Domain.SaudeAnimal {
+namespace backend.Domain.SaudeAnimal
+{
     [ApiController]
     [Route("api/clinica")]
-    public class RacaoController : ControllerBase {
-        private readonly AppDbContext _context;
-        private readonly IAuthService _authService;
-        public RacaoController(AppDbContext context, IAuthService authService) {
-            _context = context;
-            _authService = authService;
-        }
-
-        [HttpPost("racoes/cadastrar")]
-        [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> CreateRacao([FromBody] CreateRacaoDto racaoDto)
-        {
-            var clinicaId = User.GetClaimValue<int>("clinicaId");
-            if (clinicaId == 0) {
-                return BadRequest("Acesso não permitido a esta clínica.");
-            }
-
-            var racao = new Racao
-            {
-                ClinicaId = clinicaId,
-                Nome = racaoDto.Nome,
-                Umidade = racaoDto.Umidade,
-                ProteinaBruta = racaoDto.ProteinaBruta,
-                ExtratoEtereo = racaoDto.ExtratoEtereo,
-                MateriaMineral = racaoDto.MateriaMineral,
-                FibraBruta = racaoDto.FibraBruta,
-                MateriaSeca = 10 // isso é calculado ou determinado
-            };
-
-            _context.Racoes.Add(racao);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetRacaoById), new { clinicaId, racaoId = racao.Id }, racaoDto);
-        }
-
-        [HttpGet("racoes")]
-        [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> GetAllRacoes()
-        {
-            var clinicaId = User.GetClaimValue<int>("clinicaId");
-            if (clinicaId == 0) {
-                return BadRequest("Acesso não permitido a esta clínica.");
-            }
-
-            var racoes = await _context.Racoes
-                .Where(r => r.ClinicaId == clinicaId)
-                .Select(r => new GetRacoesDto
-                {
-                    Id = r.Id,
-                    Nome = r.Nome
-                })
-                .ToListAsync();
-
-            return Ok(racoes);
-        }
+    public class RacaoController : ControllerBase
+    {
+        private readonly IRacaoService _racaoService;
+        public RacaoController(IRacaoService racaoService) { _racaoService = racaoService; }
 
         [HttpGet("racoes/{racaoId}")]
         [Authorize(Policy = "VisualizaTudo")]
         public async Task<IActionResult> GetRacaoById(int racaoId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            if (clinicaId == 0) {
-                return BadRequest("Acesso não permitido a esta clínica.");
-            }
+            if (clinicaId == 0) return Forbid();
 
-            var racao = await _context.Racoes
-                .Where(r => r.ClinicaId == clinicaId && r.Id == racaoId)
-                .Select(r => new UpdateRacaoDto
-                {
-                    Nome = r.Nome,
-                    Umidade = r.Umidade,
-                    ProteinaBruta = r.ProteinaBruta,
-                    ExtratoEtereo = r.ExtratoEtereo,
-                    MateriaMineral = r.MateriaMineral,
-                    FibraBruta = r.FibraBruta,
-                    MateriaSeca = 10 // calculado ou determinado
-                })
-                .FirstOrDefaultAsync();
+            var racao = await _racaoService.GetByIdAsync(racaoId, clinicaId);
 
-            if (racao == null)
-            {
-                return NotFound("Ração não encontrada.");
-            }
+            if (racao == null) return NotFound(new { Message = "Ração não encontrada." });
 
             return Ok(racao);
         }
 
-        [HttpPut("racoes/{racaoId}/editar")]
+        [HttpGet("racoes")]
         [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> UpdateRacao(int racaoId, [FromBody] UpdateRacaoDto racaoDto)
+        public async Task<IActionResult> GetAllRacoes([FromQuery] EspecieAnimal? especie) // Recebe o parâmetro
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            if (clinicaId == 0) {
-                return BadRequest("Acesso não permitido a esta clínica.");
-            }
+            if (clinicaId == 0) return Forbid();
 
-            var racao = await _context.Racoes.FirstOrDefaultAsync(r => r.Id == racaoId && r.ClinicaId == clinicaId);
+            // Passa o parâmetro para o serviço
+            var racoes = await _racaoService.GetAllByClinicIdAsync(clinicaId, especie);
+            return Ok(racoes);
+        }
 
-            if (racao == null)
-            {
-                return NotFound("Ração não encontrada.");
-            }
+        [HttpPost("racoes/cadastrar")]
+        [Authorize(Policy = "VisualizaTudo")] // Ajuste a política conforme necessário
+        public async Task<IActionResult> CreateRacao([FromBody] CadastrarRacaoDto dto)
+        {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId == 0) return BadRequest("Acesso não permitido.");
 
-            racao.Nome = racaoDto.Nome;
-            racao.Umidade = racaoDto.Umidade;
-            racao.ProteinaBruta = racaoDto.ProteinaBruta;
-            racao.ExtratoEtereo = racaoDto.ExtratoEtereo;
-            racao.MateriaMineral = racaoDto.MateriaMineral;
-            racao.FibraBruta = racaoDto.FibraBruta;
-            racao.MateriaSeca = 10; // calculado ou determinado
+            var result = await _racaoService.CreateAsync(dto, clinicaId);
+            if (!result.Succeeded) return BadRequest(result);
 
-            _context.Racoes.Update(racao);
-            await _context.SaveChangesAsync();
+            // Retorna o objeto criado e a rota para acessá-lo
+            return CreatedAtAction(nameof(GetRacaoById), new { racaoId = ((GetRacoesDto)result.Data).Id }, result.Data);
+        }
 
-            return NoContent();
+        [HttpPut("racoes/editar")]
+        [Authorize(Policy = "VisualizaTudo")]
+        public async Task<IActionResult> UpdateRacao([FromBody] AtualizarRacaoDto dto)
+        {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId == 0) return Forbid();
+
+            var result = await _racaoService.UpdateAsync(dto, clinicaId);
+
+            if (!result.Succeeded) return NotFound(result); // NotFound é mais apropriado se a ração não foi encontrada
+
+            return NoContent(); // Resposta padrão para um PUT/PATCH bem-sucedido
         }
 
         [HttpDelete("racoes/{racaoId}")]
@@ -133,21 +73,17 @@ namespace backend.Domain.SaudeAnimal {
         public async Task<IActionResult> DeleteRacao(int racaoId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            if (clinicaId == 0) {
-                return BadRequest("Acesso não permitido a esta clínica.");
-            }
+            if (clinicaId == 0) return Forbid();
 
-            var racao = await _context.Racoes.FirstOrDefaultAsync(r => r.Id == racaoId && r.ClinicaId == clinicaId);
+            var result = await _racaoService.DeleteAsync(racaoId, clinicaId);
 
-            if (racao == null)
+            if (!result.Succeeded)
             {
-                return NotFound("Ração não encontrada.");
+                // O serviço pode retornar falha por "não encontrado" ou por estar em uso
+                return BadRequest(result);
             }
 
-            _context.Racoes.Remove(racao);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return NoContent(); // Resposta padrão para um DELETE bem-sucedido
         }
     }
 }

@@ -1263,10 +1263,10 @@ namespace backend.Migrations
                         {
                             Id = -1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "cabfd487-cb66-4b42-8858-a244ae45657d",
+                            ConcurrencyStamp = "91ca9dff-e5e4-4482-87e3-136589395522",
                             Cpf = "01234567890",
-                            DataCad = new DateTime(2025, 7, 21, 5, 17, 2, 485, DateTimeKind.Utc).AddTicks(1758),
-                            DataUltimoAcesso = new DateTime(2025, 7, 21, 5, 17, 2, 485, DateTimeKind.Utc).AddTicks(1772),
+                            DataCad = new DateTime(2025, 7, 29, 4, 56, 30, 79, DateTimeKind.Utc).AddTicks(7544),
+                            DataUltimoAcesso = new DateTime(2025, 7, 29, 4, 56, 30, 79, DateTimeKind.Utc).AddTicks(7553),
                             Email = "iury@gsmail.com",
                             EmailConfirmed = true,
                             Formacao = "Desenvolvedor do Sistema",
@@ -1276,9 +1276,9 @@ namespace backend.Migrations
                             Nome = "Admin Iury",
                             NormalizedEmail = "IURY@GSMAIL.COM",
                             NormalizedUserName = "IURY",
-                            PasswordHash = "AQAAAAIAAYagAAAAEIQPxDB9ISjr+LdPcKyBuBqy8gz97Jk2Fxe/BVnAulbAjcD2lGrfBp6XMiRVCIlmjw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEOTY5DIf8jctGBRF/A32B2fQ/AKjXNvHxh+cuY5ztaUMmK5LAsHK26TgvcnuBDwKAg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "1601d5c6-2663-4e5b-af1a-0dbb68ec8eda",
+                            SecurityStamp = "35a162b9-3bec-4bd1-94f2-158891cfa723",
                             Telefone1 = "62987654321",
                             TwoFactorEnabled = false,
                             UserName = "admin.iury",
@@ -1288,10 +1288,10 @@ namespace backend.Migrations
                         {
                             Id = -2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "6d80c6eb-741a-4c59-8fdd-7c69584a1b90",
+                            ConcurrencyStamp = "591eecf4-31d3-4dba-a197-319724f27f23",
                             Cpf = "01234567891",
-                            DataCad = new DateTime(2025, 7, 21, 5, 17, 2, 485, DateTimeKind.Utc).AddTicks(1833),
-                            DataUltimoAcesso = new DateTime(2025, 7, 21, 5, 17, 2, 485, DateTimeKind.Utc).AddTicks(1848),
+                            DataCad = new DateTime(2025, 7, 29, 4, 56, 30, 79, DateTimeKind.Utc).AddTicks(7586),
+                            DataUltimoAcesso = new DateTime(2025, 7, 29, 4, 56, 30, 79, DateTimeKind.Utc).AddTicks(7600),
                             Email = "rafael@gsmail.com",
                             EmailConfirmed = true,
                             Formacao = "Desenvolvedor do Sistema",
@@ -1301,9 +1301,9 @@ namespace backend.Migrations
                             Nome = "Admin Rafael",
                             NormalizedEmail = "RAFAEL@GSMAIL.COM",
                             NormalizedUserName = "ADMIN RAFAEL",
-                            PasswordHash = "AQAAAAIAAYagAAAAEMJuoO/04u7JstPWQNrNhie55ciliXVdFOgkwMyqVy8XZL6gTt+sXoFDr2jNz3stAg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEMB/iDqB0AwZddoYCHBnc5fkpTBLTdTMRAe7R05ifVP3FyAU6oyw3qeSAi+gPE5iIA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "fdc305cb-a725-4d77-87aa-7247eb80b954",
+                            SecurityStamp = "e8293807-c814-49a6-9b5a-c531e7346160",
                             Telefone1 = "62912345678",
                             TwoFactorEnabled = false,
                             UserName = "admin.rafael",
@@ -1313,10 +1313,10 @@ namespace backend.Migrations
                         {
                             Id = -3,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "162a78d1-d96c-4f63-a905-72aa09a5c67f",
+                            ConcurrencyStamp = "ef08f397-43f6-43d8-b247-528bb42718cd",
                             Cpf = "01234567892",
-                            DataCad = new DateTime(2025, 7, 21, 5, 17, 2, 485, DateTimeKind.Utc).AddTicks(1872),
-                            DataUltimoAcesso = new DateTime(2025, 7, 21, 5, 17, 2, 485, DateTimeKind.Utc).AddTicks(1887),
+                            DataCad = new DateTime(2025, 7, 29, 4, 56, 30, 79, DateTimeKind.Utc).AddTicks(7628),
+                            DataUltimoAcesso = new DateTime(2025, 7, 29, 4, 56, 30, 79, DateTimeKind.Utc).AddTicks(7643),
                             Email = "hugo@gsmail.com",
                             EmailConfirmed = true,
                             Formacao = "Desenvolvedor do Sistema",
@@ -1326,9 +1326,9 @@ namespace backend.Migrations
                             Nome = "Admin Hugo",
                             NormalizedEmail = "HUGO@GSMAIL.COM",
                             NormalizedUserName = "ADMIN HUGO",
-                            PasswordHash = "AQAAAAIAAYagAAAAEL5lfTEepY/jPjxTt1aVGC7Wf/znzQTEGoMMNmq02raKhyQAgruTq5guy8OwJ0v1Xg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEDpjD4D1MMrO3S6otFfuofcyvS4kBU1Zg6F76mTaC3wDDeSCnamA/ck7RmTa/5BOA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "c5474512-5bd5-4220-9ce8-e4e755195ef6",
+                            SecurityStamp = "05874753-4469-4335-9799-6f321fc67370",
                             Telefone1 = "62910203040",
                             TwoFactorEnabled = false,
                             UserName = "hugo",
@@ -1338,10 +1338,10 @@ namespace backend.Migrations
                         {
                             Id = -4,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "b5d29e94-239d-4267-a9a1-f121394c4232",
+                            ConcurrencyStamp = "557077ba-65b8-472f-a7d2-b3c92d015b31",
                             Cpf = "01234567893",
-                            DataCad = new DateTime(2025, 7, 21, 5, 17, 2, 485, DateTimeKind.Utc).AddTicks(1911),
-                            DataUltimoAcesso = new DateTime(2025, 7, 21, 5, 17, 2, 485, DateTimeKind.Utc).AddTicks(1926),
+                            DataCad = new DateTime(2025, 7, 29, 4, 56, 30, 79, DateTimeKind.Utc).AddTicks(7671),
+                            DataUltimoAcesso = new DateTime(2025, 7, 29, 4, 56, 30, 79, DateTimeKind.Utc).AddTicks(7681),
                             Email = "ceron@gsmail.com",
                             EmailConfirmed = true,
                             Formacao = "Administrador do Sistema",
@@ -1351,9 +1351,9 @@ namespace backend.Migrations
                             Nome = "Admin Ceron",
                             NormalizedEmail = "CERON@GSMAIL.COM",
                             NormalizedUserName = "ADMIN CERON",
-                            PasswordHash = "AQAAAAIAAYagAAAAEKV0Xr505ydKgJt2CW+dI0nzKkb6tJAdiPK4bSpxlDN/vtc19Q8ffUaNHwN55gYNaA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEuZWndJagmDJv/euRU40B7gmJRSburdtp7Tm2eVeJUMI7c/uZ23o7c70WtlGtstZw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "294da1be-0edb-43b4-a69a-a89aed069b49",
+                            SecurityStamp = "80ae7dd7-e7d9-4c45-9879-6b05b82ee5cd",
                             Telefone1 = "62940302010",
                             TwoFactorEnabled = false,
                             UserName = "ceron",
@@ -1411,6 +1411,9 @@ namespace backend.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ClinicaId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Especie")
                         .HasColumnType("integer");
 
                     b.Property<float>("ExtratoEtereo")

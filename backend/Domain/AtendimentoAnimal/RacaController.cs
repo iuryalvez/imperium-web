@@ -34,7 +34,7 @@ namespace backend.Domain.AtendimentoAnimal
 
         [HttpPost]
         [Authorize(Policy = "GerenciaSistema")] // Example of more specific policy
-        public async Task<IActionResult> CriarRaca([FromBody] CadastrarRacaoDto criarRacaDto)
+        public async Task<IActionResult> CriarRaca([FromBody] CadastrarRacaDto criarRacaDto)
         {
             var racaCriada = await _racaService.CreateAsync(criarRacaDto);
             return CreatedAtAction(nameof(ObterRacaPorId), new { id = racaCriada.Id }, racaCriada);

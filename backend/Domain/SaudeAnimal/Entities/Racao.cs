@@ -12,6 +12,9 @@ namespace backend.Domain.SaudeAnimal.Entities {
 
         [ForeignKey("ClinicaId")]
         public Clinica? Clinica { get; set; }
+
+        [Required]
+        public EspecieAnimal Especie { get; set; }
         public string Nome { get; set; } = string.Empty;
         
         [Required(ErrorMessage = "A umidade da ração é obrigatória")]

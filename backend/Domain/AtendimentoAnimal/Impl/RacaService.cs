@@ -16,7 +16,7 @@ namespace backend.Domain.AtendimentoAnimal.Impl
             _mapper = mapper;
         }
 
-        public async Task<GetRacaDto> CreateAsync(CadastrarRacaoDto criarRacaDto)
+        public async Task<GetRacaDto> CreateAsync(CadastrarRacaDto criarRacaDto)
         {
             var raca = _mapper.Map<Raca>(criarRacaDto);
             await _racaRepository.AddAsync(raca);

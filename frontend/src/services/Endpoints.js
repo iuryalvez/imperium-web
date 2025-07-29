@@ -38,15 +38,10 @@ const endpoints = {
       // deletar: (usuarioId) => `${API_BASE_URL}/sistema/usuarios/${usuarioId}`,
     },
     raca: {
-      // GET /api/sistema/raca?especie=1
       listar: `${API_BASE_URL}/sistema/racas`,
-      // POST /api/sistema/raca
       cadastrar: `${API_BASE_URL}/sistema/racas`,
-      // GET /api/sistema/raca/{racaId}
       detalhes: (racaId) => `${API_BASE_URL}/sistema/racas/${racaId}`,
-      // PUT /api/sistema/raca/{racaId}
       editar: `${API_BASE_URL}/sistema/racas/editar`,
-      // DELETE /api/sistema/raca/{racaId}
       deletar: (racaId) => `${API_BASE_URL}/sistema/racas/${racaId}`,
     },
   },
@@ -72,13 +67,13 @@ const endpoints = {
     //     deletar: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}/relatorio`,
     //   },
     // },
-    // racao: {
-    //   cadastrar: `${API_BASE_URL}/clinica/racoes/cadastrar`,
-    //   listar: `${API_BASE_URL}/clinica/racoes`,
-    //   detalhes: (racaoId) => `${API_BASE_URL}/clinica/racoes/${racaoId}`,
-    //   editar: (racaoId) => `${API_BASE_URL}/clinica/racoes/${racaoId}/editar`,
-    //   deletar: (racaoId) => `${API_BASE_URL}/clinica/racoes/${racaoId}`,
-    // },
+    racao: {
+      listar: `${API_BASE_URL}/clinica/racoes`,
+      cadastrar: `${API_BASE_URL}/clinica/racoes/cadastrar`,
+      detalhes: (racaoId) => `${API_BASE_URL}/clinica/racoes/${racaoId}`,
+      editar: (racaoId) => `${API_BASE_URL}/clinica/racoes/editar`,
+      deletar: (racaoId) => `${API_BASE_URL}/clinica/racoes/${racaoId}`,
+    },
     tutor: {
       listar: `${API_BASE_URL}/clinica/tutores`,
       detalhes: (tutorId) => `${API_BASE_URL}/clinica/tutor_${tutorId}`,
@@ -91,7 +86,7 @@ const endpoints = {
       cadastrar: `${API_BASE_URL}/clinica/usuarios/cadastrar`,
       editar: `${API_BASE_URL}/clinica/usuarios/editar`,
       setStatus: (upcId) => `${API_BASE_URL}/clinica/vinculos/${upcId}/status`,
-    },
+    }
   },
 };
 

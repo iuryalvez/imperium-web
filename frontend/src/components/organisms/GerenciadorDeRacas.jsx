@@ -20,7 +20,7 @@ import {
 } from "@ant-design/icons";
 import { racasAPI } from "../../api/sistema/racasAPI";
 import FormularioCadastroRaca from "../molecules/Cadastro/FormCadastroRacas";
-import FormularioEdicaoRaca from "../molecules/Edicao/EdicaoRaca";
+import FormularioEdicaoRaca from "../molecules/Edicao/FormEdicaoRaca";
 
 const GerenciadorDeRacas = () => {
   const [loading, setLoading] = useState(true);

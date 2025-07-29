@@ -9,18 +9,14 @@ namespace backend.Domain.AtendimentoAnimal.Mappings
         public RacaMappingProfile()
         {
             // Mapping from the 'Create' DTO to the Entity
-            CreateMap<CadastrarRacaoDto, Raca>();
+            CreateMap<CadastrarRacaDto, Raca>();
 
             // Mapping from the 'Update' DTO to the Entity
             CreateMap<UpdateRacaDto, Raca>();
 
             // Mapping from the Entity to the 'Read' DTO
             // This one has a custom rule for the 'Especie' property
-            CreateMap<Raca, GetRacaDto>()
-                .ForMember(
-                    dest => dest.Especie,
-                    opt => opt.MapFrom(src => src.Especie.ToString()) // Converts enum to string
-                );
+            CreateMap<Raca, GetRacaDto>();
         }
     }
 }
