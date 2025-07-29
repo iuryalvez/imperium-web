@@ -18,7 +18,7 @@ import {
 } from "@ant-design/icons";
 import "../styles/TabelaEntidade.css";
 import FormAcessarClinica from "../molecules/FormAcessarClinica";
-import FormDetalhesEntidade from "../molecules/FormDetalhesEntidade";
+import FormDetalhesEntidade from "../molecules/DetalhesEntidade";
 import FormEdicaoEntidade from "../molecules/FormEdicaoEntidade";
 
 const TabelaEntidade = ({
@@ -267,13 +267,15 @@ const TabelaEntidade = ({
       />
 
       <Modal
+        title={`Informações - ${nomeEntidade}`}
         open={modalDetalhesVisivel}
         onCancel={() => setModalDetalhesVisivel(false)}
         footer={null}
         centered
         destroyOnClose
+        style={{ minWidth: "40vw", maxWidth: "80vw" }}
         styles={{
-          body: { maxHeight: "70vh", overflowY: "auto" },
+          body: { maxHeight: "80vh", overflowY: "auto" },
         }}
       >
         {registroSelecionado && (
@@ -285,13 +287,15 @@ const TabelaEntidade = ({
         )}
       </Modal>
       <Modal
+        title={`Edição - ${nomeEntidade}`}
         open={modalEdicaoVisivel}
         onCancel={() => setModalEdicaoVisivel(false)}
         footer={null}
         centered
         destroyOnClose
+        style={{ minWidth: "40vw", maxWidth: "80vw" }}
         styles={{
-          body: { maxHeight: "70vh", maxWidth: "70vh", overflowY: "auto" },
+          body: { maxHeight: "80vh", overflowY: "auto" },
         }}
       >
         {/* Garante que o formulário só renderize quando tiver dados */}
@@ -311,8 +315,9 @@ const TabelaEntidade = ({
         open={modalAcessoAberto}
         onCancel={fecharModalAcessoClinica}
         footer={null}
+        style={{ minWidth: "40vw", maxWidth: "80vw" }} // importante  
         styles={{
-          body: { maxHeight: "70vh", overflowY: "auto" },
+          body: { maxHeight: "80vh", overflowY: "auto" }, // importante
         }}
       >
         <FormAcessarClinica

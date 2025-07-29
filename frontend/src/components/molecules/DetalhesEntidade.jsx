@@ -1,9 +1,9 @@
 import React from "react";
-import DetalhesAnimaisDaClinica from "./Detalhes/DetalhesAnimaisDaClinica";
-import DetalhesClinica from "./Detalhes/DetalhesClinica";
-import DetalhesUsuariosDoSistema from "./Detalhes/DetalhesUsuariosDoSistema";
-import DetalhesUsuariosDaClinica from "./Detalhes/DetalhesUsuariosDaClinica";
-import DetalhesTutoresDaClinica from "./Detalhes/DetalhesTutoresDaClinica";
+import DetalhesAnimaisDaClinica from "./Detalhes/FormDetalhesAnimaisDaClinica";
+import DetalhesClinica from "./Detalhes/FormDetalhesClinica";
+import DetalhesUsuariosDoSistema from "./Detalhes/FormDetalhesUsuariosDoSistema";
+import DetalhesUsuariosDaClinica from "./Detalhes/FormDetalhesUsuariosDaClinica";
+import DetalhesTutoresDaClinica from "./Detalhes/FormDetalhesTutoresDaClinica";
 import { Button, Typography } from "antd";
 
 // O mapa de componentes continua o mesmo
@@ -15,15 +15,17 @@ const componentesDeDetalhes = {
   tutoresDaClinica: DetalhesTutoresDaClinica,
 };
 
-const FormDetalhesEntidade = ({ entidade, valores, tituloModal, onCancel }) => {
+const FormDetalhesEntidade = ({ entidade, valores, onCancel }) => {
   // A lógica para selecionar o componente especialista
   const ComponenteDeDetalhe = componentesDeDetalhes[entidade];
 
   return (
     // Usamos um <div> como container principal, já que não é um formulário
-    <div className="p-4">
+    <div>
       {ComponenteDeDetalhe ? (
         // Se um componente especialista for encontrado, ele é renderizado
+        // o componente especialista É um form, então passamos apenas os valores para ele, diferente
+        // da edicao e do cadastro que são form.items
         <ComponenteDeDetalhe valores={valores} />
       ) : (
         // Caso contrário, exibe a mensagem de fallback

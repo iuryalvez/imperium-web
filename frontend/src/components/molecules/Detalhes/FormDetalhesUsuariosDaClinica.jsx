@@ -12,8 +12,7 @@ const DetalhesUsuariosDaClinica = ({ valores }) => {
 
     return (
         <Form>
-        <Typography.Title level={4}>{`Dados do Usuário`}</Typography.Title>
-            <Descriptions title="Informações Pessoais" bordered column={2}>
+            <Descriptions title="Dados Pessoais" bordered column={2}>
                 <Descriptions.Item label="Nome Completo" span={2}>{valores.nome ?? naoInformado}</Descriptions.Item>
                 <Descriptions.Item label="CPF">{formatarCPF(valores.cpf) ?? naoInformado}</Descriptions.Item>
                 <Descriptions.Item label="Formação">{valores.formacao ?? naoInformado}</Descriptions.Item>

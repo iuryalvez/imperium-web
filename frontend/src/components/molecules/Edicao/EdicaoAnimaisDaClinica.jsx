@@ -3,12 +3,10 @@ import {
   Form,
   Input,
   Select,
-  DatePicker,
   Switch,
   Row,
   Col,
-  Divider,
-  Typography,
+  Divider
 } from "antd";
 import dayjs from "dayjs"; // Essencial para a conversão de datas
 import { racasAPI } from "../../../api/sistema/racasAPI";
@@ -58,9 +56,7 @@ const EdicaoAnimalDaClinica = ({ form, valoresIniciais }) => {
   // --- Effect para POPULAR O FORMULÁRIO (CORRIGIDO) ---
   useEffect(() => {
     // Roda somente se tivermos os valores E as listas de raças já estiverem carregadas
-    if (
-      (valoresIniciais && !loading)
-    ) {
+    if (valoresIniciais && !loading) {
       const idsDosTutoresAtuais =
         valoresIniciais.tutores?.map((t) => t.id) || [];
 
@@ -76,36 +72,34 @@ const EdicaoAnimalDaClinica = ({ form, valoresIniciais }) => {
   }, [valoresIniciais, loading, form]); // AGORA DEPENDE DO ESTADO DE 'loading'
 
   return (
-    <Form>
-      <Typography.Title level={4}>{`Edição de Dados do Animal`}</Typography.Title>
-      <Row gutter={24}>
-        {/* Campos ocultos */}
-        <Form.Item name="id" hidden>
+    <Row gutter={24}>
+      {/* Campos ocultos */}
+      <Form.Item name="id" hidden>
+        <Input />
+      </Form.Item>
+
+      <Col span={24}>
+        <Divider orientation="left" plain>
+          Identificação e Associação
+        </Divider>
+        <Form.Item
+          label="Nome do Animal"
+          name="nome"
+          rules={[{ required: true }]}
+        >
           <Input />
         </Form.Item>
-
-        <Col span={24}>
-          <Divider orientation="left" plain>
-            Identificação e Associação
-          </Divider>
-          <Form.Item
-            label="Nome do Animal"
-            name="nome"
-            rules={[{ required: true }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item label="Tutor(es) Responsável(is)" name="tutorIds">
-            <Select
-              mode="multiple"
-              showSearch
-              placeholder="Busque e selecione os tutores"
-              loading={loading}
-              options={tutores}
-              optionFilterProp="label"
-            />
-          </Form.Item>
-          {/* <Form.Item
+        <Form.Item label="Tutor(es) Responsável(is)" name="tutorIds">
+          <Select
+            mode="multiple"
+            showSearch
+            placeholder="Busque e selecione os tutores"
+            loading={loading}
+            options={tutores}
+            optionFilterProp="label"
+          />
+        </Form.Item>
+        {/* <Form.Item
           label="Data de Nascimento"
           name="nascimento"
           rules={[{ required: true }]}
@@ -113,36 +107,31 @@ const EdicaoAnimalDaClinica = ({ form, valoresIniciais }) => {
           <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
           </Form.Item> */}
 
-          <Divider orientation="left" plain>
-            Características
-          </Divider>
-          <Form.Item
-            label="Espécie"
-            name="especie"
-            rules={[{ required: true }]}
-          >
-            <Select
-              options={opcoesEspecie}
-              onChange={() => form.setFieldsValue({ racaId: undefined })}
-            />
-          </Form.Item>
-          <Form.Item label="Raça" name="racaId" rules={[{ required: true }]}>
-            <Select
-              placeholder="Selecione a raça"
-              disabled={!especie}
-              loading={loading}
-              options={especie === 1 ? racasDeCaes : racasDeGatos}
-            />
-          </Form.Item>
-          <Form.Item label="Sexo" name="sexo" rules={[{ required: true }]}>
-            <Select options={opcoesSexo} />
-          </Form.Item>
-          <Form.Item name="castrado" label="Castrado?" valuePropName="checked">
-            <Switch checkedChildren="SIM" unCheckedChildren="NÃO" />
-          </Form.Item>
-        </Col>
-      </Row>
-    </Form>
+        <Divider orientation="left" plain>
+          Características
+        </Divider>
+        <Form.Item label="Espécie" name="especie" rules={[{ required: true }]}>
+          <Select
+            options={opcoesEspecie}
+            onChange={() => form.setFieldsValue({ racaId: undefined })}
+          />
+        </Form.Item>
+        <Form.Item label="Raça" name="racaId" rules={[{ required: true }]}>
+          <Select
+            placeholder="Selecione a raça"
+            disabled={!especie}
+            loading={loading}
+            options={especie === 1 ? racasDeCaes : racasDeGatos}
+          />
+        </Form.Item>
+        <Form.Item label="Sexo" name="sexo" rules={[{ required: true }]}>
+          <Select options={opcoesSexo} />
+        </Form.Item>
+        <Form.Item name="castrado" label="Castrado?" valuePropName="checked">
+          <Switch checkedChildren="SIM" unCheckedChildren="NÃO" />
+        </Form.Item>
+      </Col>
+    </Row>
   );
 };
 

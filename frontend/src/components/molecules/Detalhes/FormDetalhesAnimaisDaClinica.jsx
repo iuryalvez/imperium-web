@@ -1,5 +1,5 @@
 import React from "react";
-import { Descriptions, Tag, Typography, Divider } from "antd";
+import { Descriptions, Tag, Typography, Divider, Form } from "antd";
 import dayjs from "dayjs";
 
 // --- Funções Auxiliares (Formatters) ---
@@ -54,8 +54,7 @@ const DetalhesAnimaisDaClinica = ({ valores }) => {
   );
 
   return (
-    <>
-      <Typography.Title level={4}>{`Informações do Animal`}</Typography.Title>
+    <Form>
       <Descriptions title="Tutor(es) Responsável(is)" bordered column={1}>
         {/* Assumindo que `valores.tutores` é um array de objetos tutor */}
         <Descriptions.Item label="Tutores">
@@ -132,7 +131,7 @@ const DetalhesAnimaisDaClinica = ({ valores }) => {
           </>
         )}
       </Descriptions>
-    </>
+    </Form>
   );
 };
 

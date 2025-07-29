@@ -75,7 +75,7 @@ const PaginaClinicaEntidadeComCadastro = ({
                 icon={<PlusOutlined />}
                 onClick={() => setModalRacasVisivel(true)}
               >
-                Cadastrar Raça
+                Gerenciar Raças
               </Button>
             )}
 
@@ -101,15 +101,15 @@ const PaginaClinicaEntidadeComCadastro = ({
       </div>
 
       <Modal
+      title={`Cadastro - ${nomeEntidade}`}
         open={modalVisivel}
         onCancel={() => setModalVisivel(false)}
         footer={null}
         centered
-        width={600}
         destroyOnClose // Boa prática: destrói os estados internos do form ao fechar
-        className="modal-detalhes-entidade" // Classe para estilização responsiva
+        style={{ minWidth: "40vw", maxWidth: "80vw" }}
         styles={{
-          body: { maxHeight: "70vh", overflowY: "auto" },
+          body: { maxHeight: "80vh", overflowY: "auto" },
         }}
       >
         <FormCadastroEntidade
@@ -125,8 +125,8 @@ const PaginaClinicaEntidadeComCadastro = ({
         open={modalRacasVisivel}
         onCancel={() => setModalRacasVisivel(false)}
         footer={null}
-        width={800} // Um pouco mais largo para a tabela
         destroyOnClose
+        width="50vw"
         styles={{
           body: { maxHeight: "70vh", overflowY: "auto" },
         }}

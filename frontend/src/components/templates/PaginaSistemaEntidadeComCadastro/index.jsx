@@ -96,14 +96,15 @@ const PaginaSistemaEntidadeComCadastro = ({
       </div>
 
       <Modal
+        title={`Cadastro - ${nomeEntidade}`}
         open={modalVisivel}
         onCancel={() => setModalVisivel(false)}
         footer={null}
         centered
-        width={600}
         destroyOnClose
+        style={{ minWidth: "40vw", maxWidth: "80vw" }}
         styles={{
-          body: { maxHeight: "70vh", overflowY: "auto" },
+          body: { maxHeight: "80vh", overflowY: "auto" },
         }}
       >
         <FormCadastroEntidade

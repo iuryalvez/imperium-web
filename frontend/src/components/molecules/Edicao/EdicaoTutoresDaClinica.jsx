@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Select, Row, Col, Divider, Typography } from "antd";
+import { Form, Input, Select, Row, Col, Divider } from "antd";
 import { IMaskInput } from "react-imask";
 import { animaisDaClinicaAPI } from "../../../api/clinica/animaisDaClinicaAPI";
 
@@ -49,112 +49,107 @@ const EdicaoTutoresDaClinica = ({ form, valoresIniciais }) => {
   }, [valoresIniciais, form]);
 
   return (
-    <Form>
-      <Typography.Title
-        level={4}
-      >{`Edição de Dados do Tutor`}</Typography.Title>
-      <Row gutter={24}>
-        {/* Campos ocultos */}
-        <Form.Item name="id" hidden>
-          <Input />
+    <Row gutter={24}>
+      {/* Campos ocultos */}
+      <Form.Item name="id" hidden>
+        <Input />
+      </Form.Item>
+
+      {/* --- Coluna 1: Informações Pessoais e Contato --- */}
+      <Col xs={24} lg={12}>
+        <Divider orientation="left" plain>
+          Dados Pessoais
+        </Divider>
+        <Form.Item
+          label="Nome Completo"
+          name="nome"
+          rules={[{ required: true, message: "O nome é obrigatório" }]}
+        >
+          <Input placeholder="Digite o nome do tutor" />
+        </Form.Item>
+        <Form.Item
+          label="CPF"
+          name="cpf"
+          rules={[{ required: true, message: "O CPF é obrigatório" }]}
+        >
+          <IMaskInput
+            mask="000.000.000-00"
+            unmask={true}
+            style={inputStyle}
+            placeholder="000.000.000-00"
+            onAccept={(value) => form.setFieldsValue({ cpf: value })}
+          />
+        </Form.Item>
+        <Form.Item
+          label="E-mail"
+          name="email"
+          rules={[
+            { required: true, message: "O e-mail é obrigatório" },
+            { type: "email" },
+          ]}
+        >
+          <Input placeholder="exemplo@email.com" />
         </Form.Item>
 
-        {/* --- Coluna 1: Informações Pessoais e Contato --- */}
-        <Col xs={24} lg={12}>
-          <Divider orientation="left" plain>
-            Informações Pessoais
-          </Divider>
-          <Form.Item
-            label="Nome Completo"
-            name="nome"
-            rules={[{ required: true, message: "O nome é obrigatório" }]}
-          >
-            <Input placeholder="Digite o nome do tutor" />
-          </Form.Item>
-          <Form.Item
-            label="CPF"
-            name="cpf"
-            rules={[{ required: true, message: "O CPF é obrigatório" }]}
-          >
-            <IMaskInput
-              mask="000.000.000-00"
-              unmask={true}
-              style={inputStyle}
-              placeholder="000.000.000-00"
-              onAccept={(value) => form.setFieldsValue({ cpf: value })}
-            />
-          </Form.Item>
-          <Form.Item
-            label="E-mail"
-            name="email"
-            rules={[
-              { required: true, message: "O e-mail é obrigatório" },
-              { type: "email" },
-            ]}
-          >
-            <Input placeholder="exemplo@email.com" />
-          </Form.Item>
+        <Divider orientation="left" plain>
+          Contato
+        </Divider>
+        <Form.Item label="Telefone Principal" name="telefone1">
+          <IMaskInput
+            mask="(00) 00000-0000"
+            unmask={true}
+            style={inputStyle}
+            placeholder="(00) 99999-9999"
+            onAccept={(value) => form.setFieldsValue({ telefone1: value })}
+          />
+        </Form.Item>
+        <Form.Item label="WhatsApp" name="whatsapp">
+          <IMaskInput
+            mask="(00) 00000-0000"
+            unmask={true}
+            style={inputStyle}
+            placeholder="(00) 99999-9999"
+            onAccept={(value) => form.setFieldsValue({ whatsapp: value })}
+          />
+        </Form.Item>
+      </Col>
 
-          <Divider orientation="left" plain>
-            Contato
-          </Divider>
-          <Form.Item label="Telefone Principal" name="telefone1">
-            <IMaskInput
-              mask="(00) 00000-0000"
-              unmask={true}
-              style={inputStyle}
-              placeholder="(00) 99999-9999"
-              onAccept={(value) => form.setFieldsValue({ telefone1: value })}
-            />
-          </Form.Item>
-          <Form.Item label="WhatsApp" name="whatsapp">
-            <IMaskInput
-              mask="(00) 00000-0000"
-              unmask={true}
-              style={inputStyle}
-              placeholder="(00) 99999-9999"
-              onAccept={(value) => form.setFieldsValue({ whatsapp: value })}
-            />
-          </Form.Item>
-        </Col>
+      {/* --- Coluna 2: Endereço e Associação de Animais --- */}
+      <Col xs={24} lg={12}>
+        <Divider orientation="left" plain>
+          Endereço (Opcional)
+        </Divider>
+        <Form.Item label="CEP" name="cep">
+          <IMaskInput
+            mask="00000-000"
+            unmask={true}
+            style={inputStyle}
+            placeholder="00000-000"
+            onAccept={(value) => form.setFieldsValue({ cep: value })}
+          />
+        </Form.Item>
+        <Form.Item label="Endereço" name="endereco">
+          <Input placeholder="Rua, Avenida, etc." />
+        </Form.Item>
+        <Form.Item label="Número" name="endNumero">
+          <Input placeholder="Nº" />
+        </Form.Item>
 
-        {/* --- Coluna 2: Endereço e Associação de Animais --- */}
-        <Col xs={24} lg={12}>
-          <Divider orientation="left" plain>
-            Endereço (Opcional)
-          </Divider>
-          <Form.Item label="CEP" name="cep">
-            <IMaskInput
-              mask="00000-000"
-              unmask={true}
-              style={inputStyle}
-              placeholder="00000-000"
-              onAccept={(value) => form.setFieldsValue({ cep: value })}
-            />
-          </Form.Item>
-          <Form.Item label="Endereço" name="endereco">
-            <Input placeholder="Rua, Avenida, etc." />
-          </Form.Item>
-          <Form.Item label="Número" name="endNumero">
-            <Input placeholder="Nº" />
-          </Form.Item>
-
-          <Divider orientation="left" plain>
-            Animais Associados
-          </Divider>
-          <Form.Item label="Animais" name="animalIds">
-            <Select
-              mode="multiple"
-              showSearch
-              placeholder="Busque e selecione os animais"
-              loading={loading}
-              options={animais}
-              optionFilterProp="label"
-            />
-          </Form.Item>
-        </Col>
-      </Row>
-    </Form>
+        <Divider orientation="left" plain>
+          Animais Associados
+        </Divider>
+        <Form.Item label="Animais" name="animalIds">
+          <Select
+            mode="multiple"
+            showSearch
+            placeholder="Busque e selecione os animais"
+            loading={loading}
+            options={animais}
+            optionFilterProp="label"
+          />
+        </Form.Item>
+      </Col>
+    </Row>
   );
 };
 

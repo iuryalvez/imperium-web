@@ -19,8 +19,7 @@ const FormCadastroEntidade = ({
   entidade,
   onSubmit,
   onSuccess,
-  onCancel,
-  tituloModal,
+  onCancel
 }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -32,7 +31,7 @@ const FormCadastroEntidade = ({
       // ou ser retornada pelo formulário filho. Manter aqui é mais simples por enquanto.
       const response = await onSubmit(values);
       message.success(
-        `${tituloModal.replace("Cadastrar", "Cadastrado(a)")} com sucesso.`
+        "Cadastrado(a) com sucesso."
       );
       form.resetFields();
       if (onSuccess) onSuccess(response);
@@ -49,24 +48,23 @@ const FormCadastroEntidade = ({
   const CadastroEntidade = componentesDeCadastro[entidade];
 
   return (
-    <div className="p-4">
+    <div>
         <Form
         form={form}
-        layout="vertical"
+        layout="vertical" // importante
         onFinish={handleFinish}
         autoComplete="off"
         >
-        <Typography.Title level={4}>{tituloModal}</Typography.Title>
 
         {CadastroEntidade ? (
-            <CadastroEntidade form={form} />
+            <CadastroEntidade form={form} /> // passamos o form para nosso componente filho que vai definir os form.items
         ) : (
             <Typography.Text type="danger">
             Formulário para a entidade '{entidade}' não foi implementado.
             </Typography.Text>
         )}
 
-        <div className="flex gap-4 mt-6">
+        <div className="flex gap-4">
             <Button onClick={onCancel} className="w-1/2">
             Cancelar
             </Button>

@@ -15,9 +15,6 @@ const DetalhesUsuariosDoSistema = ({ valores }) => {
 
   return (
     <Form>
-      <Typography.Title
-        level={4}
-      >{`Dados do Usuário`}</Typography.Title>
       <Descriptions title="Identificação do Usuário" bordered column={2}>
         <Descriptions.Item label="Nome Completo" span={2}>
           {valores.nome ?? naoInformado}

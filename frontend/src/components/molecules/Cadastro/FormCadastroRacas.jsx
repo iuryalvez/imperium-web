@@ -34,7 +34,6 @@ const FormularioCadastroRaca = ({ onSuccess, onCancel }) => {
             onFinish={handleFinish}
             autoComplete="off"
         >
-            <Typography.Title level={4}>{`Raças`}</Typography.Title>
             <Form.Item
                 name="nome"
                 label="Nome da Raça"

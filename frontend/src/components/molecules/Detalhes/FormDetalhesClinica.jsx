@@ -1,5 +1,5 @@
 import React from 'react';
-import { Descriptions, Tag, Typography, Divider } from 'antd';
+import { Descriptions, Tag, Typography, Divider, Form } from 'antd';
 
 import { formatarData, formatarCNPJ } from '../../../utils/formatters';
 
@@ -8,8 +8,7 @@ const DetalhesClinica = ({ valores }) => {
 
     return (
         // Usamos um Fragment <> pois o Descriptions já provê a estrutura.
-        <>
-            <Typography.Title level={4}>{`Informações da Clínica`}</Typography.Title>
+        <Form>
             <Descriptions title="Informações Gerais" bordered column={2}>
                 <Descriptions.Item label="Nome da Clínica" span={2}>
                     {valores.nomeClinica}
@@ -75,7 +74,7 @@ const DetalhesClinica = ({ valores }) => {
                         : naoInformado}
                 </Descriptions.Item>
             </Descriptions>
-        </>
+        </Form>
     );
 };
 

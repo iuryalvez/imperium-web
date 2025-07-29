@@ -1,10 +1,9 @@
 import React from "react";
-import { Form, Input, Switch, Typography } from "antd";
+import { Form, Input, Switch } from "antd";
 
 const FormularioCadastroClinica = () => {
   return (
-    <Form layout="vertical">
-      <Typography.Title level={4}>{`Cadastro de Clínica`}</Typography.Title>
+    <div>
       <Form.Item
         label="Nome da Clínica"
         name="nomeClinica"
@@ -23,7 +22,7 @@ const FormularioCadastroClinica = () => {
       >
         <Switch checkedChildren="ATIVA" unCheckedChildren="INATIVA" />
       </Form.Item>
-    </Form>
+    </div>
   );
 };
 

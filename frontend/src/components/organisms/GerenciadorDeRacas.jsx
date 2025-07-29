@@ -19,7 +19,7 @@ import {
   ClearOutlined,
 } from "@ant-design/icons";
 import { racasAPI } from "../../api/sistema/racasAPI";
-import FormularioCadastroRaca from "../molecules/Cadastro/CadastroRacas";
+import FormularioCadastroRaca from "../molecules/Cadastro/FormCadastroRacas";
 import FormularioEdicaoRaca from "../molecules/Edicao/EdicaoRaca";
 
 const GerenciadorDeRacas = () => {
@@ -31,7 +31,7 @@ const GerenciadorDeRacas = () => {
   const [searchTerm, setSearchTerm] = useState(""); // O que o usuário digita
   const [allRacas, setAllRacas] = useState([]); // A lista mestra, nunca modificada
   const [filteredRacas, setFilteredRacas] = useState([]); // A lista exibida, resultado da busca
-  const [isListFull, setIsListFull] = useState(false);
+  const [isSearched, setIsSearched] = useState(false);
 
   const buscarRacas = useCallback(async () => {
     setLoading(true);
@@ -55,21 +55,15 @@ const GerenciadorDeRacas = () => {
     // Fecha qualquer modal que esteja aberto
     setModalCadastroVisivel(false);
     setModalEdicaoVisivel(false);
-
-    // 1. Re-busca os dados da API
-    const racasAtualizadas = await buscarRacas();
     // 2. Limpa o campo de busca
     setSearchTerm("");
-    // 3. Exibe a lista completa e atualizada
-    setFilteredRacas(racasAtualizadas);
-    setIsListFull(true);
   };
 
   const handleDeletar = async (id) => {
     try {
       await racasAPI.deletar(id);
       message.success("Raça excluída com sucesso!");
-      buscarRacas(); // Re-busca todos os dados para garantir consistência
+      await buscarRacas(); // Re-busca todos os dados para garantir consistência
     } catch (error) {
       message.error("Erro ao excluir raça.");
     }
@@ -83,7 +77,7 @@ const GerenciadorDeRacas = () => {
   const handleSearch = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
-    setIsListFull(false); // Qualquer busca desativa o modo "Visualizar Todas"
+    setIsSearched(false); // Qualquer busca desativa o modo "Visualizar Todas"
 
     if (term.length > 0) {
       const filtered = allRacas.filter((raca) =>
@@ -91,25 +85,28 @@ const GerenciadorDeRacas = () => {
       );
       setFilteredRacas(filtered);
     } else {
+      setIsSearched(false); // Qualquer busca desativa o modo "Visualizar Todas"
       setFilteredRacas([]);
     }
+    setIsSearched(true); // Qualquer busca desativa o modo "Visualizar Todas"
   };
 
   const handleViewAll = () => {
     setFilteredRacas(allRacas); // Preenche a lista de resultados com a lista completa.
+    setIsSearched(true);
     setSearchTerm(""); // Limpa o campo de busca para consistência.
   };
 
   const handleFilter = (especie) => {
     setFilteredRacas(allRacas.filter((r) => r.especie === especie));
     setSearchTerm("");
-    setIsListFull(false);
+    setIsSearched(true);
   };
 
   const handleClearResults = () => {
     setFilteredRacas([]);
     setSearchTerm("");
-    setIsListFull(false);
+    setIsSearched(false);
   };
 
   return (
@@ -117,35 +114,26 @@ const GerenciadorDeRacas = () => {
       <div
         style={{
           display: "flex",
-          flexWrap: "wrap",
-          gap: 16,
+          flexDirection: "column", // Empilha os filhos (as linhas) um abaixo do outro
+          gap: 16, // Espaço entre as linhas
           marginBottom: 16,
-          alignItems: "center",
         }}
       >
-        <Input.Search
-          placeholder="Buscar raça pelo nome..."
-          value={searchTerm}
-          onChange={handleSearch}
-          style={{ flex: 1, minWidth: 200 }}
-          allowClear
-        />
-        <Space wrap>
-          {/* Botão de Limpar condicional */}
-          {isListFull && (
-            <Button
-              icon={<ClearOutlined />}
-              onClick={handleClearResults}
-              danger
-            >
-              Limpar
-            </Button>
-          )}
-          <Button onClick={() => handleFilter("Cao")}>Listar Cães</Button>
-          <Button onClick={() => handleFilter("Gato")}>Listar Gatos</Button>
-          <Button icon={<AppstoreOutlined />} onClick={handleViewAll}>
-            Visualizar Todas
-          </Button>
+        <div
+          style={{
+            display: "flex",
+            gap: 16,
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          <Input.Search
+            placeholder="Ex: Golden Retriever"
+            value={searchTerm}
+            onChange={handleSearch}
+            style={{ flex: 1, minWidth: 200 }}
+            allowClear
+          />
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -153,7 +141,25 @@ const GerenciadorDeRacas = () => {
           >
             Nova Raça
           </Button>
-        </Space>
+        </div>
+        <div>
+          <Space wrap>
+            {isSearched && (
+              <Button
+                icon={<ClearOutlined />}
+                onClick={handleClearResults}
+                danger
+              >
+                Limpar
+              </Button>
+            )}
+            <Button onClick={() => handleFilter("Cao")}>Listar Cães</Button>
+            <Button onClick={() => handleFilter("Gato")}>Listar Gatos</Button>
+            <Button icon={<AppstoreOutlined />} onClick={handleViewAll}>
+              Visualizar Todas
+            </Button>
+          </Space>
+        </div>
       </div>
 
       <Divider />
@@ -203,8 +209,9 @@ const GerenciadorDeRacas = () => {
         onCancel={() => setModalCadastroVisivel(false)}
         footer={null}
         destroyOnClose
+        style={{ minWidth: "40vw", maxWidth: "80vw" }} // importante
         styles={{
-          body: { maxHeight: "70vh", overflowY: "auto" },
+          body: { maxHeight: "80vh", overflowY: "auto" }, // importante
         }}
       >
         <FormularioCadastroRaca

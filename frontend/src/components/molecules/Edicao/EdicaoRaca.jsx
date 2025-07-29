@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Form, Input, Button, Radio, InputNumber, Space, message, Typography } from 'antd';
+import { Form, Input, Button, Radio, InputNumber, Space, message } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
 import { racasAPI } from '../../../api/sistema/racasAPI';
 
@@ -45,7 +45,6 @@ const FormularioEdicaoRaca = ({ onSuccess, onCancel, valoresIniciais }) => {
 
     return (
         <Form form={form} layout="vertical" onFinish={handleFinish} autoComplete="off">
-            <Typography.Title level={4}>{`Raças`}</Typography.Title>
             <Form.Item name="id" hidden><Input /></Form.Item>
             <Form.Item name="nome" label="Nome da Raça" rules={[{ required: true }]}>
                 <Input placeholder="Ex: Golden Retriever" />

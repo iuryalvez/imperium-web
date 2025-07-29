@@ -279,7 +279,15 @@
 // export default FormularioCadastroAnimaisDaClinica;
 
 import React, { useState, useEffect } from "react";
-import { Form, Input, Select, DatePicker, Switch, Row, Col, Typography } from "antd";
+import {
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  Switch,
+  Row,
+  Col
+} from "antd";
 import { racasAPI } from "../../../api/sistema/racasAPI"; // Ajuste o caminho
 import { tutoresDaClinicaAPI } from "../../../api/clinica/tutoresDaClinicaAPI"; // Ajuste o caminho
 
@@ -336,77 +344,74 @@ const FormularioCadastroAnimaisDaClinica = ({ form }) => {
   }, [especie, form]);
 
   return (
-    <Form>
-      <Typography.Title>Cadastro de Animal</Typography.Title>
-      <Row gutter={24}>
-        <Col span={24}>
-          <Form.Item
-            label="Nome do Animal"
-            name="nome"
-            rules={[{ required: true, message: "O nome é obrigatório" }]}
-          >
-            <Input placeholder="Ex: Bob" />
-          </Form.Item>
-          <Form.Item
-            label="Espécie"
-            name="especie"
-            rules={[{ required: true, message: "A espécie é obrigatória" }]}
-          >
-            <Select options={opcoesEspecie} placeholder="Selecione a espécie" />
-          </Form.Item>
-          <Form.Item
-            label="Raça"
-            name="racaId"
-            rules={[{ required: true, message: "A raça é obrigatória" }]}
-          >
-            <Select
-              placeholder={
-                !especie ? "Primeiro, selecione a espécie" : "Selecione a raça"
-              }
-              disabled={!especie}
-              loading={loadingRacas}
-              options={especie === 1 ? racasDeCaes : racasDeGatos}
-            />
-          </Form.Item>
-          <Form.Item
-            label="Data de Nascimento"
-            name="nascimento"
-            rules={[{ required: true, message: "A data é obrigatória" }]}
-          >
-            <DatePicker
-              style={{ width: "100%" }}
-              format="DD/MM/YYYY"
-              placeholder="Selecione a data"
-            />
-          </Form.Item>
-          <Form.Item
-            label="Sexo"
-            name="sexo"
-            rules={[{ required: true, message: "O sexo é obrigatório" }]}
-          >
-            <Select options={opcoesSexo} placeholder="Selecione o sexo" />
-          </Form.Item>
-          <Form.Item
-            name="castrado"
-            label="Castrado?"
-            valuePropName="checked"
-            initialValue={false}
-          >
-            <Switch checkedChildren="SIM" unCheckedChildren="NÃO" />
-          </Form.Item>
-          <Form.Item label="Tutor(es) Responsável(is)" name="tutorIds">
-            <Select
-              mode="multiple"
-              showSearch
-              placeholder="Busque por nome ou CPF (opcional)"
-              loading={loadingTutores}
-              options={tutores}
-              optionFilterProp="label"
-            />
-          </Form.Item>
-        </Col>
-      </Row>
-    </Form>
+    <Row gutter={24}>
+      <Col span={24}>
+        <Form.Item
+          label="Nome do Animal"
+          name="nome"
+          rules={[{ required: true, message: "O nome é obrigatório" }]}
+        >
+          <Input placeholder="Ex: Bob" />
+        </Form.Item>
+        <Form.Item
+          label="Espécie"
+          name="especie"
+          rules={[{ required: true, message: "A espécie é obrigatória" }]}
+        >
+          <Select options={opcoesEspecie} placeholder="Selecione a espécie" />
+        </Form.Item>
+        <Form.Item
+          label="Raça"
+          name="racaId"
+          rules={[{ required: true, message: "A raça é obrigatória" }]}
+        >
+          <Select
+            placeholder={
+              !especie ? "Primeiro, selecione a espécie" : "Selecione a raça"
+            }
+            disabled={!especie}
+            loading={loadingRacas}
+            options={especie === 1 ? racasDeCaes : racasDeGatos}
+          />
+        </Form.Item>
+        <Form.Item
+          label="Data de Nascimento"
+          name="nascimento"
+          rules={[{ required: true, message: "A data é obrigatória" }]}
+        >
+          <DatePicker
+            style={{ width: "100%" }}
+            format="DD/MM/YYYY"
+            placeholder="Selecione a data"
+          />
+        </Form.Item>
+        <Form.Item
+          label="Sexo"
+          name="sexo"
+          rules={[{ required: true, message: "O sexo é obrigatório" }]}
+        >
+          <Select options={opcoesSexo} placeholder="Selecione o sexo" />
+        </Form.Item>
+        <Form.Item
+          name="castrado"
+          label="Castrado?"
+          valuePropName="checked"
+          initialValue={false}
+        >
+          <Switch checkedChildren="SIM" unCheckedChildren="NÃO" />
+        </Form.Item>
+        <Form.Item label="Tutor(es) Responsável(is)" name="tutorIds">
+          <Select
+            mode="multiple"
+            showSearch
+            placeholder="Busque por nome ou CPF (opcional)"
+            loading={loadingTutores}
+            options={tutores}
+            optionFilterProp="label"
+          />
+        </Form.Item>
+      </Col>
+    </Row>
   );
 };
 
