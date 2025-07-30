@@ -43,6 +43,8 @@ internal class Program
         builder.Services.AddScoped<IUsuarioService, UsuarioService>();
         builder.Services.AddScoped<IClinicaService, ClinicaService>();
         builder.Services.AddScoped<IClinicaRepository, ClinicaRepository>();
+        builder.Services.AddScoped<IConsultaService, ConsultaService>();
+        builder.Services.AddScoped<IConsultaRepository, ConsultaRepository>();
         builder.Services.AddScoped<IAnimalService, AnimalService>();
         builder.Services.AddScoped<IAnimalRepository, AnimalRepository>();
         builder.Services.AddScoped<ITutorService, TutorService>();
@@ -51,6 +53,8 @@ internal class Program
         builder.Services.AddScoped<IRacaRepository, RacaRepository>();
         builder.Services.AddScoped<IRacaoService, RacaoService>();
         builder.Services.AddScoped<IRacaoRepository, RacaoRepository>();
+        builder.Services.AddScoped<IRelatorioService, RelatorioService>();
+        builder.Services.AddScoped<IRelatorioRepository, RelatorioRepository>();
 
         // configuração do CORS
         builder.Services.AddCors(options =>

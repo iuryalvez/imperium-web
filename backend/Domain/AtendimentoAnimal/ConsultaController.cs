@@ -1,215 +1,71 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
 
 using backend.Services;
-using backend.Infra.Data;
-using backend.Interfaces;
-using backend.Domain.AtendimentoAnimal.DTOs;
-using backend.Domain.AtendimentoAnimal.Entities;
+using backend.Domain.AtendimentoAnimal.Interface;
+using backend.Domain.AtendimentoAnimal.DTOs.Consulta;
+using System.Security.Claims;
 
 namespace backend.Domain.AtendimentoAnimal
 {
     [ApiController]
-    [Route("api/clinica")]
+    [Route("api/clinica/consultas")]
     public class ConsultaController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IAuthService _authService;
+        private readonly IConsultaService _consultaService;
+        public ConsultaController(IConsultaService consultaService) { _consultaService = consultaService; }
 
-        public ConsultaController(AppDbContext context, IAuthService authService)
-        {
-            _context = context;
-            _authService = authService;
-        }
-
-        // Cria uma nova consulta
-        [HttpPost("nova-consulta")]
-        [Authorize(Policy = "GerenciaConsultas")]
-        public async Task<IActionResult> CreateConsulta([FromBody] ConsultaDto consultaDto)
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            if (clinicaId == 0) {
-                return BadRequest("Acesso não permitido a esta clínica.");
-            }
-
-            var consulta = new Consulta
-            {
-                ClinicaId = clinicaId, 
-                UsuarioId = consultaDto.UsuarioId,
-                TutorId = consultaDto.TutorId,
-                DataConsulta = consultaDto.DataConsulta
-            };
-
-            _context.Consultas.Add(consulta);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { Message = "Consulta agendada com sucesso.", ConsultaId = consulta.Id });
-        }
-
-        // Obtém todas as consultas por clinicaId
-        [HttpGet("consultas")]
-        [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> GetAllConsultas()
-        {
-            var clinicaId = User.GetClaimValue<int>("clinicaId");
-            if (clinicaId == 0) {
-                return BadRequest("Acesso não permitido a esta clínica.");
-            }
-
-            var consultas = await _context.Consultas
-                .Where(c => c.ClinicaId == clinicaId)
-                .ToListAsync();
-
-            if (consultas == null || !consultas.Any())
-            {
-                return NotFound("Nenhuma consulta encontrada para a clínica.");
-            }
-
+            var consultas = await _consultaService.GetAllByClinicIdAsync(clinicaId);
             return Ok(consultas);
         }
 
-        // Obtém uma consulta por ID
-        [HttpGet("consultas/{consultaId}")]
-        [Authorize(Policy = "GerenciaConsultas")]
-        public async Task<IActionResult> GetConsultaById(int consultaId)
+        [HttpGet("{consultaId}")]
+        public async Task<IActionResult> GetById(int consultaId)
         {
-            var consulta = await _context.Consultas.FindAsync(consultaId);
-            
-            if (consulta == null)
-            {
-                return NotFound("Consulta não encontrada.");
-            }
-
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            var consulta = await _consultaService.GetDetailsByIdAsync(consultaId, clinicaId);
+            if (consulta == null) return NotFound();
             return Ok(consulta);
         }
 
-        // Atualiza uma consulta
-        [HttpPut("consultas/{consultaId}/editar")]
-        [Authorize(Policy = "GerenciaConsultas")]
-        public async Task<IActionResult> UpdateConsulta(int consultaId, [FromBody] ConsultaDto consultaDto)
-        {
-            var consulta = await _context.Consultas.FindAsync(consultaId);
-            
-            if (consulta == null)
-            {
-                return NotFound("Consulta não encontrada.");
-            }
-
-            // Atualiza os campos da consulta
-            consulta.UsuarioId = consultaDto.UsuarioId;
-            consulta.TutorId = consultaDto.TutorId;
-            consulta.DataConsulta = consultaDto.DataConsulta;
-
-            _context.Consultas.Update(consulta);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { Message = "Consulta atualizada com sucesso." });
-        }
-
-        // Deleta uma consulta
-        [HttpDelete("consultas/{consultaId}")]
-        [Authorize(Policy = "GerenciaConsultas")]
-        public async Task<IActionResult> DeleteConsulta(int consultaId)
-        {
-            var consulta = await _context.Consultas.FindAsync(consultaId);
-            if (consulta == null)
-            {
-                return NotFound("Consulta não encontrada.");
-            }
-
-            _context.Consultas.Remove(consulta);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { Message = "Consulta deletada com sucesso." });
-        }
-
-        [HttpGet("consultas/{consultaId}/relatorio")]
-        [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> GetRelatorio(int consultaId)
-        {
-            var relatorio = await _context.Relatorios
-                .Where(r => r.ConsultaId == consultaId)
-                .Select(r => new RelatorioDto
-                {
-                    Id = r.Id,
-                    ConsultaId = r.ConsultaId,
-                    Idade = r.Idade,
-                    Peso = r.Peso,
-                    CondicaoCorporal = r.CondicaoCorporal,
-                    GrauAtividade = r.GrauAtividade,
-                    DescDieta = r.DescricaoDieta
-                })
-                .FirstOrDefaultAsync();
-
-            if (relatorio == null)
-            {
-                return NotFound("Relatório não encontrado para a consulta especificada.");
-            }
-
-            return Ok(relatorio);
-        }
-
-        [HttpPost("consultas/{consultaId}/relatorio")]
-        [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> CreateRelatorio(int consultaId, [FromBody] RelatorioDto relatorioDto)
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] UpsertConsultaDto dto)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            if (clinicaId == 0) {
-                return BadRequest("Acesso não permitido a esta clínica.");
-            }
+            var usuarioId = User.GetClaimValue<int>(ClaimTypes.NameIdentifier);
 
-            var relatorio = new Relatorio
-            {
-                ConsultaId = consultaId,
-                Idade = relatorioDto.Idade,
-                Peso = relatorioDto.Peso,
-                CondicaoCorporal = relatorioDto.CondicaoCorporal,
-                GrauAtividade = relatorioDto.GrauAtividade,
-                DescricaoDieta = relatorioDto.DescDieta
-            };
+            var result = await _consultaService.CreateAsync(dto, clinicaId, usuarioId);
+            if (!result.Succeeded) return BadRequest(result);
 
-            _context.Relatorios.Add(relatorio);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetRelatorio), new { clinicaId, consultaId }, relatorioDto);
+            var consultaDto = (DetalhesConsultaDto)result.Data;
+            return CreatedAtAction(nameof(GetById), new { consultaId = consultaDto.Id }, consultaDto);
         }
 
-        [HttpPut("consultas/{consultaId}/relatorio")]
-        [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> UpdateRelatorio(int consultaId, [FromBody] RelatorioDto relatorioDto)
+        [HttpPut("{consultaId}")]
+        public async Task<IActionResult> Update(int consultaId, [FromBody] UpsertConsultaDto dto)
         {
-            var relatorio = await _context.Relatorios.FirstOrDefaultAsync(r => r.ConsultaId == consultaId);
-            if (relatorio == null)
-            {
-                return NotFound("Relatório não encontrado para a consulta especificada.");
-            }
-
-            relatorio.Idade = relatorioDto.Idade;
-            relatorio.Peso = relatorioDto.Peso;
-            relatorio.CondicaoCorporal = relatorioDto.CondicaoCorporal;
-            relatorio.GrauAtividade = relatorioDto.GrauAtividade;
-            relatorio.DescricaoDieta = relatorioDto.DescDieta;
-
-            _context.Relatorios.Update(relatorio);
-            await _context.SaveChangesAsync();
-
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            var result = await _consultaService.UpdateAsync(consultaId, dto, clinicaId);
+            if (!result.Succeeded) return BadRequest(result);
             return NoContent();
         }
 
-        [HttpDelete("consultas/{consultaId}/relatorio")]
-        [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> DeleteRelatorio(int consultaId)
+        [HttpDelete("{consultaId}")]
+        public async Task<IActionResult> Delete(int consultaId)
         {
-            var relatorio = await _context.Relatorios.FirstOrDefaultAsync(r => r.ConsultaId == consultaId);
-            if (relatorio == null)
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            var result = await _consultaService.DeleteAsync(consultaId, clinicaId);
+
+            if (!result.Succeeded)
             {
-                return NotFound("Relatório não encontrado para a consulta especificada.");
+                // O serviço retorna a mensagem de erro apropriada (ex: "Não encontrado" ou "Relatório já preenchido")
+                return BadRequest(result);
             }
 
-            _context.Relatorios.Remove(relatorio);
-            await _context.SaveChangesAsync();
-
+            // Retorno padrão para um DELETE bem-sucedido.
             return NoContent();
         }
     }

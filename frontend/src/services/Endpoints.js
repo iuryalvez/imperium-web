@@ -54,19 +54,23 @@ const endpoints = {
       editar: `${API_BASE_URL}/clinica/animais/editar`,
       deletar: (animalId) => `${API_BASE_URL}/clinica/animais/${animalId}`,
     },
-    // consulta: {
-    //   cadastrar: (clinicaId) => `${API_BASE_URL}/clinica//${clinicaId}/cadastrar`,
-    //   listar: `${API_BASE_URL}/clinica/consultas`,
-    //   detalhes: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}`,
-    //   deletar: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}`,
-    //   editar: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}/editar`,
-    //   relatorio: {
-    //     detalhes: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}/relatorio`,
-    //     criar: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}/relatorio`,
-    //     editar: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}/relatorio`,
-    //     deletar: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}/relatorio`,
-    //   },
-    // },
+    consulta: {
+      listar: `${API_BASE_URL}/clinica/consultas`,
+      detalhes: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}`,
+      cadastrar: `${API_BASE_URL}/clinica/consultas`, // Rota POST
+      editar: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}`, // Rota PUT
+      deletar: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}`,
+    },
+
+    // --- BLOCO DE RELATÓRIOS ADICIONADO ---
+    relatorio: {
+      // Ações no contexto de uma consulta
+      getByConsultaId: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}/relatorio`,
+      upsert: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}/relatorio`, // Rota PUT para criar/editar
+      
+      // Ação direta no relatório (pelo seu próprio ID)
+      deletar: (relatorioId) => `${API_BASE_URL}/clinica/relatorios/${relatorioId}`,
+    },
     racao: {
       listar: `${API_BASE_URL}/clinica/racoes`,
       cadastrar: `${API_BASE_URL}/clinica/racoes/cadastrar`,
