@@ -26,10 +26,10 @@ import ClinicaInicio from './pages/Clinica/ClinicaInicio/index.jsx';
 import ClinicaGerenciamento from './pages/Clinica/ClinicaGerenciamento/index.jsx';
 import UsuariosDaClinica from './pages/Clinica/UsuariosDaClinica/index.jsx';
 import TutoresDaClinica from './pages/Clinica/TutoresDaClinica/index.jsx';
-import ConsultasDaClinica from './pages/Clinica/ConsultasDaClinica/index.jsx';
 import AnimaisDaClinica from './pages/Clinica/AnimaisDaClinica/index.jsx';
 
 import RacoesDaClinica from './features/RacoesDaClinica/RacoesDaClinica.jsx'; // teste para refatoração
+import ConsultasDaClinica from './features/ConsultasDaClinica/ConsultasDaClinica.jsx'; // teste para refatoração
 
 const App = () => {
   return (

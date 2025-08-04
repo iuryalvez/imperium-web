@@ -6,7 +6,6 @@ import TabelaRacoes from './components/TabelaRacoes';
 import FormularioRacao from './components/FormularioRacao';
 
 const RacoesDaClinica = () => {
-    // O componente de UI agora é extremamente limpo. Apenas consome o hook.
     const {
         racoes,
         loading,
