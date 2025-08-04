@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using backend.Domain.AtendimentoAnimal.Entities;
 
 namespace backend.Domain.AtendimentoAnimal.DTOs.Relatorio
 {
@@ -9,12 +6,11 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Relatorio
     {
         public int Id { get; set; }
         public int ConsultaId { get; set; }
-
+        public Sexo SexoAnimal { get; set; }
         public int Idade { get; set; }
         public float Peso { get; set; }
-        public string CondicaoCorporal { get; set; } // Retornado como string
-        public string GrauAtividade { get; set; } // Retornado como string
-
+        public CondicaoCorporal CondicaoCorporal { get; set; }
+        public GrauAtividade GrauAtividade { get; set; } 
         public int RacaoId { get; set; }
         public string NomeRacao { get; set; } // Nome para exibição
 

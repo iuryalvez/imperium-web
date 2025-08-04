@@ -14,7 +14,7 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
         {
             CreateMap<UpsertRelatorioDto, Relatorio>();
             CreateMap<Relatorio, GetRelatorioDto>()
-                .ForMember(dest => dest.NomeRacao, opt => opt.MapFrom(src => src.Racao.Nome));
+            .ForMember(dest => dest.NomeRacao, opt => opt.MapFrom(src => src.Racao.Nome));
         }
     }
 }

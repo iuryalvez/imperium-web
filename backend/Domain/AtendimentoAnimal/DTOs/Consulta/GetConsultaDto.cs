@@ -11,6 +11,7 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Consulta
         public int AnimalId { get; set; }
         public string? NomeAnimal { get; set; }
         public EspecieAnimal EspecieAnimal { get; set; }
+        public Sexo SexoAnimal { get; set; } 
 
         // Informações do Tutor
         public int TutorId { get; set; }
