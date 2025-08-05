@@ -100,11 +100,10 @@ namespace backend.Infra.Data
                 .HasForeignKey<AcompanhamentoInd>(ai => ai.AnimalId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // AcompanhamentoInd 1:N DietaPersonalizada
-            modelBuilder.Entity<AcompanhamentoInd>()
-                .HasMany(ai => ai.DietasPersonalizadas)
-                .WithOne(dp => dp.AcompanhamentoInd)
-                .HasForeignKey(dp => dp.AcompanhamentoIndId)
+            modelBuilder.Entity<Relatorio>()
+                .HasOne(r => r.DietaPersonalizada)
+                .WithOne(d => d.Relatorio)
+                .HasForeignKey<DietaPersonalizada>(dp => dp.RelatorioId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Animal 1:N AnimalClinica

@@ -12,6 +12,7 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         public int ConsultaId { get; set; } // foreign Key para ConsultaId
         [ForeignKey("ConsultaId")]
         public Consulta? Consulta { get; set; }
+        public DietaPersonalizada? DietaPersonalizada { get; set; }
         public int Idade { get; set; }
         public float Peso { get; set; }
         public CondicaoCorporal CondicaoCorporal { get; set; }
