@@ -21,15 +21,15 @@ const opcoesGrauAtividade = [
   { value: 3, label: "Alto" },
 ];
 const marcasCondicaoCorporal = {
-  1: "Magro",
-  2: ".",
-  3: "Subpeso",
-  4: ".",
-  5: "Ideal",
-  6: ".",
-  7: "Sobrepeso",
-  8: ".",
-  9: "Obeso",
+  1: "1",
+  2: "2",
+  3: "3",
+  4: "4",
+  5: "5",
+  6: "6",
+  7: "7",
+  8: "8",
+  9: "9",
 };
 
 const FormularioRelatorio = ({

@@ -1,4 +1,5 @@
 using backend.Domain.AtendimentoAnimal.Entities;
+using backend.Domain.SaudeAnimal.DTOs.Dieta;
 
 namespace backend.Domain.AtendimentoAnimal.DTOs.Relatorio
 {
@@ -6,6 +7,7 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Relatorio
     {
         public int Id { get; set; }
         public int ConsultaId { get; set; }
+        public DateTime DataConsulta { get; set; }
         public Sexo SexoAnimal { get; set; }
         public int Idade { get; set; }
         public float Peso { get; set; }
@@ -15,6 +17,7 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Relatorio
         public string NomeRacao { get; set; } // Nome para exibição
 
         public string? DescricaoDieta { get; set; }
+        public GetDietaDto? Dieta { get; set; }
 
         public bool IsGestante { get; set; }
         public int IsLactanteNumeroFilhotes { get; set; }

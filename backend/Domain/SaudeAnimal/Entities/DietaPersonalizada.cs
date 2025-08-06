@@ -23,11 +23,4 @@ namespace backend.Domain.SaudeAnimal.Entities
         public float PesoObjetivo { get; set; }
         public float PesoIdeal { get; set; }
     }
-    
-    public enum TipoDieta
-    {
-        Manutencao = 1,
-        Crescimento = 2,
-        Lactacao = 3
-    }
 }
