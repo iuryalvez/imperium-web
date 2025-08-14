@@ -24,62 +24,70 @@ export const AuthProvider = ({ children }) => {
   const [nomeClinica, setNomeClinica] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  const abrirNotificacao = useNotification(); 
+  const abrirNotificacao = useNotification();
 
-  const checkAuth = useCallback(async () => {
-    try {
-      const resposta = await autenticacaoAPI.verificarAutenticacao();
-
-      switch (resposta.status) {
-        case "autenticado":
-          setIsLogged(true);
-          setIsAuthenticated(true);
-          setIsAdmin(resposta.isAdmin);
-          setUserName(resposta.name || "");
-          setNomeClinica(resposta.nomeClinica || "");
-          setPerfis(resposta.perfis || []);
-          break;
-
-        case "logado":
-          setIsLogged(true);
-          setIsAuthenticated(false);
-          setIsAdmin(resposta.isAdmin);
-          setUserName(resposta.name || "");
-          setPerfis([]);
-          break;
-
-        default:
-          setIsLogged(false);
-          setIsAuthenticated(false);
-          setIsAdmin(false);
-          setUserName("");
-          setNomeClinica("");
-          setPerfis([]);
-          break;
+  const checkAuth = useCallback(
+    async (manageLoading = true) => {
+      if (manageLoading) {
+        setIsLoading(true);
       }
+      try {
+        const resposta = await autenticacaoAPI.verificarAutenticacao();
 
-      return resposta;
-    } catch (error) {
-      abrirNotificacao(
-        "error",
-        "Erro de autenticação",
-        "Não foi possível verificar a autenticação."
-      );
-      setIsAuthenticated(false);
-      setIsLogged(false);
-      setIsAdmin(false);
-      setUserName("");
-      setNomeClinica("");
-      setPerfis([]);
-      return null; 
-    } finally {
-      setIsLoading(false);
-    }
-  }, [abrirNotificacao]);
+        switch (resposta.status) {
+          case "autenticado":
+            setIsLogged(true);
+            setIsAuthenticated(true);
+            setIsAdmin(resposta.isAdmin);
+            setUserName(resposta.name || "");
+            setNomeClinica(resposta.nomeClinica || "");
+            setPerfis(resposta.perfis || []);
+            break;
+
+          case "logado":
+            setIsLogged(true);
+            setIsAuthenticated(false);
+            setIsAdmin(resposta.isAdmin);
+            setUserName(resposta.name || "");
+            setPerfis([]);
+            break;
+
+          default:
+            setIsLogged(false);
+            setIsAuthenticated(false);
+            setIsAdmin(false);
+            setUserName("");
+            setNomeClinica("");
+            setPerfis([]);
+            break;
+        }
+
+        return resposta;
+      } catch (error) {
+        abrirNotificacao(
+          "error",
+          "Erro de autenticação",
+          "Não foi possível verificar a autenticação."
+        );
+        setIsAuthenticated(false);
+        setIsLogged(false);
+        setIsAdmin(false);
+        setUserName("");
+        setNomeClinica("");
+        setPerfis([]);
+        return null;
+      } finally {
+        if (manageLoading) {
+          setIsLoading(false);
+        }
+      }
+    },
+    [abrirNotificacao]
+  );
 
   useEffect(() => {
-    if (isLoading) checkAuth();
-  }, [isLoading, isAuthenticated, isLogged, isAdmin, navigate, checkAuth]);
+    checkAuth();
+  }, [checkAuth]);
 
   const login = async ({ email, senha }) => {
     setIsLoading(true);
@@ -93,7 +101,7 @@ export const AuthProvider = ({ children }) => {
           "Você foi autenticado com sucesso."
         );
 
-        const authData = await checkAuth(); // agora authData tem isAdmin
+        const authData = await checkAuth(false);
 
         if (authData?.isAdmin) {
           navigate("/sistema");
@@ -139,7 +147,7 @@ export const AuthProvider = ({ children }) => {
           "Vínculo selecionado!",
           "Vínculo acessado com sucesso."
         );
-        await checkAuth();
+        await checkAuth(false);
         navigate("/clinica/inicio");
       }
     } catch (error) {
@@ -167,7 +175,7 @@ export const AuthProvider = ({ children }) => {
           "Vínculo selecionado!",
           "Vínculo criado com sucesso."
         );
-        await checkAuth();
+        await checkAuth(false);
         navigate("/clinica/inicio");
       }
     } catch (error) {
@@ -183,10 +191,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const trocarVinculo = async () => {
-    setIsLoading(true);
+    setIsLoading(true); // 1. Inicia o loading apenas uma vez.
     try {
-      const authData = await checkAuth();
+      // We don't need to call checkAuth here. The current state is already available in the context.
+      const isAdminBeforeSwap = isAdmin; // 2. Salva o estado atual de admin.
 
+      // 3. Efetua a troca no backend.
       await autenticacaoAPI.trocarVinculo();
 
       abrirNotificacao(
@@ -195,13 +205,17 @@ export const AuthProvider = ({ children }) => {
         "Escolha um novo vínculo para continuar."
       );
 
-      if (authData?.isAdmin) {
-        navigate("/sistema"); // Redireciona para escolher novo vínculo
-      } else {
-        navigate("sistema/vinculos");
-      }
+      // 4. Atualiza o estado da aplicação para refletir a mudança no backend.
+      // Passamos `false` para que esta chamada não interfira com nosso controle de loading.
+      await checkAuth(false);
 
-      await checkAuth();
+      // 5. Navega com base no estado ANTERIOR, que é o que define o "nível" do usuário.
+      // Um admin volta para a seleção de clínicas do sistema, um usuário normal para sua lista de vínculos.
+      if (isAdminBeforeSwap) {
+        navigate("/sistema");
+      } else {
+        navigate("/sistema/vinculos");
+      }
     } catch (error) {
       abrirNotificacao(
         "error",
@@ -209,7 +223,7 @@ export const AuthProvider = ({ children }) => {
         "Não foi possível trocar de vínculo."
       );
     } finally {
-      setIsLoading(false); // Desativa o loading global
+      setIsLoading(false); // 6. Finaliza o loading.
     }
   };
 

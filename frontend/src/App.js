@@ -1,35 +1,31 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import { AuthProvider } from './services/AuthContext';
-import { NotificationProvider } from './services/NotificationContext';
+import { AuthProvider } from "./services/AuthContext";
+import { NotificationProvider } from "./services/NotificationContext";
 
-import LoggedRoute from './components/servicesComponents/LoggedRoute';
-import AuthenticatedRoute from './components/servicesComponents/AuthenticatedRoute';
-import AdminRoute from './components/servicesComponents/AdminRoute.js';
-import PublicRoute from './components/servicesComponents/PublicRoute.js';
+import LayoutPublic from "./components/layout/LayoutPublic.jsx";
+import LayoutLogged from "./components/layout/LayoutLogged.jsx";
+import LayoutAuthenticated from "./components/layout/LayoutAuthenticated.jsx";
 
-import LayoutPublic from './components/layout/LayoutPublic.jsx';
-import LayoutLogged from './components/layout/LayoutLogged.jsx';
-import LayoutAuthenticated from './components/layout/LayoutAuthenticated.jsx';
+import Login from "./pages/Login/index.jsx";
+import Sobre from "./pages/Sobre/index.jsx";
 
-import Login from './pages/Login/index.jsx';
-import Sobre from './pages/Sobre/index.jsx';
+import Sistema from "./pages/Sistema/SistemaInicio/index.jsx";
+import SistemaVinculos from "./pages/Sistema/ListaDeVinculos/index.jsx";
+import SistemaUsuarios from "./pages/Sistema/Usuarios/index.jsx";
+import SistemaClinicas from "./pages/Sistema/Clinicas/index.jsx";
 
-import Sistema from './pages/Sistema/SistemaInicio/index.jsx';
-import SistemaVinculos from './pages/Sistema/ListaDeVinculos/index.jsx';
-import SistemaUsuarios from './pages/Sistema/Usuarios/index.jsx';
-import SistemaClinicas from './pages/Sistema/Clinicas/index.jsx';
+import Clinica from "./pages/Clinica/ClinicaInicio/index.jsx";
+import ClinicaInicio from "./pages/Clinica/ClinicaInicio/index.jsx";
+import ClinicaGerenciamento from "./pages/Clinica/ClinicaGerenciamento/index.jsx";
+import UsuariosDaClinica from "./pages/Clinica/UsuariosDaClinica/index.jsx";
+import TutoresDaClinica from "./pages/Clinica/TutoresDaClinica/index.jsx";
+import AnimaisDaClinica from "./pages/Clinica/AnimaisDaClinica/index.jsx";
 
-import Clinica from './pages/Clinica/ClinicaInicio/index.jsx';
-import ClinicaInicio from './pages/Clinica/ClinicaInicio/index.jsx';
-import ClinicaGerenciamento from './pages/Clinica/ClinicaGerenciamento/index.jsx';
-import UsuariosDaClinica from './pages/Clinica/UsuariosDaClinica/index.jsx';
-import TutoresDaClinica from './pages/Clinica/TutoresDaClinica/index.jsx';
-import AnimaisDaClinica from './pages/Clinica/AnimaisDaClinica/index.jsx';
-
-import RacoesDaClinica from './features/RacoesDaClinica/RacoesDaClinica.jsx'; // teste para refatoração
-import ConsultasDaClinica from './features/ConsultasDaClinica/ConsultasDaClinica.jsx'; // teste para refatoração
+import RacoesDaClinica from "./features/RacoesDaClinica/RacoesDaClinica.jsx"; // teste para refatoração
+import ConsultasDaClinica from "./features/ConsultasDaClinica/ConsultasDaClinica.jsx"; // teste para refatoração
+import ProtectedRoute from "./components/servicesComponents/ProtectedRoute.js";
 
 const App = () => {
   return (
@@ -38,41 +34,49 @@ const App = () => {
         <AuthProvider>
           <Routes>
             {/* Rotas públicas */}
-            <Route element={<PublicRoute />}>
+            <Route element={<ProtectedRoute isPublic />}>
               <Route element={<LayoutPublic />}>
                 <Route path="/" element={<Login />} />
                 <Route path="login" element={<Login />} />
                 <Route path="sobre" element={<Sobre />} />
               </Route>
             </Route>
-            {/* <Route path="/cadastro" element={<Cadastro />} /> */}
-            {/* <Route path='/teste'element={<Teste/>} /> */}
-            
-            {/* Rotas protegidas por isLogged */}
-            <Route element={<LoggedRoute />}>
+
+            {/* Rotas para usuário logado (sem vínculo escolhido) */}
+            <Route element={<ProtectedRoute requiresLogged />}>
               <Route element={<LayoutLogged />}>
-                <Route path='/sistema/vinculos' element={<SistemaVinculos />} />
+                <Route path="/sistema/vinculos" element={<SistemaVinculos />} />
               </Route>
             </Route>
 
-            <Route element={<AdminRoute />}>
+            {/* Rotas que exigem ser Admin */}
+            <Route element={<ProtectedRoute requiresAdmin />}>
               <Route element={<LayoutLogged />}>
-                <Route path='/sistema' element={<Sistema />} />
-                <Route path='/sistema/clinicas' element={<SistemaClinicas />} />
-                <Route path='/sistema/usuarios' element={<SistemaUsuarios />} />
+                <Route path="/sistema" element={<Sistema />} />
+                <Route path="/sistema/clinicas" element={<SistemaClinicas />} />
+                <Route path="/sistema/usuarios" element={<SistemaUsuarios />} />
               </Route>
             </Route>
 
-            {/* Rotas protegidas dentro da AuthenticatedRoute */}
-            <Route element={<AuthenticatedRoute />}>
+            {/* Rotas que exigem vínculo (isAuthenticated) */}
+            <Route element={<ProtectedRoute requiresAuth />}>
               <Route element={<LayoutAuthenticated />}>
-                <Route path='/clinica/inicio' element={<ClinicaInicio />} />
-                <Route path='/clinica' element={<Clinica />} />
-                <Route path="/clinica/editar" element={<ClinicaGerenciamento />} />
+                <Route path="/clinica/inicio" element={<ClinicaInicio />} />
+                <Route path="/clinica" element={<Clinica />} />
+                <Route
+                  path="/clinica/editar"
+                  element={<ClinicaGerenciamento />}
+                />
                 <Route path="/clinica/animais" element={<AnimaisDaClinica />} />
                 <Route path="/clinica/tutores" element={<TutoresDaClinica />} />
-                <Route path='/clinica/usuarios' element={<UsuariosDaClinica />} />
-                <Route path="/clinica/consultas" element={<ConsultasDaClinica />} />
+                <Route
+                  path="/clinica/usuarios"
+                  element={<UsuariosDaClinica />}
+                />
+                <Route
+                  path="/clinica/consultas"
+                  element={<ConsultasDaClinica />}
+                />
                 <Route path="/clinica/racoes" element={<RacoesDaClinica />} />
               </Route>
             </Route>
