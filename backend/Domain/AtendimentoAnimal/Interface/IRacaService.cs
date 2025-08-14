@@ -5,9 +5,9 @@ namespace backend.Domain.AtendimentoAnimal.Interface
 {
     public interface IRacaService
     {
-        Task<List<GetRacaDto>> ListAllAsync(EspecieAnimal? especie);
+        Task<List<GetRacaDto>> ListByClinicaIdAndEspecieAsync(int clinicaId, EspecieAnimal? especie);
         Task<GetRacaDto?> GetByIdAsync(int id);
-        Task<GetRacaDto> CreateAsync(CadastrarRacaDto criarRacaDto);
+        Task<GetRacaDto> CreateAsync(CadastrarRacaDto criarRacaDto, int clinicaId);
         Task<bool> UpdateAsync(UpdateRacaDto atualizarRacaDto);
         Task<bool> DeleteAsync(int id);
     }

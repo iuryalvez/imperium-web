@@ -15,6 +15,7 @@ namespace backend.Domain.AtendimentoAnimal
         public RelatorioController(IRelatorioService relatorioService) { _relatorioService = relatorioService; }
 
         [HttpGet("consultas/{consultaId}/relatorio")]
+        [Authorize(Policy = "VisualizaTudo")]
         public async Task<IActionResult> Get(int consultaId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
@@ -25,6 +26,7 @@ namespace backend.Domain.AtendimentoAnimal
 
         // Um único endpoint para Criar e Atualizar (Upsert)
         [HttpPut("consultas/{consultaId}/relatorio")]
+        [Authorize(Policy = "GerenciaAnimais")]
         public async Task<IActionResult> Upsert(int consultaId, [FromBody] UpsertRelatorioDto dto)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
@@ -34,6 +36,7 @@ namespace backend.Domain.AtendimentoAnimal
         }
 
         [HttpDelete("relatorios/{relatorioId}")]
+        [Authorize(Policy = "GerenciaAnimais")]
         public async Task<IActionResult> Delete(int relatorioId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");

@@ -8,13 +8,13 @@ using backend.Domain.AtendimentoAnimal.Entities;
 namespace backend.Domain.SaudeAnimal
 {
     [ApiController]
-    [Route("api/clinica")]
+    [Route("api/clinica/racoes")]
     public class RacaoController : ControllerBase
     {
         private readonly IRacaoService _racaoService;
         public RacaoController(IRacaoService racaoService) { _racaoService = racaoService; }
 
-        [HttpGet("racoes/{racaoId}")]
+        [HttpGet("{racaoId}")]
         [Authorize(Policy = "VisualizaTudo")]
         public async Task<IActionResult> GetRacaoById(int racaoId)
         {
@@ -28,7 +28,7 @@ namespace backend.Domain.SaudeAnimal
             return Ok(racao);
         }
 
-        [HttpGet("racoes")]
+        [HttpGet]
         [Authorize(Policy = "VisualizaTudo")]
         public async Task<IActionResult> GetAllRacoes([FromQuery] EspecieAnimal? especie) // Recebe o parâmetro
         {
@@ -40,7 +40,7 @@ namespace backend.Domain.SaudeAnimal
             return Ok(racoes);
         }
 
-        [HttpPost("racoes/cadastrar")]
+        [HttpPost("cadastrar")]
         [Authorize(Policy = "VisualizaTudo")] // Ajuste a política conforme necessário
         public async Task<IActionResult> CreateRacao([FromBody] CadastrarRacaoDto dto)
         {
@@ -54,7 +54,7 @@ namespace backend.Domain.SaudeAnimal
             return CreatedAtAction(nameof(GetRacaoById), new { racaoId = ((GetRacoesDto)result.Data).Id }, result.Data);
         }
 
-        [HttpPut("racoes/editar")]
+        [HttpPut("editar")]
         [Authorize(Policy = "VisualizaTudo")]
         public async Task<IActionResult> UpdateRacao([FromBody] AtualizarRacaoDto dto)
         {
@@ -68,7 +68,7 @@ namespace backend.Domain.SaudeAnimal
             return NoContent(); // Resposta padrão para um PUT/PATCH bem-sucedido
         }
 
-        [HttpDelete("racoes/{racaoId}")]
+        [HttpDelete("{racaoId}")]
         [Authorize(Policy = "VisualizaTudo")]
         public async Task<IActionResult> DeleteRacao(int racaoId)
         {
@@ -79,11 +79,10 @@ namespace backend.Domain.SaudeAnimal
 
             if (!result.Succeeded)
             {
-                // O serviço pode retornar falha por "não encontrado" ou por estar em uso
                 return BadRequest(result);
             }
 
-            return NoContent(); // Resposta padrão para um DELETE bem-sucedido
+            return NoContent();
         }
     }
 }

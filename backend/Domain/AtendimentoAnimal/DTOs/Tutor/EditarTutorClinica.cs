@@ -18,18 +18,8 @@ namespace backend.Domain.AtendimentoAnimal.DTOs
         [StringLength(11, ErrorMessage = "O CPF do tutor deve ter no máximo 11 dígitos.")]
         public string Cpf { get; set; } = string.Empty;
 
-        [StringLength(300, ErrorMessage = "O nome do tutor deve ter no máximo 300 caracteres.")]
-        public string? Endereco { get; set; }
-
-        public int EndNumero { get; set; }
-        public string? EndEstado { get; set; }
-        public string? EndCidade { get; set; }
-
-        [StringLength(8, ErrorMessage = "O CEP deve ter no máximo 8 dígitos.")]
-        public string? Cep { get; set; }
-
         [StringLength(11, ErrorMessage = "O telefone 1 deve ter no máximo 11 dígitos.")]
-        public string? Telefone1 { get; set; }
+        public string? Telefone { get; set; }
 
         [StringLength(11, ErrorMessage = "O telefone whatsapp deve ter no máximo 11 dígitos.")]
         public string? Whatsapp { get; set; }
@@ -38,5 +28,17 @@ namespace backend.Domain.AtendimentoAnimal.DTOs
         [EmailAddress(ErrorMessage = "O e-mail não é válido.")]
         public string Email { get; set; }
         public DateTime DataCad { get; set; }
+
+        // Endereço
+        [StringLength(8, ErrorMessage = "O CEP deve ter no máximo 8 dígitos.")]
+        public string? Cep { get; set; }
+        public string? Logradouro { get; set; }
+        public string? Complemento { get; set; }
+        public string? Bairro { get; set; }
+        public string? Cidade { get; set; }
+        public string? Estado { get; set; }
+
+        [StringLength(2, ErrorMessage = "Unidade Federativa deve ter no máximo 2 letras.")]
+        public string? Uf { get; set; }
     }
 }

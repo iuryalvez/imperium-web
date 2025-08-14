@@ -19,16 +19,10 @@ namespace backend.Domain.AtendimentoAnimal.Repository
             return await _context.Racas.FindAsync(id);
         }
 
-        public async Task<List<Raca>> ListAllAsync()
-        {
-            return await _context.Racas.AsNoTracking().ToListAsync();
-        }
-
-        public async Task<List<Raca>> ListByEspecieAsync(EspecieAnimal especie)
+        public async Task<List<Raca>> ListByClinicaIdAsync(int clinicaId)
         {
             return await _context.Racas
-                .Where(r => r.Especie == especie)
-                .AsNoTracking()
+                .Where(r => r.ClinicaId == clinicaId)
                 .ToListAsync();
         }
 
@@ -46,7 +40,7 @@ namespace backend.Domain.AtendimentoAnimal.Repository
         {
             _context.Racas.Remove(raca);
         }
-        
+
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();

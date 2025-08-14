@@ -6,6 +6,7 @@ namespace backend.Domain.AtendimentoAnimal.Interface
     {
         Task<IEnumerable<Animal>> GetAnimaisByClinicIdWithIncludesAsync(int clinicaId);
         Task<Animal?> GetAnimalDetailsAsync(int animalId, int clinicaId);
+        Task<bool> AllAnimalsExistInClinicAsync(List<int> animalIds, int clinicaId);
         Task AddAsync(Animal animal);
         Task AddVinculoClinicaAsync(AnimalClinica vinculo);
         Task<Animal?> GetByIdWithIncludesAsync(int animalId, int clinicaId);

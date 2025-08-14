@@ -24,7 +24,7 @@ namespace backend.Domain.GestaoDeAcesso.Entities
         public bool IsAtivo { get; set; }
 
         [StringLength(11, ErrorMessage = "O telefone deve ter no máximo 11 dígitos.")]
-        public string? Telefone1 { get; set; }
+        public string? Telefone { get; set; }
 
         [StringLength(11, ErrorMessage = "O telefone whatsapp deve ter no máximo 11 dígitos.")]
         public string? Whatsapp { get; set; }

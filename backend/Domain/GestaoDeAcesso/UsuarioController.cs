@@ -13,7 +13,7 @@ using backend.Domain.GestaoDeAcesso.Interfaces;
 namespace backend.Domain.GestaoDeAcesso
 {
     [ApiController]
-    [Route("api/clinica")]
+    [Route("api")]
     public class UsuarioController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -32,7 +32,78 @@ namespace backend.Domain.GestaoDeAcesso
             _logger = logger;
         }
 
-        [HttpGet("usuarios")]
+        [HttpGet("sistema/usuarios")]
+        [Authorize(Policy = "GerenciaSistema")]
+        public async Task<IActionResult> ListarUsuarios()
+        {
+            var usuarioAtualId = User.GetClaimValue<int>(ClaimTypes.NameIdentifier);
+            var result = await _usuarioService.ListarUsuariosSistemaAsync(usuarioAtualId);
+
+            if (result.Succeeded)
+            {
+                return Ok(result);
+            }
+
+            return StatusCode(StatusCodes.Status500InternalServerError, result);
+        }
+
+        [HttpPost("sistema/usuarios/cadastrar")]
+        [Authorize(Policy = "GerenciaSistema")]
+        public async Task<IActionResult> CadastrarUsuarioSistema([FromBody] CadastrarUsuarioSistemaDto dto)
+        {
+            var result = await _usuarioService.CadastrarUsuarioSistemaAsync(dto);
+
+            if (!result.Succeeded)
+            {
+                // Se houver erros específicos do Identity, retorna eles. Senão, a mensagem geral.
+                if (result.Errors.Any())
+                {
+                    return BadRequest(new { Errors = result.Errors });
+                }
+                return BadRequest(new { Message = result.Message });
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPut("sistema/usuarios/editar")]
+        [Authorize(Policy = "GerenciaSistema")]
+        public async Task<IActionResult> EditarUsuarioSistema([FromBody] EditarUsuarioSistemaDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _usuarioService.UpdateUsuarioSistemaAsync(dto);
+
+            if (!result.Succeeded)
+            {
+                // Se houver erros específicos (ex: senha), retorna eles. Senão, a mensagem geral.
+                return BadRequest(new { result.Message, result.Errors });
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPut("sistema/usuarios/{usuarioId}/status")]
+        [Authorize(Policy = "GerenciaSistema")]
+        public async Task<IActionResult> SetAdminUserStatus(int usuarioId, [FromBody] SetActivationPayload payload)
+        {
+            var dto = new SetUserStatusDto
+            {
+                Id = usuarioId,
+                IsAdmin = true, // Informa ao serviço que é um admin
+                Activate = payload.Activate
+            };
+
+            var result = await _usuarioService.SetUserActivationStatusAsync(dto);
+
+            if (!result.Succeeded) return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpGet("clinica/usuarios")]
         [Authorize(Policy = "GerenciaClinica")]
         public async Task<IActionResult> GetUsuariosByClinicaId()
         {
@@ -44,7 +115,7 @@ namespace backend.Domain.GestaoDeAcesso
             return Ok(usuarios);
         }
 
-        [HttpPost("usuarios/cadastrar")]
+        [HttpPost("clinica/usuarios/cadastrar")]
         [Authorize(Policy = "GerenciaClinica")]
         public async Task<IActionResult> CadastrarUsuarioClinica([FromBody] CadastrarUsuarioClinicaDto cadastrarUsuarioClinicaDto)
         {
@@ -125,7 +196,7 @@ namespace backend.Domain.GestaoDeAcesso
             }
         }
 
-        [HttpPut("usuarios/editar")]
+        [HttpPut("clinica/usuarios/editar")]
         [Authorize(Policy = "GerenciaClinica")]
         public async Task<IActionResult> EditarUsuarioClinica([FromBody] EditarUsuarioClinicaDto dto)
         {
@@ -169,7 +240,7 @@ namespace backend.Domain.GestaoDeAcesso
             return Ok(result);
         }
 
-        [HttpDelete("usuarios/{usuarioId}")]
+        [HttpDelete("clinica/usuarios/{usuarioId}")]
         [Authorize(Policy = "GerenciaSistema")]
         public async Task<IActionResult> DeleteUsuario(int usuarioId)
         {
@@ -196,6 +267,7 @@ namespace backend.Domain.GestaoDeAcesso
         }
 
         [HttpGet("vinculos")]
+        [Authorize(Policy = "AcessoLoginPolicy")]
         public async Task<IActionResult> GetAllVinculos()
         {
             var vinculos = await _context.UsuariosPerfisClinicas

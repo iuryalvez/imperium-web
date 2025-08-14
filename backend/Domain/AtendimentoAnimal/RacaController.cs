@@ -1,6 +1,7 @@
 using backend.Domain.AtendimentoAnimal.DTOs.Raca;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interface;
+using backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,14 +19,17 @@ namespace backend.Domain.AtendimentoAnimal
         }
 
         [HttpGet]
-        public async Task<IActionResult> ListarRacas([FromQuery] EspecieAnimal? especie)
+        [Authorize(Policy = "VisualizaTudo")]
+        public async Task<IActionResult> GetAll([FromQuery] EspecieAnimal? especie)
         {
-            var racas = await _racaService.ListAllAsync(especie);
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            var racas = await _racaService.ListByClinicaIdAndEspecieAsync(clinicaId, especie);
             return Ok(racas);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> ObterRacaPorId(int id)
+        [Authorize(Policy = "VisualizaTudo")]
+        public async Task<IActionResult> GetById(int id)
         {
             var raca = await _racaService.GetByIdAsync(id);
             if (raca == null) return NotFound();
@@ -33,16 +37,17 @@ namespace backend.Domain.AtendimentoAnimal
         }
 
         [HttpPost]
-        [Authorize(Policy = "GerenciaSistema")] // Example of more specific policy
-        public async Task<IActionResult> CriarRaca([FromBody] CadastrarRacaDto criarRacaDto)
+        [Authorize(Policy = "GerenciaAnimais")]
+        public async Task<IActionResult> Create([FromBody] CadastrarRacaDto criarRacaDto)
         {
-            var racaCriada = await _racaService.CreateAsync(criarRacaDto);
-            return CreatedAtAction(nameof(ObterRacaPorId), new { id = racaCriada.Id }, racaCriada);
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            var racaCriada = await _racaService.CreateAsync(criarRacaDto, clinicaId);
+            return CreatedAtAction(nameof(GetById), new { id = racaCriada.Id }, racaCriada);
         }
 
         [HttpPut("editar")]
-        [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> AtualizarRaca([FromBody] UpdateRacaDto atualizarRacaDto)
+        [Authorize(Policy = "GerenciaAnimais")]
+        public async Task<IActionResult> Update([FromBody] UpdateRacaDto atualizarRacaDto)
         {
             var sucesso = await _racaService.UpdateAsync(atualizarRacaDto);
             if (!sucesso) return NotFound();
@@ -50,8 +55,8 @@ namespace backend.Domain.AtendimentoAnimal
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> DeletarRaca(int id)
+        [Authorize(Policy = "GerenciaAnimais")]
+        public async Task<IActionResult> Delete(int id)
         {
             var sucesso = await _racaService.DeleteAsync(id);
             if (!sucesso) return NotFound();

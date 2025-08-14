@@ -60,7 +60,7 @@ const DetalhesClinica = ({ valores }) => {
                         : naoInformado}
                 </Descriptions.Item>
                 <Descriptions.Item label="Telefone Principal">
-                    {valores.telefone1 ?? naoInformado}
+                    {valores.telefone ?? naoInformado}
                 </Descriptions.Item>
                 <Descriptions.Item label="WhatsApp">
                     {/* E também para o WhatsApp */}

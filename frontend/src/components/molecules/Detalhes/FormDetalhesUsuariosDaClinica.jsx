@@ -24,7 +24,7 @@ const DetalhesUsuariosDaClinica = ({ valores }) => {
                 <Descriptions.Item label="E-mail">
                     {valores.email ? <Typography.Link href={`mailto:${valores.email}`}>{valores.email}</Typography.Link> : naoInformado}
                 </Descriptions.Item>
-                <Descriptions.Item label="Telefone Principal">{formatarTelefone(valores.telefone1) ?? naoInformado}</Descriptions.Item>
+                <Descriptions.Item label="Telefone Principal">{formatarTelefone(valores.telefone) ?? naoInformado}</Descriptions.Item>
                 <Descriptions.Item label="WhatsApp">
                     {valores.whatsapp ? <Typography.Link href={`https://wa.me/55${valores.whatsapp}`} target="_blank">{formatarTelefone(valores.whatsapp)}</Typography.Link> : naoInformado}
                 </Descriptions.Item>

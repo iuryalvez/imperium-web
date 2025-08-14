@@ -19,7 +19,7 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Consulta
 
         // Informações do Veterinário
         public int UsuarioId { get; set; }
-        public string? NomeVeterinario { get; set; }
+        public string? NomeUsuario { get; set; }
 
         // Status do Relatório
         public bool RelatorioPreenchido { get; set; }

@@ -76,7 +76,7 @@ const FormularioCadastroTutoresDaClinica = () => {
         <Divider orientation="left" plain>
           Contato
         </Divider>
-        <Form.Item label="Telefone Principal" name="telefone1">
+        <Form.Item label="Telefone Principal" name="Telefone">
           <IMaskInput
             mask="(00) 00000-0000"
             unmask={true}

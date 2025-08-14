@@ -14,7 +14,9 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Raca
         [Required(ErrorMessage = "A espécie é obrigatória.")]
         public EspecieAnimal Especie { get; set; }
 
-        public float? PesoMinimoReferencia { get; set; }
-        public float? PesoMaximoReferencia { get; set; }
+        public float? PesoMinimoReferenciaFemea { get; set; }
+        public float? PesoMaximoReferenciaFemea { get; set; }
+        public float? PesoMinimoReferenciaMacho { get; set; }
+        public float? PesoMaximoReferenciaMacho { get; set; }
     }
 }

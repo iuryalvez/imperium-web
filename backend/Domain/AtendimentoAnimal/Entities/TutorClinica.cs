@@ -3,11 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 using backend.Domain.GestaoClinica.Entities;
 
 namespace backend.Domain.AtendimentoAnimal.Entities {
-    public class TutorClinica {
+    public class TutorClinica
+    {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        
+
         [Required(ErrorMessage = "O id do tutor é obrigatório.")]
         public int TutorId { get; set; }
 
@@ -20,5 +21,7 @@ namespace backend.Domain.AtendimentoAnimal.Entities {
         [ForeignKey("ClinicaId")]
         public Clinica? Clinica { get; set; }
         public DateTime DataAssociacao { get; set; }
+        public DateTime? DataDesativacao { get; set; }
+        public bool IsAtivo { get; set; }
     }
 }

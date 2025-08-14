@@ -4,6 +4,7 @@ using backend.Services;
 using backend.Domain.AtendimentoAnimal.Interface;
 using backend.Domain.AtendimentoAnimal.DTOs.Consulta;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend.Domain.AtendimentoAnimal
 {
@@ -15,7 +16,8 @@ namespace backend.Domain.AtendimentoAnimal
         public ConsultaController(IConsultaService consultaService) { _consultaService = consultaService; }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [Authorize(Policy = "VisualizaTudo")]
+        public async Task<IActionResult> GetAllByClinicaId()
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             var consultas = await _consultaService.GetAllByClinicIdAsync(clinicaId);
@@ -23,6 +25,7 @@ namespace backend.Domain.AtendimentoAnimal
         }
 
         [HttpGet("{consultaId}")]
+        [Authorize(Policy = "VisualizaTudo")]
         public async Task<IActionResult> GetById(int consultaId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
@@ -32,6 +35,7 @@ namespace backend.Domain.AtendimentoAnimal
         }
 
         [HttpPost]
+        [Authorize(Policy = "GerenciaConsultas")]
         public async Task<IActionResult> Create([FromBody] UpsertConsultaDto dto)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
@@ -45,6 +49,7 @@ namespace backend.Domain.AtendimentoAnimal
         }
 
         [HttpPut("{consultaId}")]
+        [Authorize(Policy = "GerenciaConsultas")]
         public async Task<IActionResult> Update(int consultaId, [FromBody] UpsertConsultaDto dto)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
@@ -54,6 +59,7 @@ namespace backend.Domain.AtendimentoAnimal
         }
 
         [HttpDelete("{consultaId}")]
+        [Authorize(Policy = "GerenciaConsultas")]
         public async Task<IActionResult> Delete(int consultaId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");

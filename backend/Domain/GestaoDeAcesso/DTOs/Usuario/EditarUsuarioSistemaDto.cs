@@ -23,6 +23,6 @@ public class EditarUsuarioSistemaDto
     public string? Senha { get; set; } // Opcional: preencha apenas se for alterar
     public string? Cpf { get; set; }
     public string? Formacao { get; set; }
-    public string? Telefone1 { get; set; }
+    public string? Telefone { get; set; }
     public string? Whatsapp { get; set; }
 }

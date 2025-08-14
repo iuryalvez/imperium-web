@@ -68,7 +68,7 @@ const TabelaEntidade = ({
     processedValues = {
       ...processedValues,
       cpf: sanitize(valores.cpf),
-      telefone1: sanitize(valores.telefone1),
+      telefone: sanitize(valores.telefone),
       whatsapp: sanitize(valores.whatsapp),
       cep: sanitize(valores.cep),
       cnpj: sanitize(valores.cnpj),

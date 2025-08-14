@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using backend.Domain.GestaoClinica.Entities;
 
 namespace backend.Domain.AtendimentoAnimal.Entities
 {
@@ -14,14 +15,24 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         [StringLength(100)]
         public string Nome { get; set; } = string.Empty;
 
+        public Porte? Porte { get; set; }
+
         [Required]
         public EspecieAnimal Especie { get; set; }
 
-        public float? PesoMinimoReferencia { get; set; }
-        public float? PesoMaximoReferencia { get; set; }
+        public float? PesoMinimoReferenciaFemea { get; set; }
+        public float? PesoMaximoReferenciaFemea { get; set; }
+        public float? PesoMinimoReferenciaMacho { get; set; }
+        public float? PesoMaximoReferenciaMacho { get; set; }
+        [Required]
+        [StringLength(100)]
+        public string? Referencia { get; set; } = string.Empty;
 
         [JsonIgnore] // Avoids circular references in API responses
         public ICollection<Animal>? Animais { get; set; }
+        public int? ClinicaId { get; set; }
+        [ForeignKey("ClinicaId")]
+        public Clinica? Clinica { get; set; }
     }
 }
 

@@ -86,13 +86,13 @@ const EdicaoUsuarioDoSistema = ({ form, valoresIniciais }) => {
         <Divider orientation="left" plain>
           Contato
         </Divider>
-        <Form.Item label="Telefone Principal" name="telefone1">
+        <Form.Item label="Telefone Principal" name="Telefone">
           <IMaskInput
             mask="(00) 00000-0000"
             unmask={true}
             style={inputStyle}
             placeholder="(00) 99999-9999"
-            onAccept={(value) => form.setFieldsValue({ telefone1: value })}
+            onAccept={(value) => form.setFieldsValue({ telefone: value })}
           />
         </Form.Item>
         <Form.Item label="WhatsApp" name="whatsapp">

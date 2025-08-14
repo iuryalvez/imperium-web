@@ -7,6 +7,7 @@ public class AtualizarRacaoDto
     public int Id { get; set; }
     public EspecieAnimal? Especie { get; set; }
     public string? Nome { get; set; }
+    public bool IsPorcentagem { get; set; }
     public float? Umidade { get; set; }
     public float? ProteinaBruta { get; set; }
     public float? ExtratoEtereo { get; set; }

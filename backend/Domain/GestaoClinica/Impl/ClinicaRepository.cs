@@ -13,36 +13,25 @@ namespace backend.Domain.GestaoClinica.Impl
 
         public async Task<Clinica?> GetByIdAsync(int clinicaId) => await _context.Clinicas.FindAsync(clinicaId);
 
-        public async Task<IEnumerable<GetClinicaDto>> GetAllAsync()
-        {
-            // O AsNoTracking() é uma ótima otimização para consultas de apenas leitura
-            return await _context.Clinicas
-                .AsNoTracking()
-                .Select(c => new GetClinicaDto
-                {
-                    Id = c.Id,
-                    NomeClinica = c.NomeClinica ?? string.Empty, // Garante que não será nulo
-                    NomeFantasia = c.NomeFantasia,
-                    Cnpj = c.Cnpj,
-                    Endereco = c.Endereco,
-                    EndNumero = c.EndNumero,
-                    EndEstado = c.EndEstado,
-                    EndCidade = c.EndCidade,
-                    Cep = c.Cep,
-                    Telefone1 = c.Telefone1,
-                    Whatsapp = c.Whatsapp,
-                    Email = c.Email,
-                    Instagram = c.Instagram,
-                    DataCad = c.DataCad,
-                    IsAtiva = c.IsAtiva
-                })
-                .ToListAsync();
-        }
+        public async Task<IEnumerable<Clinica>> GetAllAsync() =>
+            await _context.Clinicas.AsNoTracking().ToListAsync();
 
         public async Task<bool> CnpjExistsForAnotherClinicAsync(string cnpj, int excludeClinicaId)
         {
             return await _context.Clinicas.AnyAsync(c => c.Cnpj == cnpj && c.Id != excludeClinicaId);
         }
+
+        public async Task<IEnumerable<object>> SearchByNameAsync(string nome)
+        {
+            return await _context.Clinicas
+                .Where(c => EF.Functions.ILike(c.NomeClinica, $"%{nome}%"))
+                .Select(c => new { value = c.Id, label = c.NomeClinica })
+                .ToListAsync();
+        }
+
+        public async Task AddAsync(Clinica clinica) => await _context.Clinicas.AddAsync(clinica);
+
+        public void Delete(Clinica clinica) => _context.Clinicas.Remove(clinica);
 
         public async Task<int> SaveChangesAsync() => await _context.SaveChangesAsync();
     }

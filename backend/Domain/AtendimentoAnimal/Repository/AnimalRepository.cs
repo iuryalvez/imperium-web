@@ -13,10 +13,6 @@ namespace backend.Infra.Data.Repositories
             _context = context;
         }
 
-        /// <summary>
-        /// Busca um animal pelo ID, mas apenas se ele estiver vinculado à clínica especificada.
-        /// Inclui os vínculos com tutores (TutoresAnimais) para a lógica de sincronização.
-        /// </summary>
         public async Task<Animal?> GetByIdWithIncludesAsync(int animalId, int clinicaId)
         {
             return await _context.Animais
@@ -28,17 +24,27 @@ namespace backend.Infra.Data.Repositories
                 .FirstOrDefaultAsync(a => a.Id == animalId);
         }
 
-        /// <summary>
-        /// Adiciona um novo vínculo Tutor-Animal ao contexto do EF.
-        /// </summary>
         public async Task AddTutorLinkAsync(TutorAnimal link)
         {
             await _context.TutoresAnimais.AddAsync(link);
         }
 
-        /// <summary>
-        /// Marca uma coleção de vínculos Tutor-Animal para remoção.
-        /// </summary>
+        public async Task<bool> AllAnimalsExistInClinicAsync(List<int> animalIds, int clinicaId)
+        {
+            if (animalIds == null || !animalIds.Any())
+            {
+                return true; // Lista vazia é considerada válida
+            }
+
+            // Conta quantos dos IDs fornecidos existem na tabela de vínculo Animal-Clínica
+            var validAnimalsCount = await _context.AnimaisClinicas
+                .AsNoTracking()
+                .CountAsync(ac => ac.ClinicaId == clinicaId && animalIds.Contains(ac.AnimalId));
+
+            // A validação passa se a contagem for igual ao número de IDs únicos que recebemos.
+            return validAnimalsCount == animalIds.Distinct().Count();
+        }
+
         public void RemoveTutorLinks(IEnumerable<TutorAnimal> links)
         {
             _context.TutoresAnimais.RemoveRange(links);
@@ -72,9 +78,6 @@ namespace backend.Infra.Data.Repositories
             await _context.AnimaisClinicas.AddAsync(vinculo);
         }
 
-        /// <summary>
-        /// Salva todas as alterações pendentes no banco de dados.
-        /// </summary>
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();

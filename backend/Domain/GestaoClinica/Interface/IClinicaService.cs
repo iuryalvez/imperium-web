@@ -7,9 +7,13 @@ namespace backend.Domain.GestaoClinica.Interface
 {
     public interface IClinicaService
     {
+        Task<IEnumerable<object>> SearchByNameAsync(string nome);
         Task<IEnumerable<GetClinicaDto>> GetAllAsync();
+        Task<GetClinicaDto?> GetByIdAsync(int clinicaId);
+        Task<ServiceResult> CreateAsync(CadastrarClinicaDto dto);
         Task<ServiceResult> UpdateClinicaAsync(EditarClinicaAdminDto dto);
-        public Task<Clinica?> ObterClinicaAsync(int clinicaId);
+        Task<ServiceResult> UpdateOwnClinicAsync(int clinicaId, EditarClinicaDto dto);
+        Task<ServiceResult> DeleteAsync(int clinicaId);
         public Task<bool> TutorCpfExisteNaClinicaAsync(string cpf, int clinicaId);
         public Task<bool> UsuarioCpfExisteNaClinicaAsync(string cpf, int clinicaId);
         public Task<List<TutorClinica>> ObterVinculosTutoresDaClinicaAsync(int clinicaId);

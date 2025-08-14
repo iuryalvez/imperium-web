@@ -8,10 +8,10 @@ namespace backend.Domain.AtendimentoAnimal.Entities {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        
+
         [Required(ErrorMessage = "O id do animal é obrigatório.")]
         public int AnimalId { get; set; }
-        
+
         [ForeignKey("AnimalId")]
         public Animal? Animal { get; set; }
 
@@ -22,5 +22,7 @@ namespace backend.Domain.AtendimentoAnimal.Entities {
         public Clinica? Clinica { get; set; }
 
         public DateTime DataAssociacao { get; set; }
+        public DateTime? DataDesativacao { get; set; }
+        public bool IsAtivo { get; set; }
     }
 }

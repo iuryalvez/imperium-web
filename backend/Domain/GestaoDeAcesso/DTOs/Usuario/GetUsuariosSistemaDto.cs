@@ -17,7 +17,7 @@ namespace backend.Domain.GestaoDeAcesso.DTOs
         public bool IsAtivo { get; set; } // IsAtivo no sistema
         public string? Cpf { get; set; }
         public string? Formacao { get; set; }
-        public string? Telefone1 { get; set; }
+        public string? Telefone { get; set; }
         public string? Whatsapp { get; set; }
     }
 }

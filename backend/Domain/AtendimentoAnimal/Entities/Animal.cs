@@ -3,48 +3,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.Domain.AtendimentoAnimal.Entities
 {
-    public enum EspecieAnimal
-    {
-        Cao = 1,
-        Gato = 2,
-    }
-    public enum Sexo
-    {
-        Macho = 1,
-        Femea = 2,
-    }
-    public enum GrauAtividade
-    {
-        Inativo = 1,
-        Moderado = 2,
-        Ativo = 3,
-    }
-    public enum CondicaoCorporal
-    {
-        MuitoAbaixoDoIdeal = 1,
-        AbaixoDoIdeal = 2,
-        PoucoAbaixoDoIdeal = 3,
-        Ideal = 5,
-        PoucoAcimaDoIdeal = 6,
-        AcimaDoIdeal = 7,
-        MuitoAcimaDoIdeal = 9,
-    }
-    public enum FaseVidaAnimal
-    {
-        Desconhecida = 0,
-        Filhote,
-        Jovem,
-        Adulto,
-        Senior,
-        Geriatrico
-    }
     public class Animal
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string? Nome { get; set; }
-        public EspecieAnimal Especie { get; set; } 
+        public EspecieAnimal Especie { get; set; }
         public int? RacaId { get; set; }
         
         [ForeignKey("RacaId")]
@@ -52,15 +17,17 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         public DateTime Nascimento { get; set; }
         public DateTime DataCad { get; set; }
         public DateTime DataModificado { get; set; }
-        public Sexo Sexo { get; set; } // 1-macho, 2-fêmea
-        public bool Castrado { get; set; }
-        public float Peso { get; set; }
-        public CondicaoCorporal CondicaoCorporal { get; set; } // valores: 1-10
-        public GrauAtividade GrauAtividade { get; set; } // 1-inativo, 2-moderado, 3-ativo
-        public bool IsGestante { get; set; }
-        public int IsLactanteNumeroFilhotes { get; set; } // numero de filhotes
-        public int SemanaLactacao { get; set; }
-        public int SemanaGestacao { get; set; }
+        public Sexo Sexo { get; set; }
+        public bool? Castrado { get; set; }
+        public float? Peso { get; set; }
+        public float? PesoMinimo { get; set; }
+        public float? PesoMaximo { get; set; }
+        public CondicaoCorporal? CondicaoCorporal { get; set; } // valores: 1-10
+        public GrauAtividade? GrauAtividade { get; set; } // 1-inativo, 2-moderado, 3-ativo
+        public bool? IsGestante { get; set; }
+        public int? IsLactanteNumeroFilhotes { get; set; } // numero de filhotes
+        public int? SemanaLactacao { get; set; }
+        public int? SemanaGestacao { get; set; }
         public AcompanhamentoInd? AcompanhamentoInd { get; set; } // referência de navegação com o dependente
         public ICollection<Consulta>? Consultas { get; set; } // navegation
         public ICollection<AnimalClinica>? AnimaisClinicas { get; set; } // referência de navegação com o dependente

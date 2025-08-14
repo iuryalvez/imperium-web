@@ -13,10 +13,11 @@ namespace backend.Infra.Data.Repositories
             _context = context;
         }
 
-        /// <summary>
-        /// Busca um tutor pelo ID, mas apenas se ele estiver vinculado à clínica especificada.
-        /// Inclui os vínculos com animais (TutoresAnimais) para a lógica de sincronização.
-        /// </summary>
+        public async Task<Tutor?> FindByCpfAsync(string cpf)
+        {
+            return await _context.Tutores.FirstOrDefaultAsync(t => t.Cpf == cpf);
+        }
+
         public async Task<Tutor?> GetByIdWithIncludesAsync(int tutorId, int clinicaId)
         {
             return await _context.Tutores
@@ -58,25 +59,55 @@ namespace backend.Infra.Data.Repositories
             return validTutorsCount == tutorIds.Distinct().Count();
         }
 
-        /// <summary>
-        /// Adiciona um novo vínculo Tutor-Animal ao contexto do EF.
-        /// </summary>
+        public async Task AddAsync(Tutor tutor)
+        {
+            await _context.Tutores.AddAsync(tutor);
+        }
+
+        public void Remove(Tutor tutor)
+        {
+            _context.Tutores.Remove(tutor);
+        }
+
+        public async Task AddClinicLinkAsync(TutorClinica link)
+        {
+            await _context.TutoresClinicas.AddAsync(link);
+        }
+
+        public async Task<TutorClinica?> GetClinicLinkAsync(int tutorId, int clinicaId)
+        {
+            return await _context.TutoresClinicas
+                .FirstOrDefaultAsync(tc => tc.TutorId == tutorId && tc.ClinicaId == clinicaId);
+        }
+
+        public async Task UpdateClinicLinkAsync(TutorClinica link)
+        {
+            _context.TutoresClinicas.Update(link);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> IsTutorLinkedToClinicAsync(int tutorId, int clinicaId)
+        {
+            return await _context.TutoresClinicas
+                .AsNoTracking()
+                .AnyAsync(tc => tc.TutorId == tutorId && tc.ClinicaId == clinicaId);
+        }
+
+        public void RemoveClinicLink(TutorClinica link)
+        {
+            _context.TutoresClinicas.Remove(link);
+        }
+
         public async Task AddAnimalLinkAsync(TutorAnimal link)
         {
             await _context.TutoresAnimais.AddAsync(link);
         }
 
-        /// <summary>
-        /// Marca uma coleção de vínculos Tutor-Animal para remoção.
-        /// </summary>
         public void RemoveAnimalLinks(IEnumerable<TutorAnimal> links)
         {
             _context.TutoresAnimais.RemoveRange(links);
         }
 
-        /// <summary>
-        /// Salva todas as alterações pendentes no banco de dados.
-        /// </summary>
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();

@@ -16,6 +16,7 @@ namespace backend.Domain.SaudeAnimal.Entities {
         [Required]
         public EspecieAnimal Especie { get; set; }
         public string Nome { get; set; } = string.Empty;
+        public bool IsPorcentagem { get; set; }
         
         [Required(ErrorMessage = "A umidade da ração é obrigatória")]
         public float Umidade { get; set; }

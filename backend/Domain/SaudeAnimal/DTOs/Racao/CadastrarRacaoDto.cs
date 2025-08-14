@@ -10,6 +10,9 @@ public class CadastrarRacaoDto
     public EspecieAnimal Especie { get; set; }
 
     [Required]
+    public bool IsPorcentagem { get; set; }
+
+    [Required]
     public float Umidade { get; set; }
     [Required]
     public float ProteinaBruta { get; set; }

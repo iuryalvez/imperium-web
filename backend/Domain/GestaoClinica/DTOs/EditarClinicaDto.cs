@@ -1,8 +1,10 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace backend.Domain.GestaoClinica.DTOs {
-    public class EditarClinicaDto {
+namespace backend.Domain.GestaoClinica.DTOs
+{
+    public class EditarClinicaDto
+    {
         public int ClinicaId { get; set; }
 
         [Required(ErrorMessage = "O nome da clínica é obrigatório.")]
@@ -11,29 +13,32 @@ namespace backend.Domain.GestaoClinica.DTOs {
 
         [StringLength(100, ErrorMessage = "O nome fantasia da clínica deve ter no máximo 100 caracteres.")]
         public string? NomeFantasia { get; set; }
-        
+
         [StringLength(14, ErrorMessage = "O CNPJ deve ter no máximo 14 dígitos.")]
         public string? Cnpj { get; set; }
 
-        [StringLength(300, ErrorMessage = "O endereço deve ter no máximo 300 caracteres.")]
-        public string? Endereco { get; set; }
-        public int EndNumero { get; set; }
-        public string? EndEstado { get; set; }
-        public string? EndCidade { get; set; }
-
-        [StringLength(9, ErrorMessage = "O CEP deve ter no máximo 9 dígitos.")]
-        public string? Cep { get; set; }
-        
         [StringLength(11, ErrorMessage = "O telefone deve ter no máximo 11 dígitos.")]
-        public string? Telefone1 { get; set; }
+        public string? Telefone { get; set; }
 
         [StringLength(11, ErrorMessage = "O telefone deve ter no máximo 11 dígitos.")]
         public string? Whatsapp { get; set; }
 
         [StringLength(30, ErrorMessage = "O instagram da clínica deve ter no máximo 30 caracteres.")]
         public string? Instagram { get; set; }
-        
+
         [EmailAddress(ErrorMessage = "O e-mail não é válido.")]
         public string? Email { get; set; }
+
+        // Endereço
+        [StringLength(8, ErrorMessage = "O CEP deve ter no máximo 8 dígitos.")]
+        public string? Cep { get; set; }
+        public string? Logradouro { get; set; }
+        public string? Complemento { get; set; }
+        public string? Bairro { get; set; }
+        public string? Cidade { get; set; }
+        public string? Estado { get; set; }
+
+        [StringLength(2, ErrorMessage = "Unidade Federativa deve ter no máximo 2 letras.")]
+        public string? Uf { get; set; }
     }
 }

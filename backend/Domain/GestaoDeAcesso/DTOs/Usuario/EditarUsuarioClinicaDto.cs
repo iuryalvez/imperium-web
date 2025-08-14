@@ -1,6 +1,4 @@
-using System;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Identity;
 
 namespace backend.Domain.GestaoDeAcesso.DTOs
 {
@@ -20,7 +18,7 @@ namespace backend.Domain.GestaoDeAcesso.DTOs
         public string? Senha { get; set; }
         public string? Cpf { get; set; }
         public string? Formacao { get; set; }
-        public string? Telefone1 { get; set; }
+        public string? Telefone { get; set; }
         public string? Whatsapp { get; set; }
 
         // Os campos Id e ClinicaId podem ser obtidos no backend a partir do UpcId

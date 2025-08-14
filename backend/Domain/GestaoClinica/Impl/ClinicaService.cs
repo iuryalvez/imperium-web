@@ -5,20 +5,51 @@ using Microsoft.EntityFrameworkCore;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.GestaoClinica.DTOs;
 using backend.Domain.GestaoDeAcesso.Interfaces;
+using AutoMapper;
 
 public class ClinicaService : IClinicaService
 {
     private readonly AppDbContext _context;
     private readonly IClinicaRepository _clinicaRepository;
+    private readonly IMapper _mapper;
 
     public ClinicaService(AppDbContext context,
-                          IClinicaRepository clinicaRepository)
+                          IClinicaRepository clinicaRepository,
+                          IMapper mapper)
     {
         _context = context;
         _clinicaRepository = clinicaRepository;
+        _mapper = mapper;
     }
 
-    public async Task<IEnumerable<GetClinicaDto>> GetAllAsync() => await _clinicaRepository.GetAllAsync();
+    public async Task<IEnumerable<GetClinicaDto>> GetAllAsync()
+    {
+        var clinicas = await _clinicaRepository.GetAllAsync();
+        return _mapper.Map<IEnumerable<GetClinicaDto>>(clinicas);
+    }
+
+    public async Task<GetClinicaDto?> GetByIdAsync(int clinicaId)
+    {
+        var clinica = await _clinicaRepository.GetByIdAsync(clinicaId);
+        return _mapper.Map<GetClinicaDto>(clinica);
+    }
+
+    public async Task<IEnumerable<object>> SearchByNameAsync(string nome)
+    {
+        return await _clinicaRepository.SearchByNameAsync(nome);
+    }
+
+    public async Task<ServiceResult> CreateAsync(CadastrarClinicaDto dto)
+    {
+        var clinica = _mapper.Map<Clinica>(dto);
+        clinica.DataCad = DateTime.UtcNow;
+
+        await _clinicaRepository.AddAsync(clinica);
+        await _clinicaRepository.SaveChangesAsync();
+
+        var resultDto = _mapper.Map<GetClinicaDto>(clinica);
+        return new ServiceResult { Succeeded = true, Message = "Clínica cadastrada com sucesso.", Data = resultDto };
+    }
 
     public async Task<ServiceResult> UpdateClinicaAsync(EditarClinicaAdminDto dto)
     {
@@ -26,37 +57,34 @@ public class ClinicaService : IClinicaService
         if (clinica == null)
             return new ServiceResult { Succeeded = false, Message = "Clínica não encontrada." };
 
-        // Validação de negócio (ex: CNPJ único)
         if (!string.IsNullOrWhiteSpace(dto.Cnpj) && await _clinicaRepository.CnpjExistsForAnotherClinicAsync(dto.Cnpj, dto.Id))
-        {
-            return new ServiceResult { Succeeded = false, Message = "Este CNPJ já está em uso por outra clínica." };
-        }
+            return new ServiceResult { Succeeded = false, Message = "Este CNPJ já está em uso." };
 
-        if (!string.IsNullOrWhiteSpace(dto.NomeClinica)) clinica.NomeClinica = dto.NomeClinica;
-
-        // Para campos que podem ser string vazia intencionalmente, verificamos apenas se não é nulo.
-        if (dto.NomeFantasia != null) clinica.NomeFantasia = dto.NomeFantasia;
-        if (dto.Cnpj != null) clinica.Cnpj = dto.Cnpj;
-        if (dto.Endereco != null) clinica.Endereco = dto.Endereco;
-        if (dto.EndEstado != null) clinica.EndEstado = dto.EndEstado;
-        if (dto.EndCidade != null) clinica.EndCidade = dto.EndCidade;
-        if (dto.Cep != null) clinica.Cep = dto.Cep;
-        if (dto.Telefone1 != null) clinica.Telefone1 = dto.Telefone1;
-        if (dto.Whatsapp != null) clinica.Whatsapp = dto.Whatsapp;
-        if (dto.Email != null) clinica.Email = dto.Email;
-        if (dto.Instagram != null) clinica.Instagram = dto.Instagram;
-
-        // Para tipos de valor "nullable" (int?, bool?), usamos .HasValue
-        if (dto.EndNumero.HasValue) clinica.EndNumero = dto.EndNumero.Value;
-        clinica.IsAtiva = dto.IsAtiva;
-
+        _mapper.Map(dto, clinica);
         await _clinicaRepository.SaveChangesAsync();
         return new ServiceResult { Succeeded = true, Message = "Clínica atualizada com sucesso." };
     }
 
-    public async Task<Clinica?> ObterClinicaAsync(int clinicaId)
+    public async Task<ServiceResult> UpdateOwnClinicAsync(int clinicaId, EditarClinicaDto dto)
     {
-        return await _context.Clinicas.FindAsync(clinicaId);
+        // 1. Busca a clínica usando o ID do token, garantindo a segurança
+        var clinica = await _clinicaRepository.GetByIdAsync(clinicaId);
+        if (clinica == null)
+            return new ServiceResult { Succeeded = false, Message = "Clínica não encontrada ou acesso não permitido." };
+
+        // 2. Validação de negócio (ex: CNPJ único)
+        if (!string.IsNullOrWhiteSpace(dto.Cnpj) && await _clinicaRepository.CnpjExistsForAnotherClinicAsync(dto.Cnpj, clinicaId))
+        {
+            return new ServiceResult { Succeeded = false, Message = "Este CNPJ já está em uso por outra clínica." };
+        }
+
+        // 3. O AutoMapper aplica as alterações do DTO na entidade existente
+        // (Ele irá ignorar campos nulos se o DTO tiver propriedades nullable e o Profile estiver configurado)
+        _mapper.Map(dto, clinica);
+
+        // 4. Salva as alterações no banco de dados
+        await _clinicaRepository.SaveChangesAsync();
+        return new ServiceResult { Succeeded = true, Message = "Clínica atualizada com sucesso." };
     }
 
     public async Task<bool> TutorCpfExisteNaClinicaAsync(string cpf, int clinicaId)
@@ -97,5 +125,19 @@ public class ClinicaService : IClinicaService
                     .ThenInclude(ta => ta.Tutor)   // Para cada TutorAnimal, inclui o Tutor
             .Where(ac => ac.ClinicaId == clinicaId && ac.Animal != null) // Garante que o animal existe
             .ToListAsync();
+    }
+
+    public async Task<ServiceResult> DeleteAsync(int clinicaId)
+    {
+        var clinica = await _clinicaRepository.GetByIdAsync(clinicaId); // Necessário incluir dependentes para verificar
+        if (clinica == null)
+            return new ServiceResult { Succeeded = false, Message = "Clínica não encontrada." };
+
+        if (clinica.UsuariosPerfisClinicas.Any()) // Lógica de verificação de dependentes
+            return new ServiceResult { Succeeded = false, Message = "Clínica possui usuários vinculados." };
+
+        _clinicaRepository.Delete(clinica);
+        await _clinicaRepository.SaveChangesAsync();
+        return new ServiceResult { Succeeded = true, Message = "Clínica excluída com sucesso." };
     }
 }

@@ -1,0 +1,66 @@
+using AutoMapper;
+using backend.Domain.GestaoDeAcesso.DTOs;
+using backend.Domain.GestaoDeAcesso.Entities;
+
+namespace backend.Domain.GestaoDeAcesso.Mappers
+{
+    public class UsuarioMappingProfile : Profile
+    {
+        public UsuarioMappingProfile()
+        {
+            CreateMap<CadastrarUsuarioSistemaDto, Usuario>();
+            CreateMap<CadastrarUsuarioClinicaDto, Usuario>();
+
+            CreateMap<EditarUsuarioSistemaDto, Usuario>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<EditarUsuarioClinicaDto, Usuario>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<Usuario, GetUsuariosSistemaDto>()
+            .ForMember(dest => dest.CompositeKey, opt => opt.MapFrom(src => $"admin-{src.Id}"))
+            .ForMember(dest => dest.UpcId, opt => opt.MapFrom(src => -1))
+            .ForMember(dest => dest.NomeClinica, opt => opt.MapFrom(src => "N/A"))
+            .ForMember(dest => dest.ClinicaId, opt => opt.MapFrom(src => -1))
+            .ForMember(dest => dest.Perfis, opt => opt.MapFrom(src =>
+                src.IsAtivo ? new List<string> { "ADMIN" } : new List<string> { "ADMIN", "INATIVO" }))
+            .ForMember(dest => dest.DataCadastro, opt => opt.MapFrom(src => src.DataCad))
+            .ForMember(dest => dest.Telefone, opt => opt.MapFrom(src => src.Telefone));
+
+            CreateMap<UsuarioPerfilClinica, GetUsuariosSistemaDto>()
+                .ForMember(dest => dest.CompositeKey, opt => opt.MapFrom(src => $"link-{src.Id}"))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Usuario.Id))
+                .ForMember(dest => dest.UpcId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Usuario.UserName))
+                .ForMember(dest => dest.NomeClinica, opt => opt.MapFrom(src => src.Clinica.NomeClinica))
+                .ForMember(dest => dest.ClinicaId, opt => opt.MapFrom(src => src.ClinicaId))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Usuario.Email))
+                .ForMember(dest => dest.Nome, opt => opt.MapFrom(src => src.Usuario.Nome))
+                .ForMember(dest => dest.Perfis, opt => opt.MapFrom(src => src.Perfis))
+                .ForMember(dest => dest.DataCadastro, opt => opt.MapFrom(src => src.Usuario.DataCad))
+                .ForMember(dest => dest.DataUltimoAcesso, opt => opt.MapFrom(src => src.Usuario.DataUltimoAcesso))
+                .ForMember(dest => dest.IsAdmin, opt => opt.MapFrom(src => src.Usuario.IsAdmin))
+                .ForMember(dest => dest.IsAtivo, opt => opt.MapFrom(src => src.Usuario.IsAtivo))
+                .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.Usuario.Cpf))
+                .ForMember(dest => dest.Formacao, opt => opt.MapFrom(src => src.Usuario.Formacao))
+                .ForMember(dest => dest.Telefone, opt => opt.MapFrom(src => src.Usuario.Telefone))
+                .ForMember(dest => dest.Whatsapp, opt => opt.MapFrom(src => src.Usuario.Whatsapp));
+
+            CreateMap<UsuarioPerfilClinica, GetUsuariosClinicaDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Usuario.Id))
+                .ForMember(dest => dest.UpcId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Usuario.UserName))
+                .ForMember(dest => dest.ClinicaId, opt => opt.MapFrom(src => src.ClinicaId))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Usuario.Email))
+                .ForMember(dest => dest.Nome, opt => opt.MapFrom(src => src.Usuario.Nome))
+                .ForMember(dest => dest.Perfis, opt => opt.MapFrom(src => src.Perfis))
+                .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.Usuario.Cpf))
+                .ForMember(dest => dest.Formacao, opt => opt.MapFrom(src => src.Usuario.Formacao))
+                .ForMember(dest => dest.Telefone, opt => opt.MapFrom(src => src.Usuario.Telefone))
+                .ForMember(dest => dest.Whatsapp, opt => opt.MapFrom(src => src.Usuario.Whatsapp))
+                .ForMember(dest => dest.DataCadastro, opt => opt.MapFrom(src => src.Usuario.DataCad))
+                .ForMember(dest => dest.DataUltimoAcesso, opt => opt.MapFrom(src => src.Usuario.DataUltimoAcesso))
+                .ForMember(dest => dest.IsAtivoNaClinica, opt => opt.MapFrom(src => !(src.Perfis != null && src.Perfis.Contains("INATIVO"))));
+        }
+
+    }
+}

@@ -139,7 +139,14 @@ namespace backend.Infra.Data
                 .HasMany(c => c.Racoes)
                 .WithOne(r => r.Clinica)
                 .HasForeignKey(r => r.ClinicaId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Clinica 1:N Raca
+            modelBuilder.Entity<Clinica>()
+                .HasMany(c => c.Racas)
+                .WithOne(r => r.Clinica)
+                .HasForeignKey(r => r.ClinicaId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Clinica 1:N Consulta
             modelBuilder.Entity<Clinica>()

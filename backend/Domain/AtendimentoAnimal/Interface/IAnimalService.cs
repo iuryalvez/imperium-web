@@ -7,8 +7,9 @@ namespace backend.Domain.AtendimentoAnimal.Interface
     public interface IAnimalService
     {
         Task<IEnumerable<GetAnimaisClinicaDto>> GetAllByClinicIdAsync(int clinicaId);
-        Task<ServiceResult> CadastrarAnimalAsync(CadastrarAnimalClinicaDto dto, int clinicaId);
         Task<GetAnimaisClinicaDto?> GetDetailsByIdAsync(int animalId, int clinicaId);
-        Task<ServiceResult> UpdateAnimalAsync(EditarAnimalClinicaDto dto, int clinicaId);
+        Task<ServiceResult> CreateAsync(CadastrarAnimalClinicaDto dto, int clinicaId);
+        Task<ServiceResult> UpdateAsync(EditarAnimalClinicaDto dto, int clinicaId);
+        Task<ServiceResult> DesativarVinculoAnimalAsync(int animalId, int clinicaId);
     }
 }

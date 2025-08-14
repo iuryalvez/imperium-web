@@ -50,12 +50,12 @@ const EdicaoClinica = ({ form }) => {
         <Form.Item label="E-mail" name="email" rules={[{ type: "email" }]}>
           <Input placeholder="contato@clinicavet.com" />
         </Form.Item>
-        <Form.Item label="Telefone Principal" name="telefone1">
+        <Form.Item label="Telefone Principal" name="Telefone">
           <IMaskInput
             mask="(00) 00000-0000"
             unmask={true}
             style={inputStyle}
-            onAccept={(v) => form.setFieldsValue({ telefone1: v })}
+            onAccept={(v) => form.setFieldsValue({ telefone: v })}
           />
         </Form.Item>
         <Form.Item label="WhatsApp" name="whatsapp">

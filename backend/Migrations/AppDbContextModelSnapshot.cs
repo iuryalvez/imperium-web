@@ -214,10 +214,10 @@ namespace backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("Castrado")
+                    b.Property<bool?>("Castrado")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("CondicaoCorporal")
+                    b.Property<int?>("CondicaoCorporal")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("DataCad")
@@ -229,13 +229,13 @@ namespace backend.Migrations
                     b.Property<int>("Especie")
                         .HasColumnType("integer");
 
-                    b.Property<int>("GrauAtividade")
+                    b.Property<int?>("GrauAtividade")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsGestante")
+                    b.Property<bool?>("IsGestante")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("IsLactanteNumeroFilhotes")
+                    b.Property<int?>("IsLactanteNumeroFilhotes")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Nascimento")
@@ -244,16 +244,22 @@ namespace backend.Migrations
                     b.Property<string>("Nome")
                         .HasColumnType("text");
 
-                    b.Property<float>("Peso")
+                    b.Property<float?>("Peso")
+                        .HasColumnType("real");
+
+                    b.Property<float?>("PesoMaximo")
+                        .HasColumnType("real");
+
+                    b.Property<float?>("PesoMinimo")
                         .HasColumnType("real");
 
                     b.Property<int?>("RacaId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("SemanaGestacao")
+                    b.Property<int?>("SemanaGestacao")
                         .HasColumnType("integer");
 
-                    b.Property<int>("SemanaLactacao")
+                    b.Property<int?>("SemanaLactacao")
                         .HasColumnType("integer");
 
                     b.Property<int>("Sexo")
@@ -283,6 +289,12 @@ namespace backend.Migrations
                     b.Property<DateTime>("DataAssociacao")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("DataDesativacao")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsAtivo")
+                        .HasColumnType("boolean");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AnimalId");
@@ -309,17 +321,11 @@ namespace backend.Migrations
                     b.Property<DateTime>("DataConsulta")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("TutorCpf")
-                        .HasColumnType("text");
-
                     b.Property<int>("TutorId")
                         .HasColumnType("integer");
 
                     b.Property<bool>("TutorIsCadastrado")
                         .HasColumnType("boolean");
-
-                    b.Property<string>("TutorNome")
-                        .HasColumnType("text");
 
                     b.Property<int>("UsuarioId")
                         .HasColumnType("integer");
@@ -345,6 +351,9 @@ namespace backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("ClinicaId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Especie")
                         .HasColumnType("integer");
 
@@ -353,13 +362,29 @@ namespace backend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<float?>("PesoMaximoReferencia")
+                    b.Property<float?>("PesoMaximoReferenciaFemea")
                         .HasColumnType("real");
 
-                    b.Property<float?>("PesoMinimoReferencia")
+                    b.Property<float?>("PesoMaximoReferenciaMacho")
                         .HasColumnType("real");
+
+                    b.Property<float?>("PesoMinimoReferenciaFemea")
+                        .HasColumnType("real");
+
+                    b.Property<float?>("PesoMinimoReferenciaMacho")
+                        .HasColumnType("real");
+
+                    b.Property<int?>("Porte")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Referencia")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ClinicaId");
 
                     b.ToTable("Racas");
 
@@ -368,577 +393,1699 @@ namespace backend.Migrations
                         {
                             Id = 1,
                             Especie = 1,
-                            Nome = "Affenpinscher"
+                            Nome = "Airedale Terrier",
+                            PesoMaximoReferenciaFemea = 19f,
+                            PesoMaximoReferenciaMacho = 30f,
+                            PesoMinimoReferenciaFemea = 19f,
+                            PesoMinimoReferenciaMacho = 30f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 2,
                             Especie = 1,
-                            Nome = "Afghan Hound"
+                            Nome = "Akita Inu",
+                            PesoMaximoReferenciaFemea = 34f,
+                            PesoMaximoReferenciaMacho = 46f,
+                            PesoMinimoReferenciaFemea = 34f,
+                            PesoMinimoReferenciaMacho = 46f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 3,
                             Especie = 1,
-                            Nome = "Airedale Terrier"
+                            Nome = "Alaskan Malamute",
+                            PesoMaximoReferenciaFemea = 34f,
+                            PesoMaximoReferenciaMacho = 57f,
+                            PesoMinimoReferenciaFemea = 34f,
+                            PesoMinimoReferenciaMacho = 57f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 4,
                             Especie = 1,
-                            Nome = "Akita"
+                            Nome = "Basenji",
+                            PesoMaximoReferenciaFemea = 10f,
+                            PesoMaximoReferenciaMacho = 11f,
+                            PesoMinimoReferenciaFemea = 10f,
+                            PesoMinimoReferenciaMacho = 11f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 5,
                             Especie = 1,
-                            Nome = "Alaskan Malamute"
+                            Nome = "Basset Hound",
+                            PesoMaximoReferenciaFemea = 18f,
+                            PesoMaximoReferenciaMacho = 27f,
+                            PesoMinimoReferenciaFemea = 18f,
+                            PesoMinimoReferenciaMacho = 27f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 6,
                             Especie = 1,
-                            Nome = "American Staffordshire Terrier"
+                            Nome = "Beagle",
+                            PesoMaximoReferenciaFemea = 12f,
+                            PesoMaximoReferenciaMacho = 14f,
+                            PesoMinimoReferenciaFemea = 12f,
+                            PesoMinimoReferenciaMacho = 14f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 7,
                             Especie = 1,
-                            Nome = "Australian Shepherd"
+                            Nome = "Bearded Collie",
+                            PesoMaximoReferenciaFemea = 18f,
+                            PesoMaximoReferenciaMacho = 27f,
+                            PesoMinimoReferenciaFemea = 18f,
+                            PesoMinimoReferenciaMacho = 27f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 8,
                             Especie = 1,
-                            Nome = "Basset Hound"
+                            Nome = "Beauceron",
+                            PesoMaximoReferenciaFemea = 30f,
+                            PesoMaximoReferenciaMacho = 38f,
+                            PesoMinimoReferenciaFemea = 30f,
+                            PesoMinimoReferenciaMacho = 38f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 9,
                             Especie = 1,
-                            Nome = "Beagle"
+                            Nome = "Bichon Frisé",
+                            PesoMaximoReferenciaFemea = 4.5f,
+                            PesoMaximoReferenciaMacho = 5.5f,
+                            PesoMinimoReferenciaFemea = 4.5f,
+                            PesoMinimoReferenciaMacho = 5.5f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 10,
                             Especie = 1,
-                            Nome = "Bernese Mountain Dog"
+                            Nome = "Bichon Maltês",
+                            PesoMaximoReferenciaFemea = 1.8f,
+                            PesoMaximoReferenciaMacho = 2.7f,
+                            PesoMinimoReferenciaFemea = 1.8f,
+                            PesoMinimoReferenciaMacho = 2.7f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 11,
                             Especie = 1,
-                            Nome = "Bichon Frise"
+                            Nome = "Bloodhound",
+                            PesoMaximoReferenciaFemea = 45.5f,
+                            PesoMaximoReferenciaMacho = 50f,
+                            PesoMinimoReferenciaFemea = 36f,
+                            PesoMinimoReferenciaMacho = 41f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 12,
                             Especie = 1,
-                            Nome = "Border Collie"
+                            Nome = "Bobtail",
+                            PesoMaximoReferenciaFemea = 25f,
+                            PesoMaximoReferenciaMacho = 30f,
+                            PesoMinimoReferenciaFemea = 25f,
+                            PesoMinimoReferenciaMacho = 30f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 13,
                             Especie = 1,
-                            Nome = "Boston Terrier"
+                            Nome = "Boiadeiro de Berna",
+                            PesoMaximoReferenciaFemea = 40f,
+                            PesoMaximoReferenciaMacho = 50f,
+                            PesoMinimoReferenciaFemea = 40f,
+                            PesoMinimoReferenciaMacho = 50f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 14,
                             Especie = 1,
-                            Nome = "Boxer"
+                            Nome = "Boiadeiro de Flandres",
+                            PesoMaximoReferenciaFemea = 35f,
+                            PesoMaximoReferenciaMacho = 40f,
+                            PesoMinimoReferenciaFemea = 27f,
+                            PesoMinimoReferenciaMacho = 35f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 15,
                             Especie = 1,
-                            Nome = "Bulldog"
+                            Nome = "Border Collie",
+                            PesoMaximoReferenciaFemea = 13.5f,
+                            PesoMaximoReferenciaMacho = 20.5f,
+                            PesoMinimoReferenciaFemea = 13.5f,
+                            PesoMinimoReferenciaMacho = 20.5f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 16,
                             Especie = 1,
-                            Nome = "Bull Terrier"
+                            Nome = "Border Terrier",
+                            PesoMaximoReferenciaFemea = 6.4f,
+                            PesoMaximoReferenciaMacho = 6.8f,
+                            PesoMinimoReferenciaFemea = 5f,
+                            PesoMinimoReferenciaMacho = 6.8f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 17,
                             Especie = 1,
-                            Nome = "Cavalier King Charles Spaniel"
+                            Nome = "Boston Terrier",
+                            PesoMaximoReferenciaFemea = 9f,
+                            PesoMaximoReferenciaMacho = 9f,
+                            PesoMinimoReferenciaFemea = 9f,
+                            PesoMinimoReferenciaMacho = 9f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 18,
                             Especie = 1,
-                            Nome = "Chihuahua"
+                            Nome = "Boxer",
+                            PesoMaximoReferenciaFemea = 24f,
+                            PesoMaximoReferenciaMacho = 32f,
+                            PesoMinimoReferenciaFemea = 24f,
+                            PesoMinimoReferenciaMacho = 32f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 19,
                             Especie = 1,
-                            Nome = "Chow Chow"
+                            Nome = "Braco Francês",
+                            PesoMaximoReferenciaFemea = 22.7f,
+                            PesoMaximoReferenciaMacho = 27f,
+                            PesoMinimoReferenciaFemea = 22.7f,
+                            PesoMinimoReferenciaMacho = 27f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 20,
                             Especie = 1,
-                            Nome = "Cocker Spaniel"
+                            Nome = "Braco Húngaro / Vizsla",
+                            PesoMaximoReferenciaFemea = 20f,
+                            PesoMaximoReferenciaMacho = 30f,
+                            PesoMinimoReferenciaFemea = 20f,
+                            PesoMinimoReferenciaMacho = 30f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 21,
                             Especie = 1,
-                            Nome = "Collie"
+                            Nome = "Braco de Saint Germain",
+                            PesoMaximoReferenciaFemea = 18f,
+                            PesoMaximoReferenciaMacho = 26f,
+                            PesoMinimoReferenciaFemea = 18f,
+                            PesoMinimoReferenciaMacho = 26f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 22,
                             Especie = 1,
-                            Nome = "Dachshund"
+                            Nome = "Bull Terrier",
+                            PesoMaximoReferenciaFemea = 23.5f,
+                            PesoMaximoReferenciaMacho = 28f,
+                            PesoMinimoReferenciaFemea = 23.5f,
+                            PesoMinimoReferenciaMacho = 28f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 23,
                             Especie = 1,
-                            Nome = "Dalmatian"
+                            Nome = "Bull Terrier Miniatura",
+                            PesoMaximoReferenciaFemea = 4.5f,
+                            PesoMaximoReferenciaMacho = 18f,
+                            PesoMinimoReferenciaFemea = 4.5f,
+                            PesoMinimoReferenciaMacho = 18f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 24,
                             Especie = 1,
-                            Nome = "Doberman Pinscher"
+                            Nome = "Bulldog",
+                            PesoMaximoReferenciaFemea = 23f,
+                            PesoMaximoReferenciaMacho = 25f,
+                            PesoMinimoReferenciaFemea = 18f,
+                            PesoMinimoReferenciaMacho = 23f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 25,
                             Especie = 1,
-                            Nome = "English Springer Spaniel"
+                            Nome = "Bulldog Francês",
+                            PesoMaximoReferenciaFemea = 8f,
+                            PesoMaximoReferenciaMacho = 13f,
+                            PesoMinimoReferenciaFemea = 8f,
+                            PesoMinimoReferenciaMacho = 13f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 26,
                             Especie = 1,
-                            Nome = "French Bulldog"
+                            Nome = "Bullmastiff",
+                            PesoMaximoReferenciaFemea = 54f,
+                            PesoMaximoReferenciaMacho = 65f,
+                            PesoMinimoReferenciaFemea = 54f,
+                            PesoMinimoReferenciaMacho = 65f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 27,
                             Especie = 1,
-                            Nome = "German Shepherd"
+                            Nome = "Cairn Terrier",
+                            PesoMaximoReferenciaFemea = 6f,
+                            PesoMaximoReferenciaMacho = 7.5f,
+                            PesoMinimoReferenciaFemea = 6f,
+                            PesoMinimoReferenciaMacho = 7.5f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 28,
                             Especie = 1,
-                            Nome = "Golden Retriever"
+                            Nome = "Carlino",
+                            PesoMaximoReferenciaFemea = 6.5f,
+                            PesoMaximoReferenciaMacho = 8f,
+                            PesoMinimoReferenciaFemea = 6.5f,
+                            PesoMinimoReferenciaMacho = 8f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 29,
                             Especie = 1,
-                            Nome = "Great Dane"
+                            Nome = "Cavalier King Charles Spaniel",
+                            PesoMaximoReferenciaFemea = 5f,
+                            PesoMaximoReferenciaMacho = 8f,
+                            PesoMinimoReferenciaFemea = 5f,
+                            PesoMinimoReferenciaMacho = 8f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 30,
                             Especie = 1,
-                            Nome = "Irish Setter"
+                            Nome = "Chesapeake Bay Retriever",
+                            PesoMaximoReferenciaFemea = 32f,
+                            PesoMaximoReferenciaMacho = 36f,
+                            PesoMinimoReferenciaFemea = 25f,
+                            PesoMinimoReferenciaMacho = 29.5f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 31,
                             Especie = 1,
-                            Nome = "Jack Russell Terrier"
+                            Nome = "Chihuahua",
+                            PesoMaximoReferenciaFemea = 2.7f,
+                            PesoMaximoReferenciaMacho = 2.7f,
+                            PesoMinimoReferenciaFemea = 1.8f,
+                            PesoMinimoReferenciaMacho = 1.8f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 32,
                             Especie = 1,
-                            Nome = "Labrador Retriever"
+                            Nome = "Chow Chow",
+                            PesoMaximoReferenciaFemea = 20f,
+                            PesoMaximoReferenciaMacho = 30f,
+                            PesoMinimoReferenciaFemea = 20f,
+                            PesoMinimoReferenciaMacho = 30f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 33,
                             Especie = 1,
-                            Nome = "Lhasa Apso"
+                            Nome = "Clumber Spaniel",
+                            PesoMaximoReferenciaFemea = 32f,
+                            PesoMaximoReferenciaMacho = 38f,
+                            PesoMinimoReferenciaFemea = 25f,
+                            PesoMinimoReferenciaMacho = 32f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 34,
                             Especie = 1,
-                            Nome = "Maltese"
+                            Nome = "Cocker Spaniel Americano",
+                            PesoMaximoReferenciaFemea = 11f,
+                            PesoMaximoReferenciaMacho = 12.5f,
+                            PesoMinimoReferenciaFemea = 11f,
+                            PesoMinimoReferenciaMacho = 12.5f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 35,
                             Especie = 1,
-                            Nome = "Mastiff"
+                            Nome = "Cocker Spaniel Inglês",
+                            PesoMaximoReferenciaFemea = 14.5f,
+                            PesoMaximoReferenciaMacho = 15.5f,
+                            PesoMinimoReferenciaFemea = 12f,
+                            PesoMinimoReferenciaMacho = 12.5f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 36,
                             Especie = 1,
-                            Nome = "Miniature Schnauzer"
+                            Nome = "Collie",
+                            PesoMaximoReferenciaFemea = 30f,
+                            PesoMaximoReferenciaMacho = 34f,
+                            PesoMinimoReferenciaFemea = 20f,
+                            PesoMinimoReferenciaMacho = 25f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 37,
                             Especie = 1,
-                            Nome = "Newfoundland"
+                            Nome = "Coton de Tulear",
+                            PesoMaximoReferenciaFemea = 5f,
+                            PesoMaximoReferenciaMacho = 6.8f,
+                            PesoMinimoReferenciaFemea = 5f,
+                            PesoMinimoReferenciaMacho = 6.8f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 38,
                             Especie = 1,
-                            Nome = "Pomeranian"
+                            Nome = "Cão da Montanha dos Pirineus",
+                            PesoMaximoReferenciaFemea = 45f,
+                            PesoMaximoReferenciaMacho = 55f,
+                            PesoMinimoReferenciaFemea = 38.5f,
+                            PesoMinimoReferenciaMacho = 45.5f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 39,
                             Especie = 1,
-                            Nome = "Poodle"
+                            Nome = "Cão de Água Americano",
+                            PesoMaximoReferenciaFemea = 18f,
+                            PesoMaximoReferenciaMacho = 20.5f,
+                            PesoMinimoReferenciaFemea = 11f,
+                            PesoMinimoReferenciaMacho = 13.5f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 40,
                             Especie = 1,
-                            Nome = "Pug"
+                            Nome = "Cão de Água Português",
+                            PesoMaximoReferenciaFemea = 23f,
+                            PesoMaximoReferenciaMacho = 27f,
+                            PesoMinimoReferenciaFemea = 16f,
+                            PesoMinimoReferenciaMacho = 19f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 41,
                             Especie = 1,
-                            Nome = "Rottweiler"
+                            Nome = "Dachshund Miniatura",
+                            PesoMaximoReferenciaFemea = 4.5f,
+                            PesoMaximoReferenciaMacho = 4.5f,
+                            PesoMinimoReferenciaFemea = 4.5f,
+                            PesoMinimoReferenciaMacho = 4.5f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 42,
                             Especie = 1,
-                            Nome = "Saint Bernard"
+                            Nome = "Dandie Dinmont Terrier",
+                            PesoMaximoReferenciaFemea = 8f,
+                            PesoMaximoReferenciaMacho = 11f,
+                            PesoMinimoReferenciaFemea = 8f,
+                            PesoMinimoReferenciaMacho = 11f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 43,
                             Especie = 1,
-                            Nome = "Samoyed"
+                            Nome = "Doberman",
+                            PesoMaximoReferenciaFemea = 29f,
+                            PesoMaximoReferenciaMacho = 39f,
+                            PesoMinimoReferenciaFemea = 29f,
+                            PesoMinimoReferenciaMacho = 39f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 44,
                             Especie = 1,
-                            Nome = "Scottish Terrier"
+                            Nome = "Dogue de Bordéus",
+                            PesoMaximoReferenciaFemea = 54f,
+                            PesoMaximoReferenciaMacho = 65f,
+                            PesoMinimoReferenciaFemea = 54f,
+                            PesoMinimoReferenciaMacho = 65f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 45,
                             Especie = 1,
-                            Nome = "Shetland Sheepdog"
+                            Nome = "Dogue de Bordéus (grande)",
+                            PesoMaximoReferenciaFemea = 60f,
+                            PesoMaximoReferenciaMacho = 65f,
+                            PesoMinimoReferenciaFemea = 45f,
+                            PesoMinimoReferenciaMacho = 45f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 46,
                             Especie = 1,
-                            Nome = "Shiba Inu"
+                            Nome = "Dogue de Bordéus (médio)",
+                            PesoMaximoReferenciaFemea = 40f,
+                            PesoMaximoReferenciaMacho = 45f,
+                            PesoMinimoReferenciaFemea = 35f,
+                            PesoMinimoReferenciaMacho = 38f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 47,
                             Especie = 1,
-                            Nome = "Shih Tzu"
+                            Nome = "Dálmata",
+                            PesoMaximoReferenciaFemea = 22.7f,
+                            PesoMaximoReferenciaMacho = 27f,
+                            PesoMinimoReferenciaFemea = 22.7f,
+                            PesoMinimoReferenciaMacho = 27f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 48,
                             Especie = 1,
-                            Nome = "Siberian Husky"
+                            Nome = "Epagneul Breton",
+                            PesoMaximoReferenciaFemea = 13.5f,
+                            PesoMaximoReferenciaMacho = 18f,
+                            PesoMinimoReferenciaFemea = 13.5f,
+                            PesoMinimoReferenciaMacho = 18f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 49,
                             Especie = 1,
-                            Nome = "Weimaraner"
+                            Nome = "Fila Brasileiro",
+                            PesoMaximoReferenciaFemea = 40.5f,
+                            PesoMaximoReferenciaMacho = 45f,
+                            PesoMinimoReferenciaFemea = 40.5f,
+                            PesoMinimoReferenciaMacho = 45f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 50,
                             Especie = 1,
-                            Nome = "Welsh Corgi (Cardigan)"
+                            Nome = "Fox Terrier",
+                            PesoMaximoReferenciaFemea = 7.7f,
+                            PesoMaximoReferenciaMacho = 8.2f,
+                            PesoMinimoReferenciaFemea = 6.8f,
+                            PesoMinimoReferenciaMacho = 7f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 51,
                             Especie = 1,
-                            Nome = "Welsh Corgi (Pembroke)"
+                            Nome = "Foxhound Inglês",
+                            PesoMaximoReferenciaFemea = 29.5f,
+                            PesoMaximoReferenciaMacho = 32f,
+                            PesoMinimoReferenciaFemea = 29.5f,
+                            PesoMinimoReferenciaMacho = 32f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 52,
                             Especie = 1,
-                            Nome = "West Highland White Terrier"
+                            Nome = "Galgo Afegão",
+                            PesoMaximoReferenciaFemea = 23f,
+                            PesoMaximoReferenciaMacho = 27f,
+                            PesoMinimoReferenciaFemea = 23f,
+                            PesoMinimoReferenciaMacho = 27f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 53,
                             Especie = 1,
-                            Nome = "Whippet"
+                            Nome = "Galgo Espanhol",
+                            PesoMaximoReferenciaFemea = 27f,
+                            PesoMaximoReferenciaMacho = 27f,
+                            PesoMinimoReferenciaFemea = 27f,
+                            PesoMinimoReferenciaMacho = 27f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 54,
                             Especie = 1,
-                            Nome = "Yorkshire Terrier"
+                            Nome = "Galgo Inglês",
+                            PesoMaximoReferenciaFemea = 29.5f,
+                            PesoMaximoReferenciaMacho = 32f,
+                            PesoMinimoReferenciaFemea = 27f,
+                            PesoMinimoReferenciaMacho = 29.5f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 55,
                             Especie = 1,
-                            Nome = "Sem Raça Definida (SRD)"
+                            Nome = "Galgo Russo (Borzoi)",
+                            PesoMaximoReferenciaFemea = 40f,
+                            PesoMaximoReferenciaMacho = 48f,
+                            PesoMinimoReferenciaFemea = 35f,
+                            PesoMinimoReferenciaMacho = 34f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 56,
+                            Especie = 1,
+                            Nome = "Golden Retriever",
+                            PesoMaximoReferenciaFemea = 29.5f,
+                            PesoMaximoReferenciaMacho = 34f,
+                            PesoMinimoReferenciaFemea = 25f,
+                            PesoMinimoReferenciaMacho = 29.5f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 57,
+                            Especie = 1,
+                            Nome = "Gordon Setter",
+                            PesoMaximoReferenciaFemea = 32f,
+                            PesoMaximoReferenciaMacho = 36f,
+                            PesoMinimoReferenciaFemea = 20.5f,
+                            PesoMinimoReferenciaMacho = 25f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 58,
+                            Especie = 1,
+                            Nome = "Grand Danois",
+                            PesoMaximoReferenciaFemea = 55f,
+                            PesoMaximoReferenciaMacho = 80f,
+                            PesoMinimoReferenciaFemea = 55f,
+                            PesoMinimoReferenciaMacho = 80f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 59,
+                            Especie = 1,
+                            Nome = "Griffon Vendeen",
+                            PesoMaximoReferenciaFemea = 11.5f,
+                            PesoMaximoReferenciaMacho = 16f,
+                            PesoMinimoReferenciaFemea = 11.5f,
+                            PesoMinimoReferenciaMacho = 16f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 60,
+                            Especie = 1,
+                            Nome = "Griffon de Bruxelas",
+                            PesoMaximoReferenciaFemea = 2.2f,
+                            PesoMaximoReferenciaMacho = 5.5f,
+                            PesoMinimoReferenciaFemea = 2.2f,
+                            PesoMinimoReferenciaMacho = 5.5f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 61,
+                            Especie = 1,
+                            Nome = "Griffon de Pêlo Duro",
+                            PesoMaximoReferenciaFemea = 23f,
+                            PesoMaximoReferenciaMacho = 27f,
+                            PesoMinimoReferenciaFemea = 23f,
+                            PesoMinimoReferenciaMacho = 27f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 62,
+                            Especie = 1,
+                            Nome = "Husky Siberiano",
+                            PesoMaximoReferenciaFemea = 22.5f,
+                            PesoMaximoReferenciaMacho = 27f,
+                            PesoMinimoReferenciaFemea = 16f,
+                            PesoMinimoReferenciaMacho = 20f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 63,
+                            Especie = 1,
+                            Nome = "Komondor",
+                            PesoMaximoReferenciaFemea = 50f,
+                            PesoMaximoReferenciaMacho = 68f,
+                            PesoMinimoReferenciaFemea = 36f,
+                            PesoMinimoReferenciaMacho = 45f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 64,
+                            Especie = 1,
+                            Nome = "Kuvasz",
+                            PesoMaximoReferenciaFemea = 41f,
+                            PesoMaximoReferenciaMacho = 52f,
+                            PesoMinimoReferenciaFemea = 32f,
+                            PesoMinimoReferenciaMacho = 45f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 65,
+                            Especie = 1,
+                            Nome = "Labrador Retriever",
+                            PesoMaximoReferenciaFemea = 32f,
+                            PesoMaximoReferenciaMacho = 36f,
+                            PesoMinimoReferenciaFemea = 25f,
+                            PesoMinimoReferenciaMacho = 29.5f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 66,
+                            Especie = 1,
+                            Nome = "Leonberger",
+                            PesoMaximoReferenciaFemea = 36.3f,
+                            PesoMaximoReferenciaMacho = 68f,
+                            PesoMinimoReferenciaFemea = 36.3f,
+                            PesoMinimoReferenciaMacho = 68f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 67,
+                            Especie = 1,
+                            Nome = "Lhasa Apso",
+                            PesoMaximoReferenciaFemea = 6.4f,
+                            PesoMaximoReferenciaMacho = 8f,
+                            PesoMinimoReferenciaFemea = 6.4f,
+                            PesoMinimoReferenciaMacho = 8f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 68,
+                            Especie = 1,
+                            Nome = "Lulu da Pomerânia (Spitz anão)",
+                            PesoMaximoReferenciaFemea = 1.5f,
+                            PesoMaximoReferenciaMacho = 3.2f,
+                            PesoMinimoReferenciaFemea = 1.5f,
+                            PesoMinimoReferenciaMacho = 3.2f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 69,
+                            Especie = 1,
+                            Nome = "Mastim Espanhol",
+                            PesoMaximoReferenciaFemea = 50f,
+                            PesoMaximoReferenciaMacho = 60f,
+                            PesoMinimoReferenciaFemea = 50f,
+                            PesoMinimoReferenciaMacho = 60f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 70,
+                            Especie = 1,
+                            Nome = "Mastim Inglês",
+                            PesoMaximoReferenciaFemea = 75f,
+                            PesoMaximoReferenciaMacho = 90f,
+                            PesoMinimoReferenciaFemea = 75f,
+                            PesoMinimoReferenciaMacho = 90f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 71,
+                            Especie = 1,
+                            Nome = "Mastim Napolitano",
+                            PesoMaximoReferenciaFemea = 50f,
+                            PesoMaximoReferenciaMacho = 70f,
+                            PesoMinimoReferenciaFemea = 50f,
+                            PesoMinimoReferenciaMacho = 70f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 72,
+                            Especie = 1,
+                            Nome = "Mastim dos Pirineus",
+                            PesoMaximoReferenciaFemea = 55f,
+                            PesoMaximoReferenciaMacho = 70f,
+                            PesoMinimoReferenciaFemea = 55f,
+                            PesoMinimoReferenciaMacho = 70f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 73,
+                            Especie = 1,
+                            Nome = "Pastor Alemão",
+                            PesoMaximoReferenciaFemea = 32f,
+                            PesoMaximoReferenciaMacho = 43f,
+                            PesoMinimoReferenciaFemea = 32f,
+                            PesoMinimoReferenciaMacho = 43f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 74,
+                            Especie = 1,
+                            Nome = "Pastor Belga",
+                            PesoMaximoReferenciaFemea = 28f,
+                            PesoMaximoReferenciaMacho = 30f,
+                            PesoMinimoReferenciaFemea = 28f,
+                            PesoMinimoReferenciaMacho = 30f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 75,
+                            Especie = 1,
+                            Nome = "Pastor Catalão",
+                            PesoMaximoReferenciaFemea = 30f,
+                            PesoMaximoReferenciaMacho = 40f,
+                            PesoMinimoReferenciaFemea = 20f,
+                            PesoMinimoReferenciaMacho = 30f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 76,
+                            Especie = 1,
+                            Nome = "Pastor de Bergamasco",
+                            PesoMaximoReferenciaFemea = 32f,
+                            PesoMaximoReferenciaMacho = 38f,
+                            PesoMinimoReferenciaFemea = 26f,
+                            PesoMinimoReferenciaMacho = 32f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 77,
+                            Especie = 1,
+                            Nome = "Pastor de Brie",
+                            PesoMaximoReferenciaFemea = 34f,
+                            PesoMaximoReferenciaMacho = 34f,
+                            PesoMinimoReferenciaFemea = 34f,
+                            PesoMinimoReferenciaMacho = 34f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 78,
+                            Especie = 1,
+                            Nome = "Pequinois",
+                            PesoMaximoReferenciaFemea = 4f,
+                            PesoMaximoReferenciaMacho = 6.5f,
+                            PesoMinimoReferenciaFemea = 4f,
+                            PesoMinimoReferenciaMacho = 3.6f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 79,
+                            Especie = 1,
+                            Nome = "Perdigueiro Alemão",
+                            PesoMaximoReferenciaFemea = 20f,
+                            PesoMaximoReferenciaMacho = 30f,
+                            PesoMinimoReferenciaFemea = 20f,
+                            PesoMinimoReferenciaMacho = 30f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 80,
+                            Especie = 1,
+                            Nome = "Pinscher",
+                            PesoMaximoReferenciaFemea = 4f,
+                            PesoMaximoReferenciaMacho = 5f,
+                            PesoMinimoReferenciaFemea = 4f,
+                            PesoMinimoReferenciaMacho = 5f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 81,
+                            Especie = 1,
+                            Nome = "Pinscher Miniatura",
+                            PesoMaximoReferenciaFemea = 4.5f,
+                            PesoMaximoReferenciaMacho = 4.5f,
+                            PesoMinimoReferenciaFemea = 4.5f,
+                            PesoMinimoReferenciaMacho = 4.5f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 82,
+                            Especie = 1,
+                            Nome = "Podengo Ibérico",
+                            PesoMaximoReferenciaFemea = 20.5f,
+                            PesoMaximoReferenciaMacho = 23f,
+                            PesoMinimoReferenciaFemea = 20.5f,
+                            PesoMinimoReferenciaMacho = 23f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 83,
+                            Especie = 1,
+                            Nome = "Pointer",
+                            PesoMaximoReferenciaFemea = 29.5f,
+                            PesoMaximoReferenciaMacho = 32f,
+                            PesoMinimoReferenciaFemea = 20f,
+                            PesoMinimoReferenciaMacho = 25f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 84,
+                            Especie = 1,
+                            Nome = "Ponteiro Alemão",
+                            PesoMaximoReferenciaFemea = 27f,
+                            PesoMaximoReferenciaMacho = 32f,
+                            PesoMinimoReferenciaFemea = 20.5f,
+                            PesoMinimoReferenciaMacho = 25f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 85,
+                            Especie = 1,
+                            Nome = "Poodle Miniatura",
+                            PesoMaximoReferenciaFemea = 5f,
+                            PesoMaximoReferenciaMacho = 5f,
+                            PesoMinimoReferenciaFemea = 5f,
+                            PesoMinimoReferenciaMacho = 5f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 86,
+                            Especie = 1,
+                            Nome = "Puli",
+                            PesoMaximoReferenciaFemea = 14f,
+                            PesoMaximoReferenciaMacho = 15f,
+                            PesoMinimoReferenciaFemea = 14f,
+                            PesoMinimoReferenciaMacho = 13f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 87,
+                            Especie = 1,
+                            Nome = "Rafeiro Alentejano",
+                            PesoMaximoReferenciaFemea = 45f,
+                            PesoMaximoReferenciaMacho = 45f,
+                            PesoMinimoReferenciaFemea = 35.5f,
+                            PesoMinimoReferenciaMacho = 40f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 88,
+                            Especie = 1,
+                            Nome = "Retrivier de Pêlo Liso",
+                            PesoMaximoReferenciaFemea = 34f,
+                            PesoMaximoReferenciaMacho = 36f,
+                            PesoMinimoReferenciaFemea = 25f,
+                            PesoMinimoReferenciaMacho = 25f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 89,
+                            Especie = 1,
+                            Nome = "Rottweiler",
+                            PesoMaximoReferenciaFemea = 40f,
+                            PesoMaximoReferenciaMacho = 50f,
+                            PesoMinimoReferenciaFemea = 40f,
+                            PesoMinimoReferenciaMacho = 50f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 90,
+                            Especie = 1,
+                            Nome = "Saluki",
+                            PesoMaximoReferenciaFemea = 13f,
+                            PesoMaximoReferenciaMacho = 30f,
+                            PesoMinimoReferenciaFemea = 13f,
+                            PesoMinimoReferenciaMacho = 30f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 91,
+                            Especie = 1,
+                            Nome = "Samoyedo",
+                            PesoMaximoReferenciaFemea = 25f,
+                            PesoMaximoReferenciaMacho = 30f,
+                            PesoMinimoReferenciaFemea = 17f,
+                            PesoMinimoReferenciaMacho = 20f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 92,
+                            Especie = 1,
+                            Nome = "Schnauzer Gigante",
+                            PesoMaximoReferenciaFemea = 30f,
+                            PesoMaximoReferenciaMacho = 35f,
+                            PesoMinimoReferenciaFemea = 30f,
+                            PesoMinimoReferenciaMacho = 35f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 93,
+                            Especie = 1,
+                            Nome = "Schnauzer Miniatura",
+                            PesoMaximoReferenciaFemea = 5.5f,
+                            PesoMaximoReferenciaMacho = 7f,
+                            PesoMinimoReferenciaFemea = 5.5f,
+                            PesoMinimoReferenciaMacho = 7f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 94,
+                            Especie = 1,
+                            Nome = "Schnauzer Médio",
+                            PesoMaximoReferenciaFemea = 15f,
+                            PesoMaximoReferenciaMacho = 18f,
+                            PesoMinimoReferenciaFemea = 15f,
+                            PesoMinimoReferenciaMacho = 18f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 95,
+                            Especie = 1,
+                            Nome = "Scottish Terrier",
+                            PesoMaximoReferenciaFemea = 9.5f,
+                            PesoMaximoReferenciaMacho = 10f,
+                            PesoMinimoReferenciaFemea = 8f,
+                            PesoMinimoReferenciaMacho = 8.5f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 96,
+                            Especie = 1,
+                            Nome = "Setter Inglês",
+                            PesoMaximoReferenciaFemea = 18f,
+                            PesoMaximoReferenciaMacho = 25f,
+                            PesoMinimoReferenciaFemea = 18f,
+                            PesoMinimoReferenciaMacho = 25f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 97,
+                            Especie = 1,
+                            Nome = "Setter Irlandês",
+                            PesoMaximoReferenciaFemea = 27.2f,
+                            PesoMaximoReferenciaMacho = 31.7f,
+                            PesoMinimoReferenciaFemea = 27.2f,
+                            PesoMinimoReferenciaMacho = 31.7f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 98,
+                            Especie = 1,
+                            Nome = "Shar-Pei",
+                            PesoMaximoReferenciaFemea = 18f,
+                            PesoMaximoReferenciaMacho = 25f,
+                            PesoMinimoReferenciaFemea = 18f,
+                            PesoMinimoReferenciaMacho = 25f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 99,
+                            Especie = 1,
+                            Nome = "Shih Tzu",
+                            PesoMaximoReferenciaFemea = 4f,
+                            PesoMaximoReferenciaMacho = 8f,
+                            PesoMinimoReferenciaFemea = 4f,
+                            PesoMinimoReferenciaMacho = 8f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
+                        },
+                        new
+                        {
+                            Id = 100,
+                            Especie = 1,
+                            Nome = "Silky Terrier Australiano",
+                            PesoMaximoReferenciaFemea = 3.6f,
+                            PesoMaximoReferenciaMacho = 4.5f,
+                            PesoMinimoReferenciaFemea = 3.6f,
+                            PesoMinimoReferenciaMacho = 4.5f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 101,
-                            Especie = 2,
-                            Nome = "Abyssinian"
+                            Especie = 1,
+                            Nome = "Skye Terrier",
+                            PesoMaximoReferenciaFemea = 11.5f,
+                            PesoMaximoReferenciaMacho = 11.5f,
+                            PesoMinimoReferenciaFemea = 11.5f,
+                            PesoMinimoReferenciaMacho = 11.5f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 102,
-                            Especie = 2,
-                            Nome = "American Bobtail"
+                            Especie = 1,
+                            Nome = "Spitz Alemão",
+                            PesoMaximoReferenciaFemea = 11.3f,
+                            PesoMaximoReferenciaMacho = 11.3f,
+                            PesoMinimoReferenciaFemea = 11.3f,
+                            PesoMinimoReferenciaMacho = 11.3f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 103,
-                            Especie = 2,
-                            Nome = "American Curl"
+                            Especie = 1,
+                            Nome = "Spitz Finlandês",
+                            PesoMaximoReferenciaFemea = 11.3f,
+                            PesoMaximoReferenciaMacho = 16f,
+                            PesoMinimoReferenciaFemea = 11.3f,
+                            PesoMinimoReferenciaMacho = 16f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 104,
-                            Especie = 2,
-                            Nome = "American Shorthair"
+                            Especie = 1,
+                            Nome = "Springer Spaniel Galês",
+                            PesoMaximoReferenciaFemea = 16f,
+                            PesoMaximoReferenciaMacho = 20f,
+                            PesoMinimoReferenciaFemea = 16f,
+                            PesoMinimoReferenciaMacho = 20f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 105,
-                            Especie = 2,
-                            Nome = "American Wirehair"
+                            Especie = 1,
+                            Nome = "Springer Spaniel Inglês",
+                            PesoMaximoReferenciaFemea = 18f,
+                            PesoMaximoReferenciaMacho = 22.5f,
+                            PesoMinimoReferenciaFemea = 18f,
+                            PesoMinimoReferenciaMacho = 22.5f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 106,
-                            Especie = 2,
-                            Nome = "Balinese"
+                            Especie = 1,
+                            Nome = "Staffordshire Bull Terrier",
+                            PesoMaximoReferenciaFemea = 15f,
+                            PesoMaximoReferenciaMacho = 17f,
+                            PesoMinimoReferenciaFemea = 11f,
+                            PesoMinimoReferenciaMacho = 13f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 107,
-                            Especie = 2,
-                            Nome = "Bengal"
+                            Especie = 1,
+                            Nome = "Sussex Spaniel",
+                            PesoMaximoReferenciaFemea = 16f,
+                            PesoMaximoReferenciaMacho = 18f,
+                            PesoMinimoReferenciaFemea = 16f,
+                            PesoMinimoReferenciaMacho = 18f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 108,
-                            Especie = 2,
-                            Nome = "Birman"
+                            Especie = 1,
+                            Nome = "São Bernardo",
+                            PesoMaximoReferenciaFemea = 50f,
+                            PesoMaximoReferenciaMacho = 90f,
+                            PesoMinimoReferenciaFemea = 50f,
+                            PesoMinimoReferenciaMacho = 90f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 109,
-                            Especie = 2,
-                            Nome = "Bombay"
+                            Especie = 1,
+                            Nome = "Terranova",
+                            PesoMaximoReferenciaFemea = 55f,
+                            PesoMaximoReferenciaMacho = 69f,
+                            PesoMinimoReferenciaFemea = 50f,
+                            PesoMinimoReferenciaMacho = 60f,
+                            Porte = 3,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 110,
-                            Especie = 2,
-                            Nome = "British Shorthair"
+                            Especie = 1,
+                            Nome = "Terrier Australiano",
+                            PesoMaximoReferenciaFemea = 6.5f,
+                            PesoMaximoReferenciaMacho = 6.5f,
+                            PesoMinimoReferenciaFemea = 6.5f,
+                            PesoMinimoReferenciaMacho = 6.5f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 111,
-                            Especie = 2,
-                            Nome = "Burmese"
+                            Especie = 1,
+                            Nome = "Terrier Galês",
+                            PesoMaximoReferenciaFemea = 9f,
+                            PesoMaximoReferenciaMacho = 9.5f,
+                            PesoMinimoReferenciaFemea = 9f,
+                            PesoMinimoReferenciaMacho = 9.5f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 112,
-                            Especie = 2,
-                            Nome = "Chartreux"
+                            Especie = 1,
+                            Nome = "Terrier Irlandês",
+                            PesoMaximoReferenciaFemea = 11f,
+                            PesoMaximoReferenciaMacho = 12f,
+                            PesoMinimoReferenciaFemea = 11f,
+                            PesoMinimoReferenciaMacho = 12f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 113,
-                            Especie = 2,
-                            Nome = "Cornish Rex"
+                            Especie = 1,
+                            Nome = "Toy Spaniel Inglês",
+                            PesoMaximoReferenciaFemea = 3.5f,
+                            PesoMaximoReferenciaMacho = 6.5f,
+                            PesoMinimoReferenciaFemea = 3.5f,
+                            PesoMinimoReferenciaMacho = 6.5f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 114,
-                            Especie = 2,
-                            Nome = "Devon Rex"
+                            Especie = 1,
+                            Nome = "Welsh Corgi Cardigan",
+                            PesoMaximoReferenciaFemea = 15.5f,
+                            PesoMaximoReferenciaMacho = 15.5f,
+                            PesoMinimoReferenciaFemea = 11.4f,
+                            PesoMinimoReferenciaMacho = 13.6f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 115,
-                            Especie = 2,
-                            Nome = "Egyptian Mau"
+                            Especie = 1,
+                            Nome = "West Highland White Terrier",
+                            PesoMaximoReferenciaFemea = 7f,
+                            PesoMaximoReferenciaMacho = 10f,
+                            PesoMinimoReferenciaFemea = 7f,
+                            PesoMinimoReferenciaMacho = 10f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 116,
-                            Especie = 2,
-                            Nome = "Exotic Shorthair"
+                            Especie = 1,
+                            Nome = "Whippet",
+                            PesoMaximoReferenciaFemea = 13f,
+                            PesoMaximoReferenciaMacho = 13f,
+                            PesoMinimoReferenciaFemea = 13f,
+                            PesoMinimoReferenciaMacho = 13f,
+                            Porte = 2,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 117,
-                            Especie = 2,
-                            Nome = "Havana Brown"
+                            Especie = 1,
+                            Nome = "Yorkshire Terrier",
+                            PesoMaximoReferenciaFemea = 3.5f,
+                            PesoMaximoReferenciaMacho = 3.5f,
+                            PesoMinimoReferenciaFemea = 3.5f,
+                            PesoMinimoReferenciaMacho = 3.5f,
+                            Porte = 1,
+                            Referencia = "Mark Morris Institute"
                         },
                         new
                         {
                             Id = 118,
-                            Especie = 2,
-                            Nome = "Himalayan"
+                            Especie = 1,
+                            Nome = "Sem Raça Definida (SRD)",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 119,
                             Especie = 2,
-                            Nome = "Japanese Bobtail"
+                            Nome = "Abyssinian",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 120,
                             Especie = 2,
-                            Nome = "Korat"
+                            Nome = "American Bobtail",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 121,
                             Especie = 2,
-                            Nome = "LaPerm"
+                            Nome = "American Curl",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 122,
                             Especie = 2,
-                            Nome = "Maine Coon"
+                            Nome = "American Shorthair",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 123,
                             Especie = 2,
-                            Nome = "Manx"
+                            Nome = "American Wirehair",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 124,
                             Especie = 2,
-                            Nome = "Norwegian Forest Cat"
+                            Nome = "Balinese",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 125,
                             Especie = 2,
-                            Nome = "Ocicat"
+                            Nome = "Bengal",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 126,
                             Especie = 2,
-                            Nome = "Oriental"
+                            Nome = "Birman",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 127,
                             Especie = 2,
-                            Nome = "Persian"
+                            Nome = "Bombay",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 128,
                             Especie = 2,
-                            Nome = "Ragamuffin"
+                            Nome = "British Shorthair",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 129,
                             Especie = 2,
-                            Nome = "Ragdoll"
+                            Nome = "Burmese",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 130,
                             Especie = 2,
-                            Nome = "Russian Blue"
+                            Nome = "Chartreux",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 131,
                             Especie = 2,
-                            Nome = "Scottish Fold"
+                            Nome = "Cornish Rex",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 132,
                             Especie = 2,
-                            Nome = "Selkirk Rex"
+                            Nome = "Devon Rex",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 133,
                             Especie = 2,
-                            Nome = "Siamese"
+                            Nome = "Egyptian Mau",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 134,
                             Especie = 2,
-                            Nome = "Siberian"
+                            Nome = "Exotic Shorthair",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 135,
                             Especie = 2,
-                            Nome = "Singapura"
+                            Nome = "Havana Brown",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 136,
                             Especie = 2,
-                            Nome = "Somali"
+                            Nome = "Himalayan",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 137,
                             Especie = 2,
-                            Nome = "Sphynx"
+                            Nome = "Japanese Bobtail",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 138,
                             Especie = 2,
-                            Nome = "Tonkinese"
+                            Nome = "Korat",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 139,
                             Especie = 2,
-                            Nome = "Turkish Angora"
+                            Nome = "LaPerm",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 140,
                             Especie = 2,
-                            Nome = "Turkish Van"
+                            Nome = "Maine Coon",
+                            Referencia = ""
                         },
                         new
                         {
                             Id = 141,
                             Especie = 2,
-                            Nome = "Sem Raça Definida (SRD)"
+                            Nome = "Manx",
+                            Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 142,
+                            Especie = 2,
+                            Nome = "Norwegian Forest Cat",
+                            Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 143,
+                            Especie = 2,
+                            Nome = "Ocicat",
+                            Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 144,
+                            Especie = 2,
+                            Nome = "Oriental",
+                            Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 145,
+                            Especie = 2,
+                            Nome = "Persian",
+                            Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 146,
+                            Especie = 2,
+                            Nome = "Ragamuffin",
+                            Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 147,
+                            Especie = 2,
+                            Nome = "Ragdoll",
+                            Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 148,
+                            Especie = 2,
+                            Nome = "Russian Blue",
+                            Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 149,
+                            Especie = 2,
+                            Nome = "Scottish Fold",
+                            Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 150,
+                            Especie = 2,
+                            Nome = "Selkirk Rex",
+                            Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 151,
+                            Especie = 2,
+                            Nome = "Sem Raça Definida (SRD)",
+                            Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 152,
+                            Especie = 2,
+                            Nome = "Siamese",
+                            Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 153,
+                            Especie = 2,
+                            Nome = "Siberian",
+                            Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 154,
+                            Especie = 2,
+                            Nome = "Singapura",
+                            Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 155,
+                            Especie = 2,
+                            Nome = "Somali",
+                            Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 156,
+                            Especie = 2,
+                            Nome = "Sphynx",
+                            Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 157,
+                            Especie = 2,
+                            Nome = "Tonkinese",
+                            Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 158,
+                            Especie = 2,
+                            Nome = "Turkish Angora",
+                            Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 159,
+                            Especie = 2,
+                            Nome = "Turkish Van",
+                            Referencia = ""
                         });
                 });
 
@@ -1006,9 +2153,18 @@ namespace backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Bairro")
+                        .HasColumnType("text");
+
                     b.Property<string>("Cep")
                         .HasMaxLength(8)
                         .HasColumnType("character varying(8)");
+
+                    b.Property<string>("Cidade")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Complemento")
+                        .HasColumnType("text");
 
                     b.Property<string>("Cpf")
                         .IsRequired()
@@ -1021,27 +2177,24 @@ namespace backend.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("text");
 
-                    b.Property<string>("EndCidade")
+                    b.Property<string>("Estado")
                         .HasColumnType("text");
 
-                    b.Property<string>("EndEstado")
+                    b.Property<string>("Logradouro")
                         .HasColumnType("text");
-
-                    b.Property<int>("EndNumero")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Endereco")
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)");
 
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<string>("Telefone1")
+                    b.Property<string>("Telefone")
                         .HasMaxLength(11)
                         .HasColumnType("character varying(11)");
+
+                    b.Property<string>("Uf")
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)");
 
                     b.Property<string>("Whatsapp")
                         .HasMaxLength(11)
@@ -1092,6 +2245,12 @@ namespace backend.Migrations
                     b.Property<DateTime>("DataAssociacao")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("DataDesativacao")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsAtivo")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("TutorId")
                         .HasColumnType("integer");
 
@@ -1112,13 +2271,22 @@ namespace backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Bairro")
+                        .HasColumnType("text");
+
                     b.Property<string>("Cep")
-                        .HasMaxLength(9)
-                        .HasColumnType("character varying(9)");
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<string>("Cidade")
+                        .HasColumnType("text");
 
                     b.Property<string>("Cnpj")
                         .HasMaxLength(14)
                         .HasColumnType("character varying(14)");
+
+                    b.Property<string>("Complemento")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("DataCad")
                         .HasColumnType("timestamp with time zone");
@@ -1126,18 +2294,8 @@ namespace backend.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("text");
 
-                    b.Property<string>("EndCidade")
+                    b.Property<string>("Estado")
                         .HasColumnType("text");
-
-                    b.Property<string>("EndEstado")
-                        .HasColumnType("text");
-
-                    b.Property<int>("EndNumero")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Endereco")
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)");
 
                     b.Property<string>("Instagram")
                         .HasMaxLength(30)
@@ -1149,6 +2307,9 @@ namespace backend.Migrations
                     b.Property<string>("LogoUrl")
                         .HasColumnType("text");
 
+                    b.Property<string>("Logradouro")
+                        .HasColumnType("text");
+
                     b.Property<string>("NomeClinica")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -1158,9 +2319,13 @@ namespace backend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<string>("Telefone1")
+                    b.Property<string>("Telefone")
                         .HasMaxLength(11)
                         .HasColumnType("character varying(11)");
+
+                    b.Property<string>("Uf")
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)");
 
                     b.Property<string>("Whatsapp")
                         .HasMaxLength(11)
@@ -1244,7 +2409,7 @@ namespace backend.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
-                    b.Property<string>("Telefone1")
+                    b.Property<string>("Telefone")
                         .HasMaxLength(11)
                         .HasColumnType("character varying(11)");
 
@@ -1275,10 +2440,10 @@ namespace backend.Migrations
                         {
                             Id = -1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "683d35b9-06a6-4b1c-ba28-39e8d998c4fd",
+                            ConcurrencyStamp = "589b88f9-275c-492d-9ef8-86a4aa0b6489",
                             Cpf = "01234567890",
-                            DataCad = new DateTime(2025, 8, 5, 2, 12, 8, 731, DateTimeKind.Utc).AddTicks(5594),
-                            DataUltimoAcesso = new DateTime(2025, 8, 5, 2, 12, 8, 731, DateTimeKind.Utc).AddTicks(5609),
+                            DataCad = new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(625),
+                            DataUltimoAcesso = new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(639),
                             Email = "iury@gsmail.com",
                             EmailConfirmed = true,
                             Formacao = "Desenvolvedor do Sistema",
@@ -1288,10 +2453,10 @@ namespace backend.Migrations
                             Nome = "Admin Iury",
                             NormalizedEmail = "IURY@GSMAIL.COM",
                             NormalizedUserName = "IURY",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDXe5yuOX8rH3/gmx/p+IxaXeKI6B2AqpD613RfbuBDr9c9M6CYNJ7p3R2Wx1Uj0Dw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEFkSMriDEl3GRm34bnMthr8U03BBHMi+WoFs5prprJxHJawDKkDjJHowJEopyzow7w==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "58cbc6b4-232f-4346-9612-fb94b34dfd08",
-                            Telefone1 = "62987654321",
+                            SecurityStamp = "79a367b6-e860-4639-b0a5-748c7cb17de9",
+                            Telefone = "62987654321",
                             TwoFactorEnabled = false,
                             UserName = "admin.iury",
                             Whatsapp = "62987654321"
@@ -1300,10 +2465,10 @@ namespace backend.Migrations
                         {
                             Id = -2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "72b1d934-502d-426e-8d99-58214dcd0ce1",
+                            ConcurrencyStamp = "16120e00-57db-41fc-8116-88d86b64a538",
                             Cpf = "01234567891",
-                            DataCad = new DateTime(2025, 8, 5, 2, 12, 8, 731, DateTimeKind.Utc).AddTicks(5638),
-                            DataUltimoAcesso = new DateTime(2025, 8, 5, 2, 12, 8, 731, DateTimeKind.Utc).AddTicks(5652),
+                            DataCad = new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(672),
+                            DataUltimoAcesso = new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(686),
                             Email = "rafael@gsmail.com",
                             EmailConfirmed = true,
                             Formacao = "Desenvolvedor do Sistema",
@@ -1313,10 +2478,10 @@ namespace backend.Migrations
                             Nome = "Admin Rafael",
                             NormalizedEmail = "RAFAEL@GSMAIL.COM",
                             NormalizedUserName = "ADMIN RAFAEL",
-                            PasswordHash = "AQAAAAIAAYagAAAAELCaTRvEXZjMarM1XXdmuvsOqCtm2St4dSdbXbtuSUBct0+6uQBhraIiiQ0lBsLiIA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKzdJikdlTQ7CDSzYT0LSRfDvoCJRHsWKI2wyTwi5nlMjO3L0jtfujPQXXHCllk9cw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "bfdaae57-3685-45d4-9c34-a26a7c84f768",
-                            Telefone1 = "62912345678",
+                            SecurityStamp = "c498bcd5-36ed-4df3-8a16-301f89fefa92",
+                            Telefone = "62912345678",
                             TwoFactorEnabled = false,
                             UserName = "admin.rafael",
                             Whatsapp = "62912345678"
@@ -1325,10 +2490,10 @@ namespace backend.Migrations
                         {
                             Id = -3,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "9a078283-c0c6-48cc-ac16-54da08932727",
+                            ConcurrencyStamp = "cc57b7cc-2ecb-4214-a3a9-7706d588acd5",
                             Cpf = "01234567892",
-                            DataCad = new DateTime(2025, 8, 5, 2, 12, 8, 731, DateTimeKind.Utc).AddTicks(5681),
-                            DataUltimoAcesso = new DateTime(2025, 8, 5, 2, 12, 8, 731, DateTimeKind.Utc).AddTicks(5695),
+                            DataCad = new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(714),
+                            DataUltimoAcesso = new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(729),
                             Email = "hugo@gsmail.com",
                             EmailConfirmed = true,
                             Formacao = "Desenvolvedor do Sistema",
@@ -1338,10 +2503,10 @@ namespace backend.Migrations
                             Nome = "Admin Hugo",
                             NormalizedEmail = "HUGO@GSMAIL.COM",
                             NormalizedUserName = "ADMIN HUGO",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJcX3jVdIBrNRKH/t0w26h5Bg0/iYEYflWnw49fOOv4C/LyBQqx/oK6PDeTVyRk3xQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDtzustg3qbqjxkAqkPASriEqaNhfikEkx0lGjsDvsVgER9mBhE0MpLtv4LN03EMvQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "8e325725-2d1d-4596-89e1-273d87182624",
-                            Telefone1 = "62910203040",
+                            SecurityStamp = "5dd064fa-2ef4-4585-ba3a-3980cc89258a",
+                            Telefone = "62910203040",
                             TwoFactorEnabled = false,
                             UserName = "hugo",
                             Whatsapp = "62910203040"
@@ -1350,10 +2515,10 @@ namespace backend.Migrations
                         {
                             Id = -4,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "817e9f98-35b6-4fa3-8aa0-5f97453b56cb",
+                            ConcurrencyStamp = "c1006423-8f76-403a-b785-9ef4bc9e9ceb",
                             Cpf = "01234567893",
-                            DataCad = new DateTime(2025, 8, 5, 2, 12, 8, 731, DateTimeKind.Utc).AddTicks(5724),
-                            DataUltimoAcesso = new DateTime(2025, 8, 5, 2, 12, 8, 731, DateTimeKind.Utc).AddTicks(5733),
+                            DataCad = new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(758),
+                            DataUltimoAcesso = new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(772),
                             Email = "ceron@gsmail.com",
                             EmailConfirmed = true,
                             Formacao = "Administrador do Sistema",
@@ -1363,10 +2528,10 @@ namespace backend.Migrations
                             Nome = "Admin Ceron",
                             NormalizedEmail = "CERON@GSMAIL.COM",
                             NormalizedUserName = "ADMIN CERON",
-                            PasswordHash = "AQAAAAIAAYagAAAAEL9hUIVnWfJvBPP9Rrs9/yWIq+OQ9htdX34ILVrJ43bKuAamA7ZYePcV5QaU1JVYog==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEIlqEUTsNmqdacQ4HqoJZQqVFw7KzQ5SONoftpQ4mA8rlIvtSKBOUbwJUWFVPj8hFA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "e6792bb6-0cd7-4006-b0cc-3f2f76e0fb5e",
-                            Telefone1 = "62940302010",
+                            SecurityStamp = "6ce0c1d9-d784-4aeb-a462-d46fba3f75d7",
+                            Telefone = "62940302010",
                             TwoFactorEnabled = false,
                             UserName = "ceron",
                             Whatsapp = "62940302010"
@@ -1434,6 +2599,9 @@ namespace backend.Migrations
 
                     b.Property<float>("FibraBruta")
                         .HasColumnType("real");
+
+                    b.Property<bool>("IsPorcentagem")
+                        .HasColumnType("boolean");
 
                     b.Property<float>("MateriaMineral")
                         .HasColumnType("real");
@@ -1603,6 +2771,16 @@ namespace backend.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Raca", b =>
+                {
+                    b.HasOne("backend.Domain.GestaoClinica.Entities.Clinica", "Clinica")
+                        .WithMany("Racas")
+                        .HasForeignKey("ClinicaId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Clinica");
+                });
+
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Relatorio", b =>
                 {
                     b.HasOne("backend.Domain.AtendimentoAnimal.Entities.AcompanhamentoInd", null)
@@ -1688,7 +2866,7 @@ namespace backend.Migrations
                     b.HasOne("backend.Domain.GestaoClinica.Entities.Clinica", "Clinica")
                         .WithMany("Racoes")
                         .HasForeignKey("ClinicaId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Clinica");
@@ -1739,6 +2917,8 @@ namespace backend.Migrations
                     b.Navigation("AnimaisClinicas");
 
                     b.Navigation("Consultas");
+
+                    b.Navigation("Racas");
 
                     b.Navigation("Racoes");
 

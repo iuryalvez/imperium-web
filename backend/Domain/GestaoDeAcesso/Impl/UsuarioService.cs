@@ -1,4 +1,5 @@
 // Application/Services/UsuarioService.cs
+using AutoMapper;
 using backend.Domain.GestaoDeAcesso.DTOs;
 using backend.Domain.GestaoDeAcesso.Entities;
 using backend.Domain.GestaoDeAcesso.Interfaces;
@@ -8,11 +9,15 @@ using Microsoft.EntityFrameworkCore;
 public class UsuarioService : IUsuarioService
 {
     private readonly IUsuarioRepository _userRepository;
+    private readonly IMapper _mapper;
     private readonly AppDbContext _context; // Para transações
 
-    public UsuarioService(IUsuarioRepository userRepository, AppDbContext context)
+    public UsuarioService(IUsuarioRepository userRepository,
+                          IMapper mapper,
+                          AppDbContext context)
     {
         _userRepository = userRepository;
+        _mapper = mapper;
         _context = context;
     }
 
@@ -20,56 +25,15 @@ public class UsuarioService : IUsuarioService
     {
         try
         {
-            // 1. Busca usuários comuns vinculados
-            var vinculos = await _userRepository.GetAllVinculosSistemaAsync();
-            var usuariosComuns = vinculos.Select(upc => new GetUsuariosSistemaDto
-            {
-                // O CompositeKey para usuários vinculados usa o ID do VÍNCULO (upc.Id)
-                CompositeKey = $"link-{upc.Id}",
-                Id = upc.Usuario.Id,
-                UpcId = upc.Id,
-                UserName = upc.Usuario.UserName,
-                NomeClinica = upc.Clinica.NomeClinica,
-                ClinicaId = upc.ClinicaId,
-                Email = upc.Usuario.Email,
-                Nome = upc.Usuario.Nome ?? string.Empty,
-                Perfis = upc.Perfis,
-                DataCadastro = upc.Usuario.DataCad,
-                DataUltimoAcesso = upc.Usuario.DataUltimoAcesso,
-                IsAdmin = upc.Usuario.IsAdmin,
-                IsAtivo = upc.Usuario.IsAtivo,
-                Cpf = upc.Usuario.Cpf,
-                Formacao = upc.Usuario.Formacao,
-                Telefone1 = upc.Usuario.Telefone1,
-                Whatsapp = upc.Usuario.Whatsapp
-            }).ToList();
+            var vinculos = await _userRepository.GetAllVinculosSistemaAsync(); // existem usuários administradores (não possuem vínculo de fato)
 
-            // 2. Busca administradores sem vínculo
+            var usuariosComuns = _mapper.Map<List<GetUsuariosSistemaDto>>(vinculos); // pega todos os usuários (assim não há repetição de usuários)
+
             var idsUsuariosComuns = usuariosComuns.Select(u => u.Id).Distinct().ToList();
             var adminsNaoVinculados = await _userRepository.GetUnlinkedAdminsAsync(idsUsuariosComuns, currentUserId);
-            var usuariosAdministradores = adminsNaoVinculados.Select(u => new GetUsuariosSistemaDto
-            {
-                // O CompositeKey para admins usa o ID do USUÁRIO (u.Id)
-                CompositeKey = $"admin-{u.Id}",
-                Id = u.Id,
-                UpcId = -1, // sem vínculo
-                UserName = u.UserName,
-                NomeClinica = "N/A",
-                ClinicaId = -1,
-                Email = u.Email,
-                Nome = u.Nome ?? string.Empty,
-                Perfis = u.IsAtivo ? new List<string> { "ADMIN" } : new List<string> { "ADMIN", "INATIVO" },
-                DataCadastro = u.DataCad,
-                DataUltimoAcesso = u.DataUltimoAcesso,
-                IsAdmin = u.IsAdmin,
-                IsAtivo = u.IsAtivo,
-                Cpf = u.Cpf,
-                Formacao = u.Formacao,
-                Telefone1 = u.Telefone1,
-                Whatsapp = u.Whatsapp
-            }).ToList();
 
-            // 3. Combina os resultados
+            var usuariosAdministradores = _mapper.Map<List<GetUsuariosSistemaDto>>(adminsNaoVinculados);
+
             var resultadoFinal = usuariosComuns.Concat(usuariosAdministradores);
 
             return new ServiceResult
@@ -90,25 +54,10 @@ public class UsuarioService : IUsuarioService
     {
         var vinculos = await _userRepository.GetVinculosByClinicIdAsync(clinicaId);
 
-        return vinculos
-            .Where(upc => upc.UsuarioId.ToString() != currentUserId) // Lógica de negócio aqui
-            .Select(upc => new GetUsuariosClinicaDto
-            {
-                Id = upc.Usuario.Id,
-                UpcId = upc.Id,
-                ClinicaId = upc.ClinicaId,
-                UserName = upc.Usuario.UserName,
-                Email = upc.Usuario.Email,
-                Nome = upc.Usuario.Nome ?? string.Empty,
-                Perfis = upc.Perfis,
-                IsAtivoNaClinica = !(upc.Perfis?.Contains("INATIVO") ?? false),
-                DataCadastro = upc.Usuario.DataCad,
-                DataUltimoAcesso = upc.Usuario.DataUltimoAcesso,
-                Cpf = upc.Usuario.Cpf,
-                Formacao = upc.Usuario.Formacao,
-                Telefone1 = upc.Usuario.Telefone1,
-                Whatsapp = upc.Usuario.Whatsapp
-            });
+        var vinculosFiltrados = vinculos
+            .Where(upc => upc.UsuarioId.ToString() != currentUserId);
+
+        return _mapper.Map<IEnumerable<GetUsuariosClinicaDto>>(vinculosFiltrados);
     }
 
     public async Task<ServiceResult> CadastrarUsuarioSistemaAsync(CadastrarUsuarioSistemaDto dto)
@@ -135,18 +84,11 @@ public class UsuarioService : IUsuarioService
 
         try
         {
-            // 2. Criar o usuário
-            var usuario = new Usuario
-            {
-                UserName = dto.UserName ?? dto.Email,
-                Email = dto.Email,
-                Nome = dto.Nome,
-                DataCad = DateTime.UtcNow,
-                DataUltimoAcesso = DateTime.UtcNow,
-                EmailConfirmed = true,
-                IsAdmin = dto.IsAdmin,
-                IsAtivo = dto.IsAtivo
-            };
+            var usuario = _mapper.Map<Usuario>(dto);
+            usuario.UserName = dto.UserName ?? dto.Email;
+            usuario.DataCad = DateTime.UtcNow;
+            usuario.DataUltimoAcesso = DateTime.UtcNow;
+            usuario.EmailConfirmed = true; // TODO: alterar depois para usar um emailService e validar o email recebido
 
             var (identityResult, novoUsuario) = await _userRepository.CreateUserAsync(usuario, dto.Senha);
             if (!identityResult.Succeeded)
@@ -155,7 +97,7 @@ public class UsuarioService : IUsuarioService
                 return new ServiceResult { Succeeded = false, Errors = identityResult.Errors.Select(e => e.Description).ToList() };
             }
 
-            // 3. Criar vínculos (se não for admin)
+            // Criar vínculos (se não for admin)
             if (!novoUsuario.IsAdmin)
             {
                 if (dto.ClinicaIds == null || !dto.ClinicaIds.Any())
@@ -317,16 +259,7 @@ public class UsuarioService : IUsuarioService
             return new ServiceResult { Succeeded = false, Message = "O e-mail informado já está em uso." };
         }
 
-        // Atualiza os campos
-        usuario.Nome = dto.Nome;
-        usuario.Email = dto.Email;
-        usuario.UserName = dto.Email;
-        usuario.IsAtivo = dto.IsAtivo;
-        // Atualiza campos opcionais
-        if (!string.IsNullOrWhiteSpace(dto.Cpf)) usuario.Cpf = dto.Cpf;
-        if (!string.IsNullOrWhiteSpace(dto.Formacao)) usuario.Formacao = dto.Formacao;
-        if (!string.IsNullOrWhiteSpace(dto.Telefone1)) usuario.Telefone1 = dto.Telefone1;
-        if (!string.IsNullOrWhiteSpace(dto.Whatsapp)) usuario.Whatsapp = dto.Whatsapp;
+        _mapper.Map(dto, usuario);
 
         // Altera a senha, se fornecida
         if (!string.IsNullOrWhiteSpace(dto.Senha))
@@ -354,17 +287,7 @@ public class UsuarioService : IUsuarioService
             return new ServiceResult { Succeeded = false, Message = "O e-mail informado já está em uso." };
         }
 
-        // Atualiza os campos do usuário e do vínculo
-        usuario.Nome = dto.Nome;
-        usuario.Email = dto.Email;
-        usuario.UserName = dto.Email;
-        vinculo.Perfis = dto.Perfis ?? vinculo.Perfis;
-        
-        // Atualiza campos opcionais
-        if (!string.IsNullOrWhiteSpace(dto.Cpf)) usuario.Cpf = dto.Cpf;
-        if (!string.IsNullOrWhiteSpace(dto.Formacao)) usuario.Formacao = dto.Formacao;
-        if (!string.IsNullOrWhiteSpace(dto.Telefone1)) usuario.Telefone1 = dto.Telefone1;
-        if (!string.IsNullOrWhiteSpace(dto.Whatsapp)) usuario.Whatsapp = dto.Whatsapp;
+        _mapper.Map(dto, usuario);
 
         // Altera a senha, se fornecida
         if (!string.IsNullOrWhiteSpace(dto.Senha))
@@ -401,17 +324,7 @@ public class UsuarioService : IUsuarioService
                 return new ServiceResult { Succeeded = false, Message = "O e-mail informado já está em uso nesta clínica." };
             }
 
-            // Atualiza os campos do usuário e do vínculo
-            usuario.Nome = dto.Nome;
-            usuario.Email = dto.Email;
-            usuario.UserName = dto.Email; // Garante consistência
-            vinculo.Perfis = dto.Perfis ?? vinculo.Perfis;
-
-            // Atualiza campos opcionais
-            if (!string.IsNullOrWhiteSpace(dto.Cpf)) usuario.Cpf = dto.Cpf;
-            if (!string.IsNullOrWhiteSpace(dto.Formacao)) usuario.Formacao = dto.Formacao;
-            if (!string.IsNullOrWhiteSpace(dto.Telefone1)) usuario.Telefone1 = dto.Telefone1;
-            if (!string.IsNullOrWhiteSpace(dto.Whatsapp)) usuario.Whatsapp = dto.Whatsapp;
+             _mapper.Map(dto, usuario);
 
             // Altera a senha, se uma nova foi fornecida
             if (!string.IsNullOrWhiteSpace(dto.Senha))

@@ -38,7 +38,7 @@ const DetalhesTutoresDaClinica = ({ valores }) => {
 
       <Descriptions title="Contato" bordered column={1}>
         <Descriptions.Item label="Telefone Principal">
-          {formatarTelefone(valores.telefone1) ?? naoInformado}
+          {formatarTelefone(valores.telefone) ?? naoInformado}
         </Descriptions.Item>
         <Descriptions.Item label="WhatsApp">
           {valores.whatsapp ? (

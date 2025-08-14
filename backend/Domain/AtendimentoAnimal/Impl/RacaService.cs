@@ -16,9 +16,10 @@ namespace backend.Domain.AtendimentoAnimal.Impl
             _mapper = mapper;
         }
 
-        public async Task<GetRacaDto> CreateAsync(CadastrarRacaDto criarRacaDto)
+        public async Task<GetRacaDto> CreateAsync(CadastrarRacaDto criarRacaDto, int clinicaId)
         {
             var raca = _mapper.Map<Raca>(criarRacaDto);
+            raca.ClinicaId = clinicaId;
             await _racaRepository.AddAsync(raca);
             await _racaRepository.SaveChangesAsync();
             return _mapper.Map<GetRacaDto>(raca);
@@ -40,12 +41,17 @@ namespace backend.Domain.AtendimentoAnimal.Impl
             return _mapper.Map<GetRacaDto>(raca);
         }
 
-        public async Task<List<GetRacaDto>> ListAllAsync(EspecieAnimal? especie)
+        public async Task<List<GetRacaDto>> ListByClinicaIdAndEspecieAsync(int clinicaId, EspecieAnimal? especie)
         {
-            var racas = especie.HasValue
-                ? await _racaRepository.ListByEspecieAsync(especie.Value)
-                : await _racaRepository.ListAllAsync();
-            
+            // Primeiro, busca todas as raças dessa clínica
+            var racas = await _racaRepository.ListByClinicaIdAsync(clinicaId);
+
+            // Se tiver filtro de espécie, aplica agora
+            if (especie.HasValue)
+            {
+                racas = racas.Where(r => r.Especie == especie.Value).ToList();
+            }
+
             return _mapper.Map<List<GetRacaDto>>(racas);
         }
 
@@ -56,7 +62,7 @@ namespace backend.Domain.AtendimentoAnimal.Impl
 
             // Map the changes from DTO to the entity
             _mapper.Map(atualizarRacaDto, raca);
-            
+
             _racaRepository.Update(raca);
             var result = await _racaRepository.SaveChangesAsync();
             return result > 0;

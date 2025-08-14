@@ -48,7 +48,7 @@ const PaginaSistemaEntidadeComCadastro = ({
       ...processedData,
       cpf: sanitize(formData.cpf),
       cep: sanitize(formData.cep),
-      telefone1: sanitize(formData.telefone1),
+      telefone: sanitize(formData.telefone),
       whatsapp: sanitize(formData.whatsapp),
     };
 

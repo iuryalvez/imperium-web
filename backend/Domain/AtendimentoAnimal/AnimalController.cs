@@ -19,7 +19,7 @@ namespace backend.Domain.AtendimentoAnimal
     {
         private readonly AppDbContext _context;
         private readonly ILogger<AnimalController> _logger;
-        private readonly IClinicaService _clinicaInterface;
+        private readonly IClinicaService _clinicaService;
         private readonly IAnimalService _animalService;
         public AnimalController(AppDbContext context,
                                 ILogger<AnimalController> logger,
@@ -28,13 +28,13 @@ namespace backend.Domain.AtendimentoAnimal
         {
             _context = context;
             _logger = logger;
-            _clinicaInterface = clinicaInterface;
+            _clinicaService = clinicaInterface;
             _animalService = animalService;
         }
 
         [HttpGet("animais")]
         [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> GetAnimaisByClinicaId()
+        public async Task<IActionResult> GetByClinicaId()
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId == 0) return BadRequest("ID da clínica não encontrado.");
@@ -45,7 +45,7 @@ namespace backend.Domain.AtendimentoAnimal
 
         [HttpGet("animais/{animalId}")]
         [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> GetAnimalDetails(int animalId)
+        public async Task<IActionResult> GetByIdWithDetails(int animalId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             var animal = await _animalService.GetDetailsByIdAsync(animalId, clinicaId);
@@ -57,12 +57,12 @@ namespace backend.Domain.AtendimentoAnimal
 
         [HttpPost("animais/cadastrar")]
         [Authorize(Policy = "GerenciaAnimais")]
-        public async Task<IActionResult> CadastrarAnimalNaClinica([FromBody] CadastrarAnimalClinicaDto dto)
+        public async Task<IActionResult> Create([FromBody] CadastrarAnimalClinicaDto dto)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId <= 0) return BadRequest("Claim 'clinicaId' não encontrada ou inválida.");
 
-            var result = await _animalService.CadastrarAnimalAsync(dto, clinicaId);
+            var result = await _animalService.CreateAsync(dto, clinicaId);
 
             if (!result.Succeeded) return BadRequest(result);
 
@@ -71,13 +71,13 @@ namespace backend.Domain.AtendimentoAnimal
 
         [HttpPut("animais/editar")]
         [Authorize(Policy = "GerenciaAnimais")]
-        public async Task<IActionResult> EditarAnimalNaClinica([FromBody] EditarAnimalClinicaDto dto)
+        public async Task<IActionResult> Update([FromBody] EditarAnimalClinicaDto dto)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId <= 0)
                 return BadRequest(new { Message = "Claim 'clinicaId' não encontrada ou inválida." });
 
-            var result = await _animalService.UpdateAnimalAsync(dto, clinicaId);
+            var result = await _animalService.UpdateAsync(dto, clinicaId);
 
             if (!result.Succeeded)
                 return BadRequest(result);
@@ -85,10 +85,33 @@ namespace backend.Domain.AtendimentoAnimal
             return Ok(result);
         }
 
-        // Deleta um animal em uma clínica
+        [HttpPut("animais/{animalId}/desativar-vinculo")]
+        [Authorize(Policy = "GerenciaAnimais")]
+        public async Task<IActionResult> DeactivateLink(int animalId)
+        {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId == 0)
+            {
+                return BadRequest(new { Message = "ID da clínica não encontrado." });
+            }
+
+            var result = await _animalService.DesativarVinculoAnimalAsync(animalId, clinicaId);
+
+            if (!result.Succeeded)
+            {
+                // O serviço já logou o erro, aqui apenas retornamos a resposta apropriada.
+                if (result.Message.Contains("não encontrado"))
+                    return NotFound(new { Message = result.Message });
+
+                return StatusCode(500, new { Message = result.Message });
+            }
+
+            return Ok(new { Message = result.Message });
+        }
+
         [HttpDelete("animais/{animalId}")] // Rota ajustada para clareza
-        [Authorize(Policy = "GerenciaAnimais")] // Ou uma policy mais específica como "DesvinculaAnimalClinica"
-        public async Task<IActionResult> DesvincularAnimalDaClinica(int animalId)
+        [Authorize(Policy = "GerenciaAnimais")]
+        public async Task<IActionResult> DeleteLink(int animalId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId == 0)
