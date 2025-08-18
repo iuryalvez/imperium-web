@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Input, Button, Radio, InputNumber, Space, message, Typography } from 'antd';
+import { Form, Input, Button, Radio, InputNumber, Space, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { racasAPI } from '../../../api/sistema/racasAPI'; 
 

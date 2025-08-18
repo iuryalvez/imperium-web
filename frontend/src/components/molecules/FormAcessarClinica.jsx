@@ -1,5 +1,5 @@
 import React ,{ useState } from "react";
-import { Button, Form, Checkbox, message } from "antd";
+import { Button, Form, Checkbox } from "antd";
 import { useAuth } from "../../services/AuthContext";
 
 const perfisClinica = [

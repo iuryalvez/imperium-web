@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, Input, Select, Checkbox, Typography } from "antd";
+import { Form, Input, Select, Checkbox } from "antd";
 import { clinicasAPI } from "../../../api/sistema/clinicasAPI"; // Ajuste o caminho
 
 const perfisSistema = [

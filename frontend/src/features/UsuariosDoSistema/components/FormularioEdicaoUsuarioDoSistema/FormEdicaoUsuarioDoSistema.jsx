@@ -7,7 +7,6 @@ import {
   Row,
   Col,
   Divider,
-  Typography,
   Tag,
   Switch,
 } from "antd";

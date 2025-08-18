@@ -11,7 +11,6 @@ import {
   Col,
   Divider,
   message,
-  Skeleton,
 } from "antd";
 import { racoesDaClinicaAPI } from "../../../api/clinica/racoesDaClinicaAPI";
 

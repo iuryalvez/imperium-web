@@ -1,5 +1,5 @@
 import React from "react";
-import { Descriptions, Tag, Typography, Divider, Form } from "antd";
+import { Descriptions, Typography, Divider, Form } from "antd";
 
 import {
   formatarCPF,

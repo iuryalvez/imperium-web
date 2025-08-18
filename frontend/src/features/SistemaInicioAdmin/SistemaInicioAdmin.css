@@ -1,0 +1,12 @@
+/* Estilo para o título principal da página */
+.titulo-pagina-inicio {
+  color: var(--verde-escuro); /* Usa a variável CSS global que você já definiu */
+  /* Outros estilos como text-align podem ser adicionados aqui se necessário */
+}
+
+/* Estilo para o container que agrupa os botões do menu */
+.container-botoes-menu {
+  display: flex;
+  justify-content: center;
+  padding-top: 32px; /* 2rem */
+}
