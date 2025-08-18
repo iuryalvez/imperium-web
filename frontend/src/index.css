@@ -7,17 +7,9 @@
 html, body, #root {
     @apply font-sans;
     font-family: 'Work Sans', sans-serif;
-    font-optical-sizing: auto; /* Define o ajuste óptico da fonte como automático */
-    font-weight: auto; /* Define o peso da fonte como automático */
-    font-style: normal; /* Define o estilo da fonte como normal */
-    height: auto; /* Permite que o tamanho seja definido com base no conteúdo */
-    min-height: 100%; /* Garante altura mínima caso o conteúdo seja pequeno */
-    background-color: var(--verde-fraco); /* Substitua pela sua cor de fundo */
 }
   
 #root {
-    @apply pt-16; /* 4rem de padding no topo (16 Tailwind = 4rem) */
-    box-sizing: border-box; /* Garante que o padding não afete o cálculo da largura total */
     --branco: #FFFFFF;
     --cinza-background: #F7F7F7;
     --cinza-escuro: #9E9E9E;

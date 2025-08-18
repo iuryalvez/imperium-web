@@ -1,15 +1,21 @@
+// src/components/layout/LayoutPublic.jsx (Refatorado)
 import React from 'react';
-import PublicHeader from './Header/PublicHeader.jsx';
+import { Layout } from 'antd';
 import { Outlet } from 'react-router-dom';
+import AppHeader from './Header/AppHeader.jsx';
+import { colors } from '../../theme/colors.js';
+
+const { Content } = Layout;
 
 const LayoutPublic = () => {
   return (
-    <div className="flex flex-col">
-      <PublicHeader />
-      <main>
+    <Layout>
+      <AppHeader />
+      {/* Para uma página de login, talvez você não queira padding */}
+      <Content style={{ marginTop: 64, backgroundColor: colors.verde.fraco, minHeight: 'calc(100vh - 64px)' }}>
         <Outlet />
-      </main>
-    </div>
+      </Content>
+    </Layout>
   );
 };
 

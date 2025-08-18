@@ -1,16 +1,22 @@
+// src/components/layout/LayoutLogged.jsx (Refatorado)
 import React from 'react';
-import LoggedHeader from './Header/LoggedHeader.jsx';
+import { Layout } from 'antd';
 import { Outlet } from 'react-router-dom';
+import AppHeader from './Header/AppHeader.jsx';
+import { colors } from '../../theme/colors.js';
+
+const { Content } = Layout;
 
 const LayoutLogged = () => {
   return (
-    <div className="flex flex-col">
-      <LoggedHeader />
-      {/* className="flex flex-col mt-8 px-4 md:px-8 lg:px-16 text-left w-full max-w-screen-lg mx-auto space-y-4" */}
-      <main className="flex flex-col mt-8 px-4 md:px-8 lg:px-16">
-        <Outlet></Outlet>
-      </main>
-    </div>
+    <Layout>
+      <AppHeader />
+      {/* O Content já vem com um espaçamento padrão e pode ser customizado */}
+      <Content style={{ padding: '24px', marginTop: 64, minHeight: 'calc(100vh - 64px)' }}>
+        {/* marginTop: 64px é a altura padrão do Header do Ant Design */}
+        <Outlet />
+      </Content>
+    </Layout>
   );
 };
 

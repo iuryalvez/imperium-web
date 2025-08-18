@@ -1,0 +1,15 @@
+/*
+  Sobrescreve a cor de fundo padrão do botão que recolhe/expande a sidebar.
+  O '!important' é usado para garantir que nossa regra tenha prioridade sobre os estilos padrão do Ant Design.
+  Obs: Não funciona setando no ant-theme, tive que setar aqui.
+*/
+.ant-layout-sider-trigger {
+  background: #064420 !important; /* Sua cor --verde-escuro */
+}
+
+/*
+  Define a cor do botão quando o mouse passa por cima (hover).
+*/
+.ant-layout-sider-trigger:hover {
+  background: #278F54 !important; /* Sua cor --verde-claro (sugestão para hover) */
+}
