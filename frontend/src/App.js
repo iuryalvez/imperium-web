@@ -13,7 +13,7 @@ import Sobre from "./pages/Sobre/index.jsx";
 
 import Sistema from "./pages/Sistema/SistemaInicio/index.jsx";
 import SistemaVinculos from "./pages/Sistema/ListaDeVinculos/index.jsx";
-import SistemaUsuarios from "./pages/Sistema/Usuarios/index.jsx";
+// import SistemaUsuarios from "./pages/Sistema/Usuarios/index.jsx";
 import SistemaClinicas from "./pages/Sistema/Clinicas/index.jsx";
 
 import Clinica from "./pages/Clinica/ClinicaInicio/index.jsx";
@@ -23,8 +23,9 @@ import UsuariosDaClinica from "./pages/Clinica/UsuariosDaClinica/index.jsx";
 import TutoresDaClinica from "./pages/Clinica/TutoresDaClinica/index.jsx";
 import AnimaisDaClinica from "./pages/Clinica/AnimaisDaClinica/index.jsx";
 
-import RacoesDaClinica from "./features/RacoesDaClinica/RacoesDaClinica.jsx"; // teste para refatoração
-import ConsultasDaClinica from "./features/ConsultasDaClinica/ConsultasDaClinica.jsx"; // teste para refatoração
+import UsuariosDoSistema from "./features/UsuariosDoSistema/UsuariosDoSistema.jsx";
+import RacoesDaClinica from "./features/RacoesDaClinica/RacoesDaClinica.jsx";
+import ConsultasDaClinica from "./features/ConsultasDaClinica/ConsultasDaClinica.jsx"; 
 import ProtectedRoute from "./components/servicesComponents/ProtectedRoute.js";
 
 const App = () => {
@@ -54,7 +55,7 @@ const App = () => {
               <Route element={<LayoutLogged />}>
                 <Route path="/sistema" element={<Sistema />} />
                 <Route path="/sistema/clinicas" element={<SistemaClinicas />} />
-                <Route path="/sistema/usuarios" element={<SistemaUsuarios />} />
+                <Route path="/sistema/usuarios" element={<UsuariosDoSistema />} />
               </Route>
             </Route>
 

@@ -9,6 +9,7 @@ namespace backend.Domain.GestaoDeAcesso.Interfaces
         Task<ServiceResult> CadastrarUsuarioSistemaAsync(CadastrarUsuarioSistemaDto dto);
         Task<IEnumerable<GetUsuariosClinicaDto>> GetUsuariosByClinicIdAsync(int clinicaId, string currentUserId);
         Task<ServiceResult> UpdateUsuarioSistemaAsync(EditarUsuarioSistemaDto dto);
+        Task<ServiceResult> CadastrarUsuarioClinicaAsync(CadastrarUsuarioClinicaDto dto, int clinicaId);
         Task<ServiceResult> UpdateUsuarioClinicaAsync(EditarUsuarioClinicaDto dto);
         Task<ServiceResult> UnlinkUserFromClinicAsync(int upcId);
         Task<ServiceResult> SetUserActivationStatusAsync(SetUserStatusDto dto);

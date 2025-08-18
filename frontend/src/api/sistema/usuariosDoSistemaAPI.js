@@ -1,69 +1,67 @@
-import api from "../index"; // Configuração do axios
-import endpoints from "../../services/Endpoints"; // Endpoints
+import api from "../index";
+import endpoints from "../../services/Endpoints";
 
 export const usuariosDoSistemaAPI = {
-  listar: async () => {
+  async listar() {
     try {
       const response = await api.get(endpoints.sistema.usuario.listar);
       return response.data.data;
     } catch (error) {
       console.error("Erro ao buscar usuários:", error);
-      throw error.response ? error.response.data : error;
+      // Lança a mensagem de erro do backend, ou uma mensagem genérica
+      throw new Error(
+        error.response?.data?.message || "Falha ao buscar usuários"
+      );
     }
   },
-  cadastrar: async (dadosUsuario) => {
+
+  async cadastrar(dadosUsuario) {
     try {
       const response = await api.post(
         endpoints.sistema.usuario.cadastrar,
-        dadosUsuario,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+        dadosUsuario
       );
       return response.data;
     } catch (error) {
       console.error("Erro ao cadastrar usuário:", error);
-      throw error.response ? error.response.data : error;
+      throw new Error(
+        error.response?.data?.message || "Falha ao cadastrar usuário"
+      );
     }
   },
-  editar: async (dadosUsuarioEditados) => {
+
+  async editar(dadosUsuarioEditados) {
     try {
       const response = await api.put(
         endpoints.sistema.usuario.editar,
-        dadosUsuarioEditados,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+        dadosUsuarioEditados
       );
       return response.data;
     } catch (error) {
       console.error("Erro ao editar usuário:", error);
-      throw error.response ? error.response.data : error;
+      throw new Error(
+        error.response?.data?.message || "Falha ao editar usuário"
+      );
     }
   },
-  setStatus: async (record, activate) => {
+
+  async setStatus(record, activate) {
     try {
       let url;
-      const payload = { activate };
 
       if (record.isAdmin) {
-        // Se for admin, usa a rota do sistema com o ID do usuário
         url = endpoints.sistema.usuario.setStatus(record.id);
       } else {
-        // Se for um usuário de clínica (mesmo na tela de sistema),
-        // a ação ainda é sobre o VÍNCULO. Usamos a rota de vínculo.
         url = endpoints.clinica.usuario.setStatus(record.upcId);
       }
-
-      const response = await api.put(url, payload);
+      
+      const response = await api.put(url, { activate });
       return response.data;
     } catch (error) {
       console.error(`Erro ao definir status para registro:`, record, error);
-      throw error.response ? error.response.data : error;
+      throw new Error(
+        error.response?.data?.message || "Falha ao alterar status"
+      );
     }
   },
 };

@@ -2,10 +2,11 @@ import React from 'react';
 import { Descriptions, Tag, Typography, Divider, Form } from 'antd';
 import {
     formatarData,
-    renderPerfis,
-    formatarCPF,      // <-- Importar
-    formatarTelefone  // <-- Importar
+    formatarCPF,
+    formatarTelefone  
 } from '../../../utils/formatters';
+
+import { renderPerfis } from '../../../utils/renderers';
 
 const DetalhesUsuariosDaClinica = ({ valores }) => {
     const naoInformado = <Typography.Text type="secondary">Não informado</Typography.Text>;

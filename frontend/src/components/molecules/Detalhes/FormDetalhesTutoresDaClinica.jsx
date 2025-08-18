@@ -1,13 +1,13 @@
 import React from "react";
 import { Descriptions, Tag, Typography, Divider, Form } from "antd";
-import { FaDog, FaCat } from "react-icons/fa"; // Ícones para espécies: npm install react-icons
 
 import {
   formatarCPF,
   formatarCEP,
-  formatarTelefone,
-  renderAnimais,
+  formatarTelefone
 } from "../../../utils/formatters";
+
+import { renderAnimais } from "../../../utils/renderers";
 
 const DetalhesTutoresDaClinica = ({ valores }) => {
   const naoInformado = (

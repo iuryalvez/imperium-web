@@ -1,7 +1,6 @@
 import React from 'react';
-import { Typography, Tag } from 'antd';
+import { Typography } from 'antd';
 import dayjs from 'dayjs';
-import { FaCat, FaDog } from 'react-icons/fa';
 
 /**
  * Formata uma data para o padrão DD/MM/YYYY às HH:mm.
@@ -12,23 +11,6 @@ import { FaCat, FaDog } from 'react-icons/fa';
 export const formatarData = (data) => {
     if (!data) return <Typography.Text type="secondary">Nunca</Typography.Text>;
     return dayjs(data).format('DD/MM/YYYY [às] HH:mm');
-};
-
-/**
- * Retorna uma cor de Tag do Ant Design com base no nome do perfil.
- * @param {string} perfil - O nome do perfil (ex: 'GESTOR').
- * @returns {string} O nome da cor para a Tag.
- */
-export const getCorDoPerfil = (perfil) => {
-    if (!perfil) return 'default';
-    const perfilUpper = perfil.toUpperCase();
-    if (perfilUpper.includes('ADMIN')) return 'gold';
-    if (perfilUpper.includes('GESTOR')) return 'blue';
-    if (perfilUpper.includes('VETERINARIO')) return 'green';
-    if (perfilUpper.includes('TECNICO')) return 'green';
-    if (perfilUpper.includes('SECRETARIO')) return 'green';
-    if (perfilUpper.includes('INATIVO')) return 'red';
-    return 'default';
 };
 
 /**
@@ -100,43 +82,4 @@ export const formatarGrauAtividade = (value) => {
         case 3: return 'Alto / Atleta';
         default: return <Typography.Text type="secondary">Não informado</Typography.Text>;
     }
-};
-
-/**
- * Renderiza um conjunto de perfis como Tags coloridas.
- * @param {string[]} perfis - Uma lista de strings de perfil.
- * @returns {React.Component}
- */
-export const renderPerfis = (perfis = []) => {
-    if (!perfis || perfis.length === 0) {
-        return <Typography.Text type="secondary">Nenhum perfil atribuído</Typography.Text>;
-    }
-    return (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-            {perfis.map(perfil => (
-                <Tag key={perfil} color={getCorDoPerfil(perfil)}>
-                    {perfil.toUpperCase()}
-                </Tag>
-            ))}
-        </div>
-    );
-};
-
-export const renderAnimais = (animais = []) => {
-    if (!animais || animais.length === 0) {
-        return <Typography.Text type="secondary">Nenhum animal associado</Typography.Text>;
-    }
-    return (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {animais.map(animal => (
-                <Tag
-                    key={animal.id}
-                    icon={animal.especie === 1 ? <FaDog /> : <FaCat />}
-                    style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px' }}
-                >
-                    {animal.nome}
-                </Tag>
-            ))}
-        </div>
-    );
 };

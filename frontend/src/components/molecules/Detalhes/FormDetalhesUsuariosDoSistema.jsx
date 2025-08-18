@@ -4,9 +4,10 @@ import { Descriptions, Tag, Typography, Divider, Form } from "antd";
 import {
   formatarCPF,
   formatarTelefone,
-  renderPerfis,
   formatarData,
 } from "../../../utils/formatters";
+
+import { renderPerfis } from "../../../utils/renderers";
 
 const DetalhesUsuariosDoSistema = ({ valores }) => {
   const naoInformado = (
