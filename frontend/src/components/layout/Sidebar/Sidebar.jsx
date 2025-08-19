@@ -10,6 +10,8 @@ import TutoresIcon from "../../../assets/client/client-profile-svgrepo-com.png";
 import UsuariosIcon from "../../../assets/user/user-group-svgrepo-com.png";
 import RacoesIcon from "../../../assets/animal/dog-food-pet-svgrepo-com.png";
 
+import "./Sidebar.css";
+
 const { Text } = Typography;
 
 const Sidebar = ({ collapsed, toggleCollapse }) => {
@@ -55,41 +57,36 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
   ];
 
   return (
-    // Removemos o div com 'position: fixed' e o botão de toggle
-    <div className="h-full flex flex-col">
-      {/* Cabeçalho do Sidebar */}
-      <div
-        className={`p-4 flex flex-col items-center border-b border-[#278F54] transition-opacity duration-300 ${
-          collapsed ? "opacity-0 h-0 p-0" : "opacity-100"
-        }`}
-      >
-        {/* Adicionado um container para esconder o texto quando recolhido */}
+    <div className="sidebar-container">
+      {/* 2. Aplica as classes CSS para o header e o estado 'collapsed' */}
+      <div className={`sidebar-header ${collapsed ? "collapsed" : ""}`}>
         {!collapsed && (
           <div className="flex flex-col items-center">
-            <Text className="text-white text-base mt-2 mb-2">
-              {userName || "Usuário"}
-            </Text>
-            <Text className="text-white text-sm">
-              {nomeClinica || "Clínica"}
-            </Text>
+            <Text className="clinic-name">{nomeClinica || "Clínica"}</Text>
+            <Text className="user-name">{userName || "Usuário"}</Text>
           </div>
         )}
       </div>
 
-      {/* Itens do Menu */}
       <Menu
         theme="dark"
         mode="inline"
         defaultSelectedKeys={[window.location.pathname]}
         selectedKeys={[window.location.pathname]}
-        className="bg-transparent border-r-0" // Fundo transparente para herdar do Sider
+        className="sidebar-menu"
       >
         {menuItems.map((item) => (
           <Menu.Item
             key={item.key}
-            icon={<img src={item.icon} alt={item.label} className="w-4 h-4" />} // Tamanho de ícone consistente
+            icon={
+              <img
+                src={item.icon}
+                alt={item.label}
+                className={`sidebar-menu-icon ${collapsed ? "collapsed" : ""}`}
+              />
+            }
           >
-            {/* O NavLink é o conteúdo do label para navegação de SPA */}
+            {/* O NavLink não precisa mais de classe de estilo para o estado ativo */}
             <NavLink to={item.key}>{item.label}</NavLink>
           </Menu.Item>
         ))}

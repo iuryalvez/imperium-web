@@ -1,0 +1,64 @@
+/* Container principal da página de login */
+.login-page-row {
+  min-height: calc(100vh - 64px); /* Altura total da tela menos o header */
+}
+
+/* Coluna da esquerda com as informações */
+.login-info-col {
+  padding: 2rem 2rem 0 4rem; 
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Os componentes de Título e Parágrafo do Ant Design já herdarão a cor
+   do seu themeConfig (token.colorText), então não precisamos defini-la aqui,
+   a menos que queira uma cor específica para esta página. */
+.login-info-col .ant-typography-paragraph {
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.login-logos-container {
+  margin-top: 2.5rem; /* mt-10 */
+}
+
+.login-logos-container img {
+  height: 4rem; /* h-16 */
+}
+
+
+/* Coluna da direita com o formulário */
+.login-form-col {
+  padding: 2rem 4rem 0 2rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* O "card" branco que envolve o formulário */
+.login-form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--branco);
+  border-radius: 24px; /* rounded-3xl */
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* shadow-lg */
+  padding: 3rem; /* py-12 px-12 */
+  width: 100%;
+  max-width: 450px; /* Adiciona uma largura máxima para o formulário */
+}
+
+/* Título "LOGIN" */
+.login-form-container .login-title {
+  color: var(--verde-medio);
+  margin-bottom: 24px;
+}
+
+/* Container para "Lembrar-me" e "Esqueceu sua senha?" */
+.login-form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}

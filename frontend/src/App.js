@@ -8,12 +8,10 @@ import LayoutPublic from "./components/layout/LayoutPublic.jsx";
 import LayoutLogged from "./components/layout/LayoutLogged.jsx";
 import LayoutAuthenticated from "./components/layout/LayoutAuthenticated.jsx";
 
-import Login from "./pages/Login/index.jsx";
+import Login from "./pages/Login/Login.jsx";
 import Sobre from "./pages/Sobre/index.jsx";
 
-// import Sistema from "./pages/Sistema/SistemaInicio/index.jsx";
-import SistemaVinculos from "./pages/Sistema/ListaDeVinculos/index.jsx";
-// import SistemaUsuarios from "./pages/Sistema/Usuarios/index.jsx";
+
 import SistemaClinicas from "./pages/Sistema/Clinicas/index.jsx";
 
 import Clinica from "./pages/Clinica/ClinicaInicio/index.jsx";
@@ -24,6 +22,8 @@ import TutoresDaClinica from "./pages/Clinica/TutoresDaClinica/index.jsx";
 import AnimaisDaClinica from "./pages/Clinica/AnimaisDaClinica/index.jsx";
 
 import Sistema from "./features/SistemaInicioAdmin/SistemaInicioAdmin.jsx";
+import ListaDeVinculos from "./pages/Sistema/ListaDeVinculos/ListaDeVinculos.jsx";
+
 import UsuariosDoSistema from "./features/UsuariosDoSistema/UsuariosDoSistema.jsx";
 import RacoesDaClinica from "./features/RacoesDaClinica/RacoesDaClinica.jsx";
 import ConsultasDaClinica from "./features/ConsultasDaClinica/ConsultasDaClinica.jsx";
@@ -62,7 +62,7 @@ const App = () => {
                   <Route element={<LayoutLogged />}>
                     <Route
                       path="/sistema/vinculos"
-                      element={<SistemaVinculos />}
+                      element={<ListaDeVinculos />}
                     />
                   </Route>
                 </Route>

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Card, Typography, Spin, Alert, Row, Col } from "antd";
+
+import { Card, Typography, Spin, Alert, Row, Col, Button } from "antd";
 import { autenticacaoAPI } from "../../../api/autenticacaoAPI";
 import { useAuth } from "../../../services/AuthContext";
 
-import BotaoSecundario from "../../../components/atoms/BotaoSecundario";
+import "./ListaDeVinculos.css";
 
 const { Title, Text } = Typography;
 
@@ -46,39 +47,32 @@ const ListaDeVinculos = () => {
   }
 
   return (
-<div className="container mx-auto my-8">
-      <Title level={2} style={{ color: "var(--verde-escuro)" }}>
+    <div className="vinculos-container">
+      <Title level={2} className="vinculos-title">
         Lista de Vínculos
       </Title>
 
-      <Row gutter={[16, 16]}>
+      <Row gutter={[24, 24]}>
         {vinculos.map((vinculo) => (
           <Col xs={24} md={12} lg={8} key={vinculo.id}>
             <Card
-              title={
-                <span style={{ color: "var(--verde-escuro)" }}>
-                  {vinculo.nomeClinica || "Clínica Desconhecida"}
-                </span>
-              }
+              title={vinculo.nomeClinica || "Clínica Desconhecida"}
               bordered={false}
-              style={{
-                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-                borderRadius: "12px",
-              }}
+              className="vinculo-card"
               actions={[
-                <BotaoSecundario
-                  texto="Selecionar"
+                <Button
+                  type="primary" // Usará a cor do seu themeConfig
                   onClick={() => escolherVinculo(vinculo.id)}
-                  disabled={isLoading}
-                />,
+                  loading={isLoading} // Usa a prop 'loading' para um UX melhor
+                >
+                  Selecionar
+                </Button>,
               ]}
             >
-              <Text strong style={{ color: "var(--verde-escuro)" }}>
-                Perfis:
-              </Text>
+              <Text strong>Perfis:</Text>
               <br />
-              <Text style={{ color: "var(--verde-escuro)" }}>
-                {vinculo.perfis && vinculo.perfis.length > 0
+              <Text>
+                {vinculo.perfis?.length > 0
                   ? vinculo.perfis.join(", ")
                   : "Nenhum perfil vinculado"}
               </Text>

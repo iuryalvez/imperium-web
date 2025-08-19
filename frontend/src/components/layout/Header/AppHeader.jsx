@@ -1,72 +1,91 @@
-import React, { useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Layout, Menu, Spin } from 'antd';
-import { useAuth } from '../../../services/AuthContext'; // Ajuste o caminho
-import logo from '../../../assets/logo-unificada.png'; // Ajuste o caminho
+import React, { useMemo } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Layout, Menu, Spin } from "antd";
+
+import logo from "../../../assets/logo-unificada.png";
+import "./AppHeader.css";
+
+import { useAuth } from "../../../services/AuthContext";
 
 const { Header } = Layout;
 
 const AppHeader = () => {
-  const { isLoading, isLogged, isAuthenticated, logout, trocarVinculo } = useAuth();
+  const { isLoading, isLogged, isAuthenticated, logout, trocarVinculo } =
+    useAuth();
   const navigate = useNavigate();
 
-  // Usamos useMemo para calcular os itens do menu apenas quando o estado de auth mudar.
   const menuItems = useMemo(() => {
-    // Caso de Loading
     if (isLoading) {
       return [<Spin key="loading" />];
     }
-    
-    // Menu para usuário autenticado COM vínculo
+
     if (isAuthenticated) {
       return [
-        { key: 'perfil', label: <Link to="/clinica/perfil">Perfil</Link> },
-        { key: 'trocar', label: 'Trocar Vínculo', onClick: trocarVinculo },
-        { key: 'sair', label: 'Sair', onClick: logout, danger: true }, // 'danger' para estilizar em vermelho
+        {
+          key: "perfil",
+          label: (
+            <Link to="/clinica/perfil" className="app-header-menu-item">
+              Perfil
+            </Link>
+          ),
+        },
+        {
+          key: "trocar",
+          label: <span className="app-header-menu-item">Trocar Vínculo</span>,
+          onClick: trocarVinculo,
+        },
+        {
+          key: "sair",
+          label: <span className="app-header-menu-item">Sair</span>,
+          onClick: logout,
+          danger: true,
+        },
       ];
     }
 
-    // Menu para usuário logado SEM vínculo
     if (isLogged) {
       return [
-        { key: 'sair', label: 'Sair', onClick: logout, danger: true },
+        {
+          key: "sair",
+          label: <span className="app-header-menu-item">Sair</span>,
+          onClick: logout,
+          danger: true,
+        },
       ];
     }
 
-    // Menu Público (usuário deslogado)
     return [
-      { key: 'sobre', label: <Link to="/sobre">Sobre</Link> },
-      { key: 'login', label: <Link to="/login">Login</Link> },
+      {
+        key: "sobre",
+        label: (
+          <Link to="/sobre" className="app-header-menu-item">
+            Sobre
+          </Link>
+        ),
+      },
+      {
+        key: "login",
+        label: (
+          <Link to="/login" className="app-header-menu-item">
+            Login
+          </Link>
+        ),
+      },
     ];
-  }, [isLoading, isLogged, isAuthenticated, logout, trocarVinculo]);
+  }, [isLoading, isAuthenticated, isLogged, logout, trocarVinculo]);
 
   return (
-    // O Header do Ant Design já pega a cor de fundo do tema.
-    <Header
-      style={{
-        position: 'fixed',
-        top: 0,
-        zIndex: 50,
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 24px',
-        backgroundColor: 'var(--cinza-background)', // Mantém sua cor se preferir
-        borderBottom: '1px solid #f0f0f0',
-      }}
-    >
-      <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-        <img src={logo} alt="Logo" style={{ height: '40px' }} />
+    <Header className="app-header">
+      <div className="app-header-logo" onClick={() => navigate("/")}>
+        <img src={logo} alt="Logo" />{" "}
       </div>
-      
-      {/* O Menu do Ant Design substitui o <ul> e <li> */}
+
       <Menu
-        theme="light" // Ou "dark"
+        theme="light"
         mode="horizontal"
         items={menuItems}
         disabled={isLoading}
-        style={{ borderBottom: 'none', minWidth: 0, flex: 'auto', justifyContent: 'flex-end', backgroundColor: 'transparent' }}
+        className="app-header-menu"
       />
     </Header>
   );

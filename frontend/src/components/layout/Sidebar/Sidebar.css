@@ -1,0 +1,77 @@
+/* Container principal do Sidebar */
+.sidebar-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cabeçalho com informações do usuário e clínica */
+.sidebar-header {
+  padding: 1rem; /* 16px */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-bottom: 1px solid var(--verde-claro);
+  transition: opacity 0.3s, height 0.3s, padding 0.3s;
+  opacity: 1;
+}
+
+/* Estilos para o header quando a sidebar está recolhida (collapsed) */
+.sidebar-header.collapsed {
+  opacity: 0;
+  height: 0;
+  padding: 0;
+  overflow: hidden; /* Garante que o conteúdo não vaze */
+}
+
+/* Estiliza os textos dentro do header */
+.sidebar-header .ant-typography {
+  color: var(--branco);
+}
+.sidebar-header .user-name {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 1rem; /* text-base */
+}
+.sidebar-header .clinic-name {
+  font-size: 1.25rem; /* text-sm */
+}
+
+
+/* Menu Principal */
+.sidebar-menu {
+  background-color: transparent !important;
+  border-right: 0 !important;
+}
+
+/* Ícone dentro do item de menu - ESTADO PADRÃO (EXPANDIDO) */
+.sidebar-menu-icon {
+  width: 1.5rem; /* 24px */
+  height: 1.5rem; /* 24px */
+  transition: width 0.3s, height 0.3s; /* Adiciona uma transição suave */
+}
+
+/* NOVO: Estilo do ícone QUANDO A SIDEBAR ESTÁ RECOLHIDA */
+.sidebar-menu-icon.collapsed {
+  width: 1rem; /* 16px */
+  height: 1rem; /* 16px */
+}
+
+/* --- ESTILOS DO ITEM DE MENU --- */
+
+/* Estilo do item de menu ao passar o mouse (hover), se NÃO estiver selecionado */
+.sidebar-menu .ant-menu-item:not(.ant-menu-item-selected):hover {
+  background-color: var(--verde-claro) !important;
+}
+
+/* ** A MÁGICA ACONTECE AQUI ** */
+/* Estilo para o item de menu que ESTÁ SELECIONADO */
+.sidebar-menu .ant-menu-item-selected {
+  background-color: var(--verde-realce) !important;
+}
+
+/* O NavLink dentro do item selecionado */
+.sidebar-menu .ant-menu-item-selected a {
+  color: var(--branco) !important;
+  font-weight: bold;
+}

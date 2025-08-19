@@ -1,0 +1,48 @@
+/* Estilo principal para o container do Header */
+.app-header {
+  position: fixed;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid #f0f0f0;
+  /* A cor de fundo é herdada do themeConfig (Layout.headerBg) */
+}
+
+/* Estilo para a logo, tornando a área clicável */
+.app-header-logo {
+  cursor: pointer;
+  display: flex; /* Garante alinhamento vertical da imagem se necessário */
+  align-items: center;
+}
+
+.app-header-logo img {
+  height: 40px;
+}
+
+/* Estilo para o container do menu */
+.app-header-menu {
+  border-bottom: none !important; /* Sobrescreve a borda padrão do Menu horizontal */
+  min-width: 0;
+  flex: auto;
+  justify-content: flex-end;
+  background-color: transparent !important; /* Garante que o fundo seja transparente */
+}
+
+/* Estilo para os itens de menu (Link ou span) */
+.app-header-menu-item {
+  font-weight: bold;
+}
+
+/* Estilização específica para o item 'Sair', que tem a prop 'danger: true'.
+   O Ant Design adiciona a classe .ant-menu-item-danger.
+   Isso garante que a cor do texto seja a definida no seu tema para 'colorError'.
+*/
+.app-header-menu .ant-menu-item-danger.ant-menu-item-selected,
+.app-header-menu .ant-menu-item-danger:hover {
+  color: var(--antd-colorError) !important; 
+  background-color: transparent !important;
+}

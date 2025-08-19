@@ -11,7 +11,7 @@ const LayoutLogged = () => {
     <Layout>
       <AppHeader />
       {/* O Content já vem com um espaçamento padrão e pode ser customizado */}
-      <Content style={{ padding: '24px', marginTop: 64, minHeight: 'calc(100vh - 64px)' }}>
+      <Content style={{ paddingRight: '4rem', paddingLeft: '4rem', paddingTop: '2rem', marginTop: 64, minHeight: 'calc(100vh - 64px)' }}>
         {/* marginTop: 64px é a altura padrão do Header do Ant Design */}
         <Outlet />
       </Content>

@@ -31,7 +31,7 @@ const LayoutAuthenticated = () => {
             left: 0,
             top: 0,
             bottom: 0,
-            paddingTop: "64px",
+            marginTop: "64px",
             backgroundColor: colors.verde.medio, // Obs: Não funciona setando no ant-theme, tive que setar aqui.
           }}
         >
@@ -42,6 +42,8 @@ const LayoutAuthenticated = () => {
         {/* Este Layout de conteúdo se ajusta automaticamente à sidebar */}
         <Layout
           style={{
+            paddingRight: '2rem',
+            paddingLeft: '2rem',
             marginLeft: collapsed ? 80 : 256, // Largura padrão do antd recolhido (80) e expandido (256)
             transition: "margin-left 0.2s",
             marginTop: 64,
