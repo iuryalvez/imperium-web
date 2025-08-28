@@ -31,12 +31,11 @@ namespace backend.Domain.GestaoClinica
             return Ok(clinicas);
         }
 
-        // get clinica by clinicaId
         [HttpGet("sistema/clinicas/{clinicaId}")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(int clinicaId)
         {
-            var clinica = await _clinicaService.GetByIdAsync(id);
+            var clinica = await _clinicaService.GetByIdAsync(clinicaId);
             if (clinica == null) return NotFound();
             return Ok(clinica);
         }
@@ -50,7 +49,6 @@ namespace backend.Domain.GestaoClinica
             return Ok(resultado);
         }
 
-        // criar clinica pelo sistema
         [HttpPost("sistema/clinicas/cadastrar")]
         [Authorize(Policy = "GerenciaSistema")]
         public async Task<IActionResult> Create([FromBody] CadastrarClinicaDto dto)
@@ -59,7 +57,7 @@ namespace backend.Domain.GestaoClinica
             if (!result.Succeeded) return BadRequest(result);
 
             var clinicaDto = (GetClinicaDto)result.Data;
-            return CreatedAtAction(nameof(GetById), new { id = clinicaDto.Id }, clinicaDto);
+            return CreatedAtAction(nameof(GetById), new { clinicaId = clinicaDto.Id }, clinicaDto);
         }
 
         [HttpPut("sistema/clinicas/editar")]
@@ -73,10 +71,10 @@ namespace backend.Domain.GestaoClinica
 
 
         [HttpDelete("sistema/clinicas/{clinicaId}")]
-        [Authorize(Policy = "GerenciaSistema")] // Descomente quando implementar a autenticação
-        public async Task<IActionResult> Delete(int id)
+        [Authorize(Policy = "GerenciaSistema")]
+        public async Task<IActionResult> Delete(int clinicaId)
         {
-            var result = await _clinicaService.DeleteAsync(id);
+            var result = await _clinicaService.DeleteAsync(clinicaId);
             if (!result.Succeeded) return BadRequest(result);
             return NoContent();
         }

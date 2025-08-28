@@ -275,7 +275,7 @@ const TabelaEntidade = ({
         destroyOnClose
         style={{ minWidth: "40vw", maxWidth: "80vw" }}
         styles={{
-          body: { maxHeight: "80vh", overflowY: "auto" },
+          body: { maxHeight: "80vh", overflowY: "auto", overflowX:"hidden", padding: "1px"},
         }}
       >
         {registroSelecionado && (
@@ -293,9 +293,9 @@ const TabelaEntidade = ({
         footer={null}
         centered
         destroyOnClose
-        style={{ minWidth: "40vw", maxWidth: "80vw" }}
+        style={{ minWidth: "40vw", maxWidth: "90vw" }}
         styles={{
-          body: { maxHeight: "80vh", overflowY: "auto" },
+          body: { maxHeight: "80vh", overflowY: "auto", overflowX:"hidden", padding: "1px" },
         }}
       >
         {/* Garante que o formulário só renderize quando tiver dados */}

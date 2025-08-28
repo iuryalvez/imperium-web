@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace backend.Migrations
 {
     /// <inheritdoc />
-    public partial class ImperiumDB : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -349,12 +349,12 @@ namespace backend.Migrations
                     DataCad = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     DataModificado = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Sexo = table.Column<int>(type: "integer", nullable: false),
-                    Castrado = table.Column<bool>(type: "boolean", nullable: true),
                     Peso = table.Column<float>(type: "real", nullable: true),
                     PesoMinimo = table.Column<float>(type: "real", nullable: true),
                     PesoMaximo = table.Column<float>(type: "real", nullable: true),
                     CondicaoCorporal = table.Column<int>(type: "integer", nullable: true),
                     GrauAtividade = table.Column<int>(type: "integer", nullable: true),
+                    IsCastrado = table.Column<bool>(type: "boolean", nullable: true),
                     IsGestante = table.Column<bool>(type: "boolean", nullable: true),
                     IsLactanteNumeroFilhotes = table.Column<int>(type: "integer", nullable: true),
                     SemanaLactacao = table.Column<int>(type: "integer", nullable: true),
@@ -568,10 +568,10 @@ namespace backend.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Cpf", "DataCad", "DataUltimoAcesso", "Email", "EmailConfirmed", "Formacao", "IsAdmin", "IsAtivo", "LockoutEnabled", "LockoutEnd", "Nome", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "Telefone", "TwoFactorEnabled", "UserName", "Whatsapp" },
                 values: new object[,]
                 {
-                    { -4, 0, "c1006423-8f76-403a-b785-9ef4bc9e9ceb", "01234567893", new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(758), new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(772), "ceron@gsmail.com", true, "Administrador do Sistema", true, true, false, null, "Admin Ceron", "CERON@GSMAIL.COM", "ADMIN CERON", "AQAAAAIAAYagAAAAEIlqEUTsNmqdacQ4HqoJZQqVFw7KzQ5SONoftpQ4mA8rlIvtSKBOUbwJUWFVPj8hFA==", null, false, "6ce0c1d9-d784-4aeb-a462-d46fba3f75d7", "62940302010", false, "ceron", "62940302010" },
-                    { -3, 0, "cc57b7cc-2ecb-4214-a3a9-7706d588acd5", "01234567892", new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(714), new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(729), "hugo@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Hugo", "HUGO@GSMAIL.COM", "ADMIN HUGO", "AQAAAAIAAYagAAAAEDtzustg3qbqjxkAqkPASriEqaNhfikEkx0lGjsDvsVgER9mBhE0MpLtv4LN03EMvQ==", null, false, "5dd064fa-2ef4-4585-ba3a-3980cc89258a", "62910203040", false, "hugo", "62910203040" },
-                    { -2, 0, "16120e00-57db-41fc-8116-88d86b64a538", "01234567891", new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(672), new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(686), "rafael@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Rafael", "RAFAEL@GSMAIL.COM", "ADMIN RAFAEL", "AQAAAAIAAYagAAAAEKzdJikdlTQ7CDSzYT0LSRfDvoCJRHsWKI2wyTwi5nlMjO3L0jtfujPQXXHCllk9cw==", null, false, "c498bcd5-36ed-4df3-8a16-301f89fefa92", "62912345678", false, "admin.rafael", "62912345678" },
-                    { -1, 0, "589b88f9-275c-492d-9ef8-86a4aa0b6489", "01234567890", new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(625), new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(639), "iury@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Iury", "IURY@GSMAIL.COM", "IURY", "AQAAAAIAAYagAAAAEFkSMriDEl3GRm34bnMthr8U03BBHMi+WoFs5prprJxHJawDKkDjJHowJEopyzow7w==", null, false, "79a367b6-e860-4639-b0a5-748c7cb17de9", "62987654321", false, "admin.iury", "62987654321" }
+                    { -4, 0, "9cf72077-4a60-4234-a770-431d3f5cb4a3", "01234567893", new DateTime(2025, 8, 28, 17, 15, 8, 765, DateTimeKind.Utc).AddTicks(4993), new DateTime(2025, 8, 28, 17, 15, 8, 765, DateTimeKind.Utc).AddTicks(5003), "ceron@gsmail.com", true, "Administrador do Sistema", true, true, false, null, "Admin Ceron", "CERON@GSMAIL.COM", "ADMIN CERON", "AQAAAAIAAYagAAAAEOj0B/IGkMg9iwANGAJZ7SMLqSnfp1Cdzx/r3lAv9Ajse3hZyzTD/m33GJY/2WZqJA==", null, false, "7eca704f-8655-4adc-b811-5623ac7fb5e2", "62940302010", false, "ceron", "62940302010" },
+                    { -3, 0, "7d5cc873-e946-45fc-830b-761302af2a1c", "01234567892", new DateTime(2025, 8, 28, 17, 15, 8, 765, DateTimeKind.Utc).AddTicks(4946), new DateTime(2025, 8, 28, 17, 15, 8, 765, DateTimeKind.Utc).AddTicks(4961), "hugo@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Hugo", "HUGO@GSMAIL.COM", "ADMIN HUGO", "AQAAAAIAAYagAAAAEM/isje7Sa+2QaxyldK29KJyKlOtXii8QAEVCUH8wvwE8kyhXVHJeRJGP6i7DuAV2Q==", null, false, "659607ca-a223-4888-aa9d-e43f9e623cf5", "62910203040", false, "hugo", "62910203040" },
+                    { -2, 0, "6b1ca6f6-634f-43bf-a4e4-3dcb535403c3", "01234567891", new DateTime(2025, 8, 28, 17, 15, 8, 765, DateTimeKind.Utc).AddTicks(4904), new DateTime(2025, 8, 28, 17, 15, 8, 765, DateTimeKind.Utc).AddTicks(4918), "rafael@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Rafael", "RAFAEL@GSMAIL.COM", "ADMIN RAFAEL", "AQAAAAIAAYagAAAAEK/82yTzq6l15JbMboKuq4oMB9VZd5N9/t4GlyNzWRG4vkDv3OF+yf9HAagWlQsdMQ==", null, false, "ca1154b3-db39-42b8-929e-3ac83c9431b6", "62912345678", false, "admin.rafael", "62912345678" },
+                    { -1, 0, "fae36938-112a-4871-a30e-c93c88b158d0", "01234567890", new DateTime(2025, 8, 28, 17, 15, 8, 765, DateTimeKind.Utc).AddTicks(4855), new DateTime(2025, 8, 28, 17, 15, 8, 765, DateTimeKind.Utc).AddTicks(4870), "iury@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Iury", "IURY@GSMAIL.COM", "IURY", "AQAAAAIAAYagAAAAEFUtE5BHh3yjNOKxaVdyZtB71TwhIHL413El/PYPrrZraQBkynWDwwNsk/Gx1vs0/g==", null, false, "b76bb7b2-220c-40de-82a4-89b88b41dd0b", "62987654321", false, "admin.iury", "62987654321" }
                 });
 
             migrationBuilder.InsertData(

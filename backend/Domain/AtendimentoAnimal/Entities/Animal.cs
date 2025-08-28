@@ -18,12 +18,12 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         public DateTime DataCad { get; set; }
         public DateTime DataModificado { get; set; }
         public Sexo Sexo { get; set; }
-        public bool? Castrado { get; set; }
         public float? Peso { get; set; }
         public float? PesoMinimo { get; set; }
         public float? PesoMaximo { get; set; }
-        public CondicaoCorporal? CondicaoCorporal { get; set; } // valores: 1-10
+        public CondicaoCorporal? CondicaoCorporal { get; set; } // valores: 1-9
         public GrauAtividade? GrauAtividade { get; set; } // 1-inativo, 2-moderado, 3-ativo
+        public bool? IsCastrado { get; set; }
         public bool? IsGestante { get; set; }
         public int? IsLactanteNumeroFilhotes { get; set; } // numero de filhotes
         public int? SemanaLactacao { get; set; }

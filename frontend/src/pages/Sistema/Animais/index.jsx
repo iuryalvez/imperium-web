@@ -45,7 +45,7 @@ const camposSimplesCadastrarAnimaisNoSistema = [
     ],
   },
   {
-    name: "castrado",
+    name: "isCastrado",
     label: "Castrado",
     type: "boolean",
     // placeholder: "O animal é castrado?",

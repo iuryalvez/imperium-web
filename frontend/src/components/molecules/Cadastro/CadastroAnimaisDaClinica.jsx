@@ -206,7 +206,7 @@
 //         </Form.Item>
 
 //         <Form.Item
-//           name="castrado"
+//           name="isCastrado"
 //           label="Castrado?"
 //           valuePropName="checked"
 //           initialValue={false}
@@ -393,7 +393,7 @@ const FormularioCadastroAnimaisDaClinica = ({ form }) => {
           <Select options={opcoesSexo} placeholder="Selecione o sexo" />
         </Form.Item>
         <Form.Item
-          name="castrado"
+          name="isCastrado"
           label="Castrado?"
           valuePropName="checked"
           initialValue={false}

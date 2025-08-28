@@ -13,6 +13,15 @@ namespace backend.Domain.GestaoClinica.Impl
 
         public async Task<Clinica?> GetByIdAsync(int clinicaId) => await _context.Clinicas.FindAsync(clinicaId);
 
+        public async Task<Clinica?> GetByIdWithDetailsAsync(int clinicaId) {
+            return await _context.Clinicas
+                .Include(c => c.Racoes)              // Carrega a coleção de rações
+                .Include(c => c.Consultas)           // Carrega a coleção de consultas
+                .Include(c => c.TutoresClinicas)     // Carrega a coleção de tutores
+                .Include(c => c.UsuariosPerfisClinicas)
+                .FirstOrDefaultAsync(c => c.Id == clinicaId);
+        }
+
         public async Task<IEnumerable<Clinica>> GetAllAsync() =>
             await _context.Clinicas.AsNoTracking().ToListAsync();
 

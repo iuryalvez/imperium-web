@@ -13,8 +13,8 @@ using backend.Infra.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250814005751_ImperiumDB")]
-    partial class ImperiumDB
+    [Migration("20250828171509_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -217,9 +217,6 @@ namespace backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<bool?>("Castrado")
-                        .HasColumnType("boolean");
-
                     b.Property<int?>("CondicaoCorporal")
                         .HasColumnType("integer");
 
@@ -234,6 +231,9 @@ namespace backend.Migrations
 
                     b.Property<int?>("GrauAtividade")
                         .HasColumnType("integer");
+
+                    b.Property<bool?>("IsCastrado")
+                        .HasColumnType("boolean");
 
                     b.Property<bool?>("IsGestante")
                         .HasColumnType("boolean");
@@ -2443,10 +2443,10 @@ namespace backend.Migrations
                         {
                             Id = -1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "589b88f9-275c-492d-9ef8-86a4aa0b6489",
+                            ConcurrencyStamp = "fae36938-112a-4871-a30e-c93c88b158d0",
                             Cpf = "01234567890",
-                            DataCad = new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(625),
-                            DataUltimoAcesso = new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(639),
+                            DataCad = new DateTime(2025, 8, 28, 17, 15, 8, 765, DateTimeKind.Utc).AddTicks(4855),
+                            DataUltimoAcesso = new DateTime(2025, 8, 28, 17, 15, 8, 765, DateTimeKind.Utc).AddTicks(4870),
                             Email = "iury@gsmail.com",
                             EmailConfirmed = true,
                             Formacao = "Desenvolvedor do Sistema",
@@ -2456,9 +2456,9 @@ namespace backend.Migrations
                             Nome = "Admin Iury",
                             NormalizedEmail = "IURY@GSMAIL.COM",
                             NormalizedUserName = "IURY",
-                            PasswordHash = "AQAAAAIAAYagAAAAEFkSMriDEl3GRm34bnMthr8U03BBHMi+WoFs5prprJxHJawDKkDjJHowJEopyzow7w==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEFUtE5BHh3yjNOKxaVdyZtB71TwhIHL413El/PYPrrZraQBkynWDwwNsk/Gx1vs0/g==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "79a367b6-e860-4639-b0a5-748c7cb17de9",
+                            SecurityStamp = "b76bb7b2-220c-40de-82a4-89b88b41dd0b",
                             Telefone = "62987654321",
                             TwoFactorEnabled = false,
                             UserName = "admin.iury",
@@ -2468,10 +2468,10 @@ namespace backend.Migrations
                         {
                             Id = -2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "16120e00-57db-41fc-8116-88d86b64a538",
+                            ConcurrencyStamp = "6b1ca6f6-634f-43bf-a4e4-3dcb535403c3",
                             Cpf = "01234567891",
-                            DataCad = new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(672),
-                            DataUltimoAcesso = new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(686),
+                            DataCad = new DateTime(2025, 8, 28, 17, 15, 8, 765, DateTimeKind.Utc).AddTicks(4904),
+                            DataUltimoAcesso = new DateTime(2025, 8, 28, 17, 15, 8, 765, DateTimeKind.Utc).AddTicks(4918),
                             Email = "rafael@gsmail.com",
                             EmailConfirmed = true,
                             Formacao = "Desenvolvedor do Sistema",
@@ -2481,9 +2481,9 @@ namespace backend.Migrations
                             Nome = "Admin Rafael",
                             NormalizedEmail = "RAFAEL@GSMAIL.COM",
                             NormalizedUserName = "ADMIN RAFAEL",
-                            PasswordHash = "AQAAAAIAAYagAAAAEKzdJikdlTQ7CDSzYT0LSRfDvoCJRHsWKI2wyTwi5nlMjO3L0jtfujPQXXHCllk9cw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEK/82yTzq6l15JbMboKuq4oMB9VZd5N9/t4GlyNzWRG4vkDv3OF+yf9HAagWlQsdMQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "c498bcd5-36ed-4df3-8a16-301f89fefa92",
+                            SecurityStamp = "ca1154b3-db39-42b8-929e-3ac83c9431b6",
                             Telefone = "62912345678",
                             TwoFactorEnabled = false,
                             UserName = "admin.rafael",
@@ -2493,10 +2493,10 @@ namespace backend.Migrations
                         {
                             Id = -3,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "cc57b7cc-2ecb-4214-a3a9-7706d588acd5",
+                            ConcurrencyStamp = "7d5cc873-e946-45fc-830b-761302af2a1c",
                             Cpf = "01234567892",
-                            DataCad = new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(714),
-                            DataUltimoAcesso = new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(729),
+                            DataCad = new DateTime(2025, 8, 28, 17, 15, 8, 765, DateTimeKind.Utc).AddTicks(4946),
+                            DataUltimoAcesso = new DateTime(2025, 8, 28, 17, 15, 8, 765, DateTimeKind.Utc).AddTicks(4961),
                             Email = "hugo@gsmail.com",
                             EmailConfirmed = true,
                             Formacao = "Desenvolvedor do Sistema",
@@ -2506,9 +2506,9 @@ namespace backend.Migrations
                             Nome = "Admin Hugo",
                             NormalizedEmail = "HUGO@GSMAIL.COM",
                             NormalizedUserName = "ADMIN HUGO",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDtzustg3qbqjxkAqkPASriEqaNhfikEkx0lGjsDvsVgER9mBhE0MpLtv4LN03EMvQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEM/isje7Sa+2QaxyldK29KJyKlOtXii8QAEVCUH8wvwE8kyhXVHJeRJGP6i7DuAV2Q==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "5dd064fa-2ef4-4585-ba3a-3980cc89258a",
+                            SecurityStamp = "659607ca-a223-4888-aa9d-e43f9e623cf5",
                             Telefone = "62910203040",
                             TwoFactorEnabled = false,
                             UserName = "hugo",
@@ -2518,10 +2518,10 @@ namespace backend.Migrations
                         {
                             Id = -4,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "c1006423-8f76-403a-b785-9ef4bc9e9ceb",
+                            ConcurrencyStamp = "9cf72077-4a60-4234-a770-431d3f5cb4a3",
                             Cpf = "01234567893",
-                            DataCad = new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(758),
-                            DataUltimoAcesso = new DateTime(2025, 8, 14, 0, 57, 50, 412, DateTimeKind.Utc).AddTicks(772),
+                            DataCad = new DateTime(2025, 8, 28, 17, 15, 8, 765, DateTimeKind.Utc).AddTicks(4993),
+                            DataUltimoAcesso = new DateTime(2025, 8, 28, 17, 15, 8, 765, DateTimeKind.Utc).AddTicks(5003),
                             Email = "ceron@gsmail.com",
                             EmailConfirmed = true,
                             Formacao = "Administrador do Sistema",
@@ -2531,9 +2531,9 @@ namespace backend.Migrations
                             Nome = "Admin Ceron",
                             NormalizedEmail = "CERON@GSMAIL.COM",
                             NormalizedUserName = "ADMIN CERON",
-                            PasswordHash = "AQAAAAIAAYagAAAAEIlqEUTsNmqdacQ4HqoJZQqVFw7KzQ5SONoftpQ4mA8rlIvtSKBOUbwJUWFVPj8hFA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEOj0B/IGkMg9iwANGAJZ7SMLqSnfp1Cdzx/r3lAv9Ajse3hZyzTD/m33GJY/2WZqJA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "6ce0c1d9-d784-4aeb-a462-d46fba3f75d7",
+                            SecurityStamp = "7eca704f-8655-4adc-b811-5623ac7fb5e2",
                             Telefone = "62940302010",
                             TwoFactorEnabled = false,
                             UserName = "ceron",

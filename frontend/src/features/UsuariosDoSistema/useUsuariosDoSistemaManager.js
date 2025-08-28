@@ -12,6 +12,8 @@ export const useUsuariosDoSistemaManager = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [isDetailsModalVisible, setIsDetailsModalVisible] = useState(false);
+  const [viewingUser, setViewingUser] = useState(null); // Guarda o usuário a ser visualizado
 
   const buscarDados = useCallback(async () => {
     setLoading(true);
@@ -77,7 +79,9 @@ export const useUsuariosDoSistemaManager = () => {
       // Correção: Passando o segundo argumento 'activate'
       const novoStatus = !usuario.isAtivo;
       await usuariosDoSistemaAPI.setStatus(usuario, novoStatus);
-      const successMessage = `Usuário ${novoStatus ? 'ativado' : 'inativado'} com sucesso!`;
+      const successMessage = `Usuário ${
+        novoStatus ? "ativado" : "inativado"
+      } com sucesso!`;
       message.success(successMessage);
       await buscarDados(); // Atualiza a tabela com o novo status
     } catch (error) {
@@ -87,8 +91,16 @@ export const useUsuariosDoSistemaManager = () => {
     }
   };
 
-  const handleVerDetalhes = (usuario) =>
-    alert(`TODO: Abrir modal de detalhes para ${usuario.nome}.`);
+  const handleVerDetalhes = (usuario) => {
+    setViewingUser(usuario);
+    setIsDetailsModalVisible(true);
+  };
+
+  const handleDetailsModalCancel = () => {
+    setIsDetailsModalVisible(false);
+    // Limpa o usuário selecionado após fechar o modal para garantir que ele não "vaze"
+    setTimeout(() => setViewingUser(null), 300);
+  };
 
   // Retorna tudo que o componente de UI precisa para funcionar
   return {
@@ -96,10 +108,13 @@ export const useUsuariosDoSistemaManager = () => {
     loading,
     loadingRowKey,
     isModalVisible,
+    isDetailsModalVisible,
     isSubmitting,
     editingUser,
+    viewingUser,
     handleAbrirModalCadastro,
     handleModalCancel,
+    handleDetailsModalCancel,
     handleFormFinish,
     handleEditarUsuario,
     handleToggleStatus,

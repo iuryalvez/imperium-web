@@ -103,7 +103,7 @@ const DetalhesAnimaisDaClinica = ({ valores }) => {
 
       <Descriptions title="Status Reprodutivo" bordered column={1}>
         <Descriptions.Item label="Castrado">
-          {renderSimNao(valores.castrado)}
+          {renderSimNao(valores.isCastrado)}
         </Descriptions.Item>
         {isFemea && (
           <>

@@ -109,7 +109,7 @@ const PaginaClinicaEntidadeComCadastro = ({
         destroyOnClose // Boa prática: destrói os estados internos do form ao fechar
         style={{ minWidth: "40vw", maxWidth: "80vw" }}
         styles={{
-          body: { maxHeight: "80vh", overflowY: "auto" },
+          body: { maxHeight: "80vh", overflowY: "auto", overflowX:"hidden", padding: "1px" },
         }}
       >
         <FormCadastroEntidade
@@ -128,7 +128,7 @@ const PaginaClinicaEntidadeComCadastro = ({
         destroyOnClose
         width="50vw"
         styles={{
-          body: { maxHeight: "70vh", overflowY: "auto" },
+          body: { maxHeight: "70vh", overflowY: "auto", overflowX:"hidden" },
         }}
         centered
       >

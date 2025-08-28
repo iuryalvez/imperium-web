@@ -1,4 +1,3 @@
-// src/components/layout/LayoutAuthenticated.jsx (Refatorado)
 import React, { useState } from "react";
 import { Layout } from "antd";
 import { Outlet } from "react-router-dom";

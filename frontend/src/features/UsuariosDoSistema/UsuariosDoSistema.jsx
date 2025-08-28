@@ -6,6 +6,7 @@ import LoadingSpinner from "../../components/atoms/LoadingSpinner.jsx";
 import FormCadastroUsuarioDoSistema from "./components/FormularioCadastroUsuarioDoSistema/FormCadastroUsuarioDoSistema.jsx";
 import FormEdicaoUsuarioDoSistema from "./components/FormularioEdicaoUsuarioDoSistema/FormEdicaoUsuarioDoSistema.jsx";
 import TabelaUsuariosDoSistema from "./components/TabelaUsuariosDoSistema/TabelaUsuariosDoSistema.jsx";
+import FormDetalhesUsuarioDoSistema from "./components/FormularioDetalhesUsuariosDoSistema/FormDetalhesUsuariosDoSistema.jsx";
 
 const UsuariosDoSistema = () => {
   // O hook agora gerencia apenas a lógica de dados e modais, não mais as colunas.
@@ -14,10 +15,13 @@ const UsuariosDoSistema = () => {
     loading,
     loadingRowKey,
     isModalVisible,
+    isDetailsModalVisible,
     isSubmitting,
     editingUser,
+    viewingUser,
     handleAbrirModalCadastro,
     handleModalCancel,
+    handleDetailsModalCancel,
     handleFormFinish,
     handleEditarUsuario,
     handleToggleStatus,
@@ -58,14 +62,16 @@ const UsuariosDoSistema = () => {
       />
 
       <Modal
-        title={
-          editingUser ? "Editar Usuário" : "Cadastrar Novo Usuário"
-        }
+        title={editingUser ? "Editar Usuário" : "Cadastrar Novo Usuário"}
         open={isModalVisible}
         onCancel={handleModalCancel}
         footer={null}
+        centered
         destroyOnClose
-        width={700}
+        style={{ minWidth: "40vw", maxWidth: "90vw" }}
+        styles={{
+          body: { maxHeight: "80vh", overflowY: "auto", overflowX: "hidden" },
+        }}
       >
         {editingUser ? (
           <FormEdicaoUsuarioDoSistema
@@ -81,6 +87,26 @@ const UsuariosDoSistema = () => {
             isSubmitting={isSubmitting}
           />
         )}
+      </Modal>
+
+      <Modal
+        title="Detalhes do Usuário"
+        open={isDetailsModalVisible}
+        onCancel={handleDetailsModalCancel}
+        footer={[
+          <Button key="close" onClick={handleDetailsModalCancel}>
+            Fechar
+          </Button>,
+        ]}
+        centered
+        destroyOnClose
+        style={{ minWidth: "40vw", maxWidth: "90vw" }}
+        styles={{
+          body: { maxHeight: "80vh", overflowY: "auto" },
+        }}
+      >
+        {/* Renderiza o componente de detalhes apenas se houver um usuário selecionado */}
+        {viewingUser && <FormDetalhesUsuarioDoSistema valores={viewingUser} />}
       </Modal>
     </div>
   );

@@ -129,7 +129,7 @@ public class ClinicaService : IClinicaService
 
     public async Task<ServiceResult> DeleteAsync(int clinicaId)
     {
-        var clinica = await _clinicaRepository.GetByIdAsync(clinicaId); // Necessário incluir dependentes para verificar
+        var clinica = await _clinicaRepository.GetByIdWithDetailsAsync(clinicaId); // Necessário incluir dependentes para verificar
         if (clinica == null)
             return new ServiceResult { Succeeded = false, Message = "Clínica não encontrada." };
 

@@ -6,6 +6,7 @@ namespace backend.Domain.GestaoClinica.Interface
     public interface IClinicaRepository
     {
         Task<Clinica?> GetByIdAsync(int clinicaId);
+        Task<Clinica?> GetByIdWithDetailsAsync(int clinicaId);
         Task<IEnumerable<Clinica>> GetAllAsync();
         Task<bool> CnpjExistsForAnotherClinicAsync(string cnpj, int excludeClinicaId);
         Task AddAsync(Clinica clinica);

@@ -127,7 +127,7 @@ const EdicaoAnimalDaClinica = ({ form, valoresIniciais }) => {
         <Form.Item label="Sexo" name="sexo" rules={[{ required: true }]}>
           <Select options={opcoesSexo} />
         </Form.Item>
-        <Form.Item name="castrado" label="Castrado?" valuePropName="checked">
+        <Form.Item name="isCastrado" label="Castrado?" valuePropName="checked">
           <Switch checkedChildren="SIM" unCheckedChildren="NÃO" />
         </Form.Item>
       </Col>
