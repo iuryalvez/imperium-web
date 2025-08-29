@@ -3,15 +3,11 @@ import React, { useState, useEffect } from "react";
 import { Button, Form, Typography, message } from "antd";
 import { SaveOutlined } from "@ant-design/icons";
 
-import EdicaoUsuariosDoSistema from "./Edicao/EdicaoUsuariosDoSistema";
-import EdicaoUsuariosDaClinica from "./Edicao/EdicaoUsuariosDaClinica";
 import EdicaoAnimaisDaClinica from "./Edicao/EdicaoAnimaisDaClinica";
 import EdicaoTutoresDaClinica from "./Edicao/EdicaoTutoresDaClinica";
 import EdicaoClinica from "./Edicao/EdicaoClinica";
 
 const componentesDeEdicao = {
-  usuariosDoSistema: EdicaoUsuariosDoSistema,
-  usuariosDaClinica: EdicaoUsuariosDaClinica,
   animaisDaClinica: EdicaoAnimaisDaClinica,
   tutoresDaClinica: EdicaoTutoresDaClinica,
   clinicas: EdicaoClinica,

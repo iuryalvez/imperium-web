@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 import { Button, Modal } from "antd";
 import { PlusOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import { useUsuariosDoSistemaManager } from "./useUsuariosDoSistemaManager";
@@ -6,7 +6,7 @@ import LoadingSpinner from "../../components/atoms/LoadingSpinner.jsx";
 import FormCadastroUsuarioDoSistema from "./components/FormularioCadastroUsuarioDoSistema/FormCadastroUsuarioDoSistema.jsx";
 import FormEdicaoUsuarioDoSistema from "./components/FormularioEdicaoUsuarioDoSistema/FormEdicaoUsuarioDoSistema.jsx";
 import TabelaUsuariosDoSistema from "./components/TabelaUsuariosDoSistema/TabelaUsuariosDoSistema.jsx";
-import FormDetalhesUsuarioDoSistema from "./components/FormularioDetalhesUsuariosDoSistema/FormDetalhesUsuariosDoSistema.jsx";
+import FormDetalhesUsuarioDoSistema from "./components/FormularioDetalhesUsuarioDoSistema/FormDetalhesUsuarioDoSistema.jsx";
 
 const UsuariosDoSistema = () => {
   // O hook agora gerencia apenas a lógica de dados e modais, não mais as colunas.

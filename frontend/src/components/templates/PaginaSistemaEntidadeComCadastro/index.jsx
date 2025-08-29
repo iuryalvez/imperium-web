@@ -71,8 +71,12 @@ const PaginaSistemaEntidadeComCadastro = ({
         >
           <ArrowLeftOutlined className="mr-2" /> Voltar
         </button>
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
+        <div 
+          className="flex justify-between items-center mb-4"
+        >
+          <h1 
+            className="text-2xl font-bold text-[var(--verde-medio)]"
+          >
             {titulo}
           </h1>
           <Button
@@ -104,7 +108,12 @@ const PaginaSistemaEntidadeComCadastro = ({
         destroyOnClose
         style={{ minWidth: "40vw", maxWidth: "80vw" }}
         styles={{
-          body: { maxHeight: "80vh", overflowY: "auto", overflowX: "hidden", padding: "1px" },
+          body: {
+            maxHeight: "80vh",
+            overflowY: "auto",
+            overflowX: "hidden",
+            padding: "1px",
+          },
         }}
       >
         <FormCadastroEntidade

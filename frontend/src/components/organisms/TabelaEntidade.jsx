@@ -168,20 +168,20 @@ const TabelaEntidade = ({
               <Button
                 icon={<EyeOutlined />}
                 onClick={() => abrirModalDetalhes(record)}
-                style={{
-                  backgroundColor: "var(--verde-medio)",
-                  color: "white",
-                }}
+                // style={{
+                //   backgroundColor: "var(--verde-medio)",
+                //   color: "white",
+                // }}
               />
             </Tooltip>
             <Tooltip title="Editar">
               <Button
                 icon={<EditOutlined />}
                 onClick={() => abrirModalEdicao(record)}
-                style={{
-                  backgroundColor: "var(--verde-medio)",
-                  color: "white",
-                }}
+                // style={{
+                //   backgroundColor: "var(--verde-medio)",
+                //   color: "white",
+                // }}
               />
             </Tooltip>
             {entidade === "clinicas" && (
@@ -189,10 +189,10 @@ const TabelaEntidade = ({
                 <Button
                   icon={<LoginOutlined />}
                   onClick={() => abrirModalAcessoClinica(record)}
-                  style={{
-                    backgroundColor: "var(--verde-medio)",
-                    color: "white",
-                  }}
+                  // style={{
+                  //   backgroundColor: "var(--verde-medio)",
+                  //   color: "white",
+                  // }}
                 >
                   Acessar
                 </Button>
@@ -213,12 +213,13 @@ const TabelaEntidade = ({
                     icon={
                       estaAtivo ? <StopOutlined /> : <CheckCircleOutlined />
                     }
-                    style={{
-                      backgroundColor: estaAtivo
-                        ? "var(--vermelho-delete)"
-                        : "var(--verde-medio)",
-                      color: "white",
-                    }}
+                    danger={record.isAtivo}
+                    // style={{
+                    //   backgroundColor: estaAtivo
+                    //     ? "var(--vermelho-delete)"
+                    //     : "var(--verde-medio)",
+                    //   color: "white",
+                    // }}
                   />
                 </Popconfirm>
               </Tooltip>
@@ -234,10 +235,10 @@ const TabelaEntidade = ({
                 >
                   <Button
                     icon={<DeleteOutlined />}
-                    style={{
-                      backgroundColor: "var(--vermelho-delete)",
-                      color: "white",
-                    }}
+                    // style={{
+                    //   backgroundColor: "var(--vermelho-delete)",
+                    //   color: "white",
+                    // }}
                   />
                 </Popconfirm>
               </Tooltip>

@@ -1,16 +1,12 @@
 import React, { useState } from "react";
 import { Form, Button, message, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import FormularioCadastroUsuarioDoSistema from "./Cadastro/CadastroUsuariosDoSistema";
-import FormularioCadastroUsuarioDaClinica from "./Cadastro/CadastroUsuariosDaClinica";
 import FormularioCadastroClinica from "./Cadastro/CadastroClinicas";
 import FormularioCadastroAnimaisDaClinica from "./Cadastro/CadastroAnimaisDaClinica";
 import FormularioCadastroTutoresDaClinica from "./Cadastro/CadastroTutoresDaClinica";
 
 const componentesDeCadastro = {
-  usuariosDoSistema: FormularioCadastroUsuarioDoSistema,
   clinicas: FormularioCadastroClinica,
-  usuariosDaClinica: FormularioCadastroUsuarioDaClinica,
   animaisDaClinica: FormularioCadastroAnimaisDaClinica,
   tutoresDaClinica: FormularioCadastroTutoresDaClinica,
 };

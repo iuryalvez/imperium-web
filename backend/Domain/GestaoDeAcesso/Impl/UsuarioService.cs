@@ -417,6 +417,14 @@ public class UsuarioService : IUsuarioService
 
             _mapper.Map(dto, usuario);
 
+            // ATUALIZAÇÃO EXPLÍCITA: Mapeia manualmente o campo que pertence à entidade de vínculo.
+            // Verificamos se o DTO contém a lista de perfis para não apagar perfis existentes
+            // caso o frontend não envie a lista (embora devesse enviar uma lista vazia para limpar).
+            if (dto.Perfis != null)
+            {
+                vinculo.Perfis = dto.Perfis;
+            }
+
             // Altera a senha, se uma nova foi fornecida
             if (!string.IsNullOrWhiteSpace(dto.Senha))
             {

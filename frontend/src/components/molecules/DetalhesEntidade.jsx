@@ -1,8 +1,6 @@
 import React from "react";
 import DetalhesAnimaisDaClinica from "./Detalhes/FormDetalhesAnimaisDaClinica";
 import DetalhesClinica from "./Detalhes/FormDetalhesClinica";
-import DetalhesUsuariosDoSistema from "./Detalhes/FormDetalhesUsuariosDoSistema";
-import DetalhesUsuariosDaClinica from "./Detalhes/FormDetalhesUsuariosDaClinica";
 import DetalhesTutoresDaClinica from "./Detalhes/FormDetalhesTutoresDaClinica";
 import { Button, Typography } from "antd";
 
@@ -10,8 +8,6 @@ import { Button, Typography } from "antd";
 const componentesDeDetalhes = {
   animaisDaClinica: DetalhesAnimaisDaClinica,
   clinicas: DetalhesClinica,
-  usuariosDoSistema: DetalhesUsuariosDoSistema,
-  usuariosDaClinica: DetalhesUsuariosDaClinica,
   tutoresDaClinica: DetalhesTutoresDaClinica,
 };
 
