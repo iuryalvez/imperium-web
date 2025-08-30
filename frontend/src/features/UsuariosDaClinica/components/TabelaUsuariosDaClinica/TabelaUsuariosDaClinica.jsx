@@ -20,7 +20,7 @@ import {
 import colunas from './colunas';
 
 const TabelaUsuariosDaClinica = ({
-  data,
+  usuarios,
   onEdit,
   onToggleStatus,
   onViewDetails,
@@ -97,8 +97,7 @@ const TabelaUsuariosDaClinica = ({
     [onEdit, onToggleStatus, onViewDetails, loadingRowKey]
   ); // Dependências da coluna de ações
 
-  // 4. CÁLCULO DAS COLUNAS VISÍVEIS (MEMOIZADO)
-  // Também usamos useMemo aqui para otimização.
+  // CÁLCULO DAS COLUNAS VISÍVEIS (MEMOIZADO)
   const colunasVisiveis = useMemo(
     () => [
       ...colunas.filter((col) => visibleColumns.includes(col.key)),
@@ -137,7 +136,7 @@ const TabelaUsuariosDaClinica = ({
         </Dropdown>
       </div>
       <Table
-        dataSource={data}
+        dataSource={usuarios}
         columns={colunasVisiveis}
         rowKey={(record) => record.compositeKey || record.id}
         pagination={{ pageSize: 10, showSizeChanger: true }}

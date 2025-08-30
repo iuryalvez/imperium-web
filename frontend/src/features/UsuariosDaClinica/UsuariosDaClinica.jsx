@@ -15,18 +15,18 @@ const UsuariosDaClinica = () => {
     usuarios,
     loading,
     loadingRowKey,
-    isModalVisible,
-    isDetailsModalVisible,
+    isModalOpen,
+    isOpenModalDetalhes,
     isSubmitting,
     editingUser,
     viewingUser,
-    handleAbrirModalCadastro,
-    handleModalCancel,
-    handleDetailsModalCancel,
-    handleFormFinish,
+    handleOpenModalCadastro,
+    handleCloseModal,
+    handleCloseModalDetalhes,
+    handleSubmit,
     handleEditarUsuario,
     handleToggleStatus,
-    handleVerDetalhes,
+    handleOpenModalDetalhes,
   } = useUsuariosDaClinicaManager();
 
   if (loading) {
@@ -48,24 +48,24 @@ const UsuariosDaClinica = () => {
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={handleAbrirModalCadastro}
+          onClick={handleOpenModalCadastro}
         >
           Cadastrar Usuário
         </Button>
       </div>
 
       <TabelaUsuariosDaClinica
-        data={usuarios}
+        usuarios={usuarios}
         onEdit={handleEditarUsuario}
         onToggleStatus={handleToggleStatus}
-        onViewDetails={handleVerDetalhes}
+        onViewDetails={handleOpenModalDetalhes}
         loadingRowKey={loadingRowKey}
       />
 
       <Modal
         title={editingUser ? "Editar Usuário" : "Cadastrar Novo Usuário"}
-        open={isModalVisible}
-        onCancel={handleModalCancel}
+        open={isModalOpen}
+        onCancel={handleCloseModal}
         footer={null}
         centered
         destroyOnClose
@@ -76,15 +76,15 @@ const UsuariosDaClinica = () => {
       >
         {editingUser ? (
           <FormEdicaoUsuarioDaClinica
-            onFinish={handleFormFinish}
-            onCancel={handleModalCancel}
+            onFinish={handleSubmit}
+            onCancel={handleCloseModal}
             isSubmitting={isSubmitting}
             initialValues={editingUser}
           />
         ) : (
           <FormCadastroUsuarioDaClinica
-            onFinish={handleFormFinish}
-            onCancel={handleModalCancel}
+            onFinish={handleSubmit}
+            onCancel={handleCloseModal}
             isSubmitting={isSubmitting}
           />
         )}
@@ -92,10 +92,10 @@ const UsuariosDaClinica = () => {
 
       <Modal
         title="Detalhes do Usuário"
-        open={isDetailsModalVisible}
-        onCancel={handleDetailsModalCancel}
+        open={isOpenModalDetalhes}
+        onCancel={handleCloseModalDetalhes}
         footer={[
-          <Button key="close" onClick={handleDetailsModalCancel}>
+          <Button key="close" onClick={handleCloseModalDetalhes}>
             Fechar
           </Button>,
         ]}

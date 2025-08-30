@@ -25,11 +25,6 @@ const ConsultasDaClinica = () => {
     handleSubmitRelatorio,
   } = useConsultasManager();
 
-  // Placeholder para a lógica do relatório
-  const handleOpenRelatorio = (consulta) => {
-    alert(`Abrir modal de relatório para a consulta ID: ${consulta.id}`);
-  };
-
   if (loading) {
     return <Skeleton active />;
   }

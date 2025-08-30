@@ -4,17 +4,13 @@ import {
   Button,
   Space,
   Modal,
-  Popconfirm,
   message,
   Tooltip,
 } from "antd";
 import {
-  DeleteOutlined,
   EditOutlined,
   EyeOutlined,
-  LoginOutlined,
-  StopOutlined,
-  CheckCircleOutlined,
+  LoginOutlined
 } from "@ant-design/icons";
 import "../styles/TabelaEntidade.css";
 import FormAcessarClinica from "../molecules/FormAcessarClinica";
@@ -77,31 +73,6 @@ const TabelaEntidade = ({
     await entidadeAPI.editar(processedValues);
   };
 
-  const handleToggleAtivacao = async (record) => {
-    const estaAtivo =
-      entidade === "usuariosDoSistema"
-        ? record.isAtivo
-        : record.isAtivoNaClinica;
-    const acao = estaAtivo ? "inativar" : "ativar";
-
-    setLoading(true);
-    try {
-      // A chamada agora é simples. Passamos o registro inteiro e a ação desejada.
-      // A camada de API (`entidadeAPI`) vai descobrir o que fazer com ele.
-      await entidadeAPI.setStatus(record, !estaAtivo);
-
-      message.success(`${nomeEntidade} alterado com sucesso.`);
-      if (onAtualizar) onAtualizar();
-    } catch (error) {
-      console.error(`Erro ao ${acao} usuário:`, error);
-      message.error(
-        error.response?.data?.message || `Falha ao ${acao} usuário.`
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const deletarRegistro = async (registroId) => {
     console.log("Iniciando deleção de registro com Id:", registroId);
     setLoading(true);
@@ -156,12 +127,6 @@ const TabelaEntidade = ({
       key: "acoes",
       width: "auto",
       render: (_, record) => {
-        // Determina o status com base no tipo de entidade
-        const estaAtivo =
-          entidade === "usuariosDoSistema"
-            ? record.isAtivo
-            : record.isAtivoNaClinica;
-
         return (
           <Space>
             <Tooltip title="Ver Detalhes">
@@ -198,71 +163,18 @@ const TabelaEntidade = ({
                 </Button>
               </Tooltip>
             )}
-
-            {["usuariosDaClinica", "usuariosDoSistema"].includes(entidade) && (
-              <Tooltip title={estaAtivo ? "Inativar" : "Ativar"}>
-                <Popconfirm
-                  title={`Tem certeza que deseja ${
-                    estaAtivo ? "inativar" : "ativar"
-                  } este usuário?`}
-                  onConfirm={() => handleToggleAtivacao(record)}
-                  okText="Sim"
-                  cancelText="Não"
-                >
-                  <Button
-                    icon={
-                      estaAtivo ? <StopOutlined /> : <CheckCircleOutlined />
-                    }
-                    danger={record.isAtivo}
-                    // style={{
-                    //   backgroundColor: estaAtivo
-                    //     ? "var(--vermelho-delete)"
-                    //     : "var(--verde-medio)",
-                    //   color: "white",
-                    // }}
-                  />
-                </Popconfirm>
-              </Tooltip>
-            )}
-
-            {!["usuariosDaClinica", "usuariosDoSistema"].includes(entidade) && (
-              <Tooltip title="Deletar">
-                <Popconfirm
-                  title="Tem certeza que deseja deletar este registro?"
-                  onConfirm={() => deletarRegistro(record.id)}
-                  okText="Sim"
-                  cancelText="Não"
-                >
-                  <Button
-                    icon={<DeleteOutlined />}
-                    // style={{
-                    //   backgroundColor: "var(--vermelho-delete)",
-                    //   color: "white",
-                    // }}
-                  />
-                </Popconfirm>
-              </Tooltip>
-            )}
           </Space>
         );
       },
     },
   ];
-
-  const getRowKey = (record) => {
-    if (entidade === "usuariosDoSistema") {
-      return record.compositeKey;
-    }
-    // Para outras entidades, o Id principal é suficiente.
-    return record.id;
-  };
-
+  
   return (
     <div>
       <Table
         dataSource={registros}
         columns={colunasComAcoes}
-        rowKey={getRowKey}
+        rowKey={"id"}
         pagination={{ pageSize: 10 }}
         scroll={{ x: "max-content" }} // ativa scroll horizontal se necessário
       />
@@ -294,7 +206,7 @@ const TabelaEntidade = ({
         footer={null}
         centered
         destroyOnClose
-        style={{ minWidth: "40vw", maxWidth: "90vw" }}
+        style={{ minWidth: "40vw", maxWidth: "80vw" }}
         styles={{
           body: { maxHeight: "80vh", overflowY: "auto", overflowX:"hidden", padding: "1px" },
         }}

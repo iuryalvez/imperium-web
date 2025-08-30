@@ -17,7 +17,7 @@ import {
   SettingOutlined,
 } from "@ant-design/icons";
 
-import colunas from './colunas';
+import colunas from "./colunas";
 
 const TabelaUsuariosDoSistema = ({
   data,
@@ -40,7 +40,7 @@ const TabelaUsuariosDoSistema = ({
     );
   };
 
-  // 3. DEFINIÇÃO DA COLUNA DE AÇÕES (MEMOIZADA)
+  // DEFINIÇÃO DA COLUNA DE AÇÕES (MEMOIZADA)
   // Usamos useMemo porque esta coluna depende das props (onEdit, etc.).
   // Ela só será recriada se uma dessas funções mudar.
   const colunaAcoes = useMemo(
@@ -98,8 +98,7 @@ const TabelaUsuariosDoSistema = ({
     [onEdit, onToggleStatus, onViewDetails, loadingRowKey]
   ); // Dependências da coluna de ações
 
-  // 4. CÁLCULO DAS COLUNAS VISÍVEIS (MEMOIZADO)
-  // Também usamos useMemo aqui para otimização.
+  // CÁLCULO DAS COLUNAS VISÍVEIS (MEMOIZADO)
   const colunasVisiveis = useMemo(
     () => [
       ...colunas.filter((col) => visibleColumns.includes(col.key)),

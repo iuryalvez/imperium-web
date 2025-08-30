@@ -9,17 +9,17 @@ export const useUsuariosDaClinicaManager = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingRowKey, setLoadingRowKey] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
-  const [isDetailsModalVisible, setIsDetailsModalVisible] = useState(false);
+  const [isOpenModalDetalhes, setIsOpenModalDetalhes] = useState(false);
   const [viewingUser, setViewingUser] = useState(null); // Guarda o usuário a ser visualizado
 
-  const buscarDados = useCallback(async () => {
+  const fetchUsuarios = useCallback(async () => {
     setLoading(true);
     try {
-      const dados = await usuariosDaClinicaAPI.listar();
-      setUsuarios(dados);
+      const dadosUsuarios = await usuariosDaClinicaAPI.listar();
+      setUsuarios(dadosUsuarios);
     } catch (error) {
       message.error(error.message);
       setUsuarios([]);
@@ -29,25 +29,25 @@ export const useUsuariosDaClinicaManager = () => {
   }, []);
 
   useEffect(() => {
-    buscarDados();
-  }, [buscarDados]);
+    fetchUsuarios();
+  }, [fetchUsuarios]);
 
-  const handleAbrirModalCadastro = () => {
+  const handleOpenModalCadastro = () => {
     setEditingUser(null);
-    setIsModalVisible(true);
+    setIsModalOpen(true);
   };
 
   const handleEditarUsuario = (usuario) => {
     setEditingUser(usuario);
-    setIsModalVisible(true);
+    setIsModalOpen(true);
   };
 
-  const handleModalCancel = () => {
-    setIsModalVisible(false);
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
     setEditingUser(null);
   };
 
-  const handleFormFinish = async (values) => {
+  const handleSubmit = async (values) => {
     setIsSubmitting(true);
     let successMessage = "";
     try {
@@ -61,8 +61,8 @@ export const useUsuariosDaClinicaManager = () => {
         successMessage = "Usuário cadastrado com sucesso!";
       }
       message.success(successMessage);
-      handleModalCancel();
-      await buscarDados();
+      handleCloseModal();
+      await fetchUsuarios();
     } catch (error) {
       message.error(error.message);
     } finally {
@@ -82,7 +82,7 @@ export const useUsuariosDaClinicaManager = () => {
         novoStatus ? "ativado" : "inativado"
       } com sucesso!`;
       message.success(successMessage);
-      await buscarDados(); // Atualiza a tabela com o novo status
+      await fetchUsuarios(); // Atualiza a tabela com o novo status
     } catch (error) {
       message.error(error.message);
     } finally {
@@ -90,13 +90,13 @@ export const useUsuariosDaClinicaManager = () => {
     }
   };
 
-  const handleVerDetalhes = (usuario) => {
+  const handleOpenModalDetalhes = (usuario) => {
     setViewingUser(usuario);
-    setIsDetailsModalVisible(true);
+    setIsOpenModalDetalhes(true);
   };
 
-  const handleDetailsModalCancel = () => {
-    setIsDetailsModalVisible(false);
+  const handleCloseModalDetalhes = () => {
+    setIsOpenModalDetalhes(false);
     // Limpa o usuário selecionado após fechar o modal para garantir que ele não "vaze"
     setTimeout(() => setViewingUser(null), 300);
   };
@@ -106,17 +106,17 @@ export const useUsuariosDaClinicaManager = () => {
     usuarios,
     loading,
     loadingRowKey,
-    isModalVisible,
-    isDetailsModalVisible,
+    isModalOpen,
+    isOpenModalDetalhes,
     isSubmitting,
     editingUser,
     viewingUser,
-    handleAbrirModalCadastro,
-    handleModalCancel,
-    handleDetailsModalCancel,
-    handleFormFinish,
+    handleOpenModalCadastro,
+    handleCloseModal,
+    handleCloseModalDetalhes,
+    handleSubmit,
     handleEditarUsuario,
     handleToggleStatus,
-    handleVerDetalhes,
+    handleOpenModalDetalhes,
   };
 };
