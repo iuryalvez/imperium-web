@@ -15,6 +15,6 @@ namespace backend.Domain.AtendimentoAnimal
         public EspecieAnimal? Especie { get; set; }
         public DateTime? Nascimento { get; set; }
         public Sexo? Sexo { get; set; }
-        public bool? Castrado { get; set; }
+        public bool? IsCastrado { get; set; }
     }
 }

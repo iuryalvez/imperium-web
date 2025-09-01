@@ -50,7 +50,7 @@ export const useConsultasManager = () => {
         message.success("Consulta agendada com sucesso!");
       }
       handleCloseModal();
-      fetchConsultas();
+      await fetchConsultas();
     } catch (error) {
       message.error(error.message || "Falha ao salvar consulta.");
       throw error; // Re-lança o erro para o formulário poder manter o modal aberto
@@ -61,7 +61,7 @@ export const useConsultasManager = () => {
     try {
       await consultasDaClinicaAPI.deletar(consultaId);
       message.success("Consulta excluída com sucesso!");
-      fetchConsultas();
+      await fetchConsultas();
     } catch (error) {
       message.error(
         error.response?.data?.message || "Erro ao excluir consulta."
@@ -95,7 +95,7 @@ export const useConsultasManager = () => {
       await relatoriosDaClinicaAPI.upsert(selectedConsulta.id, values);
       message.success("Relatório salvo com sucesso!");
       handleCloseRelatorioModal();
-      fetchConsultas(); // Re-busca as consultas para atualizar o status do relatório na tabela
+      await fetchConsultas(); // Re-busca as consultas para atualizar o status do relatório na tabela
     } catch (error) {
       message.error("Falha ao salvar o relatório.");
       throw error;

@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Modal } from "antd";
 import { PlusOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import LoadingSpinner from "../../components/atoms/LoadingSpinner.jsx";
-import { useUsuariosDaClinicaManager } from "./useUsuariosDaClinica.js";
+import { useUsuariosDaClinicaManager } from "./useUsuariosDaClinicaManager.js";
 import TabelaUsuariosDaClinica from "./components/TabelaUsuariosDaClinica/TabelaUsuariosDaClinica.jsx";
 import FormEdicaoUsuarioDaClinica from "./components/FormularioEdicaoUsuarioDaClinica/FormEdicaoUsuarioDaClinica.jsx";
 import FormCadastroUsuarioDaClinica from "./components/FormularioCadastroUsuarioDaClinica/FormCadastroUsuarioDaClinica.jsx";

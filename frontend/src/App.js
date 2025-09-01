@@ -18,13 +18,13 @@ import Clinica from "./pages/Clinica/ClinicaInicio/index.jsx";
 import ClinicaInicio from "./pages/Clinica/ClinicaInicio/index.jsx";
 import ClinicaGerenciamento from "./pages/Clinica/ClinicaGerenciamento/index.jsx";
 import TutoresDaClinica from "./pages/Clinica/TutoresDaClinica/index.jsx";
-import AnimaisDaClinica from "./pages/Clinica/AnimaisDaClinica/index.jsx";
 
 import Sistema from "./features/SistemaInicioAdmin/SistemaInicioAdmin.jsx";
 import ListaDeVinculos from "./pages/Sistema/ListaDeVinculos/ListaDeVinculos.jsx";
 
 import UsuariosDoSistema from "./features/UsuariosDoSistema/UsuariosDoSistema.jsx";
 import UsuariosDaClinica from "./features/UsuariosDaClinica/UsuariosDaClinica.jsx";
+import AnimaisDaClinica from "./features/AnimaisDaClinica/AnimaisDaClinica.jsx";
 import RacoesDaClinica from "./features/RacoesDaClinica/RacoesDaClinica.jsx";
 import ConsultasDaClinica from "./features/ConsultasDaClinica/ConsultasDaClinica.jsx";
 

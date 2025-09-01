@@ -175,8 +175,8 @@ const TabelaEntidade = ({
         dataSource={registros}
         columns={colunasComAcoes}
         rowKey={"id"}
-        pagination={{ pageSize: 10 }}
-        scroll={{ x: "max-content" }} // ativa scroll horizontal se necessário
+        pagination={{ pageSize: 10, showSizeChanger: true }}
+        scroll={{ x: "max-content" }}
       />
 
       <Modal

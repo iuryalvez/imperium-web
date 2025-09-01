@@ -24,9 +24,9 @@ import FormularioEdicaoRaca from "../molecules/Edicao/FormEdicaoRaca";
 
 const GerenciadorDeRacas = () => {
   const [loading, setLoading] = useState(true);
-  const [modalCadastroVisivel, setModalCadastroVisivel] = useState(false);
+  const [isModalCadastroOpen, setIsModalCadastroOpen] = useState(false);
   const [modalEdicaoVisivel, setModalEdicaoVisivel] = useState(false);
-  const [racaSelecionada, setRacaSelecionada] = useState(null);
+  const [editingRaca, setEditingRaca] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState(""); // O que o usuário digita
   const [allRacas, setAllRacas] = useState([]); // A lista mestra, nunca modificada
@@ -53,7 +53,7 @@ const GerenciadorDeRacas = () => {
 
   const handleOperationSuccess = async () => {
     // Fecha qualquer modal que esteja aberto
-    setModalCadastroVisivel(false);
+    setIsModalCadastroOpen(false);
     setModalEdicaoVisivel(false);
     // 2. Limpa o campo de busca
     setSearchTerm("");
@@ -70,7 +70,7 @@ const GerenciadorDeRacas = () => {
   };
 
   const abrirModalEdicao = (raca) => {
-    setRacaSelecionada(raca);
+    setEditingRaca(raca);
     setModalEdicaoVisivel(true);
   };
 
@@ -137,7 +137,7 @@ const GerenciadorDeRacas = () => {
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            onClick={() => setModalCadastroVisivel(true)}
+            onClick={() => setIsModalCadastroOpen(true)}
           >
             Nova Raça
           </Button>
@@ -205,8 +205,8 @@ const GerenciadorDeRacas = () => {
 
       <Modal
         title="Cadastrar Nova Raça"
-        open={modalCadastroVisivel}
-        onCancel={() => setModalCadastroVisivel(false)}
+        open={isModalCadastroOpen}
+        onCancel={() => setIsModalCadastroOpen(false)}
         footer={null}
         destroyOnClose
         style={{ minWidth: "40vw", maxWidth: "80vw" }} // importante
@@ -216,7 +216,7 @@ const GerenciadorDeRacas = () => {
       >
         <FormularioCadastroRaca
           onSuccess={handleOperationSuccess}
-          onCancel={() => setModalCadastroVisivel(false)}
+          onCancel={() => setIsModalCadastroOpen(false)}
         />
       </Modal>
       <Modal
@@ -229,9 +229,9 @@ const GerenciadorDeRacas = () => {
           body: { maxHeight: "70vh", overflowY: "auto" },
         }}
       >
-        {racaSelecionada && (
+        {editingRaca && (
           <FormularioEdicaoRaca
-            valoresIniciais={racaSelecionada}
+            valoresIniciais={editingRaca}
             onSuccess={handleOperationSuccess}
             onCancel={() => setModalEdicaoVisivel(false)}
           />

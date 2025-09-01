@@ -18,7 +18,7 @@ namespace backend.Domain.AtendimentoAnimal.DTOs
         public string Nome { get; set; }
 
         [Required]
-        public bool Castrado { get; set; }
+        public bool IsCastrado { get; set; }
         public DateTime Nascimento { get; set; }
         public List<int>? TutorIds { get; set; }
     }
