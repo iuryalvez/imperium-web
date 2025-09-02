@@ -51,14 +51,14 @@ const AnimaisDaClinica = () => {
         </Space>
       </div>
 
-      <Input
+      {/* <Input
         placeholder="Buscar animal pelo nome..."
         prefix={<SearchOutlined />}
         value={searchTerm}
         onChange={handleSearch}
         style={{ marginBottom: 16 }}
         allowClear
-      />
+      /> */}
 
       <TabelaAnimais
         data={animais}

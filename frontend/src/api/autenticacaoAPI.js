@@ -3,8 +3,8 @@ import endpoints from '../services/Endpoints'; // endpoints
 
 export const autenticacaoAPI = {
     login: async ({ email, senha, rememberMe }) => {
-        console.log("---------------------------Entrou na api---------------------------");
-        console.log("\nemail na api: ", email, "\nsenha na api: ", senha);
+        // console.log("---------------------------Entrou na api---------------------------");
+        // console.log("\nemail na api: ", email, "\nsenha na api: ", senha);
         try {
             const response = await api.post(endpoints.autenticacao.login, { email, senha, rememberMe });
             return response;
@@ -80,7 +80,7 @@ export const autenticacaoAPI = {
     verificarAutenticacao: async () => {
         try {
             const response = await api.get(endpoints.autenticacao.checarStatus);
-            console.log(response.data)
+            // console.log(response.data)
             return response.data;
             // response.data tem o seguinte formato:
             // {status = logado}, para usuários que só têm token de login

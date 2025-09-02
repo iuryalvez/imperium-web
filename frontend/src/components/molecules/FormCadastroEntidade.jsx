@@ -2,12 +2,10 @@ import React, { useState } from "react";
 import { Form, Button, message, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import FormularioCadastroClinica from "./Cadastro/CadastroClinicas";
-import FormularioCadastroAnimaisDaClinica from "./Cadastro/CadastroAnimaisDaClinica";
 import FormularioCadastroTutoresDaClinica from "./Cadastro/CadastroTutoresDaClinica";
 
 const componentesDeCadastro = {
   clinicas: FormularioCadastroClinica,
-  animaisDaClinica: FormularioCadastroAnimaisDaClinica,
   tutoresDaClinica: FormularioCadastroTutoresDaClinica,
 };
 

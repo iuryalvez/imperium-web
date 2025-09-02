@@ -1,12 +1,10 @@
 import React from "react";
-import DetalhesAnimaisDaClinica from "./Detalhes/FormDetalhesAnimaisDaClinica";
 import DetalhesClinica from "./Detalhes/FormDetalhesClinica";
 import DetalhesTutoresDaClinica from "./Detalhes/FormDetalhesTutoresDaClinica";
 import { Button, Typography } from "antd";
 
 // O mapa de componentes continua o mesmo
 const componentesDeDetalhes = {
-  animaisDaClinica: DetalhesAnimaisDaClinica,
   clinicas: DetalhesClinica,
   tutoresDaClinica: DetalhesTutoresDaClinica,
 };

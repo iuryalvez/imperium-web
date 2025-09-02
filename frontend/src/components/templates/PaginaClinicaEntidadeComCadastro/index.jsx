@@ -5,7 +5,6 @@ import { PlusOutlined } from "@ant-design/icons";
 import LoadingSpinner from "../../atoms/LoadingSpinner.jsx";
 import TabelaEntidade from "../../organisms/TabelaEntidade.jsx";
 import FormCadastroEntidade from "../../molecules/FormCadastroEntidade.jsx";
-import GerenciadorDeRacas from "../../organisms/GerenciadorDeRacas.jsx";
 
 const PaginaClinicaEntidadeComCadastro = ({
   titulo,
@@ -118,21 +117,6 @@ const PaginaClinicaEntidadeComCadastro = ({
           onSuccess={handleSucesso}
           onCancel={() => setModalVisivel(false)}
         />
-      </Modal>
-
-      <Modal
-        title="Gerenciamento de Raças"
-        open={modalRacasVisivel}
-        onCancel={() => setModalRacasVisivel(false)}
-        footer={null}
-        destroyOnClose
-        width="50vw"
-        styles={{
-          body: { maxHeight: "70vh", overflowY: "auto", overflowX:"hidden" },
-        }}
-        centered
-      >
-        <GerenciadorDeRacas />
       </Modal>
     </div>
   );

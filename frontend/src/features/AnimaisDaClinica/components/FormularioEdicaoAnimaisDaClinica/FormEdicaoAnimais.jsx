@@ -32,21 +32,18 @@ const FormEdicaoAnimal = ({
   const [form] = Form.useForm();
   const [racas, setRacas] = useState([]);
   const [tutores, setTutores] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Começa carregando
 
   const especieSelecionada = Form.useWatch("especie", form);
 
   // Efeito para buscar raças e tutores
   useEffect(() => {
     const carregarDadosDeSuporte = async () => {
-      setLoading(true);
       try {
-        // Busca tutores e todas as raças em paralelo
         const [tutoresData, racasData] = await Promise.all([
           tutoresDaClinicaAPI.listar(),
-          racasAPI.listar(), // Supondo um método que busca todas as raças
+          racasAPI.listar(),
         ]);
-
         setTutores(
           tutoresData.map((t) => ({
             label: `${t.nome} (${t.cpf || "N/A"})`,
@@ -61,41 +58,41 @@ const FormEdicaoAnimal = ({
           }))
         );
       } catch (err) {
-        message.error("Falha ao carregar dados de suporte (raças/tutores).");
+        message.error("Falha ao carregar raças e tutores.");
       } finally {
-        setLoading(false);
+        setLoading(false); // Finaliza o carregamento após a busca
       }
     };
     carregarDadosDeSuporte();
   }, []);
 
   // Efeito para preencher o formulário com os valores iniciais
+  // Roda quando os valores iniciais mudam OU quando o carregamento termina
   useEffect(() => {
-    // Só preenche o formulário se tivermos valores iniciais E se o carregamento tiver terminado.
-    if (initialValues && !loading) {
+    if (initialValues && !loading && racas.length > 0 && tutores.length > 0) {
       form.setFieldsValue({
         ...initialValues,
         nascimento: initialValues.nascimento
           ? dayjs(initialValues.nascimento)
           : null,
+        // O campo tutorIds já vem como uma lista de IDs, então não precisa de mapeamento
         tutorIds: initialValues.tutorIds || [],
       });
     }
-  }, [initialValues, loading, form]); 
+  }, [initialValues, loading, form, racas, tutores]);
 
-  // Efeito para limpar a raça ao trocar de espécie
-  useEffect(() => {
-    // Evita limpar o campo na primeira renderização
-    if (form.isFieldsTouched(["especie"])) {
-      form.setFieldsValue({ racaId: undefined });
-    }
-  }, [especieSelecionada, form]);
+  // Filtra as opções de raça com base na espécie selecionada no formulário
+  console.log("especie: ", especieSelecionada);
+  const racasFiltradas = racas.filter(
+    (r) => r.especie === (especieSelecionada === 1 ? "Cao" : "Gato")
+  );
 
-  const especieParaFiltro = especieSelecionada !== undefined ? especieSelecionada : initialValues?.especie;
+  console.log("Form Values:", form.getFieldsValue());
+  console.log("Racas filtradas:", racasFiltradas);
 
   return (
-    <Form form={form} layout="vertical" onFinish={onFinish} >
-      {/* Campos ocultos necessários para a edição */}
+    // Removido initialValues daqui para controlar o preenchimento via useEffect
+    <Form form={form} layout="vertical" onFinish={onFinish}>
       <Form.Item name="id" hidden>
         <Input />
       </Form.Item>
@@ -106,23 +103,28 @@ const FormEdicaoAnimal = ({
             label="Nome do Animal"
             rules={[{ required: true }]}
           >
-            <Input placeholder="Ex: Bob" />
+            <Input />
           </Form.Item>
           <Form.Item
             name="especie"
             label="Espécie"
             rules={[{ required: true }]}
           >
-            <Select options={opcoesEspecie} placeholder="Selecione a espécie" />
+            <Select
+              options={opcoesEspecie}
+              onChange={() => form.setFieldsValue({ racaId: undefined })}
+            />
           </Form.Item>
           <Form.Item name="racaId" label="Raça" rules={[{ required: true }]}>
             <Select
-              placeholder={!especieParaFiltro ? "Primeiro, selecione a espécie" : "Selecione a raça"}
-              disabled={!especieParaFiltro}
+              placeholder={
+                !especieSelecionada
+                  ? "Primeiro, selecione a espécie"
+                  : "Selecione a raça"
+              }
+              disabled={!especieSelecionada || loading}
               loading={loading}
-              options={racas.filter(
-                (r) => r.especie === (especieParaFiltro === 1 ? "Cao" : "Gato")
-              )}
+              options={racasFiltradas} // Usa a lista já filtrada
               showSearch
               optionFilterProp="label"
             />
@@ -143,14 +145,10 @@ const FormEdicaoAnimal = ({
             label="Data de Nascimento"
             rules={[{ required: true }]}
           >
-            <DatePicker
-              style={{ width: "100%" }}
-              format="DD/MM/YYYY"
-              placeholder="Selecione a data"
-            />
+            <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
           </Form.Item>
           <Form.Item name="sexo" label="Sexo" rules={[{ required: true }]}>
-            <Select options={opcoesSexo} placeholder="Selecione o sexo" />
+            <Select options={opcoesSexo} />
           </Form.Item>
           <Form.Item
             name="isCastrado"
@@ -164,7 +162,7 @@ const FormEdicaoAnimal = ({
       <div className="flex justify-end gap-2 mt-6">
         <Button onClick={onCancel}>Cancelar</Button>
         <Button type="primary" htmlType="submit" loading={isSubmitting}>
-          Cadastrar
+          Salvar Alterações
         </Button>
       </div>
     </Form>
