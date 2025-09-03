@@ -37,5 +37,12 @@ namespace backend.Domain.SaudeAnimal.Entities {
         public float? EnergiaMetabolizavel { get; set; }
         public ICollection<DietaPersonalizada>? DietasPersonalizadas { get; set; } // referência de navegação do dependente
         public ICollection<Relatorio>? Relatorios { get; set; } // referência de navegação do dependente
+
+        // Atributos que serão calculados e armazenados
+        public float ExtrativoNaoNitrogenado { get; set; }
+        public float EnergiaBruta { get; set; }
+        public float CoeficienteDigestibilidadeEnergia { get; set; }
+        public float EnergiaDigestivel { get; set; }
+        public float EnergiaMetabolizavel { get; set; }
     }
 }
