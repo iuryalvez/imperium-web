@@ -34,15 +34,10 @@ public class ClinicaService : IClinicaService
         return _mapper.Map<GetClinicaDto>(clinica);
     }
 
-    public async Task<IEnumerable<object>> SearchByNameAsync(string nome)
-    {
-        return await _clinicaRepository.SearchByNameAsync(nome);
-    }
-
     public async Task<ServiceResult> CreateAsync(CadastrarClinicaDto dto)
     {
         var clinica = _mapper.Map<Clinica>(dto);
-        clinica.DataCad = DateTime.UtcNow;
+        clinica.DataCadastro = DateTime.UtcNow;
 
         await _clinicaRepository.AddAsync(clinica);
         await _clinicaRepository.SaveChangesAsync();

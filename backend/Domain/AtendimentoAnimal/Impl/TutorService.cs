@@ -46,7 +46,7 @@ namespace backend.Domain.AtendimentoAnimal.Impl
                 {
                     // Tutor não existe no sistema, cria um novo
                     tutor = _mapper.Map<Tutor>(dto);
-                    tutor.DataCad = DateTime.UtcNow;
+                    tutor.DataCadastro = DateTime.UtcNow;
                     await _tutorRepository.AddAsync(tutor);
                     await _tutorRepository.SaveChangesAsync(); // Salva para obter o ID
                 }

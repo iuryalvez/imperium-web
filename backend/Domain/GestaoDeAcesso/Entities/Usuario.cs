@@ -9,7 +9,7 @@ namespace backend.Domain.GestaoDeAcesso.Entities
         [Required(ErrorMessage = "O nome do usuário é obrigatório.")]
         [StringLength(100, ErrorMessage = "O nome do usuário deve ter no máximo 100 caracteres.")]
         public string Nome { get; set; } = string.Empty;
-        public DateTime DataCad { get; set; }
+        public DateTime DataCadastro { get; set; }
         public DateTime DataUltimoAcesso { get; set; }
 
         [StringLength(60, ErrorMessage = "A formação do usuário deve ter no máximo 60 caracteres.")]

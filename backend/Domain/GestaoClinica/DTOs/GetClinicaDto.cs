@@ -27,7 +27,7 @@ namespace backend.Domain.GestaoClinica.DTOs
 
         [StringLength(30, ErrorMessage = "O instagram da clínica deve ter no máximo 30 caracteres.")]
         public string? Instagram { get; set; }
-        public DateTime DataCad { get; set; }
+        public DateTime DataCadastro { get; set; }
 
         [Required(ErrorMessage = "O status da clínica é obrigatório.")]
         public bool IsAtiva { get; set; }

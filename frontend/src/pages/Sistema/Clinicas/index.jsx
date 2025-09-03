@@ -61,10 +61,10 @@ const colunasClinicas = [
   },
   {
     title: "Data de Cadastro",
-    dataIndex: "dataCad",
-    key: "dataCad",
-    render: (dataCad) => new Date(dataCad).toLocaleDateString(),
-    sorter: (a, b) => new Date(a.dataCad) - new Date(b.dataCad),
+    dataIndex: "dataCadastro",
+    key: "dataCadastro",
+    render: (dataCadastro) => new Date(dataCadastro).toLocaleDateString(),
+    sorter: (a, b) => new Date(a.dataCadastro) - new Date(b.dataCadastro),
   },
 ];
 

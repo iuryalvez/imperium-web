@@ -30,14 +30,6 @@ namespace backend.Domain.GestaoClinica.Impl
             return await _context.Clinicas.AnyAsync(c => c.Cnpj == cnpj && c.Id != excludeClinicaId);
         }
 
-        public async Task<IEnumerable<object>> SearchByNameAsync(string nome)
-        {
-            return await _context.Clinicas
-                .Where(c => EF.Functions.ILike(c.NomeClinica, $"%{nome}%"))
-                .Select(c => new { value = c.Id, label = c.NomeClinica })
-                .ToListAsync();
-        }
-
         public async Task AddAsync(Clinica clinica) => await _context.Clinicas.AddAsync(clinica);
 
         public void Delete(Clinica clinica) => _context.Clinicas.Remove(clinica);

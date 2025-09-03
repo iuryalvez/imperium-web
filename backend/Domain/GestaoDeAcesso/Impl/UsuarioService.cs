@@ -89,7 +89,7 @@ public class UsuarioService : IUsuarioService
         {
             var usuario = _mapper.Map<Usuario>(dto);
             usuario.UserName = dto.UserName ?? dto.Email;
-            usuario.DataCad = DateTime.UtcNow;
+            usuario.DataCadastro = DateTime.UtcNow;
             usuario.DataUltimoAcesso = DateTime.UtcNow;
             usuario.EmailConfirmed = true; // TODO: alterar depois para usar um emailService e validar o email recebido
 
@@ -173,7 +173,7 @@ public class UsuarioService : IUsuarioService
             var usuario = _mapper.Map<Usuario>(dto);
             // Atribui valores padrão que não vêm do DTO
             usuario.UserName = dto.UserName ?? dto.Email;
-            usuario.DataCad = DateTime.UtcNow;
+            usuario.DataCadastro = DateTime.UtcNow;
             usuario.DataUltimoAcesso = DateTime.UtcNow;
             usuario.EmailConfirmed = true;
             usuario.IsAdmin = false; // Usuário de clínica nunca é admin do sistema

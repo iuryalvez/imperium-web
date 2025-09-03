@@ -20,39 +20,69 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
   const menuItems = [
     {
       key: "/clinica/editar",
-      icon: ClinicaIcon,
-      label: "Clínica",
-      path: "/clinica/editar",
+      icon: (
+        <img
+          src={ClinicaIcon}
+          alt="Clínica"
+          className={`sidebar-menu-icon ${collapsed ? "collapsed" : ""}`}
+        />
+      ),
+      label: <NavLink to="/clinica/editar">Clínica</NavLink>,
     },
     {
       key: "/clinica/tutores",
-      icon: TutoresIcon,
-      label: "Tutores",
-      path: "/clinica/tutores",
+      icon: (
+        <img
+          src={TutoresIcon}
+          alt="Tutores"
+          className={`sidebar-menu-icon ${collapsed ? "collapsed" : ""}`}
+        />
+      ),
+      label: <NavLink to="/clinica/tutores">Tutores</NavLink>,
     },
     {
       key: "/clinica/animais",
-      icon: AnimaisIcon,
-      label: "Animais",
-      path: "/clinica/animais",
+      icon: (
+        <img
+          src={AnimaisIcon}
+          alt="Animais"
+          className={`sidebar-menu-icon ${collapsed ? "collapsed" : ""}`}
+        />
+      ),
+      label: <NavLink to="/clinica/animais">Animais</NavLink>,
     },
     {
       key: "/clinica/racoes",
-      icon: RacoesIcon,
-      label: "Rações",
-      path: "/clinica/racoes",
+      icon: (
+        <img
+          src={RacoesIcon}
+          alt="Rações"
+          className={`sidebar-menu-icon ${collapsed ? "collapsed" : ""}`}
+        />
+      ),
+      label: <NavLink to="/clinica/racoes">Rações</NavLink>,
     },
     {
       key: "/clinica/consultas",
-      icon: ConsultasIcon,
-      label: "Consultas",
-      path: "/clinica/consultas",
+      icon: (
+        <img
+          src={ConsultasIcon}
+          alt="Consultas"
+          className={`sidebar-menu-icon ${collapsed ? "collapsed" : ""}`}
+        />
+      ),
+      label: <NavLink to="/clinica/consultas">Consultas</NavLink>,
     },
     {
       key: "/clinica/usuarios",
-      icon: UsuariosIcon,
-      label: "Usuários",
-      path: "/clinica/usuarios",
+      icon: (
+        <img
+          src={UsuariosIcon}
+          alt="Usuários"
+          className={`sidebar-menu-icon ${collapsed ? "collapsed" : ""}`}
+        />
+      ),
+      label: <NavLink to="/clinica/usuarios">Usuários</NavLink>,
     },
   ];
 
@@ -74,23 +104,8 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
         defaultSelectedKeys={[window.location.pathname]}
         selectedKeys={[window.location.pathname]}
         className="sidebar-menu"
-      >
-        {menuItems.map((item) => (
-          <Menu.Item
-            key={item.key}
-            icon={
-              <img
-                src={item.icon}
-                alt={item.label}
-                className={`sidebar-menu-icon ${collapsed ? "collapsed" : ""}`}
-              />
-            }
-          >
-            {/* O NavLink não precisa mais de classe de estilo para o estado ativo */}
-            <NavLink to={item.key}>{item.label}</NavLink>
-          </Menu.Item>
-        ))}
-      </Menu>
+        items={menuItems} // 🔑 agora usa items em vez de children
+      />
     </div>
   );
 };

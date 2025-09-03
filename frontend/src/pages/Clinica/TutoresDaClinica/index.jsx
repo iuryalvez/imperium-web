@@ -66,7 +66,7 @@ const colunasTutoresDaClinica = [
   { title: "E-mail", dataIndex: "email", key: "email" },
   {
     title: "Data de Cadastro",
-    dataIndex: "dataCad",
+    dataIndex: "dataCadastro",
     key: "dataCadastro",
     sorter: (a, b) => new Date(a.dataCadastro) - new Date(b.dataCadastro),
     render: (data) => new Date(data).toLocaleDateString("pt-BR"),

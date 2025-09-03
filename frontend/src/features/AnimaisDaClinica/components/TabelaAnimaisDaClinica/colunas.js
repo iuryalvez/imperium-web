@@ -55,9 +55,9 @@ const colunas = [
     },
     {
       title: "Data de Cadastro",
-      dataIndex: "dataCad",
-      key: "dataCad",
-      sorter: (a, b) => dayjs(a.dataCad).unix() - dayjs(b.dataCad).unix(),
+      dataIndex: "dataCadastro",
+      key: "dataCadastro",
+      sorter: (a, b) => dayjs(a.dataCadastro).unix() - dayjs(b.dataCadastro).unix(),
       render: (data) => data ? dayjs(data).format("DD/MM/YYYY") : '-',
     },
 ];

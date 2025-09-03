@@ -62,7 +62,15 @@ namespace backend.Domain.AtendimentoAnimal.Impl
                     await _relatorioRepository.AddAsync(relatorio);
                 }
 
-                await _context.SaveChangesAsync(); // Salva tanto o Relatorio quanto o Animal
+                var acompanhamento = animal.AcompanhamentoIndividualizado;
+
+                if (acompanhamento.Relatorios == null)
+                    acompanhamento.Relatorios = new List<Relatorio>();
+
+                if (!acompanhamento.Relatorios.Contains(relatorio))
+                    acompanhamento.Relatorios.Add(relatorio);
+
+                await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 var resultDto = _mapper.Map<GetRelatorioDto>(relatorio);

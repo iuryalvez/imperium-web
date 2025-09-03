@@ -21,7 +21,7 @@ namespace backend.Domain.AtendimentoAnimal.DTOs
         [Required(ErrorMessage = "O e-mail é obrigatório.")]
         [EmailAddress(ErrorMessage = "O e-mail não é válido.")]
         public string Email { get; set; }
-        public DateTime DataCad { get; set; }
+        public DateTime DataCadastro { get; set; }
         
         // Endereço
         [StringLength(8, ErrorMessage = "O CEP deve ter no máximo 8 dígitos.")]

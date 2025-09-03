@@ -32,7 +32,9 @@ namespace backend.Domain.SaudeAnimal.Entities {
 
         [Required(ErrorMessage = "A fibra bruta da ração é obrigatória.")]
         public float FibraBruta { get; set; }
-        public float MateriaSeca { get; set; } // MS calculada ou determina
+        public float? MateriaSeca { get; set; } // Retirar a umidade do cálculo do ENN
+        public float? FibraDieteticaTotal { get; set; } // CDE = 95,6-(0,89 x porcentagem da FDT na matéria seca)
+        public float? EnergiaMetabolizavel { get; set; }
         public ICollection<DietaPersonalizada>? DietasPersonalizadas { get; set; } // referência de navegação do dependente
         public ICollection<Relatorio>? Relatorios { get; set; } // referência de navegação do dependente
     }

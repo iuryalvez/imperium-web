@@ -29,7 +29,7 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
                         : new List<TutorInfoSimplesDto>()));
 
             CreateMap<CadastrarAnimalClinicaDto, Animal>()
-                .ForMember(dest => dest.DataCad, opt => opt.MapFrom(_ => DateTime.UtcNow))
+                .ForMember(dest => dest.DataCadastro, opt => opt.MapFrom(_ => DateTime.UtcNow))
                 .ForMember(dest => dest.DataModificado, opt => opt.MapFrom(_ => DateTime.UtcNow))
                 .ForMember(dest => dest.Nascimento, opt => opt.MapFrom(src => src.Nascimento.ToUniversalTime()));
 

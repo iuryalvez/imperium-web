@@ -14,6 +14,12 @@ namespace backend.Domain.AtendimentoAnimal.Repository
             _context = context;
         }
 
+        public async Task<List<Raca>> GetAllSystemAsync() {
+            return await _context.Racas
+                .Where(r => r.ClinicaId == null)
+                .ToListAsync();
+        }
+
         public async Task<Raca?> GetByIdAsync(int id)
         {
             return await _context.Racas.FindAsync(id);

@@ -8,7 +8,7 @@ public class AcompanhamentoMappingProfile : Profile
 {
     public AcompanhamentoMappingProfile()
     {
-        CreateMap<AcompanhamentoInd, GetAcompanhamentoDto>()
+        CreateMap<AcompanhamentoIndividualizado, GetAcompanhamentoDto>()
             // Mapeia o nome do animal, que está em uma entidade relacionada
             .ForMember(
                 dest => dest.NomeAnimal,

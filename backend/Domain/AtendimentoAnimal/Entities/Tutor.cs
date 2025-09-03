@@ -26,7 +26,7 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         // [Required(ErrorMessage = "O e-mail é obrigatório.")]
         [EmailAddress(ErrorMessage = "O e-mail não é válido.")]
         public string? Email { get; set; }
-        public DateTime DataCad { get; set; }
+        public DateTime DataCadastro { get; set; }
         public virtual ICollection<TutorClinica>? TutoresClinicas { get; set; }
         public virtual ICollection<TutorAnimal>? TutoresAnimais { get; set; }
         public virtual ICollection<Consulta>? Consultas { get; set; }

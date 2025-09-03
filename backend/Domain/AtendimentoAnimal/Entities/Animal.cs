@@ -15,7 +15,7 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         [ForeignKey("RacaId")]
         public Raca? Raca { get; set; }
         public DateTime Nascimento { get; set; }
-        public DateTime DataCad { get; set; }
+        public DateTime DataCadastro { get; set; }
         public DateTime DataModificado { get; set; }
         public Sexo Sexo { get; set; }
         public float? Peso { get; set; }
@@ -28,7 +28,7 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         public int? IsLactanteNumeroFilhotes { get; set; } // numero de filhotes
         public int? SemanaLactacao { get; set; }
         public int? SemanaGestacao { get; set; }
-        public AcompanhamentoInd? AcompanhamentoInd { get; set; } // referência de navegação com o dependente
+        public AcompanhamentoIndividualizado? AcompanhamentoIndividualizado { get; set; } // referência de navegação com o dependente
         public ICollection<Consulta>? Consultas { get; set; } // navegation
         public ICollection<AnimalClinica>? AnimaisClinicas { get; set; } // referência de navegação com o dependente
         public ICollection<TutorAnimal>? TutoresAnimais { get; set; }

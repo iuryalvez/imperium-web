@@ -41,6 +41,20 @@ namespace backend.Domain.AtendimentoAnimal.Impl
             return _mapper.Map<GetRacaDto>(raca);
         }
 
+        public async Task<List<GetRacaDto>> GetAllSystemByEspecieAsync(EspecieAnimal? especie)
+        {
+            // Primeiro, busca todas as raças dessa clínica
+            var racas = await _racaRepository.GetAllSystemAsync();
+
+            // Se tiver filtro de espécie, aplica agora
+            if (especie.HasValue)
+            {
+                racas = racas.Where(r => r.Especie == especie.Value).ToList();
+            }
+
+            return _mapper.Map<List<GetRacaDto>>(racas);
+        }
+
         public async Task<List<GetRacaDto>> ListByClinicaIdAndEspecieAsync(int clinicaId, EspecieAnimal? especie)
         {
             // Primeiro, busca todas as raças dessa clínica
@@ -55,17 +69,35 @@ namespace backend.Domain.AtendimentoAnimal.Impl
             return _mapper.Map<List<GetRacaDto>>(racas);
         }
 
-        public async Task<bool> UpdateAsync(UpdateRacaDto atualizarRacaDto)
+        public async Task<bool> UpdateAsync(UpdateRacaDto atualizarRacaDto, int clinicaId)
         {
             var raca = await _racaRepository.GetByIdAsync(atualizarRacaDto.Id);
             if (raca == null) return false;
 
-            // Map the changes from DTO to the entity
-            _mapper.Map(atualizarRacaDto, raca);
+            // 🔹 Caso seja uma raça do sistema, criamos uma nova para a clínica
+            if (raca.ClinicaId == null)
+            {
+                var novaRaca = new Raca
+                {
+                    Nome = atualizarRacaDto.Nome,
+                    Especie = atualizarRacaDto.Especie,
+                    PesoMinimoReferenciaFemea = atualizarRacaDto.PesoMinimoReferenciaFemea,
+                    PesoMaximoReferenciaFemea = atualizarRacaDto.PesoMaximoReferenciaFemea,
+                    PesoMinimoReferenciaMacho = atualizarRacaDto.PesoMinimoReferenciaMacho,
+                    PesoMaximoReferenciaMacho = atualizarRacaDto.PesoMaximoReferenciaMacho,
+                    ClinicaId = clinicaId
+                };
 
+                await _racaRepository.AddAsync(novaRaca);
+                var result = await _racaRepository.SaveChangesAsync();
+                return result > 0;
+            }
+
+            // 🔹 Caso já seja uma raça da clínica, atualiza normalmente
+            _mapper.Map(atualizarRacaDto, raca);
             _racaRepository.Update(raca);
-            var result = await _racaRepository.SaveChangesAsync();
-            return result > 0;
+            var updated = await _racaRepository.SaveChangesAsync();
+            return updated > 0;
         }
     }
 }

@@ -7,7 +7,6 @@ namespace backend.Domain.GestaoClinica.Interface
 {
     public interface IClinicaService
     {
-        Task<IEnumerable<object>> SearchByNameAsync(string nome);
         Task<IEnumerable<GetClinicaDto>> GetAllAsync();
         Task<GetClinicaDto?> GetByIdAsync(int clinicaId);
         Task<ServiceResult> CreateAsync(CadastrarClinicaDto dto);

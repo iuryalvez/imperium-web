@@ -132,7 +132,7 @@ const TabelaUsuariosDoSistema = ({
   return (
     <div>
       <div style={{ marginBottom: 16, textAlign: "right" }}>
-        <Dropdown overlay={menuColunas} trigger={["click"]}>
+        <Dropdown dropdownRender={() => menuColunas} trigger={["click"]}>
           <Button icon={<SettingOutlined />}>Colunas</Button>
         </Dropdown>
       </div>

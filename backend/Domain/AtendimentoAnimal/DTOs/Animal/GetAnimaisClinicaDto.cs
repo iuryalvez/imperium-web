@@ -22,6 +22,6 @@ namespace backend.Domain.AtendimentoAnimal
         public int? SemanaLactacao { get; set; }
         public int? SemanaGestacao { get; set; }
         public List<TutorInfoSimplesDto>? Tutores { get; set; }
-        public DateTime DataCad { get; set; }
+        public DateTime DataCadastro { get; set; }
     }
 }

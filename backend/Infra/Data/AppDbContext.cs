@@ -15,7 +15,7 @@ namespace backend.Infra.Data
         }
 
         // DbSets
-        public DbSet<AcompanhamentoInd> AcompanhamentosInds { get; set; }
+        public DbSet<AcompanhamentoIndividualizado> AcompanhamentosInds { get; set; }
         public DbSet<Animal> Animais { get; set; }
         public DbSet<Clinica> Clinicas { get; set; }
         public DbSet<Consulta> Consultas { get; set; }
@@ -85,7 +85,7 @@ namespace backend.Infra.Data
                 .Property(entidade => entidade.Id)
                 .ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<AcompanhamentoInd>()
+            modelBuilder.Entity<AcompanhamentoIndividualizado>()
                 .Property(entidade => entidade.Id)
                 .ValueGeneratedOnAdd();
 
@@ -94,12 +94,13 @@ namespace backend.Infra.Data
                 .ValueGeneratedOnAdd();
 
             // AcompanhamentoInd 1:1 Animal
-            modelBuilder.Entity<AcompanhamentoInd>()
+            modelBuilder.Entity<AcompanhamentoIndividualizado>()
                 .HasOne(ai => ai.Animal)
-                .WithOne(a => a.AcompanhamentoInd)
-                .HasForeignKey<AcompanhamentoInd>(ai => ai.AnimalId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .WithOne(a => a.AcompanhamentoIndividualizado)
+                .HasForeignKey<AcompanhamentoIndividualizado>(ai => ai.AnimalId)
+                .OnDelete(DeleteBehavior.Cascade);
 
+            // Relatório 1:1 Dieta
             modelBuilder.Entity<Relatorio>()
                 .HasOne(r => r.DietaPersonalizada)
                 .WithOne(d => d.Relatorio)
@@ -111,14 +112,14 @@ namespace backend.Infra.Data
                 .HasMany(a => a.AnimaisClinicas)
                 .WithOne(ac => ac.Animal)
                 .HasForeignKey(ac => ac.AnimalId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Animal 1:N TutorAnimal
             modelBuilder.Entity<Animal>()
                 .HasMany(a => a.TutoresAnimais)
                 .WithOne(ta => ta.Animal)
                 .HasForeignKey(ta => ta.AnimalId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Animal 1:N Consulta
             modelBuilder.Entity<Animal>()
@@ -153,21 +154,22 @@ namespace backend.Infra.Data
                 .HasMany(c => c.Consultas)
                 .WithOne(con => con.Clinica)
                 .HasForeignKey(con => con.ClinicaId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Clinica 1:N TutorClinica
             modelBuilder.Entity<Clinica>()
                 .HasMany(c => c.TutoresClinicas)
                 .WithOne(tc => tc.Clinica)
                 .HasForeignKey(tc => tc.ClinicaId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
+
 
             // Clinica 1:N UsuarioPerfilClinica
             modelBuilder.Entity<Clinica>()
                 .HasMany(c => c.UsuariosPerfisClinicas)
                 .WithOne(upc => upc.Clinica)
                 .HasForeignKey(upc => upc.ClinicaId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Consulta 1:1 Relatorio
             modelBuilder.Entity<Consulta>()
@@ -202,14 +204,14 @@ namespace backend.Infra.Data
                 .HasMany(t => t.TutoresAnimais)
                 .WithOne(ta => ta.Tutor)
                 .HasForeignKey(ta => ta.TutorId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Tutor 1:N TutorClinica
             modelBuilder.Entity<Tutor>()
                 .HasMany(t => t.TutoresClinicas)
                 .WithOne(tc => tc.Tutor)
                 .HasForeignKey(tc => tc.TutorId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Usuario 1:N Consulta
             modelBuilder.Entity<Usuario>()
@@ -223,7 +225,7 @@ namespace backend.Infra.Data
                 .HasMany(u => u.UsuariosPerfisClinicas)
                 .WithOne(upc => upc.Usuario)
                 .HasForeignKey(upc => upc.UsuarioId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             DatabaseSeeder.Seed(modelBuilder);
 

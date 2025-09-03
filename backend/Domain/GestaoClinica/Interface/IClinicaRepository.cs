@@ -11,7 +11,6 @@ namespace backend.Domain.GestaoClinica.Interface
         Task<bool> CnpjExistsForAnotherClinicAsync(string cnpj, int excludeClinicaId);
         Task AddAsync(Clinica clinica);
         void Delete(Clinica clinica);
-        Task<IEnumerable<object>> SearchByNameAsync(string nome);
         Task<int> SaveChangesAsync();
     }
 }

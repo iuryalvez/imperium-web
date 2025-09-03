@@ -40,15 +40,6 @@ namespace backend.Domain.GestaoClinica
             return Ok(clinica);
         }
 
-        [HttpGet("sistema/clinicas/buscar")]
-        [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> SearchByName([FromQuery] string nome)
-        {
-            if (string.IsNullOrWhiteSpace(nome)) return BadRequest("Nome não pode ser vazio.");
-            var resultado = await _clinicaService.SearchByNameAsync(nome);
-            return Ok(resultado);
-        }
-
         [HttpPost("sistema/clinicas/cadastrar")]
         [Authorize(Policy = "GerenciaSistema")]
         public async Task<IActionResult> Create([FromBody] CadastrarClinicaDto dto)

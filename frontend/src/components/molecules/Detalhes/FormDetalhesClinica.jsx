@@ -26,7 +26,7 @@ const DetalhesClinica = ({ valores }) => {
                     </Tag>
                 </Descriptions.Item>
                 <Descriptions.Item label="Data de Cadastro">
-                    {formatarData(valores.dataCad)}
+                    {formatarData(valores.dataCadastro)}
                 </Descriptions.Item>
             </Descriptions>
 

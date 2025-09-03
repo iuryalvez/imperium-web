@@ -48,7 +48,7 @@ const FormCadastroEdicaoRacaoClinica = ({ initialValues, onFinish, onCancel }) =
             </Row>
 
             {/* 3. Novo campo para selecionar a unidade */}
-            <Form.Item name="isPorcentagem" label="Unidade da Composição" initialValue={true} rules={[{ required: true }]}>
+            <Form.Item name="isPorcentagem" label="Unidade da Composição" rules={[{ required: true }]}>
                 <Radio.Group options={opcoesUnidade} optionType="button" buttonStyle="solid" />
             </Form.Item>
 
@@ -58,27 +58,27 @@ const FormCadastroEdicaoRacaoClinica = ({ initialValues, onFinish, onCancel }) =
             <Row gutter={24}>
                 <Col xs={12} sm={8}>
                     <Form.Item name="umidade" label="Umidade" rules={[{ required: true }]}>
-                        <InputNumber style={{ width: '100%' }} min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
+                        <InputNumber style={{ width: '100%' }} placeholder='0,00' min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
                     </Form.Item>
                 </Col>
                 <Col xs={12} sm={8}>
                     <Form.Item name="proteinaBruta" label="Proteína Bruta" rules={[{ required: true }]}>
-                        <InputNumber style={{ width: '100%' }} min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
+                        <InputNumber style={{ width: '100%' }} placeholder='0,00' min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
                     </Form.Item>
                 </Col>
                 <Col xs={12} sm={8}>
                     <Form.Item name="extratoEtereo" label="Extrato Etéreo" rules={[{ required: true }]}>
-                        <InputNumber style={{ width: '100%' }} min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
+                        <InputNumber style={{ width: '100%' }} placeholder='0,00' min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
                     </Form.Item>
                 </Col>
                 <Col xs={12} sm={8}>
                     <Form.Item name="materiaMineral" label="Matéria Mineral" rules={[{ required: true }]}>
-                        <InputNumber style={{ width: '100%' }} min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
+                        <InputNumber style={{ width: '100%' }} placeholder='0,00' min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
                     </Form.Item>
                 </Col>
                 <Col xs={12} sm={8}>
                     <Form.Item name="fibraBruta" label="Fibra Bruta" rules={[{ required: true }]}>
-                        <InputNumber style={{ width: '100%' }} min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
+                        <InputNumber style={{ width: '100%' }} placeholder='0,00' min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
                     </Form.Item>
                 </Col>
             </Row>

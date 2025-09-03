@@ -4,6 +4,7 @@ namespace backend.Domain.AtendimentoAnimal.Interface
 {
     public interface IRacaRepository
     {
+        Task<List<Raca>> GetAllSystemAsync();
         Task<List<Raca>> ListByClinicaIdAsync(int clinicaId);
         Task<Raca?> GetByIdAsync(int id);
         Task AddAsync(Raca raca);

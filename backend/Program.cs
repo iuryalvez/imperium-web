@@ -22,6 +22,7 @@ using backend.Domain.GestaoClinica.Impl;
 using backend.Domain.SaudeAnimal.Impl;
 using backend.Domain.SaudeAnimal.Interfaces;
 using backend.Domain.SaudeAnimal.Repository;
+using backend.Domain.AtendimentoAnimal.Services;
 
 
 internal class Program
@@ -47,6 +48,8 @@ internal class Program
         builder.Services.AddScoped<IConsultaRepository, ConsultaRepository>();
         builder.Services.AddScoped<IAnimalService, AnimalService>();
         builder.Services.AddScoped<IAnimalRepository, AnimalRepository>();
+        builder.Services.AddScoped<IAcompanhamentoRepository, AcompanhamentoRepository>();
+        builder.Services.AddScoped<IAcompanhamentoService, AcompanhamentoService>();
         builder.Services.AddScoped<ITutorService, TutorService>();
         builder.Services.AddScoped<ITutorRepository, TutorRepository>();
         builder.Services.AddScoped<IRacaService, RacaService>();

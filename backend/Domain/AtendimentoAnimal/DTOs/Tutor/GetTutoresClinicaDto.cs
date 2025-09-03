@@ -9,7 +9,7 @@ namespace backend.Domain.AtendimentoAnimal.DTOs
         public string? Telefone { get; set; }
         public string? Whatsapp { get; set; }
         public string? Email { get; set; }
-        public DateTime DataCad { get; set; }
+        public DateTime DataCadastro { get; set; }
         public List<AnimalInfoSimplesDto>? Animais { get; set; }
 
         // Endereço

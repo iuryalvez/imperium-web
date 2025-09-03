@@ -49,7 +49,8 @@ namespace backend.Domain.AtendimentoAnimal
         [Authorize(Policy = "GerenciaAnimais")]
         public async Task<IActionResult> Update([FromBody] UpdateRacaDto atualizarRacaDto)
         {
-            var sucesso = await _racaService.UpdateAsync(atualizarRacaDto);
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            var sucesso = await _racaService.UpdateAsync(atualizarRacaDto, clinicaId);
             if (!sucesso) return NotFound();
             return NoContent();
         }

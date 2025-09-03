@@ -3,6 +3,7 @@ using backend.Domain.AtendimentoAnimal;
 using backend.Domain.AtendimentoAnimal.DTOs;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interface;
+using backend.Domain.AtendimentoAnimal.Services;
 using backend.Domain.GestaoDeAcesso.Interfaces;
 using backend.Infra.Data;
 using Microsoft.EntityFrameworkCore;
@@ -10,19 +11,22 @@ using Microsoft.EntityFrameworkCore;
 public class AnimalService : IAnimalService
 {
     private readonly IAnimalRepository _animalRepository;
-    private readonly ITutorRepository _tutorRepository;
+    private readonly ITutorRepository _tutorRepository; // TODO alterar para utilizar uma função do Service e não do Repository
+    private readonly IAcompanhamentoService _acompanhamentoService;
     private readonly IMapper _mapper;
     private readonly ILogger<AnimalService> _logger;
     private readonly AppDbContext _context;
 
     public AnimalService(IAnimalRepository animalRepository,
                          ITutorRepository tutorRepository,
+                         IAcompanhamentoService acompanhamentoService,
                          IMapper mapper,
                          ILogger<AnimalService> logger,
                          AppDbContext context)
     {
         _animalRepository = animalRepository;
         _tutorRepository = tutorRepository;
+        _acompanhamentoService = acompanhamentoService;
         _mapper = mapper;
         _logger = logger;
         _context = context;
@@ -36,7 +40,7 @@ public class AnimalService : IAnimalService
             // Usa AutoMapper para criar o Animal
             var animal = _mapper.Map<Animal>(dto);
             animal.Nascimento = dto.Nascimento.ToUniversalTime();
-            animal.DataCad = DateTime.UtcNow;
+            animal.DataCadastro = DateTime.UtcNow;
             animal.DataModificado = DateTime.UtcNow;
 
             await _animalRepository.AddAsync(animal);
@@ -76,7 +80,10 @@ public class AnimalService : IAnimalService
                 }
             }
 
+            await _acompanhamentoService.CreateAsync(animal.Id);
+
             await _context.SaveChangesAsync();
+
             await transaction.CommitAsync();
 
             return new ServiceResult

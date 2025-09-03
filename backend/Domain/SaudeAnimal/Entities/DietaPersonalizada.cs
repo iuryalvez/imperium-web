@@ -22,5 +22,10 @@ namespace backend.Domain.SaudeAnimal.Entities
         public float PesoAtual { get; set; }
         public float PesoObjetivo { get; set; }
         public float PesoIdeal { get; set; }
+        public DateOnly DataCriacao { get; set; }
+        public string? CriadoPor { get; set; }
+        public int? DuracaoEstimada { get; set; }
+        public string? Observacoes { get; set; }
+        FaseVidaAnimal FaseVida { get; set; }
     }
 }
