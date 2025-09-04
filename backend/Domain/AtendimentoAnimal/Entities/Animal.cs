@@ -28,6 +28,7 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         public int? IsLactanteNumeroFilhotes { get; set; } // numero de filhotes
         public int? SemanaLactacao { get; set; }
         public int? SemanaGestacao { get; set; }
+        public double? NecessidadeEnergeticaDiaria { get; set; }
         public AcompanhamentoIndividualizado? AcompanhamentoIndividualizado { get; set; } // referência de navegação com o dependente
         public ICollection<Consulta>? Consultas { get; set; } // navegation
         public ICollection<AnimalClinica>? AnimaisClinicas { get; set; } // referência de navegação com o dependente
