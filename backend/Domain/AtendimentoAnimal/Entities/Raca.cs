@@ -20,10 +20,10 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         [Required]
         public EspecieAnimal Especie { get; set; }
 
-        public float? PesoMinimoReferenciaFemea { get; set; }
-        public float? PesoMaximoReferenciaFemea { get; set; }
-        public float? PesoMinimoReferenciaMacho { get; set; }
-        public float? PesoMaximoReferenciaMacho { get; set; }
+        public double? PesoMinimoReferenciaFemea { get; set; }
+        public double? PesoMaximoReferenciaFemea { get; set; }
+        public double? PesoMinimoReferenciaMacho { get; set; }
+        public double? PesoMaximoReferenciaMacho { get; set; }
         [Required]
         [StringLength(100)]
         public string? Referencia { get; set; } = string.Empty;
@@ -33,6 +33,16 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         public int? ClinicaId { get; set; }
         [ForeignKey("ClinicaId")]
         public Clinica? Clinica { get; set; }
+
+        [NotMapped]
+        public double? PesoMedioMacho => (PesoMinimoReferenciaMacho.HasValue && PesoMaximoReferenciaMacho.HasValue)
+            ? (PesoMinimoReferenciaMacho.Value + PesoMaximoReferenciaMacho.Value) / 2f
+            : (PesoMinimoReferenciaMacho ?? PesoMaximoReferenciaMacho);
+
+        [NotMapped]
+        public double? PesoMedioFemea => (PesoMinimoReferenciaFemea.HasValue && PesoMaximoReferenciaFemea.HasValue)
+            ? (PesoMinimoReferenciaFemea.Value + PesoMaximoReferenciaFemea.Value) / 2f
+            : (PesoMinimoReferenciaFemea ?? PesoMaximoReferenciaFemea);
     }
 }
 

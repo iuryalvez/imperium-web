@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using backend.Domain.SaudeAnimal.Enums;
 
 namespace backend.Domain.AtendimentoAnimal.Entities
 {
@@ -18,9 +19,10 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         public DateTime DataCadastro { get; set; }
         public DateTime DataModificado { get; set; }
         public Sexo Sexo { get; set; }
-        public float? Peso { get; set; }
-        public float? PesoMinimo { get; set; }
-        public float? PesoMaximo { get; set; }
+        public double? Peso { get; set; }
+        public double? PesoMinimo { get; set; }
+        public double? PesoMaximo { get; set; }
+        public double? PesoIdeal { get; set; }
         public CondicaoCorporal? CondicaoCorporal { get; set; } // valores: 1-9
         public GrauAtividade? GrauAtividade { get; set; } // 1-inativo, 2-moderado, 3-ativo
         public bool? IsCastrado { get; set; }
@@ -28,7 +30,8 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         public int? IsLactanteNumeroFilhotes { get; set; } // numero de filhotes
         public int? SemanaLactacao { get; set; }
         public int? SemanaGestacao { get; set; }
-        public double? NecessidadeEnergeticaDiaria { get; set; }
+        public PerfilMetabolico PerfilCalculado { get; set; } // salva o perfil usado
+        public double? NecessidadeEnergeticaDiaria { get; set; } // resultado kcal calculado 
         public AcompanhamentoIndividualizado? AcompanhamentoIndividualizado { get; set; } // referência de navegação com o dependente
         public ICollection<Consulta>? Consultas { get; set; } // navegation
         public ICollection<AnimalClinica>? AnimaisClinicas { get; set; } // referência de navegação com o dependente

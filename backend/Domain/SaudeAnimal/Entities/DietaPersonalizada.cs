@@ -17,6 +17,9 @@ namespace backend.Domain.SaudeAnimal.Entities
         [ForeignKey("RelatorioId")]
         public Relatorio? Relatorio { get; set; }
         public TipoDieta TipoDieta { get; set; } // 1-manutenção, 2-crescimento, 3-lactação
+        // Customização opcional pelo usuário
+        public double? MultiplicadorEnergeticoCustom { get; set; } // exemplo: 150 kcal
+        public double? PotenciaCustom { get; set; } // exemplo: 0.8 (em vez de 0.75)
         public float QtdAlimento { get; set; } // calculado
         public float EnergiaMetabolizavel { get; set; } // calculado
         public float PesoAtual { get; set; }
@@ -27,5 +30,6 @@ namespace backend.Domain.SaudeAnimal.Entities
         public int? DuracaoEstimada { get; set; }
         public string? Observacoes { get; set; }
         public FaseVidaAnimal? FaseVida { get; set; }
+
     }
 }

@@ -2,7 +2,7 @@ namespace backend.Domain.AtendimentoAnimal.Entities
 {
     public enum FaseVidaAnimal
     {
-        Desconhecida = 0,
+        Desconhecida,
         Filhote,
         Jovem,
         Adulto,
