@@ -6,6 +6,9 @@ public class DietaMappingProfile : Profile
 {
     public DietaMappingProfile()
     {
+        CreateMap<CreateDietaDto, DietaPersonalizada>()
+            .ForMember(dest => dest.DataCriacao, opt => opt.MapFrom(_ => DateOnly.FromDateTime(DateTime.UtcNow)));
+
         // Mapeamento para CONSULTAR: De Entidade para DTO
         CreateMap<DietaPersonalizada, GetDietaDto>()
             .ForMember(

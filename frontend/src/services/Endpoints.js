@@ -35,7 +35,7 @@ const endpoints = {
       editar: `${API_BASE_URL}/sistema/usuarios/editar`,
       setStatus: (usuarioId) =>
         `${API_BASE_URL}/sistema/usuarios/${usuarioId}/status`,
-      // deletar: (usuarioId) => `${API_BASE_URL}/sistema/usuarios/${usuarioId}`,
+      // deletar: (usuarioId) => `${API_BASE_URL}/sistema/usuarios/${usuarioId}`, // acredito que funciona mas estamos usando o setStatus como soft delete por enquanto
     },
     raca: {
       listar: `${API_BASE_URL}/sistema/racas`,
@@ -47,6 +47,11 @@ const endpoints = {
   },
   clinica: {
     editar: `${API_BASE_URL}/clinica/editar`,
+    acompanhamento: {
+      // Rota para criar uma dieta associada a um acompanhamento
+      criarDieta: (clinicaId, acompanhamentoId) => 
+        `${API_BASE_URL}/clinica/${clinicaId}/acompanhamentos/${acompanhamentoId}/dietas`,
+    },
     animal: {
       listar: `${API_BASE_URL}/clinica/animais/`,
       cadastrar: `${API_BASE_URL}/clinica/animais/cadastrar`,

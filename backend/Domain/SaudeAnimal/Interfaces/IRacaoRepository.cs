@@ -10,5 +10,6 @@ namespace backend.Domain.SaudeAnimal.Interfaces
         Task AddAsync(Racao racao);
         void Delete(Racao racao);
         Task<int> SaveChangesAsync();
+        Task<Racao?> GetByIdAndClinicaIdAsync(int racaoId, int clinicaId);
     }
 }

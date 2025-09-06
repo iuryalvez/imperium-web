@@ -13,13 +13,13 @@ public class CadastrarRacaoDto
     public bool IsPorcentagem { get; set; }
 
     [Required]
-    public float Umidade { get; set; }
+    public double Umidade { get; set; }
     [Required]
-    public float ProteinaBruta { get; set; }
+    public double ProteinaBruta { get; set; }
     [Required]
-    public float ExtratoEtereo { get; set; }
+    public double ExtratoEtereo { get; set; }
     [Required]
-    public float MateriaMineral { get; set; }
+    public double MateriaMineral { get; set; }
     [Required]
-    public float FibraBruta { get; set; }
+    public double FibraBruta { get; set; }
 }

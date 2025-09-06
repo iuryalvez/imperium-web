@@ -18,12 +18,6 @@ namespace backend.Domain.SaudeAnimal.Services
                 { PerfilMetabolico.CaoTerrierAdultoAtivo, (180, 0.75) },
                 { PerfilMetabolico.CaoIdosoAtivo, (105, 0.75) },
                 { PerfilMetabolico.CaoInativo, (95, 0.75) },
-
-                // ----------------- PLACEHOLDERS PARA FUTURO -----------------
-                { PerfilMetabolico.GatoCrescimento, (0, 0.75) },
-                { PerfilMetabolico.CaoCrescimento, (0, 0.75) },
-                { PerfilMetabolico.GatoLactacao, (0, 0.75) },
-                { PerfilMetabolico.CaoLactacao, (0, 0.75) },
             };
 
         public static double CalcularNecessidade(PerfilMetabolico perfil, double peso)

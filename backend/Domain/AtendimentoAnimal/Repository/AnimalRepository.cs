@@ -24,6 +24,16 @@ namespace backend.Infra.Data.Repositories
                 .FirstOrDefaultAsync(a => a.Id == animalId);
         }
 
+        public async Task<bool> IsAnimalInClinicAsync(int animalId, int clinicaId)
+        {
+            // Verifica de forma eficiente se existe um vínculo ATIVO entre o animal e a clínica
+            return await _context.AnimaisClinicas
+                .AnyAsync(ac =>
+                    ac.AnimalId == animalId &&
+                    ac.ClinicaId == clinicaId &&
+                    ac.IsAtivo);
+        }
+
         public async Task AddTutorLinkAsync(TutorAnimal link)
         {
             await _context.TutoresAnimais.AddAsync(link);

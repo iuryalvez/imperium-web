@@ -32,6 +32,16 @@ public class AnimalService : IAnimalService
         _context = context;
     }
 
+    public async Task<bool> IsAnimalInClinicAsync(int animalId, int clinicaId)
+    {
+        // Using AnyAsync is highly efficient. It translates to a SQL EXISTS query,
+        // which stops searching as soon as it finds a single matching record,
+        // without retrieving any data. We assume the join entity is named 'AnimalClinica'
+        // and is mapped in the DbContext as 'AnimaisClinicas'.
+        return await _context.AnimaisClinicas
+            .AnyAsync(ac => ac.AnimalId == animalId && ac.ClinicaId == clinicaId && ac.IsAtivo);
+    }
+
     public async Task<ServiceResult> CreateAsync(CadastrarAnimalClinicaDto dto, int clinicaId)
     {
         await using var transaction = await _context.Database.BeginTransactionAsync();

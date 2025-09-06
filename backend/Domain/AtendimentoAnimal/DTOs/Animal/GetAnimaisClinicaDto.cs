@@ -14,7 +14,7 @@ namespace backend.Domain.AtendimentoAnimal
         public DateTime Nascimento { get; set; }
         public Sexo Sexo { get; set; } // 1-macho, 2-fêmea
         public bool IsCastrado { get; set; }
-        public float? Peso { get; set; }
+        public double? Peso { get; set; }
         public CondicaoCorporal? CondicaoCorporal { get; set; }
         public GrauAtividade? GrauAtividade { get; set; }
         public bool? Gestacao { get; set; }

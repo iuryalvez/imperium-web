@@ -12,9 +12,14 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         public int ConsultaId { get; set; } // foreign Key para ConsultaId
         [ForeignKey("ConsultaId")]
         public Consulta? Consulta { get; set; }
+        public int AcompanhamentoIndividualizadoId { get; set; }
+        [ForeignKey("AcompanhamentoIndividualizadoId")]
+        public AcompanhamentoIndividualizado? AcompanhamentoIndividualizado { get; set; }
+        public int? UsuarioResponsavelId { get; set; } // UserId de quem criou o relatório
         public DietaPersonalizada? DietaPersonalizada { get; set; }
         public int Idade { get; set; }
-        public float Peso { get; set; }
+        public double Peso { get; set; }
+        public double? PesoIdeal { get; set; }
         public CondicaoCorporal CondicaoCorporal { get; set; }
         public GrauAtividade GrauAtividade { get; set; } // 0-inativo, 1-moderado, 2-ativo
         public bool IsGestante { get; set; }

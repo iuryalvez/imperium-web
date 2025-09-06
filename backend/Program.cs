@@ -46,6 +46,8 @@ internal class Program
         builder.Services.AddScoped<IClinicaRepository, ClinicaRepository>();
         builder.Services.AddScoped<IConsultaService, ConsultaService>();
         builder.Services.AddScoped<IConsultaRepository, ConsultaRepository>();
+        builder.Services.AddScoped<IDietaRepository, DietaRepository>();
+        builder.Services.AddScoped<DietaService>();
         builder.Services.AddScoped<IAnimalService, AnimalService>();
         builder.Services.AddScoped<IAnimalRepository, AnimalRepository>();
         builder.Services.AddScoped<IAcompanhamentoRepository, AcompanhamentoRepository>();

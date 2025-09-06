@@ -1,32 +1,51 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+
+using System.Security.Claims;
 using AutoMapper;
 using backend.Domain.AtendimentoAnimal.DTOs.Relatorio;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interface;
 using backend.Domain.GestaoDeAcesso.Interfaces;
+using backend.Domain.SaudeAnimal.Impl;
+using backend.Domain.SaudeAnimal.Interfaces;
 using backend.Infra.Data;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using backend.Domain.SaudeAnimal.Entities;
 
 namespace backend.Domain.AtendimentoAnimal.Impl
 {
     public class RelatorioService : IRelatorioService
     {
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRelatorioRepository _relatorioRepository;
-        private readonly IConsultaRepository _consultaRepository; // Para buscar a consulta
-        private readonly IAnimalRepository _animalRepository;     // Para buscar e ATUALIZAR o animal
+        private readonly IConsultaRepository _consultaRepository;
+        private readonly IAnimalRepository _animalRepository;
+        private readonly IDietaRepository _dietaRepository;
         private readonly IMapper _mapper;
         private readonly AppDbContext _context;
 
-        public RelatorioService(IRelatorioRepository relatorioRepository, IConsultaRepository consultaRepository, IAnimalRepository animalRepository, IMapper mapper, AppDbContext context)
+        public RelatorioService(
+            IRelatorioRepository relatorioRepository,
+            IConsultaRepository consultaRepository,
+            IAnimalRepository animalRepository,
+            IDietaRepository dietaRepository,
+            IMapper mapper,
+            AppDbContext context,
+            IHttpContextAccessor httpContextAccessor)
         {
             _relatorioRepository = relatorioRepository;
             _consultaRepository = consultaRepository;
             _animalRepository = animalRepository;
+            _dietaRepository = dietaRepository;
             _mapper = mapper;
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        private int? GetUserId()
+        {
+            var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+            return userId != null ? int.Parse(userId) : null;
         }
 
         public async Task<ServiceResult> UpsertAsync(int consultaId, UpsertRelatorioDto dto, int clinicaId)
@@ -41,6 +60,7 @@ namespace backend.Domain.AtendimentoAnimal.Impl
                 // Verifica se já existe um relatório para esta consulta
                 var relatorio = await _relatorioRepository.GetByConsultaIdAsync(consultaId) ?? new Relatorio { ConsultaId = consultaId };
 
+                relatorio.UsuarioResponsavelId = GetUserId() ?? 0;
                 // Mapeia os dados do DTO para a entidade Relatorio
                 _mapper.Map(dto, relatorio);
                 relatorio.Idade = consulta.Animal.Idade; // Calcula a idade no momento do relatório
@@ -61,6 +81,9 @@ namespace backend.Domain.AtendimentoAnimal.Impl
                 {
                     await _relatorioRepository.AddAsync(relatorio);
                 }
+
+                // Exemplo: escolhe a ração associada ao animal (ou null se não houver)
+                var racao = await _context.Racoes.FirstOrDefaultAsync(r => r.Id == dto.RacaoId);
 
                 var acompanhamento = animal.AcompanhamentoIndividualizado;
 

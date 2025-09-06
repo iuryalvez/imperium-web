@@ -11,10 +11,10 @@ namespace backend.Domain.SaudeAnimal.DTOs.Dieta
 
         public TipoDieta TipoDieta { get; set; } // Mantido como enum, será serializado como número
 
-        public float QtdAlimento { get; set; }
-        public float EnergiaMetabolizavel { get; set; }
-        public float PesoAtual { get; set; }
-        public float PesoObjetivo { get; set; }
-        public float PesoIdeal { get; set; }
+        public double QtdAlimento { get; set; }
+        public double EnergiaMetabolizavel { get; set; }
+        public double PesoAtual { get; set; }
+        public double PesoObjetivo { get; set; }
+        public double PesoIdeal { get; set; }
     }
 }

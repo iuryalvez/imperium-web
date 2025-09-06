@@ -11,5 +11,6 @@ namespace backend.Domain.AtendimentoAnimal.Interface
         Task<ServiceResult> CreateAsync(CadastrarAnimalClinicaDto dto, int clinicaId);
         Task<ServiceResult> UpdateAsync(EditarAnimalClinicaDto dto, int clinicaId);
         Task<ServiceResult> DesativarVinculoAnimalAsync(int animalId, int clinicaId);
+        Task<bool> IsAnimalInClinicAsync(int animalId, int clinicaId);
     }
 }

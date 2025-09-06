@@ -10,12 +10,11 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Relatorio
         public DateTime DataConsulta { get; set; }
         public Sexo SexoAnimal { get; set; }
         public int Idade { get; set; }
-        public float Peso { get; set; }
+        public double Peso { get; set; }
         public CondicaoCorporal CondicaoCorporal { get; set; }
         public GrauAtividade GrauAtividade { get; set; } 
         public int RacaoId { get; set; }
         public string NomeRacao { get; set; } // Nome para exibição
-
         public string? DescricaoDieta { get; set; }
         public GetDietaDto? Dieta { get; set; }
 

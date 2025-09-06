@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interface;
 using backend.Infra.Data;
@@ -16,6 +12,12 @@ namespace backend.Domain.AtendimentoAnimal.Repository
         public RelatorioRepository(AppDbContext context)
         {
             _context = context;
+        }
+
+        public async Task<Relatorio?> GetByIdAndAcompanhamentoIdAsync(int relatorioId, int acompanhamentoId)
+        {
+            return await _context.Relatorios
+                .FirstOrDefaultAsync(r => r.Id == relatorioId && r.AcompanhamentoIndividualizadoId == acompanhamentoId);
         }
 
         public async Task<Relatorio?> GetByIdAsync(int relatorioId)
@@ -37,6 +39,14 @@ namespace backend.Domain.AtendimentoAnimal.Repository
         {
             return await _context.Relatorios
                 .Include(r => r.Consulta) // Inclui a consulta associada
+                .FirstOrDefaultAsync(r => r.Id == relatorioId);
+        }
+
+        public async Task<Relatorio?> GetByIdWithAnimalAsync(int relatorioId)
+        {
+            // Busca o relatório e carrega a entidade Animal relacionada
+            return await _context.Relatorios
+                .Include(r => r.Consulta!.Animal)
                 .FirstOrDefaultAsync(r => r.Id == relatorioId);
         }
 

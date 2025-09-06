@@ -23,6 +23,14 @@ namespace backend.Domain.SaudeAnimal.Repository
             return await query.ToListAsync();
         }
 
+        public async Task<Racao?> GetByIdAndClinicaIdAsync(int racaoId, int clinicaId)
+        {
+            // Instead of a simple FindAsync(id), this method adds a security layer,
+            // ensuring that the retrieved feed belongs to the correct clinic.
+            return await _context.Racoes
+                .FirstOrDefaultAsync(r => r.Id == racaoId && r.ClinicaId == clinicaId);
+        }
+
         public async Task<Racao?> GetByIdAndClinicIdAsync(int racaoId, int clinicaId) =>
             await _context.Racoes.FirstOrDefaultAsync(r => r.Id == racaoId && r.ClinicaId == clinicaId);
 

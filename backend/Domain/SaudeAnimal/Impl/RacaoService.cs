@@ -85,11 +85,11 @@ namespace backend.Domain.SaudeAnimal.Impl
         {
             Console.WriteLine($"[DEBUG] Iniciando cálculo de EM para ração {racao.Nome}, espécie: {racao.Especie}");
 
-            float pb = racao.ProteinaBruta;
-            float eea = racao.ExtratoEtereo;
-            float mm = racao.MateriaMineral;
-            float fb = racao.FibraBruta;
-            float umidade = racao.Umidade;
+            double pb = racao.ProteinaBruta;
+            double eea = racao.ExtratoEtereo;
+            double mm = racao.MateriaMineral;
+            double fb = racao.FibraBruta;
+            double umidade = racao.Umidade;
 
             if (!racao.IsPorcentagem)
             {
@@ -112,31 +112,31 @@ namespace backend.Domain.SaudeAnimal.Impl
             Console.WriteLine($"[DEBUG] Valores em fração: PB={pb:F4}, EEA={eea:F4}, MM={mm:F4}, FB={fb:F4}, Umidade={umidade:F4}");
 
             // 2. Calcular matéria seca (MS)
-            float ms = 1 - umidade;
+            double ms = 1 - umidade;
             racao.MateriaSeca = ms * 100; // armazenar em %
             Console.WriteLine($"[DEBUG] Matéria seca (MS) = {racao.MateriaSeca:F2}%");
 
             // 3. Calcular ENN
-            float enn = 1 - (umidade + pb + eea + fb + mm);
+            double enn = 1 - (umidade + pb + eea + fb + mm);
             racao.ExtrativoNaoNitrogenado = enn * 100; // armazenar em %
             Console.WriteLine($"[DEBUG] ENN = {racao.ExtrativoNaoNitrogenado:F2}%");
 
             // 4. Calcular EB
-            float eb = (5.7f * pb) + (9.4f * eea) + (4.1f * (enn + fb));
+            double eb = (5.7f * pb) + (9.4f * eea) + (4.1f * (enn + fb));
             racao.EnergiaBruta = eb; // kcal/g
             Console.WriteLine($"[DEBUG] Energia Bruta (EB) = {eb:F4} kcal/g");
 
             // 5. Calcular CDE
-            float cde;
+            double cde;
             switch (racao.Especie)
             {
                 case EspecieAnimal.Cao:
-                    float fbMsCao = fb / ms * 100f;
+                    double fbMsCao = fb / ms * 100f;
                     cde = 91.2f - (1.43f * fbMsCao);
                     Console.WriteLine($"[DEBUG] CDE (cão): FB na MS={fbMsCao:F2}%, CDE={cde:F2}%");
                     break;
                 case EspecieAnimal.Gato:
-                    float fbMsGato = fb / ms * 100f;
+                    double fbMsGato = fb / ms * 100f;
                     cde = 87.9f - (0.88f * fbMsGato);
                     Console.WriteLine($"[DEBUG] CDE (gato): FB na MS={fbMsGato:F2}%, CDE={cde:F2}%");
                     break;
@@ -146,12 +146,12 @@ namespace backend.Domain.SaudeAnimal.Impl
             racao.CoeficienteDigestibilidadeEnergia = cde;
 
             // 6. Calcular ED
-            float ed = eb * (cde / 100f);
+            double ed = eb * (cde / 100f);
             racao.EnergiaDigestivel = ed;
             Console.WriteLine($"[DEBUG] Energia Digestível (ED) = {ed:F4} kcal/g");
 
             // 7. Calcular EM
-            float em;
+            double em;
             if (racao.Especie == EspecieAnimal.Cao)
                 em = ed - (1.04f * pb);
             else
@@ -173,9 +173,9 @@ namespace backend.Domain.SaudeAnimal.Impl
             if (!racao.ExtrativoNaoNitrogenado.HasValue)
                 throw new InvalidOperationException("Não é possível calcular a distribuição energética sem o ENN calculado.");
 
-            float pb = racao.ProteinaBruta;
-            float eea = racao.ExtratoEtereo;
-            float enn = racao.ExtrativoNaoNitrogenado.Value;
+            double pb = racao.ProteinaBruta;
+            double eea = racao.ExtratoEtereo;
+            double enn = racao.ExtrativoNaoNitrogenado.Value;
 
             // Normaliza para %
             if (!racao.IsPorcentagem)
@@ -186,11 +186,11 @@ namespace backend.Domain.SaudeAnimal.Impl
             }
 
             // Calcula em kcal/100g (modificado de Atwater)
-            float energiaPB = pb * 3.5f;
-            float energiaEEA = eea * 8.5f;
-            float energiaENN = enn * 3.5f;
+            double energiaPB = pb * 3.5f;
+            double energiaEEA = eea * 8.5f;
+            double energiaENN = enn * 3.5f;
 
-            float energiaTotal = energiaPB + energiaEEA + energiaENN;
+            double energiaTotal = energiaPB + energiaEEA + energiaENN;
 
             // energiaPB *= 100f / energiaTotal; 
             // energiaEEA *= 100f / energiaTotal; 

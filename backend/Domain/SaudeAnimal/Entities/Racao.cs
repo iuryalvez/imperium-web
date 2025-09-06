@@ -21,35 +21,35 @@ namespace backend.Domain.SaudeAnimal.Entities
         public bool IsPorcentagem { get; set; }
 
         [Required(ErrorMessage = "A umidade da ração é obrigatória")]
-        public float Umidade { get; set; }
+        public double Umidade { get; set; }
 
         [Required(ErrorMessage = "A proteína bruta da ração é obrigatória.")]
-        public float ProteinaBruta { get; set; } // unidade: utilizar % ou g
+        public double ProteinaBruta { get; set; } // unidade: utilizar % ou g
 
         [Required(ErrorMessage = "O extrato etéreo da ração é obrigatório.")]
-        public float ExtratoEtereo { get; set; }
+        public double ExtratoEtereo { get; set; }
 
         [Required(ErrorMessage = "A matéria mineral da ração é obrigatória.")]
-        public float MateriaMineral { get; set; }
+        public double MateriaMineral { get; set; }
 
         [Required(ErrorMessage = "A fibra bruta da ração é obrigatória.")]
-        public float FibraBruta { get; set; }
-        public float? MateriaSeca { get; set; } // Retirar a umidade do cálculo do ENN
+        public double FibraBruta { get; set; }
+        public double? MateriaSeca { get; set; } // Retirar a umidade do cálculo do ENN
         public ICollection<DietaPersonalizada>? DietasPersonalizadas { get; set; } // referência de navegação do dependente
         public ICollection<Relatorio>? Relatorios { get; set; } // referência de navegação do dependente
 
         // Atributos que serão calculados e armazenados
-        public float? ExtrativoNaoNitrogenado { get; set; }
-        public float? EnergiaBruta { get; set; }
-        public float? FibraDieteticaTotal { get; set; } // CDE = 95,6-(0,89 x porcentagem da FDT na matéria seca)
-        public float? CoeficienteDigestibilidadeEnergia { get; set; }
-        public float? EnergiaDigestivel { get; set; }
-        public float? EnergiaMetabolizavel { get; set; }
+        public double? ExtrativoNaoNitrogenado { get; set; }
+        public double? EnergiaBruta { get; set; }
+        public double? FibraDieteticaTotal { get; set; } // CDE = 95,6-(0,89 x porcentagem da FDT na matéria seca)
+        public double? CoeficienteDigestibilidadeEnergia { get; set; }
+        public double? EnergiaDigestivel { get; set; }
+        public double? EnergiaMetabolizavel { get; set; }
 
         // Novos atributos para distribuição energética
-        public float? EnergiaProteina { get; set; } // kcal/100g
-        public float? EnergiaExtratoEtereo { get; set; }
-        public float? EnergiaExtrativoNaoNitrogenado { get; set; }
-        public float? EnergiaTotalEstimativa { get; set; }
+        public double? EnergiaProteina { get; set; } // kcal/100g
+        public double? EnergiaExtratoEtereo { get; set; }
+        public double? EnergiaExtrativoNaoNitrogenado { get; set; }
+        public double? EnergiaTotalEstimativa { get; set; }
     }
 }

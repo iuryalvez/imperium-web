@@ -4,10 +4,10 @@ public class GetRacoesDto
     public string Nome { get; set; } = string.Empty;
     public string Especie { get; set; } = string.Empty;
     public bool IsPorcentagem { get; set; }
-    public float Umidade { get; set; }
-    public float ProteinaBruta { get; set; }
-    public float ExtratoEtereo { get; set; }
-    public float MateriaMineral { get; set; }
-    public float FibraBruta { get; set; }
-    public float MateriaSeca { get; set; }
+    public double Umidade { get; set; }
+    public double ProteinaBruta { get; set; }
+    public double ExtratoEtereo { get; set; }
+    public double MateriaMineral { get; set; }
+    public double FibraBruta { get; set; }
+    public double MateriaSeca { get; set; }
 }

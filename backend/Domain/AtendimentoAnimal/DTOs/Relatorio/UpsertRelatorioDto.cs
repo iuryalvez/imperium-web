@@ -8,7 +8,7 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Relatorio
         // O ID da Consulta virá da rota da URL, não do corpo da requisição.
 
         [Required]
-        public float Peso { get; set; }
+        public double Peso { get; set; }
 
         [Required]
         public CondicaoCorporal CondicaoCorporal { get; set; }
@@ -21,7 +21,7 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Relatorio
 
         [StringLength(2000)]
         public string? DescricaoDieta { get; set; }
-
+        public int TipoDieta { get; set; }
         // Novos campos de status reprodutivo
         public bool IsGestante { get; set; }
         public int IsLactanteNumeroFilhotes { get; set; }

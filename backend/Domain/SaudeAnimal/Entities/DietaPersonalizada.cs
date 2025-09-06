@@ -20,16 +20,15 @@ namespace backend.Domain.SaudeAnimal.Entities
         // Customização opcional pelo usuário
         public double? MultiplicadorEnergeticoCustom { get; set; } // exemplo: 150 kcal
         public double? PotenciaCustom { get; set; } // exemplo: 0.8 (em vez de 0.75)
-        public float QtdAlimento { get; set; } // calculado
-        public float EnergiaMetabolizavel { get; set; } // calculado
-        public float PesoAtual { get; set; }
-        public float PesoObjetivo { get; set; }
-        public float PesoIdeal { get; set; }
+        public double? QtdAlimento { get; set; } // calculado
+        public double? EnergiaMetabolizavel { get; set; } // calculado
+        public double? PesoAtual { get; set; }
+        public double? PesoObjetivo { get; set; }
+        public double? PesoIdeal { get; set; }
         public DateOnly DataCriacao { get; set; }
         public string? CriadoPor { get; set; }
         public int? DuracaoEstimada { get; set; }
         public string? Observacoes { get; set; }
         public FaseVidaAnimal? FaseVida { get; set; }
-
     }
 }

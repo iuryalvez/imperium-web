@@ -100,6 +100,13 @@ namespace backend.Infra.Data
                 .HasForeignKey<AcompanhamentoIndividualizado>(ai => ai.AnimalId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // AcompanhamentoInd 1:N Relatorio
+            modelBuilder.Entity<AcompanhamentoIndividualizado>()
+                .HasMany(ai => ai.Relatorios)
+                .WithOne(r => r.AcompanhamentoIndividualizado)
+                .HasForeignKey(r => r.AcompanhamentoIndividualizadoId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // Relatório 1:1 Dieta
             modelBuilder.Entity<Relatorio>()
                 .HasOne(r => r.DietaPersonalizada)
