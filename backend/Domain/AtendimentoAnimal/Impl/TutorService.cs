@@ -11,19 +11,19 @@ namespace backend.Domain.AtendimentoAnimal.Impl
     public class TutorService : ITutorService
     {
         private readonly ITutorRepository _tutorRepository;
-        private readonly IAnimalService _animalService; // Para validar animais
+        private readonly IAnimalRepository _animalRepository; // Para validar animais
         private readonly IMapper _mapper;
         private readonly ILogger<TutorService> _logger;
         private readonly AppDbContext _context; // Para transações
 
         public TutorService(ITutorRepository tutorRepository,
-                            IAnimalService animalService,
+                            IAnimalRepository animalRepository,
                             IMapper mapper,
                             ILogger<TutorService> logger,
                             AppDbContext context)
         {
             _tutorRepository = tutorRepository;
-            _animalService = animalService;
+            _animalRepository = animalRepository;
             _mapper = mapper;
             _logger = logger;
             _context = context;
@@ -188,7 +188,7 @@ namespace backend.Domain.AtendimentoAnimal.Impl
                 {
                     // 2a. VALIDAÇÃO OTIMIZADA
                     // Valida todos os animais com uma única chamada ao banco.
-                    var allAnimalsAreValid = await _animalService.AnimaisExistemNaClinicaAsync(dto.AnimalIds, clinicaId);
+                    var allAnimalsAreValid = await _animalRepository.AllAnimalsExistInClinicAsync(dto.AnimalIds, clinicaId);
                     if (!allAnimalsAreValid)
                     {
                         await transaction.RollbackAsync();

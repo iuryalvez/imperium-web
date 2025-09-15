@@ -9,20 +9,20 @@ namespace backend.Domain.AtendimentoAnimal.Impl
     public class ConsultaService : IConsultaService
     {
         private readonly IConsultaRepository _consultaRepository;
-        private readonly IAnimalService _animalService;
-        private readonly ITutorService _tutorService;
+        private readonly IAnimalRepository _animalRepository;
+        private readonly ITutorRepository _tutorRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<ConsultaService> _logger;
 
         public ConsultaService(IConsultaRepository consultaRepository,
-                               IAnimalService animalService,
-                               ITutorService tutorService,
+                               IAnimalRepository animalRepository,
+                               ITutorRepository tutorRepository,
                                ILogger<ConsultaService> logger,
                                IMapper mapper)
         {
             _consultaRepository = consultaRepository;
-            _animalService = animalService;
-            _tutorService = tutorService;
+            _animalRepository = animalRepository;
+            _tutorRepository = tutorRepository;
             _logger = logger;
             _mapper = mapper;
         }
@@ -104,9 +104,9 @@ namespace backend.Domain.AtendimentoAnimal.Impl
         public async Task<ServiceResult> CreateAsync(UpsertConsultaDto dto, int clinicaId, int usuarioId)
         {
             // Validações de Negócio
-            if (await _animalService.ObterPorIdEClinicaIdAsync(dto.AnimalId, clinicaId) == null)
+            if (await _animalRepository.GetByIdAndClinicaIdWithIncludesAsync(dto.AnimalId, clinicaId) == null)
                 return new ServiceResult { Succeeded = false, Message = "Animal não encontrado ou não pertence a esta clínica." };
-            if (await _tutorService.ObterPorIdEClinicaIdAsync(dto.TutorId, clinicaId) == null)
+            if (await _tutorRepository.GetByIdAndClinicIdWithIncludesAsync(dto.TutorId, clinicaId) == null)
                 return new ServiceResult { Succeeded = false, Message = "Tutor não encontrado ou não pertence a esta clínica." };
 
             var consulta = _mapper.Map<Consulta>(dto);
@@ -153,8 +153,5 @@ namespace backend.Domain.AtendimentoAnimal.Impl
 
             return new ServiceResult { Succeeded = true, Message = "Consulta excluída com sucesso." };
         }
-
-        // Implementação dos outros métodos (GetAll, GetById, Delete)
-        // ...
     }
 }

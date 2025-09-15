@@ -30,6 +30,15 @@ namespace backend.Infra.Data.Repositories
                 .FirstOrDefaultAsync(a => a.Id == animalId);
         }
 
+        public async Task<IEnumerable<Animal>> GetAllByClinicaIdWithDetailsAsync(int clinicaId)
+        {
+            return await _context.Animais
+                .Include(a => a.TutoresAnimais!).ThenInclude(ta => ta.Tutor)
+                .Include(a => a.Raca) // Incluindo a Raça
+                .Where(a => a.AnimaisClinicas!.Any(ac => ac.ClinicaId == clinicaId))
+                .ToListAsync();
+        }
+
         public async Task<bool> IsAnimalInClinicAsync(int animalId, int clinicaId)
         {
             // Verifica se existe um vínculo ATIVO entre o animal e a clínica
@@ -64,15 +73,6 @@ namespace backend.Infra.Data.Repositories
         public void RemoveTutorLinks(IEnumerable<TutorAnimal> links)
         {
             _context.TutoresAnimais.RemoveRange(links);
-        }
-
-        public async Task<IEnumerable<Animal>> GetByClinicaIdWithIncludesAsync(int clinicaId)
-        {
-            return await _context.Animais
-                .Include(a => a.TutoresAnimais!).ThenInclude(ta => ta.Tutor)
-                .Include(a => a.Raca) // Incluindo a Raça
-                .Where(a => a.AnimaisClinicas!.Any(ac => ac.ClinicaId == clinicaId))
-                .ToListAsync();
         }
 
         public async Task<Animal?> GetHistoricoCompletoAsync(int animalId, int clinicaId)

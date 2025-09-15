@@ -16,7 +16,7 @@ public class AnimalService : IAnimalService
 {
     private readonly IAnimalRepository _animalRepository;
     private readonly ITutorService _tutorService;
-    private readonly IAcompanhamentoService _acompanhamentoService;
+    private readonly IAcompanhamentoRepository _acompanhamentoRepository;
     private readonly AppDbContext _context; // Usado exclusivamente para controle de transações.
     private readonly IMapper _mapper;
     private readonly ILogger<AnimalService> _logger;
@@ -24,14 +24,14 @@ public class AnimalService : IAnimalService
     public AnimalService(
         IAnimalRepository animalRepository,
         ITutorService tutorService,
-        IAcompanhamentoService acompanhamentoService,
+        IAcompanhamentoRepository acompanhamentoRepository,
         IMapper mapper,
         ILogger<AnimalService> logger,
         AppDbContext context)
     {
         _animalRepository = animalRepository;
         _tutorService = tutorService;
-        _acompanhamentoService = acompanhamentoService;
+        _acompanhamentoRepository = acompanhamentoRepository;
         _mapper = mapper;
         _logger = logger;
         _context = context;
@@ -84,7 +84,7 @@ public class AnimalService : IAnimalService
     public async Task<ServiceResult> GetAllDtosByClinicIdAsync(int clinicaId)
     {
         _logger.LogInformation("Listando todos os animais da clínica {ClinicaId}.", clinicaId);
-        var animais = await _animalRepository.GetByClinicaIdWithIncludesAsync(clinicaId);
+        var animais = await _animalRepository.GetAllByClinicaIdWithDetailsAsync(clinicaId);
         var dtos = _mapper.Map<IEnumerable<GetAnimaisClinicaDto>>(animais);
         _logger.LogInformation("Encontrados {Count} animais para a clínica {ClinicaId}.", dtos.Count(), clinicaId);
         return new ServiceResult { Succeeded = true, Data = dtos };
@@ -160,13 +160,13 @@ public class AnimalService : IAnimalService
                 return resultadoTutores;
             }
 
-            var resultadoAcompanhamento = await _acompanhamentoService.CreateAsync(animal.Id);
-            if (!resultadoAcompanhamento.Succeeded)
+            var acompanhamento = new AcompanhamentoIndividualizado
             {
-                _logger.LogWarning("Falha ao criar acompanhamento para o novo animal {AnimalId}. Mensagem: {MensagemErro}", animal.Id, resultadoAcompanhamento.Message);
-                await transaction.RollbackAsync();
-                return resultadoAcompanhamento;
-            }
+                AnimalId = animal.Id,
+                DataInicio = DateOnly.FromDateTime(DateTime.UtcNow)
+            };
+
+            await _acompanhamentoRepository.AddAsync(acompanhamento);
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -196,7 +196,7 @@ public class AnimalService : IAnimalService
         {
             var resultadoBusca = await ObterPorIdEClinicaIdAsync(dto.Id, clinicaId);
             if (!resultadoBusca.Succeeded) return resultadoBusca;
-            
+
             var animal = (Animal)resultadoBusca.Data;
 
             _mapper.Map(dto, animal);
@@ -228,29 +228,6 @@ public class AnimalService : IAnimalService
     }
 
     /// <summary>
-    /// Atualiza o estado de uma entidade Animal com base nos dados de um relatório.
-    /// Este método NÃO persiste as alterações no banco de dados (não chama SaveChanges).
-    /// Ele é projetado para ser usado como um auxiliar dentro de uma transação maior, como a criação de um relatório.
-    /// </summary>
-    /// <param name="animalId">ID do animal a ser atualizado.</param>
-    /// <param name="clinicaId">ID da clínica para validação.</param>
-    /// <param name="dadosRelatorio">DTO do relatório contendo os novos dados do animal.</param>
-    /// <returns>ServiceResult com a entidade Animal atualizada em memória.</returns>
-    public async Task<ServiceResult> AtualizarEstadoComDadosRelatorioAsync(int animalId, int clinicaId, UpsertRelatorioDto dadosRelatorio)
-    {
-        var resultadoBusca = await ObterPorIdEClinicaIdAsync(animalId, clinicaId);
-        if (!resultadoBusca.Succeeded) return resultadoBusca;
-        
-        var animal = (Animal)resultadoBusca.Data;
-
-        _mapper.Map(dadosRelatorio, animal);
-        animal.DataModificado = DateTime.UtcNow;
-
-        _logger.LogInformation("Estado da entidade Animal {AnimalId} atualizado em memória com dados do relatório.", animalId);
-        return new ServiceResult { Succeeded = true, Message = "Estado do animal atualizado.", Data = animal };
-    }
-
-    /// <summary>
     /// Realiza um soft delete no vínculo entre um animal e uma clínica.
     /// </summary>
     /// <param name="animalId">ID do animal.</param>
@@ -277,7 +254,7 @@ public class AnimalService : IAnimalService
 
             vinculo.IsAtivo = false;
             vinculo.DataDesativacao = DateTime.UtcNow;
-            
+
             _animalRepository.UpdateVinculo(vinculo);
             await _animalRepository.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -308,7 +285,7 @@ public class AnimalService : IAnimalService
         return await _animalRepository.IsAnimalInClinicAsync(animalId, clinicaId);
     }
 
-    public async  Task<bool> AnimaisExistemNaClinicaAsync(List<int> animaisIds, int clinicaId)
+    public async Task<bool> AnimaisExistemNaClinicaAsync(List<int> animaisIds, int clinicaId)
     {
         return await _animalRepository.AllAnimalsExistInClinicAsync(animaisIds, clinicaId);
     }

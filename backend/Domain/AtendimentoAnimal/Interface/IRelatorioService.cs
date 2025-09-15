@@ -8,9 +8,10 @@ namespace backend.Domain.AtendimentoAnimal.Interface
        // --- Métodos de Escrita (Write) ---
         Task<ServiceResult> UpsertAsync(int consultaId, UpsertRelatorioDto dto, int clinicaId);
         Task<ServiceResult> DeleteAsync(int relatorioId, int clinicaId);
+        Task<ServiceResult> AtualizarEstadoComDadosRelatorioAsync(int animalId, int clinicaId, UpsertRelatorioDto dadosRelatorio);
 
         // --- Métodos de Leitura (Read) ---
-        
+
         // Retorna o DTO para o frontend.
         Task<ServiceResult> GetDtoByConsultaIdAsync(int consultaId, int clinicaId);
 

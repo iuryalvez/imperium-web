@@ -23,6 +23,7 @@ using backend.Infra.Data.Repositories;
 using backend.Interfaces;
 using backend.Services;
 using Microsoft.Extensions.Logging.Console;
+using backend.Domain.SaudeAnimal.Services;
 
 
 internal class Program
@@ -96,13 +97,14 @@ internal class Program
         builder.Services.AddScoped<IConsultaService, ConsultaService>();
         builder.Services.AddScoped<IConsultaRepository, ConsultaRepository>();
         builder.Services.AddScoped<IDietaRepository, DietaRepository>();
-        builder.Services.AddScoped<DietaService>();
+        builder.Services.AddScoped<IDietaService, DietaService>();
         builder.Services.AddScoped<IAcompanhamentoRepository, AcompanhamentoRepository>();
         builder.Services.AddScoped<IAcompanhamentoService, AcompanhamentoService>();
         builder.Services.AddScoped<IRacaoService, RacaoService>();
         builder.Services.AddScoped<IRacaoRepository, RacaoRepository>();
         builder.Services.AddScoped<IRelatorioService, RelatorioService>();
         builder.Services.AddScoped<IRelatorioRepository, RelatorioRepository>();
+        builder.Services.AddScoped<ICalculoNecessidadeEnergetica, CalculoNecessidadeEnergetica>();
 
         // Serviços Utilitários
         builder.Services.AddScoped<IEmailService, EmailService>();

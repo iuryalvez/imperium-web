@@ -4,7 +4,8 @@ using backend.Domain.AtendimentoAnimal.DTOs.Relatorio;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interface;
 using backend.Domain.GestaoDeAcesso.Interfaces;
-using backend.Infra.Data; // Para AppDbContext (apenas para transação)
+using backend.Infra.Data;
+using backend.Infra.Data.Repositories; // Para AppDbContext (apenas para transação)
 
 namespace backend.Domain.AtendimentoAnimal.Impl
 {
@@ -13,22 +14,25 @@ namespace backend.Domain.AtendimentoAnimal.Impl
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRelatorioRepository _relatorioRepository;
         private readonly IConsultaService _consultaService;
-        private readonly IAnimalService _animalService; // Necessário para atualizar o animal
+        private readonly IAnimalRepository _animalRepository; // Necessário para atualizar o animal
         private readonly AppDbContext _context; // Mantido apenas para controle de transação
+        private readonly ILogger<RelatorioService> _logger;
         private readonly IMapper _mapper;
 
         public RelatorioService(
             IRelatorioRepository relatorioRepository,
             IConsultaService consultaService,
-            IAnimalService animalService,
+            IAnimalRepository animalRepository,
             IMapper mapper,
+            ILogger<RelatorioService> logger,
             AppDbContext context,
             IHttpContextAccessor httpContextAccessor)
         {
             _relatorioRepository = relatorioRepository;
             _consultaService = consultaService;
-            _animalService = animalService;
+            _animalRepository = animalRepository;
             _mapper = mapper;
+            _logger = logger;
             _context = context;
             _httpContextAccessor = httpContextAccessor;
         }
@@ -118,11 +122,11 @@ namespace backend.Domain.AtendimentoAnimal.Impl
             await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var resultadoUpdateAnimal = await _animalService.AtualizarEstadoComDadosRelatorioAsync(animal.Id, clinicaId, dto);
+                var resultadoUpdateAnimal = await AtualizarEstadoComDadosRelatorioAsync(animal.Id, clinicaId, dto);
                 if (!resultadoUpdateAnimal.Succeeded)
                 {
                     await transaction.RollbackAsync();
-                    return resultadoUpdateAnimal; // Retorna o erro vindo do AnimalService
+                    return resultadoUpdateAnimal; // Retorna o erro vindo do AnimalRepository
                 }
 
                 var resultadoBusca = await ObterPorConsultaIdAsync(consultaId, clinicaId);
@@ -163,6 +167,26 @@ namespace backend.Domain.AtendimentoAnimal.Impl
                 await transaction.RollbackAsync();
                 return new ServiceResult { Succeeded = false, Message = "Erro ao salvar o relatório." };
             }
+        }
+
+        /// <summary>
+        /// Atualiza o estado de uma entidade Animal com base nos dados de um relatório.
+        /// Este método NÃO persiste as alterações no banco de dados (não chama SaveChanges).
+        /// Ele é projetado para ser usado como um auxiliar dentro de uma transação maior, como a criação de um relatório.
+        /// </summary>
+        /// <param name="animalId">ID do animal a ser atualizado.</param>
+        /// <param name="clinicaId">ID da clínica para validação.</param>
+        /// <param name="dadosRelatorio">DTO do relatório contendo os novos dados do animal.</param>
+        /// <returns>ServiceResult com a entidade Animal atualizada em memória.</returns>
+        public async Task<ServiceResult> AtualizarEstadoComDadosRelatorioAsync(int animalId, int clinicaId, UpsertRelatorioDto dadosRelatorio)
+        {
+            var animal = await _animalRepository.GetByIdAndClinicIdWithDetailsAsync(animalId, clinicaId);
+
+            _mapper.Map(dadosRelatorio, animal);
+            animal.DataModificado = DateTime.UtcNow;
+
+            _logger.LogInformation("Estado da entidade Animal {AnimalId} atualizado em memória com dados do relatório.", animalId);
+            return new ServiceResult { Succeeded = true, Message = "Estado do animal atualizado.", Data = animal };
         }
 
         public async Task<ServiceResult> DeleteAsync(int relatorioId, int clinicaId)
