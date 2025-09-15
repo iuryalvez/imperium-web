@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using backend.Domain.SaudeAnimal.DTOs.Dieta;
 using Microsoft.AspNetCore.Authorization;
 using backend.Domain.AtendimentoAnimal.Services;
-
+using backend.Domain.GestaoDeAcesso.Interfaces;
 [ApiController]
-[Route("api/clinica/{clinicaId}/acompanhamentos")] // Rota base para ações de acompanhamento
+// Padronizado para o plural, que é a convenção REST para coleções de recursos.
+[Route("api/clinica/{clinicaId}/acompanhamentos")]
+[Authorize]
 public class AcompanhamentoController : ControllerBase
 {
     private readonly IAcompanhamentoService _acompanhamentoService;
@@ -15,30 +17,45 @@ public class AcompanhamentoController : ControllerBase
     }
 
     /// <summary>
-    /// Cria ou atualiza uma dieta personalizada para um relatório específico dentro de um acompanhamento.
+    /// Obtém o histórico completo de um animal a partir do ID do acompanhamento.
     /// </summary>
-    /// <param name="clinicaId">ID da clínica (da rota).</param>
-    /// <param name="acompanhamentoId">ID do acompanhamento (da rota).</param>
-    /// <param name="dto">Dados da dieta a ser criada (do corpo da requisição).</param>
-    /// <returns>O resultado da operação contendo a dieta criada.</returns>
-    [HttpPost("{acompanhamentoId}/dieta")] // Rota: POST api/clinica/1/acompanhamentos/15/dietas
-    [Authorize(Policy = "GerenciaAnimais")]
+    [HttpGet("{acompanhamentoId}/historico-completo")]
+    [ProducesResponseType(typeof(ServiceResult), 200)]
+    [ProducesResponseType(typeof(ServiceResult), 404)]
+    public async Task<IActionResult> GetHistoricoCompleto([FromRoute] int clinicaId, [FromRoute] int acompanhamentoId)
+    {
+        // CORREÇÃO: A variável correta da rota é 'acompanhamentoId'.
+        var result = await _acompanhamentoService.ObterHistoricoCompletoAnimalAsync(acompanhamentoId, clinicaId);
+
+        if (result.Succeeded)
+        {
+            return Ok(result);
+        }
+
+        // Se o histórico não for encontrado (animal inválido, etc.), retorna 404.
+        return NotFound(result);
+    }
+
+    /// <summary>
+    /// Cria ou atualiza uma dieta para um relatório.
+    /// </summary>
+    [HttpPost("{acompanhamentoId}/dieta")]
+    [Authorize(Policy = "GerenciaAnimais")] // Exemplo de política de autorização
+    [ProducesResponseType(typeof(ServiceResult), 200)]
+    [ProducesResponseType(typeof(ServiceResult), 400)]
     public async Task<IActionResult> CriarDieta(
-        [FromRoute] int clinicaId, 
-        [FromRoute] int acompanhamentoId, 
+        [FromRoute] int clinicaId,
+        [FromRoute] int acompanhamentoId,
         [FromBody] CreateDietaDto dto)
     {
-        // A lógica de negócio está perfeitamente encapsulada no serviço.
-        // O controller apenas orquestra a chamada.
         var result = await _acompanhamentoService.CriarDietaParaRelatorioAsync(acompanhamentoId, dto, clinicaId);
 
         if (result.Succeeded)
         {
-            // Retorna um status 200 OK com os dados da dieta criada
             return Ok(result);
         }
 
-        // Retorna um status 400 Bad Request com a mensagem de erro vinda do serviço
+        // Se a criação falhar por dados inválidos, retorna 400.
         return BadRequest(result);
     }
 }

@@ -3,7 +3,15 @@ using backend.Domain.SaudeAnimal.Entities;
 
 namespace backend.Domain.SaudeAnimal.Services
 {
-    public class CalculoNecessidadeEnergetica
+    public interface ICalculoNecessidadeEnergetica
+    {
+        double CalcularGestacao(Animal animal);
+        double CalcularLactacao(Animal animal, int numeroFilhotes, int semanaLactacao);
+        double CalcularManutencao(Animal animal, DietaPersonalizada dieta);
+        double CalcularNecessidadeTotal(Animal animal, DietaPersonalizada dieta);
+    }
+
+    public class CalculoNecessidadeEnergetica : ICalculoNecessidadeEnergetica
     {
         public double CalcularNecessidadeTotal(Animal animal, DietaPersonalizada dieta)
         {
@@ -21,7 +29,7 @@ namespace backend.Domain.SaudeAnimal.Services
                     throw new InvalidOperationException($"Tipo de dieta '{dieta.TipoDieta}' não implementado.");
             }
         }
-        
+
         public double CalcularManutencao(Animal animal, DietaPersonalizada dieta)
         {
             var perfil = PerfilMetabolicoResolver.Resolver(animal, dieta);
@@ -181,6 +189,5 @@ namespace backend.Domain.SaudeAnimal.Services
 
             return manutencao + (peso * ((24 * n) + (12 * m)) * fatorL);
         }
-
     }
 }

@@ -18,7 +18,7 @@ namespace backend.Infra.Data.Repositories
             return await _context.Tutores.FirstOrDefaultAsync(t => t.Cpf == cpf);
         }
 
-        public async Task<Tutor?> GetByIdWithIncludesAsync(int tutorId, int clinicaId)
+        public async Task<Tutor?> GetByIdAndClinicIdWithIncludesAsync(int tutorId, int clinicaId)
         {
             return await _context.Tutores
                 // Inclui a coleção de vínculos com animais na consulta
@@ -42,9 +42,9 @@ namespace backend.Infra.Data.Repositories
                 .ToListAsync();
         }
 
-        public async Task<bool> AllTutorsExistInClinicAsync(List<int> tutorIds, int clinicaId)
+        public async Task<bool> AllTutorsExistInClinicAsync(List<int> tutoresIds, int clinicaId)
         {
-            if (tutorIds == null || !tutorIds.Any())
+            if (tutoresIds == null || !tutoresIds.Any())
             {
                 return true; // Se não há IDs para validar, a validação passa.
             }
@@ -52,11 +52,11 @@ namespace backend.Infra.Data.Repositories
             // Conta quantos dos IDs fornecidos existem na tabela de vínculo Tutor-Clínica
             var validTutorsCount = await _context.TutoresClinicas
                 .AsNoTracking()
-                .CountAsync(tc => tc.ClinicaId == clinicaId && tutorIds.Contains(tc.TutorId));
+                .CountAsync(tc => tc.ClinicaId == clinicaId && tutoresIds.Contains(tc.TutorId));
 
             // A validação é bem-sucedida se a contagem de tutores válidos for igual ao número
             // de IDs únicos que recebemos.
-            return validTutorsCount == tutorIds.Distinct().Count();
+            return validTutorsCount == tutoresIds.Distinct().Count();
         }
 
         public async Task AddAsync(Tutor tutor)

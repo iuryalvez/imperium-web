@@ -27,7 +27,7 @@ namespace backend.Domain.AtendimentoAnimal
         public async Task<IActionResult> GetAll()
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            var tutores = await _tutorService.GetAllByClinicIdAsync(clinicaId);
+            var tutores = await _tutorService.ObterTodosDtosPeloClinicaIdAsync(clinicaId);
             return Ok(tutores);
         }
 
@@ -36,7 +36,7 @@ namespace backend.Domain.AtendimentoAnimal
         public async Task<IActionResult> GetById(int tutorId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            var tutor = await _tutorService.GetByIdAsync(tutorId, clinicaId);
+            var tutor = await _tutorService.ObterDtoPorIdEClinicaId(tutorId, clinicaId);
             if (tutor == null) return NotFound();
             return Ok(tutor);
         }

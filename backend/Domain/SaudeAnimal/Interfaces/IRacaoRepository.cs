@@ -5,7 +5,7 @@ namespace backend.Domain.SaudeAnimal.Interfaces
 {
     public interface IRacaoRepository
     {
-        Task<IEnumerable<Racao>> GetAllByClinicIdAsync(int clinicaId, EspecieAnimal? especie);
+        Task<IEnumerable<Racao>> GetAllByClinicIdAndEspecieAsync(int clinicaId, EspecieAnimal? especie);
         Task<Racao?> GetByIdAndClinicIdAsync(int racaoId, int clinicaId);
         Task AddAsync(Racao racao);
         void Delete(Racao racao);

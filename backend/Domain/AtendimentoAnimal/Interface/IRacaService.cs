@@ -9,7 +9,7 @@ namespace backend.Domain.AtendimentoAnimal.Interface
         Task<List<GetRacaDto>> ListByClinicaIdAndEspecieAsync(int clinicaId, EspecieAnimal? especie);
         Task<GetRacaDto?> GetByIdAsync(int id);
         Task<GetRacaDto> CreateAsync(CadastrarRacaDto criarRacaDto, int clinicaId);
-        Task<bool> UpdateAsync(UpdateRacaDto atualizarRacaDto, int clinicaId);
+        Task<bool> CreateOrUpdateAsync(UpdateRacaDto atualizarRacaDto, int clinicaId);
         Task<bool> DeleteAsync(int id);
     }
 }

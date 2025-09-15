@@ -129,6 +129,10 @@ Within a particular ecosystem, there may be a common way of installing things, s
     dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
     dotnet aspnet-codegenerator controller -name ItemController -async -api -m DbItem -dc AppDbContext -outDir Controllers
 
+    dotnet user-secrets init
+    dotnet user-secrets set "Smtp:Password" "chave da api"
+    dotnet user-secrets set "JWT:Secret" "segredo do jwt"
+
 ## Comandos dotnet
 
     dotnet restore

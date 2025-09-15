@@ -1,5 +1,6 @@
 using backend.Domain.AtendimentoAnimal.DTOs.Relatorio;
 using backend.Domain.AtendimentoAnimal.Interface;
+using backend.Domain.GestaoDeAcesso.Interfaces;
 using backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,38 +17,56 @@ namespace backend.Domain.AtendimentoAnimal
 
         [HttpGet("consultas/{consultaId}/relatorio")]
         [Authorize(Policy = "VisualizaTudo")]
+        [ProducesResponseType(typeof(ServiceResult), 200)]
+        [ProducesResponseType(typeof(ServiceResult), 404)]
         public async Task<IActionResult> Get(int consultaId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            var relatorio = await _relatorioService.GetByConsultaIdAsync(consultaId, clinicaId);
-            if (relatorio == null) return NotFound();
-            return Ok(relatorio);
+            
+            // O serviço agora retorna ServiceResult
+            var result = await _relatorioService.GetDtoByConsultaIdAsync(consultaId, clinicaId);
+            
+            if (result.Succeeded)
+            {
+                return Ok(result);
+            }
+
+            return NotFound(result);
+
         }
 
-        // Um único endpoint para Criar e Atualizar (Upsert)
         [HttpPut("consultas/{consultaId}/relatorio")]
         [Authorize(Policy = "GerenciaAnimais")]
+        [ProducesResponseType(typeof(ServiceResult), 200)]
+        [ProducesResponseType(typeof(ServiceResult), 400)]
         public async Task<IActionResult> Upsert(int consultaId, [FromBody] UpsertRelatorioDto dto)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             var result = await _relatorioService.UpsertAsync(consultaId, dto, clinicaId);
-            if (!result.Succeeded) return BadRequest(result);
-            return Ok(result);
+            
+            if (result.Succeeded)
+            {
+                return Ok(result);
+            }
+
+            return BadRequest(result);
         }
 
         [HttpDelete("relatorios/{relatorioId}")]
         [Authorize(Policy = "GerenciaAnimais")]
+        [ProducesResponseType(204)] // NoContent
+        [ProducesResponseType(typeof(ServiceResult), 404)]
         public async Task<IActionResult> Delete(int relatorioId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             var result = await _relatorioService.DeleteAsync(relatorioId, clinicaId);
 
-            if (!result.Succeeded)
+            if (result.Succeeded)
             {
-                // O serviço retorna a mensagem de erro (ex: "Não encontrado" ou "Relatório já preenchido")
-                return BadRequest(result);
+                return NoContent(); // 204 é o ideal para um delete bem-sucedido
             }
-            return NoContent(); // Sucesso
+            
+            return NotFound(result);
         }
     }
 }

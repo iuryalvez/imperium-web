@@ -11,28 +11,110 @@ namespace backend.Domain.AtendimentoAnimal.Impl
     public class TutorService : ITutorService
     {
         private readonly ITutorRepository _tutorRepository;
-        private readonly IAnimalRepository _animalRepository; // Para validar animais
+        private readonly IAnimalService _animalService; // Para validar animais
         private readonly IMapper _mapper;
+        private readonly ILogger<TutorService> _logger;
         private readonly AppDbContext _context; // Para transações
 
-        public TutorService(ITutorRepository tutorRepository, IAnimalRepository animalRepository, IMapper mapper, AppDbContext context)
+        public TutorService(ITutorRepository tutorRepository,
+                            IAnimalService animalService,
+                            IMapper mapper,
+                            ILogger<TutorService> logger,
+                            AppDbContext context)
         {
             _tutorRepository = tutorRepository;
-            _animalRepository = animalRepository;
+            _animalService = animalService;
             _mapper = mapper;
+            _logger = logger;
             _context = context;
         }
 
-        public async Task<IEnumerable<GetTutoresClinicaDto>> GetAllByClinicIdAsync(int clinicaId)
+        /// <summary>
+        /// Obtém a entidade de um tutor específico pelo seu ID, validando o acesso pela clínica.
+        /// Este método retorna a entidade de domínio completa.
+        /// </summary>
+        /// <param name="tutorId">O ID do tutor a ser buscado.</param>
+        /// <param name="clinicaId">O ID da clínica para validação de acesso.</param>
+        /// <returns>A entidade 'Tutor' ou nulo se não for encontrado ou o acesso for negado.</returns>
+        public async Task<Tutor?> ObterPorIdEClinicaIdAsync(int tutorId, int clinicaId)
         {
-            var tutores = await _tutorRepository.GetAllByClinicIdWithIncludesAsync(clinicaId);
+            _logger.LogInformation("Buscando entidade Tutor ID {TutorId} para a clínica ID {ClinicaId}.", tutorId, clinicaId);
+            try
+            {
+                var tutor = await _tutorRepository.GetByIdAndClinicIdWithIncludesAsync(tutorId, clinicaId);
+
+                if (tutor == null)
+                {
+                    _logger.LogWarning("Nenhuma entidade Tutor encontrada para o ID {TutorId} na clínica {ClinicaId}.", tutorId, clinicaId);
+                }
+
+                return tutor;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar a entidade Tutor ID {TutorId}.", tutorId);
+                throw; // Relança a exceção para ser tratada por uma camada superior
+            }
+        }
+
+        /// <summary>
+        /// Obtém uma lista de todas as entidades de tutores de uma clínica específica.
+        /// Este método retorna as entidades de domínio completas.
+        /// </summary>
+        /// <param name="clinicaId">O ID da clínica.</param>
+        /// <returns>Uma coleção de entidades 'Tutor'.</returns>
+        public async Task<IEnumerable<Tutor>> ObterTodosPorClinicaIdAsync(int clinicaId)
+        {
+            _logger.LogInformation("Buscando todas as entidades Tutor para a clínica ID {ClinicaId}.", clinicaId);
+            try
+            {
+                return await _tutorRepository.GetAllByClinicIdWithIncludesAsync(clinicaId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar todas as entidades Tutor da clínica ID {ClinicaId}.", clinicaId);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um DTO de um tutor específico, fazendo uso do método de serviço que busca a entidade.
+        /// </summary>
+        /// <param name="tutorId">O ID do tutor a ser buscado.</param>
+        /// <param name="clinicaId">O ID da clínica para validação de acesso.</param>
+        /// <returns>O DTO 'GetTutoresClinicaDto' ou nulo se não for encontrado.</returns>
+        public async Task<GetTutoresClinicaDto?> ObterDtoPorIdEClinicaId(int tutorId, int clinicaId)
+        {
+            _logger.LogInformation("Buscando DTO para o Tutor ID {TutorId} na clínica ID {ClinicaId}.", tutorId, clinicaId);
+
+            // 1. Chama o método de serviço intermediário para obter a entidade
+            var tutor = await ObterPorIdEClinicaIdAsync(tutorId, clinicaId);
+
+            // 2. Mapeia a entidade para DTO. O AutoMapper lida com o caso de 'tutor' ser nulo.
+            return _mapper.Map<GetTutoresClinicaDto>(tutor);
+        }
+
+        /// <summary>
+        /// Obtém uma lista de DTOs de todos os tutores de uma clínica, fazendo uso do método de serviço que busca as entidades.
+        /// </summary>
+        /// <param name="clinicaId">O ID da clínica.</param>
+        /// <returns>Uma coleção de DTOs 'GetTutoresClinicaDto'.</returns>
+        public async Task<IEnumerable<GetTutoresClinicaDto>> ObterTodosDtosPeloClinicaIdAsync(int clinicaId)
+        {
+            _logger.LogInformation("Buscando todos os DTOs de Tutores para a clínica ID {ClinicaId}.", clinicaId);
+
+            // 1. Chama o método de serviço intermediário para obter as entidades
+            var tutores = await ObterTodosPorClinicaIdAsync(clinicaId);
+
+            // 2. Mapeia a coleção de entidades para uma coleção de DTOs.
             return _mapper.Map<IEnumerable<GetTutoresClinicaDto>>(tutores);
         }
 
-        public async Task<GetTutoresClinicaDto?> GetByIdAsync(int tutorId, int clinicaId)
+        public async Task<ServiceResult> ValidarTutoresDaClinicaAsync(List<int> tutoresIds, int clinicaId)
         {
-            var tutor = await _tutorRepository.GetByIdWithIncludesAsync(tutorId, clinicaId);
-            return _mapper.Map<GetTutoresClinicaDto>(tutor);
+            if (await _tutorRepository.AllTutorsExistInClinicAsync(tutoresIds, clinicaId))
+                return new ServiceResult { Succeeded = false, Message = "ERRO: Algum dos tutores não pertence a essa clínica." };
+            else return new ServiceResult { Succeeded = true, Message = "Todos os tutores pertencem à clínica." };
         }
 
         public async Task<ServiceResult> CreateAsync(CadastrarTutorClinicaDto dto, int clinicaId)
@@ -89,7 +171,7 @@ namespace backend.Domain.AtendimentoAnimal.Impl
             await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var tutor = await _tutorRepository.GetByIdWithIncludesAsync(dto.Id, clinicaId);
+                var tutor = await _tutorRepository.GetByIdAndClinicIdWithIncludesAsync(dto.Id, clinicaId);
                 if (tutor == null)
                 {
                     await transaction.RollbackAsync();
@@ -106,7 +188,7 @@ namespace backend.Domain.AtendimentoAnimal.Impl
                 {
                     // 2a. VALIDAÇÃO OTIMIZADA
                     // Valida todos os animais com uma única chamada ao banco.
-                    var allAnimalsAreValid = await _animalRepository.AllAnimalsExistInClinicAsync(dto.AnimalIds, clinicaId);
+                    var allAnimalsAreValid = await _animalService.AnimaisExistemNaClinicaAsync(dto.AnimalIds, clinicaId);
                     if (!allAnimalsAreValid)
                     {
                         await transaction.RollbackAsync();
@@ -178,7 +260,7 @@ namespace backend.Domain.AtendimentoAnimal.Impl
             await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var tutor = await _tutorRepository.GetByIdWithIncludesAsync(tutorId, clinicaId);
+                var tutor = await _tutorRepository.GetByIdAndClinicIdWithIncludesAsync(tutorId, clinicaId);
                 if (tutor == null)
                     return new ServiceResult { Succeeded = false, Message = "Tutor não encontrado nesta clínica." };
 

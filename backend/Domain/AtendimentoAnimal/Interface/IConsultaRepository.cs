@@ -8,8 +8,10 @@ namespace backend.Domain.AtendimentoAnimal.Interface
 {
     public interface IConsultaRepository
     {
+        Task<Consulta?> GetByIdAsync(int consultaId);
+        Task<Consulta?> GetByIdWithDetailsAsync(int consultaId);
         Task<IEnumerable<Consulta>> GetAllByClinicIdAsync(int clinicaId);
-        Task<Consulta?> GetByIdAsync(int consultaId, int clinicaId);
+        Task<Consulta?> GetByIdAndClinicIdAsync(int consultaId, int clinicaId);
         Task AddAsync(Consulta consulta);
         void Delete(Consulta consulta);
         Task<int> SaveChangesAsync();

@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 
 using backend.Services;
-using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Infra.Data;
 using backend.Domain.AtendimentoAnimal.DTOs;
 using backend.Domain.GestaoClinica.Interface;
@@ -39,8 +38,12 @@ namespace backend.Domain.AtendimentoAnimal
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId == 0) return BadRequest("ID da clínica não encontrado.");
 
-            var animais = await _animalService.GetAllByClinicIdAsync(clinicaId);
-            return Ok(animais);
+            var result = await _animalService.GetAllDtosByClinicIdAsync(clinicaId);
+
+            if (result.Succeeded)
+                return Ok(result.Data);
+
+            return BadRequest(result);
         }
 
         [HttpGet("animais/{animalId}")]
@@ -48,11 +51,13 @@ namespace backend.Domain.AtendimentoAnimal
         public async Task<IActionResult> GetByIdWithDetails(int animalId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            var animal = await _animalService.GetDetailsByIdAsync(animalId, clinicaId);
+            var result = await _animalService.GetDtoDetailsByIdAsync(animalId, clinicaId);
 
-            if (animal == null) return NotFound($"Animal com ID {animalId} não encontrado na clínica.");
+            if (result.Succeeded)
+                return Ok(result);
+            if (result.Data == null) return NotFound($"Animal com ID {animalId} não encontrado na clínica.");
 
-            return Ok(animal);
+            return BadRequest(result);
         }
 
         [HttpPost("animais/cadastrar")]

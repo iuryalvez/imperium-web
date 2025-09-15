@@ -1,16 +1,10 @@
-using Microsoft.EntityFrameworkCore;
-
 using System.Security.Claims;
 using AutoMapper;
 using backend.Domain.AtendimentoAnimal.DTOs.Relatorio;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interface;
 using backend.Domain.GestaoDeAcesso.Interfaces;
-using backend.Domain.SaudeAnimal.Impl;
-using backend.Domain.SaudeAnimal.Interfaces;
-using backend.Infra.Data;
-using Microsoft.AspNetCore.Identity;
-using backend.Domain.SaudeAnimal.Entities;
+using backend.Infra.Data; // Para AppDbContext (apenas para transação)
 
 namespace backend.Domain.AtendimentoAnimal.Impl
 {
@@ -18,133 +12,179 @@ namespace backend.Domain.AtendimentoAnimal.Impl
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRelatorioRepository _relatorioRepository;
-        private readonly IConsultaRepository _consultaRepository;
-        private readonly IAnimalRepository _animalRepository;
-        private readonly IDietaRepository _dietaRepository;
+        private readonly IConsultaService _consultaService;
+        private readonly IAnimalService _animalService; // Necessário para atualizar o animal
+        private readonly AppDbContext _context; // Mantido apenas para controle de transação
         private readonly IMapper _mapper;
-        private readonly AppDbContext _context;
 
         public RelatorioService(
             IRelatorioRepository relatorioRepository,
-            IConsultaRepository consultaRepository,
-            IAnimalRepository animalRepository,
-            IDietaRepository dietaRepository,
+            IConsultaService consultaService,
+            IAnimalService animalService,
             IMapper mapper,
             AppDbContext context,
             IHttpContextAccessor httpContextAccessor)
         {
             _relatorioRepository = relatorioRepository;
-            _consultaRepository = consultaRepository;
-            _animalRepository = animalRepository;
-            _dietaRepository = dietaRepository;
+            _consultaService = consultaService;
+            _animalService = animalService;
             _mapper = mapper;
             _context = context;
             _httpContextAccessor = httpContextAccessor;
         }
 
-        private int? GetUserId()
+        // --- MÉTODOS DE LEITURA (PARA USO INTERNO E EXTERNO) ---
+
+        public async Task<ServiceResult> ObterPorIdEIdAcompanhamentoAsync(int relatorioId, int acompanhamentoId, int clinicaId)
         {
-            var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-            return userId != null ? int.Parse(userId) : null;
-        }
-
-        public async Task<ServiceResult> UpsertAsync(int consultaId, UpsertRelatorioDto dto, int clinicaId)
-        {
-            await using var transaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                var consulta = await _consultaRepository.GetByIdAsync(consultaId, clinicaId);
-                if (consulta?.Animal == null)
-                    return new ServiceResult { Succeeded = false, Message = "Consulta ou animal associado não encontrado." };
-
-                // Verifica se já existe um relatório para esta consulta
-                var relatorio = await _relatorioRepository.GetByConsultaIdAsync(consultaId) ?? new Relatorio { ConsultaId = consultaId };
-
-                relatorio.UsuarioResponsavelId = GetUserId() ?? 0;
-                // Mapeia os dados do DTO para a entidade Relatorio
-                _mapper.Map(dto, relatorio);
-                relatorio.Idade = consulta.Animal.Idade; // Calcula a idade no momento do relatório
-
-                // LÓGICA DE NEGÓCIO PRINCIPAL: Atualiza a entidade Animal com os dados do relatório
-                var animal = consulta.Animal;
-                animal.Peso = dto.Peso;
-                animal.CondicaoCorporal = dto.CondicaoCorporal;
-                animal.GrauAtividade = dto.GrauAtividade;
-                animal.IsGestante = dto.IsGestante;
-                animal.IsLactanteNumeroFilhotes = dto.IsLactanteNumeroFilhotes;
-                animal.SemanaGestacao = dto.SemanaGestacao;
-                animal.SemanaLactacao = dto.SemanaLactacao;
-                animal.DataModificado = DateTime.UtcNow;
-
-                // Se for um novo relatório, adiciona ao contexto
-                if (relatorio.Id == 0)
-                {
-                    await _relatorioRepository.AddAsync(relatorio);
-                }
-
-                // Exemplo: escolhe a ração associada ao animal (ou null se não houver)
-                var racao = await _context.Racoes.FirstOrDefaultAsync(r => r.Id == dto.RacaoId);
-
-                var acompanhamento = animal.AcompanhamentoIndividualizado;
-
-                if (acompanhamento.Relatorios == null)
-                    acompanhamento.Relatorios = new List<Relatorio>();
-
-                if (!acompanhamento.Relatorios.Contains(relatorio))
-                    acompanhamento.Relatorios.Add(relatorio);
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                var resultDto = _mapper.Map<GetRelatorioDto>(relatorio);
-                return new ServiceResult { Succeeded = true, Message = "Relatório salvo com sucesso.", Data = resultDto };
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                // Logar 'ex'
-                return new ServiceResult { Succeeded = false, Message = "Erro ao salvar o relatório." };
-            }
-        }
-
-        public async Task<GetRelatorioDto?> GetByConsultaIdAsync(int consultaId, int clinicaId)
-        {
-            // Primeiro, valida se a consulta pertence à clínica do usuário
-            var consulta = await _consultaRepository.GetByIdAsync(consultaId, clinicaId);
-            if (consulta == null)
-            {
-                return null; // Consulta não existe ou não pertence à clínica
-            }
-
-            var relatorio = await _relatorioRepository.GetByConsultaIdAsync(consultaId);
+            var relatorio = await _relatorioRepository.GetByIdAndAcompanhamentoIdAsync(relatorioId, acompanhamentoId);
             if (relatorio == null)
             {
-                return null; // Ainda não existe um relatório para esta consulta
+                return new ServiceResult { Succeeded = false, Message = "Relatório não encontrado ou não pertence a este acompanhamento." };
             }
 
-            return _mapper.Map<GetRelatorioDto>(relatorio);
+            var consultaResult = await _consultaService.ObterPorIdAsync(relatorio.ConsultaId);
+            var consulta = (Consulta)consultaResult.Data;
+            if (consultaResult == null || consulta.ClinicaId != clinicaId)
+            {
+                return new ServiceResult { Succeeded = false, Message = "Acesso negado ao relatório." };
+            }
+
+            return new ServiceResult { Succeeded = true, Data = relatorio };
         }
 
-        public async Task<ServiceResult> DeleteAsync(int relatorioId, int clinicaId)
+        public async Task<ServiceResult> ObterPorIdAsync(int relatorioId, int clinicaId)
         {
             var relatorio = await _relatorioRepository.GetByIdWithConsultaAsync(relatorioId);
-
             if (relatorio == null)
             {
                 return new ServiceResult { Succeeded = false, Message = "Relatório não encontrado." };
             }
 
-            // Verificação de segurança: o relatório pertence a uma consulta da clínica correta?
-            if (relatorio.Consulta?.ClinicaId != clinicaId)
+            if (relatorio.Consulta == null || relatorio.Consulta.ClinicaId != clinicaId)
             {
-                return new ServiceResult { Succeeded = false, Message = "Acesso negado. O relatório não pertence a esta clínica." };
+                return new ServiceResult { Succeeded = false, Message = "Acesso negado ao relatório." };
             }
 
-            _relatorioRepository.Delete(relatorio);
+            return new ServiceResult { Succeeded = true, Data = relatorio };
+        }
 
-            await _context.SaveChangesAsync(); // salva todas as alterações (+ de 1 entidade envolvida)
+        public async Task<ServiceResult> ObterPorConsultaIdAsync(int consultaId, int clinicaId)
+        {
+            var consultaResult = await _consultaService.ObterPorIdAsync(consultaId);
+            var consulta = (Consulta)consultaResult.Data;
+            if (consulta == null || consulta.ClinicaId != clinicaId)
+            {
+                return new ServiceResult { Succeeded = false, Message = "Consulta não encontrada nesta clínica." };
+            }
+
+            var relatorio = await _relatorioRepository.GetByConsultaIdAsync(consultaId);
+            if (relatorio == null)
+            {
+                return new ServiceResult { Succeeded = false, Message = "Nenhum relatório encontrado para esta consulta." };
+            }
+
+            return new ServiceResult { Succeeded = true, Data = relatorio };
+        }
+
+        public async Task<ServiceResult> GetDtoByConsultaIdAsync(int consultaId, int clinicaId)
+        {
+            // REUTILIZAÇÃO: Chama o método de serviço que já contém a lógica de validação.
+            var resultadoBusca = await ObterPorConsultaIdAsync(consultaId, clinicaId);
+            if (!resultadoBusca.Succeeded)
+            {
+                return resultadoBusca;
+            }
+
+            var relatorio = (Relatorio)resultadoBusca.Data;
+            var relatorioDto = _mapper.Map<GetRelatorioDto>(relatorio);
+
+            return new ServiceResult { Succeeded = true, Data = relatorioDto };
+        }
+
+        // --- MÉTODOS DE ESCRITA (WRITE) ---
+
+        // Dentro do RelatorioService
+        public async Task<ServiceResult> UpsertAsync(int consultaId, UpsertRelatorioDto dto, int clinicaId)
+        {
+            var consultaResult = await _consultaService.ObterPorIdComDetalhesAsync(consultaId);
+            var consulta = (Consulta)consultaResult.Data;
+            if (consulta?.Animal?.AcompanhamentoIndividualizado == null)
+            {
+                return new ServiceResult { Succeeded = false, Message = "Consulta, animal ou acompanhamento associado não encontrado." };
+            }
+            var animal = consulta.Animal;
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var resultadoUpdateAnimal = await _animalService.AtualizarEstadoComDadosRelatorioAsync(animal.Id, clinicaId, dto);
+                if (!resultadoUpdateAnimal.Succeeded)
+                {
+                    await transaction.RollbackAsync();
+                    return resultadoUpdateAnimal; // Retorna o erro vindo do AnimalService
+                }
+
+                var resultadoBusca = await ObterPorConsultaIdAsync(consultaId, clinicaId);
+
+                Relatorio relatorio;
+                if (resultadoBusca.Succeeded)
+                {
+                    relatorio = (Relatorio)resultadoBusca.Data;
+                }
+                else
+                {
+                    relatorio = new Relatorio
+                    {
+                        ConsultaId = consultaId,
+                        AcompanhamentoIndividualizadoId = animal.AcompanhamentoIndividualizado.Id
+                    };
+                }
+
+                relatorio.UsuarioResponsavelId = GetUserId();
+                _mapper.Map(dto, relatorio);
+                relatorio.Idade = animal.Idade;
+
+                if (relatorio.Id == 0)
+                {
+                    await _relatorioRepository.AddAsync(relatorio);
+                }
+
+                // O SaveChanges irá persistir tanto as alterações no Animal (rastreadas)
+                // quanto as alterações no Relatório (adicionado/modificado).
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                var resultDto = _mapper.Map<GetRelatorioDto>(relatorio);
+                return new ServiceResult { Succeeded = true, Message = "Relatório salvo e animal atualizado com sucesso.", Data = resultDto };
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return new ServiceResult { Succeeded = false, Message = "Erro ao salvar o relatório." };
+            }
+        }
+
+        public async Task<ServiceResult> DeleteAsync(int relatorioId, int clinicaId)
+        {
+            // REUTILIZAÇÃO: Usa o método de serviço que já valida o acesso e a existência.
+            var resultadoBusca = await ObterPorIdAsync(relatorioId, clinicaId);
+            if (!resultadoBusca.Succeeded)
+            {
+                return resultadoBusca;
+            }
+
+            var relatorio = (Relatorio)resultadoBusca.Data;
+            _relatorioRepository.Delete(relatorio);
+            await _context.SaveChangesAsync();
 
             return new ServiceResult { Succeeded = true, Message = "Relatório excluído com sucesso." };
+        }
+
+        private int? GetUserId()
+        {
+            var userIdStr = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.TryParse(userIdStr, out var userId) ? userId : null;
         }
     }
 }

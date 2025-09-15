@@ -13,20 +13,26 @@ namespace backend.Infra.Data.Repositories
             _context = context;
         }
 
-        public async Task<Animal?> GetByIdWithIncludesAsync(int animalId, int clinicaId)
+        public async Task<Animal?> GetByIdAsync(int animalId)
+        {
+            return await _context.Animais
+                .FirstOrDefaultAsync(a => a.Id == animalId);
+        }
+
+        public async Task<Animal?> GetByIdAndClinicaIdWithIncludesAsync(int animalId, int clinicaId)
         {
             return await _context.Animais
                 // Inclui a coleção de vínculos com tutores na consulta
                 .Include(a => a.TutoresAnimais)
                 // Garante que o animal pertence à clínica especificada
-                .Where(a => a.AnimaisClinicas.Any(ac => ac.ClinicaId == clinicaId))
+                .Where(a => a.AnimaisClinicas!.Any(ac => ac.ClinicaId == clinicaId))
                 // Busca o animal específico pelo ID
                 .FirstOrDefaultAsync(a => a.Id == animalId);
         }
 
         public async Task<bool> IsAnimalInClinicAsync(int animalId, int clinicaId)
         {
-            // Verifica de forma eficiente se existe um vínculo ATIVO entre o animal e a clínica
+            // Verifica se existe um vínculo ATIVO entre o animal e a clínica
             return await _context.AnimaisClinicas
                 .AnyAsync(ac =>
                     ac.AnimalId == animalId &&
@@ -60,16 +66,45 @@ namespace backend.Infra.Data.Repositories
             _context.TutoresAnimais.RemoveRange(links);
         }
 
-        public async Task<IEnumerable<Animal>> GetAnimaisByClinicIdWithIncludesAsync(int clinicaId)
+        public async Task<IEnumerable<Animal>> GetByClinicaIdWithIncludesAsync(int clinicaId)
         {
             return await _context.Animais
-                .Include(a => a.TutoresAnimais).ThenInclude(ta => ta.Tutor)
+                .Include(a => a.TutoresAnimais!).ThenInclude(ta => ta.Tutor)
                 .Include(a => a.Raca) // Incluindo a Raça
-                .Where(a => a.AnimaisClinicas.Any(ac => ac.ClinicaId == clinicaId))
+                .Where(a => a.AnimaisClinicas!.Any(ac => ac.ClinicaId == clinicaId))
                 .ToListAsync();
         }
 
-        public async Task<Animal?> GetAnimalDetailsAsync(int animalId, int clinicaId)
+        public async Task<Animal?> GetHistoricoCompletoAsync(int animalId, int clinicaId)
+        {
+            return await _context.Animais
+                // Carrega dados diretos do animal
+                .Include(a => a.Raca)
+
+                // Carrega os tutores através da tabela de junção
+                .Include(a => a.TutoresAnimais!)
+                    .ThenInclude(ta => ta.Tutor)
+
+                // Carrega o acompanhamento lista de relatórios (a linha do tempo)
+                .Include(a => a.AcompanhamentoIndividualizado)
+                    .ThenInclude(ac => ac!.Relatorios!.OrderByDescending(r => r.Consulta!.DataConsulta)) // Ordena pela data da consulta
+
+                        // A partir de cada relatório, carrega a dieta e a ração associada
+                        .ThenInclude(r => r.DietaPersonalizada)
+                            .ThenInclude(d => d!.Racao)
+
+                        // A partir de cada relatório, carrega a consulta e o usuário responsável
+                        .Include(a => a.AcompanhamentoIndividualizado)
+                            .ThenInclude(ac => ac.Relatorios!)
+                                .ThenInclude(r => r.Consulta)
+                                    .ThenInclude(c => c.Usuario)
+
+                // Garante que estamos pegando o animal correto da clínica correta
+                .Where(a => a.Id == animalId && a.AnimaisClinicas.Any(ac => ac.ClinicaId == clinicaId))
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<Animal?> GetByIdAndClinicIdWithDetailsAsync(int animalId, int clinicaId)
         {
             return await _context.Animais
                 .Include(a => a.TutoresAnimais).ThenInclude(ta => ta.Tutor)
@@ -86,6 +121,17 @@ namespace backend.Infra.Data.Repositories
         public async Task AddVinculoClinicaAsync(AnimalClinica vinculo)
         {
             await _context.AnimaisClinicas.AddAsync(vinculo);
+        }
+
+        public async Task<AnimalClinica?> GetVinculoAnimalClinicaAsync(int animalId, int clinicaId)
+        {
+            return await _context.AnimaisClinicas
+                .FirstOrDefaultAsync(ac => ac.AnimalId == animalId && ac.ClinicaId == clinicaId);
+        }
+
+        public void UpdateVinculo(AnimalClinica vinculo)
+        {
+            _context.AnimaisClinicas.Update(vinculo);
         }
 
         public async Task<int> SaveChangesAsync()

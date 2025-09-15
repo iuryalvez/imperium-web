@@ -1,5 +1,3 @@
-# gitignore do que o iury colocou para proteger infos sensíveis:
-
 # appsettings de Produção
 /backend/appsettings.Production.json
 
@@ -10,29 +8,31 @@
 docker-compose_db_local.yml
 docker-compose.db.yml
 
+.env
+
 ### GITIGNORE PARA O NPM/REACT
 
 # dependencies
 /frontend/node_modules
 /frontend/.pnp
-.pnp.js
-.vscode
+/frontend/.pnp.js
+/frontend/.vscode
 # testing
-/coverage
+/frontend/coverage
 # production
-/build
+/frontend/build
 # misc
-.DS_Store
-.env
-.env.development
-.env.production
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+/frontend/.DS_Store
+/frontend/.env
+/frontend/.env.development
+/frontend/.env.production
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
 
 ### GITIGNORE PARA O DOTNET/WEBAPI
 # dotenv files
@@ -63,6 +63,9 @@ mono_crash.*
 /backend/[Oo]bj/
 /backend/[Ll]og/
 /backend/[Ll]ogs/
+/backend/appsettings.json
+/backend/appsettings.Development.json
+/backend/appsettings.Production.json
 
 
 # .NET

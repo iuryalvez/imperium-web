@@ -21,7 +21,7 @@ namespace backend.Domain.SaudeAnimal
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId == 0) return Forbid();
 
-            var racao = await _racaoService.GetByIdAsync(racaoId, clinicaId);
+            var racao = await _racaoService.ObterPorIdEClinicaIdAsync(racaoId, clinicaId);
 
             if (racao == null) return NotFound(new { Message = "Ração não encontrada." });
 
@@ -36,7 +36,7 @@ namespace backend.Domain.SaudeAnimal
             if (clinicaId == 0) return Forbid();
 
             // Passa o parâmetro para o serviço
-            var racoes = await _racaoService.GetAllByClinicIdAsync(clinicaId, especie);
+            var racoes = await _racaoService.ObterTodosDtosPorClinicaIdEEspecieAsync(clinicaId, especie);
             return Ok(racoes);
         }
 

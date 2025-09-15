@@ -1,5 +1,6 @@
 using AutoMapper;
 using backend.Domain.AtendimentoAnimal.DTOs;
+using backend.Domain.AtendimentoAnimal.DTOs.Relatorio;
 using backend.Domain.AtendimentoAnimal.Entities;
 
 namespace backend.Domain.AtendimentoAnimal.Mappers
@@ -35,6 +36,10 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
 
             CreateMap<EditarAnimalClinicaDto, Animal>()
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            
+            // Mapeia os dados de estado de um relatório para a entidade Animal.
+            // Usado para atualizar o estado atual do animal sempre que um novo relatório é salvo.
+            CreateMap<UpsertRelatorioDto, Animal>();
         }
     }
 }

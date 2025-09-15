@@ -1,6 +1,5 @@
 using AutoMapper;
 using backend.Domain.AtendimentoAnimal.Entities;
-using backend.Domain.AtendimentoAnimal.Interface;
 using backend.Domain.GestaoDeAcesso.Interfaces;
 using backend.Domain.SaudeAnimal.DTOs.Dieta;
 using backend.Domain.SaudeAnimal.Entities;
@@ -12,22 +11,19 @@ namespace backend.Domain.SaudeAnimal.Impl
     public class DietaService : IDietaService
     {
         private readonly IDietaRepository _dietaRepository;
-        private readonly IRelatorioRepository _relatorioRepository;
-        private readonly IAnimalRepository _animalRepository;
-        private readonly IRacaoRepository _racaoRepository;
         private readonly IMapper _mapper;
-        private readonly CalculoNecessidadeEnergetica _calculoService;
+        private readonly ICalculoNecessidadeEnergetica _calculoService;
+        private readonly ILogger<DietaService> _logger;
 
         public DietaService(IDietaRepository dietaRepository,
-                            IRelatorioRepository relatorioRepository,
-                            IRacaoRepository racaoRepository,
+                            ICalculoNecessidadeEnergetica calculoService,
+                            ILogger<DietaService> logger,
                             IMapper mapper)
         {
             _dietaRepository = dietaRepository;
-            _relatorioRepository = relatorioRepository;
-            _racaoRepository = racaoRepository;
+            _calculoService = calculoService;
+            _logger = logger;
             _mapper = mapper;
-            _calculoService = new CalculoNecessidadeEnergetica();
         }
 
         public async Task<DietaPersonalizada> CalcularOuAtualizarDietaAsync(
@@ -38,7 +34,6 @@ namespace backend.Domain.SaudeAnimal.Impl
         {
             // 1. Preparar o objeto para o cálculo
             //    O serviço de cálculo precisa de um objeto 'DietaPersonalizada'
-            //    para obter o TipoDieta e os fatores de customização.
             var dietaParaCalculo = new DietaPersonalizada
             {
                 TipoDieta = dto.TipoDieta,
@@ -49,10 +44,12 @@ namespace backend.Domain.SaudeAnimal.Impl
             // 2. Chamar o serviço de cálculo para obter a necessidade energética diária (kcal)
             double necessidadeKcal = _calculoService.CalcularNecessidadeTotal(animal, dietaParaCalculo);
 
-            // 3. Validar se a ração possui a informação de energia
+            _logger.LogDebug("Necessidade energética diária calculada: {NecessidadeKcal} kcal/dia.", necessidadeKcal);
+
+            // 3. Validar a ração
             if (racao.EnergiaMetabolizavel == null || racao.EnergiaMetabolizavel <= 0)
             {
-                // No seu DTO de ração, o campo é EnergiaMetabolizavel, não EnergiaMetabolizavelKcalPorKg
+                _logger.LogError("Ração ID {RacaoId} não possui um valor de energia metabolizável válido para o cálculo.", racao.Id);
                 throw new InvalidOperationException("A ração selecionada não possui um valor de energia metabolizável válido.");
             }
 
@@ -60,15 +57,20 @@ namespace backend.Domain.SaudeAnimal.Impl
             //    Assumindo que 'EnergiaMetabolizavel' na ração está em kcal/kg
             double kcalPorGrama = racao.EnergiaMetabolizavel.Value / 1000.0;
             double quantidadeGramas = necessidadeKcal / kcalPorGrama;
+            _logger.LogDebug("Quantidade de alimento calculada: {QuantidadeGramas} g/dia.", quantidadeGramas);
 
             // 5. Buscar por uma dieta existente para este relatório (lógica de Upsert)
             var dietaExistente = await _dietaRepository.FindByRelatorioIdAsync(relatorio.Id);
 
             if (dietaExistente == null)
             {
-                // Se não existir, cria uma nova instância
+                _logger.LogInformation("Nenhuma dieta encontrada para o relatório ID {RelatorioId}. Criando uma nova.", relatorio.Id);
                 dietaExistente = new DietaPersonalizada();
                 await _dietaRepository.AddAsync(dietaExistente);
+            }
+            else
+            {
+                _logger.LogInformation("Dieta ID {DietaId} encontrada para o relatório ID {RelatorioId}. A dieta será atualizada.", dietaExistente.Id, relatorio.Id);
             }
 
             // 6. Mapear todos os dados do DTO e dos cálculos para a entidade
@@ -97,51 +99,101 @@ namespace backend.Domain.SaudeAnimal.Impl
             // dietaExistente.CriadoPor = ... // Implementar lógica para pegar usuário logado
 
             // 7. Salvar as alterações no banco de dados
-            await _dietaRepository.SaveChangesAsync(); // Ou _dietaRepository.SaveChangesAsync() se o método existir lá
+            await _dietaRepository.SaveChangesAsync();
+            _logger.LogInformation("Dieta ID {DietaId} foi salva com sucesso para o animal ID {AnimalId}.", dietaExistente.Id, animal.Id);
 
             return dietaExistente;
         }
 
         public async Task<GetDietaDto?> GetByIdAsync(int dietaId, int clinicaId)
         {
-            var dieta = await _dietaRepository.GetByIdWithIncludesAsync(dietaId); // Supõe que o repo tem um método com includes
+            _logger.LogInformation("Buscando dieta por ID {DietaId} para a clínica ID {ClinicaId}.", dietaId, clinicaId);
+            try
+            {
+                var dieta = await _dietaRepository.GetByIdWithIncludesAsync(dietaId);
 
-            // Verificação de segurança
-            if (dieta?.Relatorio?.Consulta?.ClinicaId != clinicaId) return null;
+                // Verificação de segurança
+                if (dieta?.Relatorio?.Consulta?.ClinicaId != clinicaId)
+                {
+                    _logger.LogWarning("Acesso negado ou dieta não encontrada para o ID {DietaId} e clínica ID {ClinicaId}.", dietaId, clinicaId);
+                    return null;
+                }
 
-            return _mapper.Map<GetDietaDto>(dieta);
+                _logger.LogInformation("Dieta ID {DietaId} encontrada com sucesso.", dietaId);
+                return _mapper.Map<GetDietaDto>(dieta);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar a dieta por ID {DietaId}.", dietaId);
+                throw;
+            }
         }
 
         public async Task<IEnumerable<GetDietaDto>> GetAllByAcompanhamentoAsync(int acompanhamentoId, int clinicaId)
         {
-            // Validação de segurança primeiro
-            var acompanhamento = _dietaRepository.GetAllByAcompanhamentoIdAsync(acompanhamentoId);
-            if (acompanhamento == null) return new List<GetDietaDto>(); // Retorna vazio se não tiver acesso
-
-            var dietas = await _dietaRepository.GetAllByAcompanhamentoIdAsync(acompanhamentoId);
-            return _mapper.Map<IEnumerable<GetDietaDto>>(dietas);
+            _logger.LogInformation("Buscando todas as dietas para o acompanhamento ID {AcompanhamentoId} na clínica ID {ClinicaId}.", acompanhamentoId, clinicaId);
+            try
+            {   
+                var dietas = await _dietaRepository.GetAllByAcompanhamentoIdAsync(acompanhamentoId);
+                _logger.LogInformation("Encontradas {Count} dietas para o acompanhamento ID {AcompanhamentoId}.", dietas.Count(), acompanhamentoId);
+                
+                return _mapper.Map<IEnumerable<GetDietaDto>>(dietas);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar dietas para o acompanhamento ID {AcompanhamentoId}.", acompanhamentoId);
+                throw;
+            }
         }
 
         public async Task<ServiceResult> UpdateAsync(int dietaId, UpdateDietaDto dto, int clinicaId)
         {
-            var dieta = await _dietaRepository.GetByIdWithIncludesAsync(dietaId);
-            if (dieta?.Relatorio?.Consulta?.ClinicaId != clinicaId)
-                return new ServiceResult { Succeeded = false, Message = "Dieta não encontrada ou acesso negado." };
+            _logger.LogInformation("Tentando atualizar a dieta ID {DietaId} para a clínica ID {ClinicaId}.", dietaId, clinicaId);
+            try
+            {
+                var dieta = await _dietaRepository.GetByIdWithIncludesAsync(dietaId);
+                if (dieta?.Relatorio?.Consulta?.ClinicaId != clinicaId)
+                {
+                    _logger.LogWarning("Falha ao atualizar: Dieta ID {DietaId} não encontrada ou acesso negado para a clínica ID {ClinicaId}.", dietaId, clinicaId);
+                    return new ServiceResult { Succeeded = false, Message = "Dieta não encontrada ou acesso negado." };
+                }
 
-            _mapper.Map(dto, dieta);
-            await _dietaRepository.SaveChangesAsync();
-            return new ServiceResult { Succeeded = true, Message = "Dieta atualizada com sucesso." };
+                _mapper.Map(dto, dieta);
+                await _dietaRepository.SaveChangesAsync();
+
+                _logger.LogInformation("Dieta ID {DietaId} atualizada com sucesso.", dietaId);
+                return new ServiceResult { Succeeded = true, Message = "Dieta atualizada com sucesso." };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao atualizar a dieta ID {DietaId}.", dietaId);
+                throw;
+            }
         }
 
         public async Task<ServiceResult> DeleteAsync(int dietaId, int clinicaId)
         {
-            var dieta = await _dietaRepository.GetByIdWithIncludesAsync(dietaId);
-            if (dieta?.Relatorio?.Consulta?.ClinicaId != clinicaId)
-                return new ServiceResult { Succeeded = false, Message = "Dieta não encontrada ou acesso negado." };
+            _logger.LogInformation("Tentando excluir a dieta ID {DietaId} da clínica ID {ClinicaId}.", dietaId, clinicaId);
+            try
+            {
+                var dieta = await _dietaRepository.GetByIdWithIncludesAsync(dietaId);
+                if (dieta?.Relatorio?.Consulta?.ClinicaId != clinicaId)
+                {
+                    _logger.LogWarning("Falha ao excluir: Dieta ID {DietaId} não encontrada ou acesso negado para a clínica ID {ClinicaId}.", dietaId, clinicaId);
+                    return new ServiceResult { Succeeded = false, Message = "Dieta não encontrada ou acesso negado." };
+                }
 
-            _dietaRepository.Delete(dieta);
-            await _dietaRepository.SaveChangesAsync();
-            return new ServiceResult { Succeeded = true, Message = "Dieta excluída com sucesso." };
+                _dietaRepository.Delete(dieta);
+                await _dietaRepository.SaveChangesAsync();
+
+                _logger.LogInformation("Dieta ID {DietaId} excluída com sucesso.", dietaId);
+                return new ServiceResult { Succeeded = true, Message = "Dieta excluída com sucesso." };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao excluir a dieta ID {DietaId}.", dietaId);
+                throw;
+            }
         }
     }
 }

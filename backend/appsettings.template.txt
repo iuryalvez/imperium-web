@@ -1,0 +1,39 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Debug", // Em desenvolvimento, "Debug" ou "Information" é bom. Para produção, considere "Warning".
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "JWT": {
+    // Para desenvolvimento, use a URL local da API (ex: "http://localhost:5050").
+    // Para produção, use a URL pública da API (ex: "https://api.meudominio.com").
+    "Issuer": "<URL_DA_API>",
+    "Audience": "<URL_DA_API>",
+
+    // SEGREDO! NÃO COLOQUE O VALOR REAL AQUI.
+    // Preencha via User Secrets (desenvolvimento) ou Variáveis de Ambiente (produção).
+    "Secret": "", 
+
+    "ExpiresInMinutes": "30",
+    "RenewInMinutesLeft": "5"
+  },
+  "Smtp": {
+    "Host": "smtp.gmail.com",
+    "Port": "587",
+    "EnableSsl": "true",
+
+    // PREENCHA VIA USER SECRETS OU VARIÁVEIS DE AMBIENTE
+    "Username": "<seu-email-smtp@exemplo.com>",
+    "Password": "", 
+    "From": "<seu-email-de-envio@exemplo.com>"
+  },
+  "ConnectionStrings": {
+    // String de conexão com o banco de dados.
+    // Ex. Dev: "Host=localhost;Database=imperium_db_dev;Username=admin;Password=admin"
+    // Ex. Prod: "Host=db_prod;Database=imperium_db;Username=prod_user;Password=<SENHA_SEGURA>"
+    "DefaultConnection": ""
+  },
+  "CookieSecure": false, // Mude para 'true' em produção (quando usar HTTPS)
+  "AllowedHosts": "*" // Em desenvolvimento, "*" é aceitável. Em produção, restrinja para o domínio da sua API.
+}

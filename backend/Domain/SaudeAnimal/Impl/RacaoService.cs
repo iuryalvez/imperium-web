@@ -4,204 +4,327 @@ using backend.Domain.GestaoDeAcesso.Interfaces;
 using backend.Domain.SaudeAnimal.Entities;
 using backend.Domain.SaudeAnimal.Interfaces;
 
-namespace backend.Domain.SaudeAnimal.Impl
+namespace backend.Domain.SaudeAnimal.Impl;
+
+/// <summary>
+/// Serviço responsável pela lógica de negócio relacionada a Rações.
+/// Inclui operações de CRUD e cálculos nutricionais complexos.
+/// </summary>
+public class RacaoService : IRacaoService
 {
-    public class RacaoService : IRacaoService
+    // Fatores de Atwater modificados para cães e gatos (kcal/g)
+    private const double AtwaterFactorProteina = 3.5;
+    private const double AtwaterFactorGordura = 8.5;
+    private const double AtwaterFactorCarboidrato = 3.5;
+
+    // Fatores para cálculo de Energia Bruta (kcal/g)
+    private const double EnergiaBrutaFactorProteina = 5.7;
+    private const double EnergiaBrutaFactorGordura = 9.4;
+    private const double EnergiaBrutaFactorCarboidratoFibra = 4.1;
+
+    private readonly IRacaoRepository _racaoRepository;
+    private readonly IMapper _mapper;
+    private readonly ILogger<RacaoService> _logger;
+
+    /// <summary>
+    /// Inicia uma nova instância da classe <see cref="RacaoService"/>.
+    /// </summary>
+    /// <param name="racaoRepository">O repositório para acesso aos dados de rações.</param>
+    /// <param name="mapper">A instância do AutoMapper para mapeamento de objetos.</param>
+    /// <param name="logger">O logger para registrar as operações do serviço.</param>
+    public RacaoService(IRacaoRepository racaoRepository, IMapper mapper, ILogger<RacaoService> logger)
     {
-        private readonly IRacaoRepository _racaoRepository;
-        private readonly IMapper _mapper;
+        _racaoRepository = racaoRepository;
+        _mapper = mapper;
+        _logger = logger;
+    }
 
-        public RacaoService(IRacaoRepository racaoRepository, IMapper mapper)
-        {
-            _racaoRepository = racaoRepository;
-            _mapper = mapper;
-        }
+    #region Métodos de Leitura
 
-        public async Task<IEnumerable<GetRacoesDto>> GetAllByClinicIdAsync(int clinicaId, EspecieAnimal? especie)
-        {
-            var racoes = await _racaoRepository.GetAllByClinicIdAsync(clinicaId, especie);
-            return _mapper.Map<IEnumerable<GetRacoesDto>>(racoes);
-        }
-
-        public async Task<GetRacoesDto?> GetByIdAsync(int racaoId, int clinicaId)
-        {
-            var racao = await _racaoRepository.GetByIdAndClinicIdAsync(racaoId, clinicaId);
-            if (racao == null) return null;
-            // Mapeia a entidade única para o DTO
-            return _mapper.Map<GetRacoesDto>(racao);
-        }
-
-        public async Task<ServiceResult> CreateAsync(CadastrarRacaoDto dto, int clinicaId)
-        {
-            var racao = _mapper.Map<Racao>(dto);
-            racao.ClinicaId = clinicaId;
-
-            // Lógica de Negócio: Cálculo da Matéria Seca
-            racao.MateriaSeca = 100 - racao.Umidade;
-
-            await _racaoRepository.AddAsync(racao);
-            await _racaoRepository.SaveChangesAsync();
-
-            var resultDto = _mapper.Map<GetRacoesDto>(racao);
-            return new ServiceResult { Succeeded = true, Message = "Ração cadastrada com sucesso.", Data = resultDto };
-        }
-
-        public async Task<ServiceResult> UpdateAsync(AtualizarRacaoDto dto, int clinicaId)
-        {
-            var racao = await _racaoRepository.GetByIdAndClinicIdAsync(dto.Id, clinicaId);
-            if (racao == null) return new ServiceResult { Succeeded = false, Message = "Ração não encontrada." };
-
-            // Mapeamento parcial usando AutoMapper (ele ignora campos nulos do DTO)
-            _mapper.Map(dto, racao);
-
-            // Lógica de Negócio: Recalcula a Matéria Seca se a Umidade for alterada
-            if (dto.Umidade.HasValue)
-            {
-                racao.MateriaSeca = 100 - racao.Umidade;
-            }
-
-            await _racaoRepository.SaveChangesAsync();
-            return new ServiceResult { Succeeded = true, Message = "Ração atualizada com sucesso." };
-        }
-
-        public async Task<ServiceResult> DeleteAsync(int racaoId, int clinicaId)
+    /// <summary>
+    /// Obtém a entidade Racao pelo seu ID, validando a permissão da clínica.
+    /// Este método é um bloco de construção para outros métodos do serviço.
+    /// </summary>
+    /// <param name="racaoId">O ID da ração a ser obtida.</param>
+    /// <param name="clinicaId">O ID da clínica para validação de posse.</param>
+    /// <returns>Um ServiceResult contendo a entidade Racao em caso de sucesso.</returns>
+    public async Task<ServiceResult> ObterPorIdEClinicaIdAsync(int racaoId, int clinicaId)
+    {
+        _logger.LogInformation("Buscando entidade Ração ID {RacaoId} para a clínica ID {ClinicaId}.", racaoId, clinicaId);
+        try
         {
             var racao = await _racaoRepository.GetByIdAndClinicIdAsync(racaoId, clinicaId);
             if (racao == null)
             {
-                return new ServiceResult { Succeeded = false, Message = "Ração não encontrada." };
+                _logger.LogWarning("Ração ID {RacaoId} não encontrada ou não pertence à clínica ID {ClinicaId}.", racaoId, clinicaId);
+                return new ServiceResult { Succeeded = false, Message = "Ração não encontrada ou não pertence a esta clínica." };
             }
 
-            // Lógica de negócio antes de deletar (se houver, ex: verificar se está em uso)
-            // ...
+            _logger.LogInformation("Entidade Ração ID {RacaoId} encontrada com sucesso.", racaoId);
+            return new ServiceResult { Succeeded = true, Data = racao };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao buscar a entidade Ração ID {RacaoId}.", racaoId);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Obtém um DTO de uma ração específica pelo seu ID.
+    /// </summary>
+    /// <param name="racaoId">O ID da ração.</param>
+    /// <param name="clinicaId">O ID da clínica.</param>
+    /// <returns>Um ServiceResult contendo o DTO da ração em caso de sucesso.</returns>
+    public async Task<ServiceResult> ObterDtoPorIdAsync(int racaoId, int clinicaId)
+    {
+        _logger.LogInformation("Buscando DTO da Ração ID {RacaoId} para a clínica ID {ClinicaId}.", racaoId, clinicaId);
+        
+        var resultadoBusca = await ObterPorIdEClinicaIdAsync(racaoId, clinicaId);
+        if (!resultadoBusca.Succeeded)
+        {
+            return resultadoBusca; // O log de falha já foi gerado em ObterPorIdAsync
+        }
+
+        var racao = (Racao)resultadoBusca.Data;
+        var dto = _mapper.Map<GetRacoesDto>(racao);
+
+        return new ServiceResult { Succeeded = true, Data = dto };
+    }
+
+    /// <summary>
+    /// Obtém uma lista de DTOs de todas as rações de uma clínica, com filtro opcional por espécie.
+    /// </summary>
+    /// <param name="clinicaId">O ID da clínica.</param>
+    /// <param name="especie">A espécie do animal para filtrar os resultados (opcional).</param>
+    /// <returns>Um ServiceResult contendo a lista de DTOs das rações.</returns>
+    public async Task<ServiceResult> ObterTodosDtosPorClinicaIdEEspecieAsync(int clinicaId, EspecieAnimal? especie)
+    {
+        _logger.LogInformation("Buscando todos os DTOs de ração para a clínica ID {ClinicaId}. Filtro de espécie: {Especie}", clinicaId, especie?.ToString() ?? "Nenhum");
+        try
+        {
+            var racoes = await _racaoRepository.GetAllByClinicIdAndEspecieAsync(clinicaId, especie);
+            var dtos = _mapper.Map<IEnumerable<GetRacoesDto>>(racoes);
+            
+            _logger.LogInformation("Busca de rações para a clínica ID {ClinicaId} concluída com sucesso.", clinicaId);
+            return new ServiceResult { Succeeded = true, Data = dtos };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao buscar todas as rações para a clínica ID {ClinicaId}.", clinicaId);
+            throw;
+        }
+    }
+
+    #endregion
+
+    #region Métodos de Escrita
+
+    /// <summary>
+    /// Cria uma nova ração, executa os cálculos nutricionais e a persiste no banco de dados.
+    /// </summary>
+    /// <param name="dto">O DTO com os dados para a criação da ração.</param>
+    /// <param name="clinicaId">O ID da clínica proprietária da ração.</param>
+    /// <returns>Um ServiceResult contendo o DTO da ração criada.</returns>
+    public async Task<ServiceResult> CreateAsync(CadastrarRacaoDto dto, int clinicaId)
+    {
+        _logger.LogInformation("Iniciando criação de nova ração '{NomeRacao}' para a clínica ID {ClinicaId}.", dto.Nome, clinicaId);
+        try
+        {
+            var racao = _mapper.Map<Racao>(dto);
+            racao.ClinicaId = clinicaId;
+
+            _logger.LogDebug("Executando cálculos nutricionais para a nova ração '{NomeRacao}'.", racao.Nome);
+            CalcularEnergiaMetabolizavel(racao);
+            CalcularDistribuicaoEnergetica(racao);
+
+            await _racaoRepository.AddAsync(racao);
+            await _racaoRepository.SaveChangesAsync();
+
+            _logger.LogInformation("Ração '{NomeRacao}' (ID: {RacaoId}) criada com sucesso.", racao.Nome, racao.Id);
+            var resultDto = _mapper.Map<GetRacoesDto>(racao);
+            return new ServiceResult { Succeeded = true, Message = "Ração cadastrada com sucesso.", Data = resultDto };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao criar a ração '{NomeRacao}' para a clínica ID {ClinicaId}.", dto.Nome, clinicaId);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Atualiza os dados de uma ração existente e recalcula seus valores nutricionais.
+    /// </summary>
+    /// <param name="dto">O DTO com os dados a serem atualizados.</param>
+    /// <param name="clinicaId">O ID da clínica para validação de posse.</param>
+    /// <returns>Um ServiceResult contendo o DTO da ração atualizada.</returns>
+    public async Task<ServiceResult> UpdateAsync(AtualizarRacaoDto dto, int clinicaId)
+    {
+        _logger.LogInformation("Iniciando atualização da ração ID {RacaoId} para a clínica ID {ClinicaId}.", dto.Id, clinicaId);
+        
+        var resultadoBusca = await ObterPorIdEClinicaIdAsync(dto.Id, clinicaId);
+        if (!resultadoBusca.Succeeded)
+        {
+            return resultadoBusca;
+        }
+        
+        try
+        {
+            var racao = (Racao)resultadoBusca.Data;
+            _mapper.Map(dto, racao);
+
+            _logger.LogDebug("Recalculando valores nutricionais para a ração ID {RacaoId} após atualização.", dto.Id);
+            CalcularEnergiaMetabolizavel(racao);
+            CalcularDistribuicaoEnergetica(racao);
+
+            await _racaoRepository.SaveChangesAsync();
+
+            _logger.LogInformation("Ração ID {RacaoId} atualizada com sucesso.", racao.Id);
+            var resultDto = _mapper.Map<GetRacoesDto>(racao);
+            return new ServiceResult { Succeeded = true, Message = "Ração atualizada com sucesso.", Data = resultDto };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao atualizar a ração ID {RacaoId}.", dto.Id);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Exclui uma ração do sistema.
+    /// </summary>
+    /// <param name="racaoId">O ID da ração a ser excluída.</param>
+    /// <param name="clinicaId">O ID da clínica para validação de posse.</param>
+    /// <returns>Um ServiceResult indicando o sucesso da operação.</returns>
+    public async Task<ServiceResult> DeleteAsync(int racaoId, int clinicaId)
+    {
+        _logger.LogInformation("Iniciando exclusão da ração ID {RacaoId} da clínica ID {ClinicaId}.", racaoId, clinicaId);
+        
+        var resultadoBusca = await ObterPorIdEClinicaIdAsync(racaoId, clinicaId);
+        if (!resultadoBusca.Succeeded)
+        {
+            return resultadoBusca;
+        }
+        
+        try
+        {
+            var racao = (Racao)resultadoBusca.Data;
 
             _racaoRepository.Delete(racao);
             await _racaoRepository.SaveChangesAsync();
 
+            _logger.LogInformation("Ração ID {RacaoId} excluída com sucesso.", racaoId);
             return new ServiceResult { Succeeded = true, Message = "Ração excluída com sucesso." };
         }
-
-        private void CalcularEnergiaMetabolizavel(Racao racao)
+        catch (Exception ex)
         {
-            Console.WriteLine($"[DEBUG] Iniciando cálculo de EM para ração {racao.Nome}, espécie: {racao.Especie}");
-
-            double pb = racao.ProteinaBruta;
-            double eea = racao.ExtratoEtereo;
-            double mm = racao.MateriaMineral;
-            double fb = racao.FibraBruta;
-            double umidade = racao.Umidade;
-
-            if (!racao.IsPorcentagem)
-            {
-                pb /= 10f;
-                eea /= 10f;
-                mm /= 10f;
-                fb /= 10f;
-                umidade /= 10f;
-            }
-
-            Console.WriteLine($"[DEBUG] Valores normalizados (%): PB={pb}, EEA={eea}, MM={mm}, FB={fb}, Umidade={umidade}");
-
-            // 1. Converter % em fração
-            umidade /= 100f;
-            pb /= 100f;
-            eea /= 100f;
-            fb /= 100f;
-            mm /= 100f;
-
-            Console.WriteLine($"[DEBUG] Valores em fração: PB={pb:F4}, EEA={eea:F4}, MM={mm:F4}, FB={fb:F4}, Umidade={umidade:F4}");
-
-            // 2. Calcular matéria seca (MS)
-            double ms = 1 - umidade;
-            racao.MateriaSeca = ms * 100; // armazenar em %
-            Console.WriteLine($"[DEBUG] Matéria seca (MS) = {racao.MateriaSeca:F2}%");
-
-            // 3. Calcular ENN
-            double enn = 1 - (umidade + pb + eea + fb + mm);
-            racao.ExtrativoNaoNitrogenado = enn * 100; // armazenar em %
-            Console.WriteLine($"[DEBUG] ENN = {racao.ExtrativoNaoNitrogenado:F2}%");
-
-            // 4. Calcular EB
-            double eb = (5.7f * pb) + (9.4f * eea) + (4.1f * (enn + fb));
-            racao.EnergiaBruta = eb; // kcal/g
-            Console.WriteLine($"[DEBUG] Energia Bruta (EB) = {eb:F4} kcal/g");
-
-            // 5. Calcular CDE
-            double cde;
-            switch (racao.Especie)
-            {
-                case EspecieAnimal.Cao:
-                    double fbMsCao = fb / ms * 100f;
-                    cde = 91.2f - (1.43f * fbMsCao);
-                    Console.WriteLine($"[DEBUG] CDE (cão): FB na MS={fbMsCao:F2}%, CDE={cde:F2}%");
-                    break;
-                case EspecieAnimal.Gato:
-                    double fbMsGato = fb / ms * 100f;
-                    cde = 87.9f - (0.88f * fbMsGato);
-                    Console.WriteLine($"[DEBUG] CDE (gato): FB na MS={fbMsGato:F2}%, CDE={cde:F2}%");
-                    break;
-                default:
-                    throw new InvalidOperationException("Espécie não suportada para cálculo de EM.");
-            }
-            racao.CoeficienteDigestibilidadeEnergia = cde;
-
-            // 6. Calcular ED
-            double ed = eb * (cde / 100f);
-            racao.EnergiaDigestivel = ed;
-            Console.WriteLine($"[DEBUG] Energia Digestível (ED) = {ed:F4} kcal/g");
-
-            // 7. Calcular EM
-            double em;
-            if (racao.Especie == EspecieAnimal.Cao)
-                em = ed - (1.04f * pb);
-            else
-                em = ed - (0.77f * pb);
-
-            racao.EnergiaMetabolizavel = em; // kcal/g
-            Console.WriteLine($"[DEBUG] Energia Metabolizável (EM) = {em:F4} kcal/g");
-            Console.WriteLine($"[DEBUG] Cálculo finalizado para ração {racao.Nome}");
-
-            // O NRC (2006) não recomenda o uso destas equações para estimar a EM de
-            // alimentos com elevada digestibilidade, como substitutos do leite e dietas líquidas
-            // para nutrição enteral. Tais equações também podem não ser apropriadas para
-            // estimar a EM de alimentos para cães com teor de fibra bruta superior a 8%, com
-            // base na matéria seca.
-        }
-
-        private void CalcularDistribuicaoEnergetica(Racao racao)
-        {
-            if (!racao.ExtrativoNaoNitrogenado.HasValue)
-                throw new InvalidOperationException("Não é possível calcular a distribuição energética sem o ENN calculado.");
-
-            double pb = racao.ProteinaBruta;
-            double eea = racao.ExtratoEtereo;
-            double enn = racao.ExtrativoNaoNitrogenado.Value;
-
-            // Normaliza para %
-            if (!racao.IsPorcentagem)
-            {
-                pb = pb / 10f;
-                eea = eea / 10f;
-                enn = enn / 10f;
-            }
-
-            // Calcula em kcal/100g (modificado de Atwater)
-            double energiaPB = pb * 3.5f;
-            double energiaEEA = eea * 8.5f;
-            double energiaENN = enn * 3.5f;
-
-            double energiaTotal = energiaPB + energiaEEA + energiaENN;
-
-            // energiaPB *= 100f / energiaTotal; 
-            // energiaEEA *= 100f / energiaTotal; 
-            // energiaENN *= 100f / energiaTotal; 
-
-            racao.EnergiaProteina = energiaPB;
-            racao.EnergiaExtratoEtereo = energiaEEA;
-            racao.EnergiaExtrativoNaoNitrogenado = energiaENN;
-            racao.EnergiaTotalEstimativa = energiaTotal;
-
-            Console.WriteLine($"[DEBUG] Distribuição energética: PB={energiaPB:F2}kcal, EEA={energiaEEA:F2}kcal, ENN={energiaENN:F2}kcal, Total={energiaTotal:F2}kcal/100g");
+            _logger.LogError(ex, "Erro ao excluir a ração ID {RacaoId}.", racaoId);
+            throw;
         }
     }
+
+    #endregion
+
+    #region Métodos de Lógica de Negócio (Privados)
+
+    /// <summary>
+    /// Calcula a Energia Metabolizável (EM) da ração com base em seus componentes.
+    /// O cálculo segue as fórmulas do NRC (2006).
+    /// </summary>
+    private void CalcularEnergiaMetabolizavel(Racao racao)
+    {
+        _logger.LogTrace("Iniciando cálculo de EM para ração '{NomeRacao}', espécie: {Especie}", racao.Nome, racao.Especie);
+
+        // Normaliza os valores de entrada se estiverem em g/kg
+        double pb = racao.IsPorcentagem ? racao.ProteinaBruta : racao.ProteinaBruta / 10.0;
+        double eea = racao.IsPorcentagem ? racao.ExtratoEtereo : racao.ExtratoEtereo / 10.0;
+        double mm = racao.IsPorcentagem ? racao.MateriaMineral : racao.MateriaMineral / 10.0;
+        double fb = racao.IsPorcentagem ? racao.FibraBruta : racao.FibraBruta / 10.0;
+        double umidade = racao.IsPorcentagem ? racao.Umidade : racao.Umidade / 10.0;
+        _logger.LogTrace("Valores normalizados (%): PB={pb}, EEA={eea}, MM={mm}, FB={fb}, Umidade={umidade}", pb, eea, mm, fb, umidade);
+
+        // 1. Converter % para fração decimal para os cálculos
+        umidade /= 100.0;
+        pb /= 100.0;
+        eea /= 100.0;
+        fb /= 100.0;
+        mm /= 100.0;
+
+        // 2. Calcular matéria seca (MS)
+        double ms = 1.0 - umidade;
+        racao.MateriaSeca = ms * 100.0; // Armazenar como porcentagem
+        _logger.LogTrace("Matéria seca (MS) = {Ms:F2}%", racao.MateriaSeca);
+
+        // 3. Calcular Extrativo Não Nitrogenado (ENN)
+        double enn = 1.0 - (umidade + pb + eea + fb + mm);
+        racao.ExtrativoNaoNitrogenado = enn * 100.0; // Armazenar como porcentagem
+        _logger.LogTrace("ENN = {Enn:F2}%", racao.ExtrativoNaoNitrogenado);
+
+        // 4. Calcular Energia Bruta (EB)
+        double eb = (EnergiaBrutaFactorProteina * pb) + (EnergiaBrutaFactorGordura * eea) + (EnergiaBrutaFactorCarboidratoFibra * (enn + fb));
+        racao.EnergiaBruta = eb; // kcal/g
+        _logger.LogTrace("Energia Bruta (EB) = {Eb:F4} kcal/g", eb);
+
+        // 5. Calcular Coeficiente de Digestibilidade da Energia (CDE)
+        double cde;
+        double fbMs = (ms > 0) ? (fb / ms * 100.0) : 0;
+        switch (racao.Especie)
+        {
+            case EspecieAnimal.Cao:
+                cde = 91.2 - (1.43 * fbMs);
+                _logger.LogTrace("CDE (cão): FB na MS={FbMs:F2}%, CDE={Cde:F2}%", fbMs, cde);
+                break;
+            case EspecieAnimal.Gato:
+                cde = 87.9 - (0.88 * fbMs);
+                _logger.LogTrace("CDE (gato): FB na MS={FbMs:F2}%, CDE={Cde:F2}%", fbMs, cde);
+                break;
+            default:
+                throw new InvalidOperationException($"Espécie '{racao.Especie}' não suportada para cálculo de EM.");
+        }
+        racao.CoeficienteDigestibilidadeEnergia = cde;
+
+        // 6. Calcular Energia Digestível (ED)
+        double ed = eb * (cde / 100.0);
+        racao.EnergiaDigestivel = ed;
+        _logger.LogTrace("Energia Digestível (ED) = {Ed:F4} kcal/g", ed);
+
+        // 7. Calcular Energia Metabolizável (EM)
+        double em = (racao.Especie == EspecieAnimal.Cao) ? ed - (1.04 * pb) : ed - (0.77 * pb);
+        racao.EnergiaMetabolizavel = em; // kcal/g
+        _logger.LogTrace("Energia Metabolizável (EM) = {Em:F4} kcal/g", em);
+    }
+    
+    /// <summary>
+    /// Calcula a distribuição energética da ração (kcal/100g) usando os fatores de Atwater modificados.
+    /// </summary>
+    private void CalcularDistribuicaoEnergetica(Racao racao)
+    {
+        if (!racao.ExtrativoNaoNitrogenado.HasValue)
+        {
+            _logger.LogError("Cálculo de distribuição energética falhou: ENN não foi calculado previamente para a ração '{NomeRacao}'.", racao.Nome);
+            throw new InvalidOperationException("Não é possível calcular a distribuição energética sem o ENN calculado.");
+        }
+        _logger.LogTrace("Iniciando cálculo de distribuição energética para ração '{NomeRacao}'.", racao.Nome);
+
+        // Normaliza os valores de entrada se estiverem em g/kg
+        double pb = racao.IsPorcentagem ? racao.ProteinaBruta : racao.ProteinaBruta / 10.0;
+        double eea = racao.IsPorcentagem ? racao.ExtratoEtereo : racao.ExtratoEtereo / 10.0;
+        double enn = racao.ExtrativoNaoNitrogenado.Value; // Já está em %
+
+        // Calcula a energia de cada componente em kcal/100g de ração
+        double energiaPB = pb * AtwaterFactorProteina;
+        double energiaEEA = eea * AtwaterFactorGordura;
+        double energiaENN = enn * AtwaterFactorCarboidrato;
+        double energiaTotal = energiaPB + energiaEEA + energiaENN;
+
+        racao.EnergiaProteina = energiaPB;
+        racao.EnergiaExtratoEtereo = energiaEEA;
+        racao.EnergiaExtrativoNaoNitrogenado = energiaENN;
+        racao.EnergiaTotalEstimativa = energiaTotal;
+
+        _logger.LogTrace("Distribuição energética (kcal/100g): PB={EnergiaPb:F2}, EEA={EnergiaEea:F2}, ENN={EnergiaEnn:F2}, Total={EnergiaTotal:F2}",
+            energiaPB, energiaEEA, energiaENN, energiaTotal);
+    }
+    
+    #endregion 
 }

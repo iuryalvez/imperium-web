@@ -50,7 +50,7 @@ namespace backend.Domain.AtendimentoAnimal
         public async Task<IActionResult> Update([FromBody] UpdateRacaDto atualizarRacaDto)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            var sucesso = await _racaService.UpdateAsync(atualizarRacaDto, clinicaId);
+            var sucesso = await _racaService.CreateOrUpdateAsync(atualizarRacaDto, clinicaId);
             if (!sucesso) return NotFound();
             return NoContent();
         }

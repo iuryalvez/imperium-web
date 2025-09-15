@@ -25,6 +25,18 @@ namespace backend.Domain.AtendimentoAnimal.Repository
                 .Include(c => c.Relatorio); // Para saber se já foi preenchido
         }
 
+        public async Task<Consulta?> GetByIdAsync(int consultaId)
+        {
+            return await _context.Consultas
+                .FirstOrDefaultAsync(c => c.Id == consultaId);
+        }
+
+        public async Task<Consulta?> GetByIdWithDetailsAsync(int consultaId)
+        {
+            return await GetBaseQuery()
+                .FirstOrDefaultAsync(c => c.Id == consultaId);
+        }
+
         public async Task<IEnumerable<Consulta>> GetAllByClinicIdAsync(int clinicaId)
         {
             return await GetBaseQuery()
@@ -33,7 +45,7 @@ namespace backend.Domain.AtendimentoAnimal.Repository
                 .ToListAsync();
         }
 
-        public async Task<Consulta?> GetByIdAsync(int consultaId, int clinicaId)
+        public async Task<Consulta?> GetByIdAndClinicIdAsync(int consultaId, int clinicaId)
         {
             return await GetBaseQuery()
                 .FirstOrDefaultAsync(c => c.Id == consultaId && c.ClinicaId == clinicaId);

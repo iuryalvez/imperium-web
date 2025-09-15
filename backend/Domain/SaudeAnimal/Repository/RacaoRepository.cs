@@ -11,7 +11,7 @@ namespace backend.Domain.SaudeAnimal.Repository
         private readonly AppDbContext _context;
         public RacaoRepository(AppDbContext context) { _context = context; }
 
-        public async Task<IEnumerable<Racao>> GetAllByClinicIdAsync(int clinicaId, EspecieAnimal? especie)
+        public async Task<IEnumerable<Racao>> GetAllByClinicIdAndEspecieAsync(int clinicaId, EspecieAnimal? especie)
         {
             var query = _context.Racoes.AsNoTracking().Where(r => r.ClinicaId == clinicaId);
 
