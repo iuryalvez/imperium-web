@@ -13,7 +13,7 @@ export const racoesDaClinicaAPI = {
 
     try {
       const response = await api.get(url);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.error("Erro as listar as rações:", error);
       throw error; // Re-lança o erro para ser tratado pelo componente que chamou

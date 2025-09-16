@@ -22,7 +22,6 @@ using backend.Infra.Data;
 using backend.Infra.Data.Repositories;
 using backend.Interfaces;
 using backend.Services;
-using Microsoft.Extensions.Logging.Console;
 using backend.Domain.SaudeAnimal.Services;
 
 

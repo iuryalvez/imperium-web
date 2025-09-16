@@ -110,11 +110,37 @@ namespace backend.Domain.AtendimentoAnimal.Impl
             return _mapper.Map<IEnumerable<GetTutoresClinicaDto>>(tutores);
         }
 
+        /// <summary>
+        /// Valida se uma lista de IDs de tutores é válida e se todos pertencem à clínica especificada.
+        /// </summary>
+        /// <param name="tutoresIds">Lista de IDs de tutores a validar. Pode ser nula ou vazia.</param>
+        /// <param name="clinicaId">ID da clínica para a verificação.</param>
+        /// <returns>ServiceResult indicando sucesso se todos os tutores forem válidos, ou falha caso contrário.</returns>
         public async Task<ServiceResult> ValidarTutoresDaClinicaAsync(List<int> tutoresIds, int clinicaId)
         {
-            if (await _tutorRepository.AllTutorsExistInClinicAsync(tutoresIds, clinicaId))
-                return new ServiceResult { Succeeded = false, Message = "ERRO: Algum dos tutores não pertence a essa clínica." };
-            else return new ServiceResult { Succeeded = true, Message = "Todos os tutores pertencem à clínica." };
+            // 1. Trata o caso de não haver tutores para validar (cenário válido).
+            // Se a lista for nula ou não contiver nenhum elemento, a validação passa com sucesso.
+            if (tutoresIds == null || !tutoresIds.Any())
+            {
+                _logger.LogDebug("Nenhum ID de tutor fornecido para validação na clínica {ClinicaId}. Validação bem-sucedida.", clinicaId);
+                return new ServiceResult { Succeeded = true };
+            }
+
+            _logger.LogDebug("Validando {Count} tutor(es) para a clínica {ClinicaId}.", tutoresIds.Count, clinicaId);
+
+            // 2. Chama o repositório para verificar se todos os tutores da lista existem na clínica.
+            var saoTodosValidos = await _tutorRepository.AllTutorsExistInClinicAsync(tutoresIds, clinicaId);
+
+            // 3. Lógica corrigida: Se NÃO forem todos válidos, retorna um erro.
+            if (!saoTodosValidos)
+            {
+                _logger.LogWarning("Validação de tutores falhou. Um ou mais tutores da lista {@TutoresIds} não pertencem à clínica {ClinicaId}.", tutoresIds, clinicaId);
+                return new ServiceResult { Succeeded = false, Message = "Um ou mais tutores selecionados não são válidos ou não pertencem a esta clínica." };
+            }
+
+            // Se a execução chega aqui, significa que todos os tutores são válidos.
+            _logger.LogInformation("Todos os {Count} tutores foram validados com sucesso para a clínica {ClinicaId}.", tutoresIds.Count, clinicaId);
+            return new ServiceResult { Succeeded = true, Message = "Todos os tutores pertencem à clínica." };
         }
 
         public async Task<ServiceResult> CreateAsync(CadastrarTutorClinicaDto dto, int clinicaId)
