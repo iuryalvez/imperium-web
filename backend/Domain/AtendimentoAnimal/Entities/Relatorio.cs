@@ -28,7 +28,8 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         public int SemanaGestacao { get; set; }
         public int RacaoId { get; set; }
         [ForeignKey("RacaoId")]
-        public Racao? Racao { get; set; }
+        public Racao Racao { get; set; }
+        public TipoDieta TipoDieta { get; set; }
         public string? DescricaoDieta { get; set; }
     }
 }

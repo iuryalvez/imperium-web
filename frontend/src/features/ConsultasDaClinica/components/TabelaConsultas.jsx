@@ -13,7 +13,7 @@ const TabelaConsultas = ({ consultas, onEdit, onDelete, onOpenRelatorio, loading
         },
         { title: 'Paciente', dataIndex: 'nomeAnimal', sorter: (a, b) => a.nomeAnimal.localeCompare(b.nomeAnimal) },
         { title: 'Tutor', dataIndex: 'nomeTutor', sorter: (a, b) => a.nomeTutor.localeCompare(b.nomeTutor) },
-        { title: 'Veterinário', dataIndex: 'nomeVeterinario' },
+        { title: 'Veterinário', dataIndex: 'nomeUsuario' },
         {
             title: 'Relatório',
             dataIndex: 'relatorioPreenchido',

@@ -20,6 +20,7 @@ namespace backend.Domain.AtendimentoAnimal.Repository
             // Query base com todos os includes necessários para evitar N+1 queries
             return _context.Consultas
                 .Include(c => c.Animal)
+                   .ThenInclude(a => a.AcompanhamentoIndividualizado)
                 .Include(c => c.Tutor)
                 .Include(c => c.Usuario) // Para o nome do veterinário
                 .Include(c => c.Relatorio); // Para saber se já foi preenchido

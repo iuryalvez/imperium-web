@@ -1,6 +1,7 @@
 import React from "react";
 import { Form, Input, Switch, Row, Col, Divider } from "antd";
 import { IMaskInput } from "react-imask";
+import { CnpjMaskInput, TelefoneMaskInput } from "../../../utils/masks";
 
 const inputStyle = {
   width: "100%",
@@ -36,12 +37,7 @@ const EdicaoClinica = ({ form }) => {
           <Input placeholder="Nome popular da clínica" />
         </Form.Item>
         <Form.Item label="CNPJ" name="cnpj">
-          <IMaskInput
-            mask="00.000.000/0000-00"
-            unmask={true}
-            style={inputStyle}
-            onAccept={(v) => form.setFieldsValue({ cnpj: v })}
-          />
+          <CnpjMaskInput />
         </Form.Item>
 
         <Divider orientation="left" plain>
@@ -51,20 +47,10 @@ const EdicaoClinica = ({ form }) => {
           <Input placeholder="contato@clinicavet.com" />
         </Form.Item>
         <Form.Item label="Telefone Principal" name="Telefone">
-          <IMaskInput
-            mask="(00) 00000-0000"
-            unmask={true}
-            style={inputStyle}
-            onAccept={(v) => form.setFieldsValue({ telefone: v })}
-          />
+          <TelefoneMaskInput />
         </Form.Item>
         <Form.Item label="WhatsApp" name="whatsapp">
-          <IMaskInput
-            mask="(00) 00000-0000"
-            unmask={true}
-            style={inputStyle}
-            onAccept={(v) => form.setFieldsValue({ whatsapp: v })}
-          />
+          <TelefoneMaskInput />
         </Form.Item>
         <Form.Item label="Instagram" name="instagram">
           <Input placeholder="@seuinstagram" prefix="@" />

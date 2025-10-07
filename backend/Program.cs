@@ -175,7 +175,7 @@ internal class Program
         /// </summary>
         builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
         {
-            options.TokenLifespan = TimeSpan.FromHours(12);
+            options.TokenLifespan = TimeSpan.FromHours(24);
         });
         #endregion
 
@@ -282,11 +282,6 @@ internal class Program
                 policy.RequireAssertion(context =>
                     context.User.HasClaim(c => c.Type == "acessoLogin" && c.Value == "true") ||
                     context.User.TemAlgumPerfil()));
-        });
-
-        builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
-        {
-            options.TokenLifespan = TimeSpan.FromHours(12); // Define a validade do token para 12 horas
         });
 
         // ========================================================================

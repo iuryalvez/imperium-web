@@ -55,7 +55,7 @@ const endpoints = {
         `${API_BASE_URL}/clinica/${clinicaId}/acompanhamentos/${acompanhamentoId}/dieta`,
     },
     animal: {
-      listar: `${API_BASE_URL}/clinica/animais/`,
+      listar: `${API_BASE_URL}/clinica/animais`,
       cadastrar: `${API_BASE_URL}/clinica/animais/cadastrar`,
       // detalhes: (animalId) => `${API_BASE_URL}/clinica/animais/${animalId}`,
       editar: `${API_BASE_URL}/clinica/animais/editar`,
@@ -68,14 +68,9 @@ const endpoints = {
       editar: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}`, // Rota PUT
       deletar: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}`,
     },
-
-    // --- BLOCO DE RELATÓRIOS ADICIONADO ---
     relatorio: {
-      // Ações no contexto de uma consulta
       getByConsultaId: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}/relatorio`,
       upsert: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}/relatorio`, // Rota PUT para criar/editar
-      
-      // Ação direta no relatório (pelo seu próprio ID)
       deletar: (relatorioId) => `${API_BASE_URL}/clinica/relatorios/${relatorioId}`,
     },
     racao: {

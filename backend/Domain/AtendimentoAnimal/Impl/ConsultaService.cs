@@ -73,6 +73,13 @@ namespace backend.Domain.AtendimentoAnimal.Impl
                     return new ServiceResult { Succeeded = false, Message = "Consulta não encontrada." };
                 }
 
+                _logger.LogInformation(
+                    "Consulta (ID: {ConsultaId}) encontrada. A propriedade 'Animal' está carregada? {IsAnimalLoaded}. AnimalId: {AnimalId}", 
+                    consultaId, 
+                    consulta.Animal != null,
+                    consulta.Animal?.Id // Usando o operador '?' para evitar NullReferenceException
+                );
+
                 _logger.LogInformation("Consulta com detalhes com ID {ConsultaId} encontrada com sucesso.", consultaId);
                 return new ServiceResult { Succeeded = true, Data = consulta };
             }

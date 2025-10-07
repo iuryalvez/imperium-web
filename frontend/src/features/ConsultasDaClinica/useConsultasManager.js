@@ -73,12 +73,20 @@ export const useConsultasManager = () => {
     setSelectedConsulta(consulta);
     setIsRelatorioModalOpen(true);
     setLoadingRelatorio(true);
-    try {
-      const data = await relatoriosDaClinicaAPI.getByConsultaId(consulta.id);
-      setRelatorioData(data); 
-    } catch (error) {
-      message.error("Erro ao carregar dados do relatório.");
-    } finally {
+    if (consulta.relatorioPreenchido) {
+      try {
+        const response = await relatoriosDaClinicaAPI.getByConsultaId(
+          consulta.id
+        );
+        setRelatorioData(response.data);
+      } catch (error) {
+        // message.error("Erro ao carregar dados do relatório.");
+        setRelatorioData(null); // Se não houver relatório, iniciamos com null para um novo
+      } finally {
+        setLoadingRelatorio(false);
+      }
+    } else {
+      setRelatorioData(null); // Novo relatório
       setLoadingRelatorio(false);
     }
   }, []);

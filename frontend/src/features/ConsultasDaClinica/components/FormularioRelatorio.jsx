@@ -19,17 +19,17 @@ const opcoesGrauAtividade = [
   { value: 2, label: "Moderado" },
   { value: 3, label: "Alto" },
 ];
+
 const marcasCondicaoCorporal = {
-  1: "1",
-  2: "2",
-  3: "3",
-  4: "4",
-  5: "5",
-  6: "6",
-  7: "7",
-  8: "8",
-  9: "9",
+  1: "1", 2: "2", 3: "3", 4: "4", 5: "5", 6: "6", 7: "7", 8: "8", 9: "9",
 };
+
+const opcoesTipoDieta = [
+  { value: 1, label: "Manutenção" },
+  { value: 2, label: "Crescimento" },
+  { value: 3, label: "Lactação" },
+  { value: 4, label: "Gestação" },
+];
 
 const FormularioRelatorio = ({
   consulta,
@@ -41,15 +41,12 @@ const FormularioRelatorio = ({
   const [racoes, setRacoes] = useState([]);
   const [loadingRacoes, setLoadingRacoes] = useState(true);
 
-  // --- Observadores para a lógica condicional ---
-  // (Assumindo que 'sexoAnimal' virá no objeto 'consulta')
-  const isFemea = consulta?.sexoAnimal === 2;
   const isGestante = Form.useWatch("isGestante", form);
-  // Usamos um switch para controlar a visibilidade dos campos de lactação
-  const estaLactando = Form.useWatch("estaLactando", form);
+  const isLactante = Form.useWatch("isLactante", form);
+
+  const isFemea = consulta?.sexoAnimal === 2 ? true : false;
 
   useEffect(() => {
-    // Busca rações compatíveis com a espécie do animal da consulta
     if (consulta?.especieAnimal) {
       racoesDaClinicaAPI
         .listar(consulta.especieAnimal)
@@ -63,39 +60,33 @@ const FormularioRelatorio = ({
 
   useEffect(() => {
     if (initialValues) {
-      // Cria um valor para o switch 'estaLactando' com base nos dados iniciais
-      const emLactacaoInicial = initialValues.isLactanteNumeroFilhotes > 0;
-      form.setFieldsValue({
-        ...initialValues,
-        estaLactando: emLactacaoInicial,
-      });
+      const processedValues = { ...initialValues };
+      // Ajusta valores booleanos para switches
+      processedValues.isGestante = initialValues.isGestante;
+      processedValues.isLactante = initialValues.isLactanteNumeroFilhotes > 0;
+      form.setFieldsValue(processedValues);
     } else {
-      // Define valores iniciais padrão para um novo relatório
       form.setFieldsValue({
         isGestante: false,
-        estaLactando: false,
-        isLactanteNumeroFilhotes: 0,
+        isLactanteNumeroFilhotes: 0, // Garante o valor padrão correto
       });
     }
   }, [initialValues, form]);
 
-  // --- Effects para limpar dados quando as condições mudam ---
-  useEffect(() => {
-    // Se o animal não está gestante, limpa o campo de semanas
-    if (!isGestante) {
-      form.setFieldsValue({ semanaGestacao: undefined });
-    }
-  }, [isGestante, form]);
+  // useEffect(() => {
+  //   if (!isGestante) {
+  //     form.setFieldsValue({ semanaGestacao: undefined });
+  //   }
+  // }, [isGestante, form]);
 
-  useEffect(() => {
-    // Se o animal não está em lactação, limpa os campos relacionados
-    if (!estaLactando) {
-      form.setFieldsValue({
-        isLactanteNumeroFilhotes: 0,
-        semanaLactacao: undefined,
-      });
-    }
-  }, [estaLactando, form]);
+  // useEffect(() => {
+  //   if (!isLactante) {
+  //     form.setFieldsValue({
+  //       isLactanteNumeroFilhotes: 0,
+  //       semanaLactacao: undefined,
+  //     });
+  //   }
+  // }, [isLactante, form]);
 
   return (
     <Form form={form} layout="vertical" onFinish={onFinish}>
@@ -103,9 +94,10 @@ const FormularioRelatorio = ({
         <Col xs={24} md={12}>
           <Form.Item name="peso" label="Peso (kg)" rules={[{ required: true }]}>
             <InputNumber
+              placeholder="0,00"
               style={{ width: "100%" }}
               min={0}
-              step={0.1}
+              step={0.01}
               decimalSeparator=","
             />
           </Form.Item>
@@ -135,14 +127,26 @@ const FormularioRelatorio = ({
             />
           </Form.Item>
           <Form.Item
-            name="condicaoCorporal"
-            label="Condição Corporal (1-9)"
-            rules={[{ required: true }]}
+            name="tipoDieta"
+            label="Tipo da Dieta"
+            rules={[
+              { required: true, message: "O tipo da dieta é obrigatório." },
+            ]}
           >
-            <Slider min={1} max={9} marks={marcasCondicaoCorporal} />
+            <Select
+              options={opcoesTipoDieta}
+              placeholder="Selecione o tipo da dieta"
+            />
           </Form.Item>
         </Col>
       </Row>
+      <Form.Item
+        name="condicaoCorporal"
+        label="Condição Corporal (1-9)"
+        rules={[{ required: true }]}
+      >
+        <Slider min={1} max={9} marks={marcasCondicaoCorporal} />
+      </Form.Item>
 
       <Form.Item name="descricaoDieta" label="Descrição Adicional da Dieta">
         <Input.TextArea
@@ -150,8 +154,7 @@ const FormularioRelatorio = ({
           placeholder="Ex: Adicionar 50g de alimento úmido pela manhã."
         />
       </Form.Item>
-
-      {/* A seção de status reprodutivo só aparece se o animal for fêmea */}
+      
       {isFemea && (
         <>
           <Divider orientation="left" plain>
@@ -166,7 +169,6 @@ const FormularioRelatorio = ({
               >
                 <Switch checkedChildren="SIM" unCheckedChildren="NÃO" />
               </Form.Item>
-              {/* O campo de semanas só aparece se o switch 'isGestante' estiver ligado */}
               {isGestante && (
                 <Form.Item
                   name="semanaGestacao"
@@ -182,20 +184,28 @@ const FormularioRelatorio = ({
               )}
             </Col>
             <Col xs={24} sm={12}>
-              {/* O switch 'estaLactando' controla a visibilidade dos campos abaixo */}
-              <Form.Item
-                name="estaLactando"
-                label="Em Lactação?"
-                valuePropName="checked"
-              >
-                <Switch checkedChildren="SIM" unCheckedChildren="NÃO" />
+              <Form.Item name="isLactante" label="Em Lactação?" valuePropName="checked">
+                <Switch
+                  checkedChildren="SIM"
+                  unCheckedChildren="NÃO"
+                />
               </Form.Item>
-              {estaLactando && (
+              {isLactante && (
                 <>
                   <Form.Item
                     name="isLactanteNumeroFilhotes"
                     label="Nº de Filhotes"
-                    rules={[{ required: true, message: "Obrigatório" }]}
+                    rules={[
+                      { required: true, message: "Obrigatório" },
+                      {
+                        validator: (_, value) =>
+                          value > 0
+                            ? Promise.resolve()
+                            : Promise.reject(
+                                new Error("O nº de filhotes deve ser maior que 0")
+                              ),
+                      },
+                    ]}
                   >
                     <InputNumber
                       style={{ width: "100%" }}
@@ -203,7 +213,10 @@ const FormularioRelatorio = ({
                       placeholder="Quantos filhotes?"
                     />
                   </Form.Item>
-                  <Form.Item name="semanaLactacao" label="Semanas de Lactação">
+                  <Form.Item
+                    name="semanaLactacao"
+                    label="Semanas de Lactação"
+                  >
                     <InputNumber
                       style={{ width: "100%" }}
                       min={1}
@@ -219,7 +232,7 @@ const FormularioRelatorio = ({
 
       <div className="flex justify-end gap-2 mt-6">
         <Button onClick={onCancel}>Cancelar</Button>
-        <Button type="primary" htmlType="submit" loading={form.isSubmitting}>
+        <Button type="primary" htmlType="submit">
           Salvar Relatório
         </Button>
       </div>

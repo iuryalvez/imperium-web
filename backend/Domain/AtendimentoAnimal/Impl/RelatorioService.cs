@@ -108,11 +108,37 @@ namespace backend.Domain.AtendimentoAnimal.Impl
 
         // --- MÉTODOS DE ESCRITA (WRITE) ---
 
-        // Dentro do RelatorioService
         public async Task<ServiceResult> UpsertAsync(int consultaId, UpsertRelatorioDto dto, int clinicaId)
         {
             var consultaResult = await _consultaService.ObterPorIdComDetalhesAsync(consultaId);
+
+            // Log do resultado do serviço de busca
+            if (!consultaResult.Succeeded)
+            {
+                _logger.LogWarning("Falha ao obter consulta com detalhes. Motivo: {Message}", consultaResult.Message);
+                return new ServiceResult { Succeeded = false, Message = consultaResult.Message };
+            }
+
             var consulta = (Consulta)consultaResult.Data;
+
+            if (consulta == null)
+            {
+                _logger.LogWarning("O objeto Consulta retornado por ObterPorIdComDetalhesAsync é nulo, embora o resultado tenha sido Succeeded.");
+            }
+            else
+            {
+                _logger.LogInformation("Animal (ID: {AnimalId}) encontrado. Verificando AcompanhamentoIndividualizado...", consulta.Animal.Id);
+
+                if (consulta.Animal.AcompanhamentoIndividualizado == null)
+                {
+                    _logger.LogWarning("A propriedade 'AcompanhamentoIndividualizado' do Animal (ID: {AnimalId}) é nula.", consulta.Animal.Id);
+                }
+                else
+                {
+                    _logger.LogInformation("AcompanhamentoIndividualizado (ID: {AcompanhamentoId}) encontrado.", consulta.Animal.AcompanhamentoIndividualizado.Id);
+                }
+            }
+
             if (consulta?.Animal?.AcompanhamentoIndividualizado == null)
             {
                 return new ServiceResult { Succeeded = false, Message = "Consulta, animal ou acompanhamento associado não encontrado." };
