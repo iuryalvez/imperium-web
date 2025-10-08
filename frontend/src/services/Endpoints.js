@@ -48,11 +48,11 @@ const endpoints = {
   clinica: {
     editar: `${API_BASE_URL}/clinica/editar`,
     acompanhamento: {
-      getHistoricoCompleto: (clinicaId, acompanhamentoId) => 
-        `${API_BASE_URL}/clinica/${clinicaId}/acompanhamentos/${acompanhamentoId}/historico-completo`,
+      getHistoricoCompleto: (acompanhamentoId) => 
+        `${API_BASE_URL}/clinica/acompanhamentos/${acompanhamentoId}/historico-completo`,
       // Rota para criar uma dieta associada a um acompanhamento
-      criarDieta: (clinicaId, acompanhamentoId) => 
-        `${API_BASE_URL}/clinica/${clinicaId}/acompanhamentos/${acompanhamentoId}/dieta`,
+      criarDieta: (acompanhamentoId) => 
+        `${API_BASE_URL}/clinica/acompanhamentos/${acompanhamentoId}/dieta`,
     },
     animal: {
       listar: `${API_BASE_URL}/clinica/animais`,

@@ -13,6 +13,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   SettingOutlined,
+  SolutionOutlined,
 } from "@ant-design/icons";
 import colunas from "./colunas";
 
@@ -21,6 +22,7 @@ const TabelaAnimais = ({
   onEdit,
   onDelete,
   onViewDetails,
+  onNavigateToAcompanhamento,
   loadingRowKey,
 }) => {
   // ESTADO INTERNO para controlar as colunas visíveis.
@@ -66,6 +68,14 @@ const TabelaAnimais = ({
                 disabled={isCurrentRowLoading}
               />
             </Tooltip>
+            <Tooltip title="Acompanhamento">
+              <Button
+                size="small"
+                icon={<SolutionOutlined />}
+                onClick={() => onNavigateToAcompanhamento(record.acompanhamentoIndividualizadoId)} // <-- Ação do botão
+                disabled={isCurrentRowLoading || record.acompanhamentoIndividualizadoId == null}
+              />
+            </Tooltip>
             <Tooltip title="Excluir">
               <Popconfirm
                 title="Tem certeza que deseja excluir?"
@@ -83,7 +93,7 @@ const TabelaAnimais = ({
         );
       },
     }),
-    [onEdit, onDelete, onViewDetails, loadingRowKey]
+    [onEdit, onDelete, onNavigateToAcompanhamento, onViewDetails, loadingRowKey]
   );
 
   // CÁLCULO DAS COLUNAS VISÍVEIS (MEMOIZADO)

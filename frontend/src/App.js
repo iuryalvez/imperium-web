@@ -24,7 +24,10 @@ import ListaDeVinculos from "./pages/Sistema/ListaDeVinculos/ListaDeVinculos.jsx
 
 import UsuariosDoSistema from "./features/UsuariosDoSistema/UsuariosDoSistema.jsx";
 import UsuariosDaClinica from "./features/UsuariosDaClinica/UsuariosDaClinica.jsx";
+
 import AnimaisDaClinica from "./features/AnimaisDaClinica/AnimaisDaClinica.jsx";
+import AcompanhamentoAnimal from "./features/AnimaisDaClinica/AcompanhamentoAnimal/AcompanhamentoAnimal.jsx";
+
 import RacoesDaClinica from "./features/RacoesDaClinica/RacoesDaClinica.jsx";
 import ConsultasDaClinica from "./features/ConsultasDaClinica/ConsultasDaClinica.jsx";
 
@@ -94,6 +97,10 @@ const App = () => {
                     <Route
                       path="/clinica/animais"
                       element={<AnimaisDaClinica />}
+                    />
+                    <Route
+                      path="/clinica/animais/acompanhamento/:acompanhamentoId"
+                      element={<AcompanhamentoAnimal />}
                     />
                     <Route
                       path="/clinica/tutores"

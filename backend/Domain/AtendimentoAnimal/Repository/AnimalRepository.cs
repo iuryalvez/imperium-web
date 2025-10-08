@@ -34,6 +34,7 @@ namespace backend.Infra.Data.Repositories
         {
             return await _context.Animais
                 .Include(a => a.TutoresAnimais!).ThenInclude(ta => ta.Tutor)
+                .Include(a => a.AcompanhamentoIndividualizado) // Incluindo o Acompanhamento Individualizado
                 .Include(a => a.Raca) // Incluindo a Raça
                 .Where(a => a.AnimaisClinicas!.Any(ac => ac.ClinicaId == clinicaId))
                 .ToListAsync();

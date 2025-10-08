@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { animaisDaClinicaAPI } from "../../api/clinica/animaisDaClinicaAPI";
 import { message } from "antd";
 
@@ -20,6 +21,8 @@ export const useAnimaisDaClinicaManager = () => {
 
   // Estado para o modal de RAÇAS
   const [isModalRacasOpen, setIsModalRacasOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   const fetchAnimais = useCallback(async () => {
     setLoading(true);
@@ -70,6 +73,10 @@ export const useAnimaisDaClinicaManager = () => {
     setIsModalRacasOpen(false);
   };
 
+  const handleNavigateToAcompanhamento = (acompanhamentoId) => {
+    navigate(`/clinica/animais/acompanhamento/${acompanhamentoId}`);
+  };
+
   // Handler para submissão do formulário de animal
   const handleSubmit = async (values) => {
     setIsSubmitting(true);
@@ -82,12 +89,11 @@ export const useAnimaisDaClinicaManager = () => {
         await animaisDaClinicaAPI.cadastrar(values);
         successMessage = "Animal cadastrado com sucesso!";
       }
-      
+
       message.success(successMessage);
       handleCloseModal();
       await fetchAnimais();
-
-    } catch(error) {
+    } catch (error) {
       message.error(error.message || "Falha ao salvar o animal.");
     } finally {
       setIsSubmitting(false);
@@ -95,7 +101,7 @@ export const useAnimaisDaClinicaManager = () => {
   };
 
   const handleDelete = async (animalId) => {
-     try {
+    try {
       await animaisDaClinicaAPI.deletar(animalId);
       message.success("Animal deletado com sucesso!");
       await fetchAnimais();
@@ -108,11 +114,11 @@ export const useAnimaisDaClinicaManager = () => {
     setViewingAnimal(animal);
     setIsModalDetalhesOpen(true);
   };
-  
+
   const handleCloseModalDetalhes = () => {
     setIsModalDetalhesOpen(false);
     // Adiciona um pequeno delay para limpar os dados, permitindo que a animação do modal termine.
-    setTimeout(() => setViewingAnimal(null), 300); 
+    setTimeout(() => setViewingAnimal(null), 300);
   };
 
   return {
@@ -131,6 +137,7 @@ export const useAnimaisDaClinicaManager = () => {
     handleCloseModal,
     handleOpenModalRacas,
     handleCloseModalRacas,
+    handleNavigateToAcompanhamento,
     handleSubmit,
     handleDelete,
     handleOpenModalDetalhes,

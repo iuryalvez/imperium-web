@@ -40,13 +40,34 @@ export const useConsultasManager = () => {
     setEditingConsulta(null);
   };
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (formValues) => {
+    // 1. Create a mutable copy of the form formValues to prepare for submission.
+    //    Criamos uma cópia dos valores para poder modificá-los sem afetar o estado original.
+    const payload = { ...formValues };
+
+    // 2. Clean up data based on conditional logic.
+    //    Executamos a lógica de limpeza para garantir a consistência dos dados.
+    if (!payload.isGestante) {
+      payload.semanaGestacao = null; // ou undefined, dependendo do que sua API espera
+    }
+
+    // Assumindo que o switch de lactação se chama 'emLactacao' no formulário
+    if (!payload.emLactacao) {
+      payload.isLactanteNumeroFilhotes = 0;
+      payload.semanaLactacao = null; // ou undefined
+    }
+
+    // O campo 'emLactacao' é apenas para controle de UI, podemos removê-lo do payload final.
+    delete payload.emLactacao;
+
+    // 3. Perform the upsert (update or insert) operation.
+    //    Realizamos a operação de cadastro ou edição.
     try {
       if (editingConsulta) {
-        await consultasDaClinicaAPI.editar(editingConsulta.id, values);
+        await consultasDaClinicaAPI.editar(editingConsulta.id, formValues);
         message.success("Consulta atualizada com sucesso!");
       } else {
-        await consultasDaClinicaAPI.cadastrar(values);
+        await consultasDaClinicaAPI.cadastrar(formValues);
         message.success("Consulta agendada com sucesso!");
       }
       handleCloseModal();
@@ -97,10 +118,10 @@ export const useConsultasManager = () => {
     setRelatorioData(null);
   };
 
-  const handleSubmitRelatorio = async (values) => {
+  const handleSubmitRelatorio = async (formValues) => {
     if (!selectedConsulta) return;
     try {
-      await relatoriosDaClinicaAPI.upsert(selectedConsulta.id, values);
+      await relatoriosDaClinicaAPI.upsert(selectedConsulta.id, formValues);
       message.success("Relatório salvo com sucesso!");
       handleCloseRelatorioModal();
       await fetchConsultas(); // Re-busca as consultas para atualizar o status do relatório na tabela

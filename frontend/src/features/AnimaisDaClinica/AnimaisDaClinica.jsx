@@ -25,6 +25,7 @@ const AnimaisDaClinica = () => {
     handleCloseModal,
     handleOpenModalRacas,
     handleCloseModalRacas,
+    handleNavigateToAcompanhamento,
     handleSubmit,
     handleDelete,
     handleOpenModalDetalhes,
@@ -64,6 +65,7 @@ const AnimaisDaClinica = () => {
         data={animais}
         onEdit={handleOpenModal}
         onDelete={handleDelete}
+        onNavigateToAcompanhamento={handleNavigateToAcompanhamento}
         onViewDetails={handleOpenModalDetalhes}
         loadingRowKey={loadingRowKey}
       />

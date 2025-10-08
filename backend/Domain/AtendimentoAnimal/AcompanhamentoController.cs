@@ -3,9 +3,10 @@ using backend.Domain.SaudeAnimal.DTOs.Dieta;
 using Microsoft.AspNetCore.Authorization;
 using backend.Domain.AtendimentoAnimal.Services;
 using backend.Domain.GestaoDeAcesso.Interfaces;
+using backend.Services;
 [ApiController]
 // Padronizado para o plural, que é a convenção REST para coleções de recursos.
-[Route("api/clinica/{clinicaId}/acompanhamentos")]
+[Route("api/clinica/acompanhamentos")]
 [Authorize]
 public class AcompanhamentoController : ControllerBase
 {
@@ -22,9 +23,9 @@ public class AcompanhamentoController : ControllerBase
     [HttpGet("{acompanhamentoId}/historico-completo")]
     [ProducesResponseType(typeof(ServiceResult), 200)]
     [ProducesResponseType(typeof(ServiceResult), 404)]
-    public async Task<IActionResult> GetHistoricoCompleto([FromRoute] int clinicaId, [FromRoute] int acompanhamentoId)
+    public async Task<IActionResult> GetHistoricoCompleto([FromRoute] int acompanhamentoId)
     {
-        // CORREÇÃO: A variável correta da rota é 'acompanhamentoId'.
+        var clinicaId = User.GetClaimValue<int>("clinicaId");
         var result = await _acompanhamentoService.ObterHistoricoCompletoAnimalAsync(acompanhamentoId, clinicaId);
 
         if (result.Succeeded)
@@ -44,10 +45,10 @@ public class AcompanhamentoController : ControllerBase
     [ProducesResponseType(typeof(ServiceResult), 200)]
     [ProducesResponseType(typeof(ServiceResult), 400)]
     public async Task<IActionResult> CriarDieta(
-        [FromRoute] int clinicaId,
         [FromRoute] int acompanhamentoId,
         [FromBody] CreateDietaDto dto)
     {
+        var clinicaId = User.GetClaimValue<int>("clinicaId");
         var result = await _acompanhamentoService.CriarDietaParaRelatorioAsync(acompanhamentoId, dto, clinicaId);
 
         if (result.Succeeded)

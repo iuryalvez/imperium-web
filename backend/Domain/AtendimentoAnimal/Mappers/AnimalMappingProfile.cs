@@ -13,6 +13,8 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
                 .ForMember(dest => dest.RacaNome, opt => opt.MapFrom(src => src.Raca != null ? src.Raca.Nome : null))
                 .ForMember(dest => dest.Gestacao, opt => opt.MapFrom(src => src.IsGestante))
                 .ForMember(dest => dest.Lactacao, opt => opt.MapFrom(src => src.IsLactanteNumeroFilhotes))
+                .ForMember(dest => dest.AcompanhamentoIndividualizadoId, opt => opt.MapFrom(src =>
+                    src.AcompanhamentoIndividualizado != null ? (int?)src.AcompanhamentoIndividualizado.Id : null))
                 .ForMember(dest => dest.TutorIds, opt => opt.MapFrom(src =>
                     src.TutoresAnimais != null
                         ? src.TutoresAnimais.Select(ta => ta.TutorId).ToList()
@@ -36,7 +38,7 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
 
             CreateMap<EditarAnimalClinicaDto, Animal>()
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
-            
+
             // Mapeia os dados de estado de um relatório para a entidade Animal.
             // Usado para atualizar o estado atual do animal sempre que um novo relatório é salvo.
             CreateMap<UpsertRelatorioDto, Animal>();

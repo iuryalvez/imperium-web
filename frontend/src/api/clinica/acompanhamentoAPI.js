@@ -2,6 +2,13 @@ import api from "../index"; // sua instância configurada do axios
 import endpoints from "../../services/Endpoints"; // seu arquivo de endpoints
 
 export const acompanhamentoAPI = {
+  getHistoricoCompleto: async (acompanhamentoId) => {
+    const response = await api.get(
+      endpoints.clinica.acompanhamento.getHistoricoCompleto(acompanhamentoId)
+    );
+    return response.data;
+  },
+
   /**
    * Envia os dados para criar uma nova dieta para um relatório dentro de um acompanhamento.
    * @param {number} clinicaId O ID da clínica atual.
@@ -9,13 +16,13 @@ export const acompanhamentoAPI = {
    * @param {object} dadosDieta O objeto DTO com os dados da dieta (CreateDietaDto).
    * @returns {Promise<object>} A resposta da API.
    */
-  criarDieta: async (clinicaId, acompanhamentoId, dadosDieta) => {
+  criarDieta: async (acompanhamentoId, dadosDieta) => {
     try {
       const response = await api.post(
         // Constrói a URL dinâmica usando a função do arquivo de endpoints
-        endpoints.clinica.acompanhamento.criarDieta(clinicaId, acompanhamentoId),
+        endpoints.clinica.acompanhamento.criarDieta(acompanhamentoId),
         // O segundo argumento é o corpo (body) da requisição
-        dadosDieta, 
+        dadosDieta,
         {
           headers: {
             "Content-Type": "application/json",
