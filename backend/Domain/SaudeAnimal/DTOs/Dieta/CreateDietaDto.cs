@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 using backend.Domain.SaudeAnimal.Entities;
 
 namespace backend.Domain.SaudeAnimal.DTOs.Dieta
@@ -29,5 +25,8 @@ namespace backend.Domain.SaudeAnimal.DTOs.Dieta
         public double? PotenciaCustom { get; set; }
 
         public string? Observacoes { get; set; }
+
+        public int? IsLactanteNumeroFilhotes { get; set; }
+        public int? SemanaLactacao { get; set; }
     }
 }

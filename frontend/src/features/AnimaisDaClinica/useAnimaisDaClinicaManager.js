@@ -6,7 +6,7 @@ import { message } from "antd";
 export const useAnimaisDaClinicaManager = () => {
   const [animais, setAnimais] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [loadingRowKey, setLoadingRowKey] = useState(null);
+  const [loadingRowKey] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Busca

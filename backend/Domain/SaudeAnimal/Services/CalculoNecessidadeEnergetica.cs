@@ -50,7 +50,7 @@ namespace backend.Domain.SaudeAnimal.Services
                         throw new InvalidOperationException($"Tipo de dieta '{dieta.TipoDieta}' não implementado.");
                 }
                 
-                _logger.LogInformation("Cálculo de necessidade total concluído para o animal ID: {AnimalId}. Resultado: {ResultadoKcal} kcal/dia.",
+                _logger.LogInformation("Cálculo de necessidade total concluído para o animal ID: {AnimalId}. Resultado: {ResultadoKcal} kcal/g por dia.",
                     animal.Id, resultado);
                 return resultado;
             }

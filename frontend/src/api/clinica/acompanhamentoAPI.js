@@ -11,7 +11,6 @@ export const acompanhamentoAPI = {
 
   /**
    * Envia os dados para criar uma nova dieta para um relatório dentro de um acompanhamento.
-   * @param {number} clinicaId O ID da clínica atual.
    * @param {number} acompanhamentoId O ID do acompanhamento que contém o relatório.
    * @param {object} dadosDieta O objeto DTO com os dados da dieta (CreateDietaDto).
    * @returns {Promise<object>} A resposta da API.

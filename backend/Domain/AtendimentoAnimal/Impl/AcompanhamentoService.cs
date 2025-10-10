@@ -209,6 +209,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
                     return new ServiceResult { Succeeded = false, Message = "Animal associado ao acompanhamento não foi encontrado." };
                 }
                 var animal = (Animal)animalResult.Data;
+
                 _logger.LogDebug("Animal {AnimalId} obtido com sucesso.", animal.Id);
 
                 var resultadoRelatorio = await _relatorioService.ObterPorIdEIdAcompanhamentoAsync(dto.RelatorioId, acompanhamentoId, clinicaId);
@@ -228,6 +229,29 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 }
                 var racao = (Racao)resultadoRacao.Data;
                 _logger.LogDebug("Ração '{NomeRacao}' (ID: {RacaoId}) obtida com sucesso.", racao.Nome, racao.Id);
+
+                _logger.LogInformation("Sincronizando entidade 'animal' em memória com dados do CreateDietaDto.");
+                _logger.LogDebug("Valores do DTO para sincronização -> PesoAtual: {PesoDto}, Nro Filhotes: {FilhotesDto}, Semana Lactação: {SemanaLactacaoDto}",
+                    dto.PesoAtual, dto.IsLactanteNumeroFilhotes, dto.SemanaLactacao);
+
+                animal.Peso = dto.PesoAtual ?? animal.Peso;
+                animal.PesoIdeal = dto.PesoObjetivo ?? animal.PesoIdeal;
+
+                if (dto.TipoDieta == TipoDieta.Crescimento)
+                {
+                    animal.PesoMaximo = dto.PesoObjetivo ?? animal.PesoMaximo;
+                    animal.PesoMinimo = dto.PesoObjetivo ?? animal.PesoMinimo;
+                }
+
+                // Atualiza os dados de lactação se o tipo de dieta for Lactação
+                    if (dto.TipoDieta == TipoDieta.Lactacao)
+                    {
+                        animal.IsLactanteNumeroFilhotes = dto.IsLactanteNumeroFilhotes ?? animal.IsLactanteNumeroFilhotes;
+                        animal.SemanaLactacao = dto.SemanaLactacao ?? animal.SemanaLactacao;
+                    }
+
+                _logger.LogDebug("Animal (após atualização) pronto para cálculo. ID: {AnimalId}, Peso: {Peso}, Nro Filhotes: {NumFilhotes}, Semana Lactação: {SemanaLactacao}",
+            animal.Id, animal.Peso, animal.IsLactanteNumeroFilhotes, animal.SemanaLactacao);
 
                 _logger.LogInformation("Delegando cálculo da dieta para o DietaService.");
                 var dieta = await _dietaService.CalcularOuAtualizarDietaAsync(animal, relatorio, racao, dto);

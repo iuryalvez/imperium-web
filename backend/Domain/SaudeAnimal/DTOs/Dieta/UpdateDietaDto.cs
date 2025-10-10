@@ -8,8 +8,16 @@ namespace backend.Domain.SaudeAnimal.DTOs.Dieta
         [Required]
         public int Id { get; set; } // ID da dieta a ser alterada
 
-        public int? RacaoId { get; set; }
-        public TipoDieta? TipoDieta { get; set; }
+        [Required]
+        public int RelatorioId { get; set; }
+
+        [Required]
+        public int RacaoId { get; set; }
+
+        [Required]
+        [EnumDataType(typeof(TipoDieta))]
+        public TipoDieta TipoDieta { get; set; }
+
         public double? PesoAtual { get; set; }
         public double? PesoObjetivo { get; set; }
         public double? PesoIdeal { get; set; }
@@ -20,5 +28,8 @@ namespace backend.Domain.SaudeAnimal.DTOs.Dieta
         public double? PotenciaCustom { get; set; }
 
         public string? Observacoes { get; set; }
+
+        public int? IsLactanteNumeroFilhotes { get; set; }
+        public int? SemanaLactacao { get; set; }
     }
 }

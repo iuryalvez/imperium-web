@@ -53,10 +53,8 @@ namespace backend.Domain.SaudeAnimal.Impl
                 throw new InvalidOperationException("A ração selecionada não possui um valor de energia metabolizável válido.");
             }
 
-            // 4. Calcular a quantidade de alimento em gramas
-            //    Assumindo que 'EnergiaMetabolizavel' na ração está em kcal/kg
-            double kcalPorGrama = racao.EnergiaMetabolizavel.Value / 1000.0;
-            double quantidadeGramas = necessidadeKcal / kcalPorGrama;
+            // 4. Calcular a quantidade de alimento em gramas;
+            double quantidadeGramas = necessidadeKcal / racao.EnergiaMetabolizavel.Value;
             _logger.LogDebug("Quantidade de alimento calculada: {QuantidadeGramas} g/dia.", quantidadeGramas);
 
             // 5. Buscar por uma dieta existente para este relatório (lógica de Upsert)
@@ -91,7 +89,7 @@ namespace backend.Domain.SaudeAnimal.Impl
             dietaExistente.PotenciaCustom = dto.PotenciaCustom;
 
             // Resultados dos cálculos
-            dietaExistente.EnergiaMetabolizavel = Math.Round(necessidadeKcal, 2); // Renomeei para ser mais claro
+            dietaExistente.EnergiaMetabolizavel = Math.Round(necessidadeKcal, 2);
             dietaExistente.QtdAlimento = Math.Round(quantidadeGramas, 2); // Quantidade em gramas/dia
 
             // Metadados

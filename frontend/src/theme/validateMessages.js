@@ -1,3 +1,5 @@
+/* eslint-disable no-template-curly-in-string */
+
 export const validateMessages = {
   required: "'${label}' é obrigatório!", // Mensagem para a regra 'required: true'
   types: {
