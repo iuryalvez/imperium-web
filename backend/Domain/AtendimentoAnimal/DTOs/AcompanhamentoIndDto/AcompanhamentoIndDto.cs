@@ -3,13 +3,13 @@ namespace backend.Domain.AtendimentoAnimal
     public class AnimalCompletoDto
     {
         public int Id { get; set; }
-        public string? Nome { get; set; }
+        public string Nome { get; set; }
         public string Especie { get; set; }
         public string Sexo { get; set; }
         public int Idade { get; set; }
         public string FaseVida { get; set; }
         public double? PesoAtual { get; set; }
-        public string? CondicaoCorporal { get; set; }
+        public string CondicaoCorporal { get; set; }
 
         public RacaResumidaDto Raca { get; set; }
         public List<TutorResumidoDto> Tutores { get; set; }
@@ -26,8 +26,8 @@ namespace backend.Domain.AtendimentoAnimal
     {
         public int Id { get; set; }
         public string Nome { get; set; }
-        public string? Telefone { get; set; }
-        public string? Email { get; set; }
+        public string Telefone { get; set; }
+        public string Email { get; set; }
     }
 
     public class AcompanhamentoDto
@@ -48,7 +48,7 @@ namespace backend.Domain.AtendimentoAnimal
         public string CondicaoCorporal { get; set; }
         public string GrauAtividade { get; set; }
 
-        public DietaResumidaDto? Dieta { get; set; }
+        public DietaResumidaDto Dieta { get; set; }
     }
 
     public class DietaResumidaDto
@@ -58,7 +58,7 @@ namespace backend.Domain.AtendimentoAnimal
         public double QuantidadeAlimentoGramas { get; set; }
         public double NecessidadeEnergeticaKcal { get; set; }
         public string RacaoUtilizada { get; set; }
-        public string? Observacoes { get; set; }
+        public string Observacoes { get; set; }
         public DateOnly DataCriacao { get; set; }
     }
 }

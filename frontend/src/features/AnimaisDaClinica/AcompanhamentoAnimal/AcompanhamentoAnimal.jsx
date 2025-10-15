@@ -18,7 +18,6 @@ import CabecalhoAnimal from "./components/CabecalhoAnimal";
 import ListaRelatorios from "./components/ListaRelatorios";
 import dayjs from "dayjs";
 import FormularioDieta from "./components/FormularioDieta";
-import GraficoEvolucaoPeso from "./components/GraficoEvolucaoPeso";
 import DetalhesDieta from "./components/DetalhesDieta";
 
 const { Title } = Typography;
@@ -37,7 +36,7 @@ const AcompanhamentoAnimal = () => {
     handleCloseModalCriarDieta,
     handleOpenModalVisualizarDieta,
     handleCloseModalVisualizarDieta,
-    handleCriarDieta
+    handleCriarDieta,
   } = useAcompanhamentoAnimalManager();
 
   if (loading) {
@@ -118,19 +117,6 @@ const AcompanhamentoAnimal = () => {
 
       <CabecalhoAnimal animal={dadosDoAnimal} />
 
-      {historico.acompanhamento.relatorios.length > 1 && (
-        <>
-          <Divider orientation="left">Evolução do Peso</Divider>
-          <div style={{ padding: "0 24px" }}>
-            {" "}
-            {/* Adiciona um padding para o gráfico não colar nas bordas */}
-            <GraficoEvolucaoPeso
-              relatorios={historico.acompanhamento.relatorios}
-            />
-          </div>
-        </>
-      )}
-
       <Divider orientation="left">Histórico de Relatórios</Divider>
 
       <ListaRelatorios
@@ -148,16 +134,27 @@ const AcompanhamentoAnimal = () => {
         footer={null} // O formulário terá seus próprios botões
         destroyOnClose
         width={700}
-      ></Modal>
+      >
+        {/* Renderiza o formulário apenas quando o modal estiver aberto */}
+        {relatorioSelecionado && (
+          <FormularioDieta
+            onFinish={handleCriarDieta}
+            onCancel={handleCloseModalCriarDieta}
+            relatorioId={relatorioSelecionado.id}
+            racoes={racoes}
+            isSubmitting={isSubmitting}
+          />
+        )}
+      </Modal>
 
       <Modal
         title="Detalhes da Dieta Calculada"
         open={isModalVisualizarDietaOpen}
         onCancel={handleCloseModalVisualizarDieta}
         footer={[
-            <Button key="close" onClick={handleCloseModalVisualizarDieta}>
-              Fechar
-            </Button>
+          <Button key="close" onClick={handleCloseModalVisualizarDieta}>
+            Fechar
+          </Button>,
         ]}
         destroyOnClose
         width={600}
@@ -165,17 +162,6 @@ const AcompanhamentoAnimal = () => {
         {/* Renderiza o componente de detalhes com a dieta selecionada */}
         {dietaParaVisualizar && <DetalhesDieta dieta={dietaParaVisualizar} />}
       </Modal>
-
-      {/* Renderiza o formulário apenas quando o modal estiver aberto */}
-      {relatorioSelecionado && (
-        <FormularioDieta
-          onFinish={handleCriarDieta}
-          onCancel={handleCloseModalCriarDieta}
-          relatorioId={relatorioSelecionado.id}
-          racoes={racoes}
-          isSubmitting={isSubmitting}
-        />
-      )}
     </div>
   );
 };

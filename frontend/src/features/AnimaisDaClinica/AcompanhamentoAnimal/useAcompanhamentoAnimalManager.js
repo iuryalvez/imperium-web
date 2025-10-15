@@ -57,27 +57,9 @@ export const useAcompanhamentoAnimalManager = () => {
     setRelatorioSelecionado(null);
   };
 
-  const handleOpenModalCriarDieta = async (values) => {
-    if (!historico?.acompanhamento?.id) return;
-
-    setIsSubmitting(true);
-    try {
-      const result = await acompanhamentoAPI.criarDieta(
-        historico.acompanhamento.id,
-        values
-      );
-      if (result.succeeded) {
-        message.success("Dieta calculada e salva com sucesso!");
-        handleCloseModalCriarDieta();
-        await fetchHistorico(); // Recarrega os dados para mostrar a nova dieta na lista
-      } else {
-        message.error(result.message || "Falha ao criar dieta.");
-      }
-    } catch (error) {
-      message.error(error.message || "Ocorreu um erro inesperado.");
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleOpenModalCriarDieta = async (relatorio) => {
+    setIsModalCriarDietaOpen(true);
+    setRelatorioSelecionado(relatorio);
   };
 
   const handleOpenModalVisualizarDieta = (dieta) => {

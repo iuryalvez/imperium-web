@@ -103,7 +103,7 @@ namespace backend.Domain.SaudeAnimal.Impl
             return dietaExistente;
         }
 
-        public async Task<GetDietaDto?> GetByIdAsync(int dietaId, int clinicaId)
+        public async Task<GetDietaDto> GetByIdAsync(int dietaId, int clinicaId)
         {
             _logger.LogInformation("Buscando dieta por ID {DietaId} para a clínica ID {ClinicaId}.", dietaId, clinicaId);
             try

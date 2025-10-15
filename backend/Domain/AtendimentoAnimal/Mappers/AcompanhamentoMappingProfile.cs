@@ -2,7 +2,6 @@ using AutoMapper;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.SaudeAnimal.Entities;
 
-// O namespace deve corresponder à sua estrutura de pastas
 namespace backend.Domain.AtendimentoAnimal.Mappers 
 {
     public class AcompanhamentoProfile : Profile

@@ -45,7 +45,7 @@ namespace backend.Domain.SaudeAnimal.Services
 
             if (animal.Especie == EspecieAnimal.Cao)
             {
-                string? nomeRaca = animal.Raca?.Nome;
+                string nomeRaca = animal.Raca?.Nome ?? string.Empty;
 
                 if (!string.IsNullOrEmpty(nomeRaca))
                 {

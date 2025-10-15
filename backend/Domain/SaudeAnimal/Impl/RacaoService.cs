@@ -252,17 +252,17 @@ public class RacaoService : IRacaoService
 
         // 2. Calcular matéria seca (MS)
         double ms = 1.0 - umidade;
-        racao.MateriaSeca = ms * 100.0; // Armazenar como porcentagem
+        racao.MateriaSeca = Math.Round(ms * 100.0, 3); // Armazenar como porcentagem com 3 casas decimais
         _logger.LogTrace("Matéria seca (MS) = {Ms:F2}%", racao.MateriaSeca);
 
         // 3. Calcular Extrativo Não Nitrogenado (ENN)
         double enn = 1.0 - (umidade + pb + eea + fb + mm);
-        racao.ExtrativoNaoNitrogenado = enn * 100.0; // Armazenar como porcentagem
+        racao.ExtrativoNaoNitrogenado = Math.Round(enn * 100.0, 3); // Armazenar como porcentagem com 3 casas decimais
         _logger.LogTrace("ENN = {Enn:F2}%", racao.ExtrativoNaoNitrogenado);
 
         // 4. Calcular Energia Bruta (EB)
         double eb = (EnergiaBrutaFactorProteina * pb) + (EnergiaBrutaFactorGordura * eea) + (EnergiaBrutaFactorCarboidratoFibra * (enn + fb));
-        racao.EnergiaBruta = eb; // kcal/g
+        racao.EnergiaBruta = Math.Round(eb, 3); // Arredonda
         _logger.LogTrace("Energia Bruta (EB) = {Eb:F4} kcal/g", eb);
 
         // 5. Calcular Coeficiente de Digestibilidade da Energia (CDE)
@@ -281,16 +281,17 @@ public class RacaoService : IRacaoService
             default:
                 throw new InvalidOperationException($"Espécie '{racao.Especie}' não suportada para cálculo de EM.");
         }
-        racao.CoeficienteDigestibilidadeEnergia = cde;
+        racao.CoeficienteDigestibilidadeEnergia = Math.Round(cde, 3); // Armazenar com 3 casas decimais
+        _logger.LogTrace("Coeficiente de Digestibilidade da Energia (CDE) = {Cde:F2}%", racao.CoeficienteDigestibilidadeEnergia);
 
         // 6. Calcular Energia Digestível (ED)
         double ed = eb * (cde / 100.0);
-        racao.EnergiaDigestivel = ed;
+        racao.EnergiaDigestivel = Math.Round(ed, 3); // Armazenar com 3 casas decimais
         _logger.LogTrace("Energia Digestível (ED) = {Ed:F4} kcal/g", ed);
 
         // 7. Calcular Energia Metabolizável (EM)
         double em = (racao.Especie == EspecieAnimal.Cao) ? ed - (1.04 * pb) : ed - (0.77 * pb);
-        racao.EnergiaMetabolizavel = em; // kcal/g
+        racao.EnergiaMetabolizavel = Math.Round(em, 3); // Armazenar com 3 casas decimais
         _logger.LogTrace("Energia Metabolizável (EM) = {Em:F4} kcal/g", em);
     }
     
@@ -317,13 +318,13 @@ public class RacaoService : IRacaoService
         double energiaENN = enn * AtwaterFactorCarboidrato;
         double energiaTotal = energiaPB + energiaEEA + energiaENN;
 
-        racao.EnergiaProteina = energiaPB;
-        racao.EnergiaExtratoEtereo = energiaEEA;
-        racao.EnergiaExtrativoNaoNitrogenado = energiaENN;
-        racao.EnergiaTotalEstimativa = energiaTotal;
+        racao.EnergiaProteina = Math.Round(energiaPB, 3);
+        racao.EnergiaExtratoEtereo = Math.Round(energiaEEA, 3);
+        racao.EnergiaExtrativoNaoNitrogenado = Math.Round(energiaENN, 3);
+        racao.EnergiaTotalEstimativa = Math.Round(energiaTotal, 3);
 
         _logger.LogTrace("Distribuição energética (kcal/100g): PB={EnergiaPb:F2}, EEA={EnergiaEea:F2}, ENN={EnergiaEnn:F2}, Total={EnergiaTotal:F2}",
-            energiaPB, energiaEEA, energiaENN, energiaTotal);
+            racao.EnergiaProteina, racao.EnergiaExtratoEtereo, racao.EnergiaExtrativoNaoNitrogenado, racao.EnergiaTotalEstimativa);
     }
     
     #endregion 
