@@ -1,8 +1,8 @@
 // src/pages/AcompanhamentoAnimal/components/ListaRelatorios.jsx
 
 import React from "react";
-import { List, Button, Tag, Descriptions, Space, Popconfirm } from "antd"; // Adiciona Space
-import { PlusOutlined, EyeOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons"; // Adiciona EyeOutlined
+import { List, Button, Tag, Descriptions, Space, Popconfirm } from "antd";
+import { PlusOutlined, EyeOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
 const ListaRelatorios = ({

@@ -190,7 +190,7 @@ namespace backend.Infra.Data
                 .HasMany(r => r.DietasPersonalizadas)
                 .WithOne(dp => dp.Racao)
                 .HasForeignKey(dp => dp.RacaoId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Racao 1:N Relatorio
             modelBuilder.Entity<Racao>()

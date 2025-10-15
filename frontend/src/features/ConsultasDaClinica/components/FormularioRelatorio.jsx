@@ -11,7 +11,9 @@ import {
   Col,
   Divider,
   message,
+  Popconfirm,
 } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import { racoesDaClinicaAPI } from "../../../api/clinica/racoesDaClinicaAPI";
 
 const opcoesGrauAtividade = [
@@ -21,7 +23,15 @@ const opcoesGrauAtividade = [
 ];
 
 const marcasCondicaoCorporal = {
-  1: "1", 2: "2", 3: "3", 4: "4", 5: "5", 6: "6", 7: "7", 8: "8", 9: "9",
+  1: "1",
+  2: "2",
+  3: "3",
+  4: "4",
+  5: "5",
+  6: "6",
+  7: "7",
+  8: "8",
+  9: "9",
 };
 
 const opcoesTipoDieta = [
@@ -35,6 +45,7 @@ const FormularioRelatorio = ({
   consulta,
   initialValues,
   onFinish,
+  onDelete,
   onCancel,
 }) => {
   const [form] = Form.useForm();
@@ -154,7 +165,7 @@ const FormularioRelatorio = ({
           placeholder="Ex: Adicionar 50g de alimento úmido pela manhã."
         />
       </Form.Item>
-      
+
       {isFemea && (
         <>
           <Divider orientation="left" plain>
@@ -184,11 +195,12 @@ const FormularioRelatorio = ({
               )}
             </Col>
             <Col xs={24} sm={12}>
-              <Form.Item name="isLactante" label="Em Lactação?" valuePropName="checked">
-                <Switch
-                  checkedChildren="SIM"
-                  unCheckedChildren="NÃO"
-                />
+              <Form.Item
+                name="isLactante"
+                label="Em Lactação?"
+                valuePropName="checked"
+              >
+                <Switch checkedChildren="SIM" unCheckedChildren="NÃO" />
               </Form.Item>
               {isLactante && (
                 <>
@@ -202,7 +214,9 @@ const FormularioRelatorio = ({
                           value > 0
                             ? Promise.resolve()
                             : Promise.reject(
-                                new Error("O nº de filhotes deve ser maior que 0")
+                                new Error(
+                                  "O nº de filhotes deve ser maior que 0"
+                                )
                               ),
                       },
                     ]}
@@ -213,10 +227,7 @@ const FormularioRelatorio = ({
                       placeholder="Quantos filhotes?"
                     />
                   </Form.Item>
-                  <Form.Item
-                    name="semanaLactacao"
-                    label="Semanas de Lactação"
-                  >
+                  <Form.Item name="semanaLactacao" label="Semanas de Lactação">
                     <InputNumber
                       style={{ width: "100%" }}
                       min={1}
@@ -232,6 +243,19 @@ const FormularioRelatorio = ({
 
       <div className="flex justify-end gap-2 mt-6">
         <Button onClick={onCancel}>Cancelar</Button>
+        {initialValues && (
+          <Popconfirm
+            title="Excluir relatório"
+            description="Tem certeza que deseja excluir este relatório? Esta ação não pode ser desfeita."
+            onConfirm={() => onDelete(initialValues.id)}
+            okText="Sim, Excluir"
+            cancelText="Cancelar"
+          >
+            <Button icon={<DeleteOutlined />} danger>
+              Excluir
+            </Button>
+          </Popconfirm>
+        )}
         <Button type="primary" htmlType="submit">
           Salvar Relatório
         </Button>

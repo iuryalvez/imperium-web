@@ -23,6 +23,7 @@ const ConsultasDaClinica = () => {
     handleOpenRelatorioModal,
     handleCloseRelatorioModal,
     handleSubmitRelatorio,
+    handleDeleteRelatorio,
   } = useConsultasManager();
 
   if (loading) {
@@ -65,6 +66,7 @@ const ConsultasDaClinica = () => {
             consulta={selectedConsulta}
             initialValues={relatorioData}
             onFinish={handleSubmitRelatorio}
+            onDelete={handleDeleteRelatorio}
             onCancel={handleCloseRelatorioModal}
           />
         )}

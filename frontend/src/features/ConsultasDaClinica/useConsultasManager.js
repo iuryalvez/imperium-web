@@ -131,6 +131,18 @@ export const useConsultasManager = () => {
     }
   };
 
+  const handleDeleteRelatorio = async (relatorioId) => {
+    if (!selectedConsulta) return;
+    try {
+      await relatoriosDaClinicaAPI.deletar(relatorioId);
+      message.success("Relatório excluído com sucesso!");
+      handleCloseRelatorioModal();
+      await fetchConsultas(); // Re-busca as consultas para atualizar o status do relatório na tabela
+    } catch (error) {
+      message.error("Falha ao excluir o relatório.");
+    }
+  };
+
   return {
     consultas,
     loading,
@@ -147,5 +159,6 @@ export const useConsultasManager = () => {
     handleOpenRelatorioModal,
     handleCloseRelatorioModal,
     handleSubmitRelatorio,
+    handleDeleteRelatorio
   };
 };
