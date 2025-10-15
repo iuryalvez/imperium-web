@@ -53,6 +53,10 @@ const endpoints = {
       // Rota para criar uma dieta associada a um acompanhamento
       criarDieta: (acompanhamentoId) => 
         `${API_BASE_URL}/clinica/acompanhamentos/${acompanhamentoId}/dieta`,
+      editarDieta: (dietaId) =>
+        `${API_BASE_URL}/clinica/acompanhamentos/dieta/${dietaId}`,
+      deletarDieta: (dietaId) =>
+        `${API_BASE_URL}/clinica/acompanhamentos/dieta/${dietaId}`,
     },
     animal: {
       listar: `${API_BASE_URL}/clinica/animais`,

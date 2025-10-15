@@ -29,14 +29,20 @@ const AcompanhamentoAnimal = () => {
     racoes,
     isModalCriarDietaOpen,
     isModalVisualizarDietaOpen,
+    isModalEditarDietaOpen,
     relatorioSelecionado,
     dietaParaVisualizar,
+    dietaParaEditar,
     isSubmitting,
     handleOpenModalCriarDieta,
     handleCloseModalCriarDieta,
     handleOpenModalVisualizarDieta,
     handleCloseModalVisualizarDieta,
+    handleOpenModalEditarDieta,
+    handleCloseModalEditarDieta,
     handleCriarDieta,
+    handleEditarDieta,
+    handleExcluirDieta,
   } = useAcompanhamentoAnimalManager();
 
   if (loading) {
@@ -62,20 +68,6 @@ const AcompanhamentoAnimal = () => {
     // Mostra Skeleton apenas no load inicial
     return <Skeleton active paragraph={{ rows: 8 }} />;
   }
-
-  // O retorno da API aninha os dados do animal dentro do objeto principal retornado
-  const dadosDoAnimal = {
-    id: historico.id,
-    nome: historico.nome,
-    especie: historico.especie,
-    sexo: historico.sexo,
-    idade: historico.idade,
-    faseVida: historico.faseVida,
-    pesoAtual: historico.pesoAtual,
-    condicaoCorporal: historico.condicaoCorporal,
-    raca: historico.raca,
-    tutores: historico.tutores,
-  };
 
   const dietaMaisRecente = historico.acompanhamento.relatorios
     .filter((rel) => rel.dieta) // Filtra apenas relatórios com dieta
@@ -115,7 +107,7 @@ const AcompanhamentoAnimal = () => {
         </Row>
       </Card>
 
-      <CabecalhoAnimal animal={dadosDoAnimal} />
+      <CabecalhoAnimal animal={historico} />
 
       <Divider orientation="left">Histórico de Relatórios</Divider>
 
@@ -123,6 +115,8 @@ const AcompanhamentoAnimal = () => {
         relatorios={historico.acompanhamento.relatorios}
         onOpenModalCriarDieta={handleOpenModalCriarDieta}
         onOpenModalVisualizarDieta={handleOpenModalVisualizarDieta}
+        onOpenModalEditarDieta={handleOpenModalEditarDieta}
+        onExcluirDieta={handleExcluirDieta}
       />
 
       <Modal
@@ -161,6 +155,29 @@ const AcompanhamentoAnimal = () => {
       >
         {/* Renderiza o componente de detalhes com a dieta selecionada */}
         {dietaParaVisualizar && <DetalhesDieta dieta={dietaParaVisualizar} />}
+      </Modal>
+
+      <Modal
+        title={`Editar Dieta da Consulta de ${dayjs(
+          dietaParaEditar?.dataConsulta
+        ).format("DD/MM/YYYY")}`}
+        open={isModalEditarDietaOpen}
+        onCancel={handleCloseModalEditarDieta}
+        footer={null}
+        destroyOnClose
+        width={700}
+      >
+        {dietaParaEditar && (
+          <FormularioDieta
+            onFinish={handleEditarDieta}
+            onCancel={handleCloseModalEditarDieta}
+            // Passamos o initialValues para preencher o formulário
+            initialValues={dietaParaEditar}
+            relatorioId={dietaParaEditar.relatorioId}
+            racoes={racoes}
+            isSubmitting={isSubmitting}
+          />
+        )}
       </Modal>
     </div>
   );

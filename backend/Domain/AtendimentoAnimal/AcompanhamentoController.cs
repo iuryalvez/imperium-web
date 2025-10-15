@@ -59,4 +59,34 @@ public class AcompanhamentoController : ControllerBase
         // Se a criação falhar por dados inválidos, retorna 400.
         return BadRequest(result);
     }
+
+    [HttpPut("dieta/{dietaId}")]
+    [Authorize(Policy = "GerenciaAnimais")]
+    public async Task<IActionResult> UpdateDieta([FromRoute] int dietaId, [FromBody] UpdateDietaDto dto)
+    {
+        var clinicaId = User.GetClaimValue<int>("clinicaId");
+        var result = await _acompanhamentoService.UpdateDietaAsync(dietaId, dto, clinicaId);
+
+        if (result.Succeeded)
+        {
+            return Ok(result);
+        }
+
+        return BadRequest(result);
+    }
+
+    [HttpDelete("dieta/{dietaId}")]
+    [Authorize(Policy = "GerenciaAnimais")]
+    public async Task<IActionResult> DeleteDieta([FromRoute] int dietaId)
+    {
+        var clinicaId = User.GetClaimValue<int>("clinicaId");
+        var result = await _acompanhamentoService.DeleteDietaAsync(dietaId, clinicaId);
+
+        if (result.Succeeded)
+        {
+            return Ok(result);
+        }
+
+        return NotFound(result); // Ou BadRequest, dependendo do erro
+    }
 }

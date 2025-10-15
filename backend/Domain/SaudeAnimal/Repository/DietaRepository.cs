@@ -48,6 +48,7 @@ namespace backend.Domain.SaudeAnimal.Repository
                 .Include(d => d.Racao)
                 .Include(d => d.Relatorio)
                     .ThenInclude(r => r.Consulta)
+                        .ThenInclude(c => c.Animal)
                 .FirstOrDefaultAsync(d => d.Id == dietaId);
         }
 

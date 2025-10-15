@@ -244,11 +244,11 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 }
 
                 // Atualiza os dados de lactação se o tipo de dieta for Lactação
-                    if (dto.TipoDieta == TipoDieta.Lactacao)
-                    {
-                        animal.IsLactanteNumeroFilhotes = dto.IsLactanteNumeroFilhotes ?? animal.IsLactanteNumeroFilhotes;
-                        animal.SemanaLactacao = dto.SemanaLactacao ?? animal.SemanaLactacao;
-                    }
+                if (dto.TipoDieta == TipoDieta.Lactacao)
+                {
+                    animal.IsLactanteNumeroFilhotes = dto.IsLactanteNumeroFilhotes ?? animal.IsLactanteNumeroFilhotes;
+                    animal.SemanaLactacao = dto.SemanaLactacao ?? animal.SemanaLactacao;
+                }
 
                 _logger.LogDebug("Animal (após atualização) pronto para cálculo. ID: {AnimalId}, Peso: {Peso}, Nro Filhotes: {NumFilhotes}, Semana Lactação: {SemanaLactacao}",
             animal.Id, animal.Peso, animal.IsLactanteNumeroFilhotes, animal.SemanaLactacao);
@@ -274,6 +274,54 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 return new ServiceResult { Succeeded = false, Message = "Ocorreu um erro inesperado ao calcular a dieta." };
             }
         }
+
+        public async Task<ServiceResult> UpdateDietaAsync(int dietaId, UpdateDietaDto dto, int clinicaId)
+        {
+            _logger.LogInformation("Iniciando atualização da dieta {DietaId}.", dietaId);
+
+            try
+            {
+                var resultadoRacao = await _racaoService.ObterPorIdEClinicaIdAsync(dto.RacaoId, clinicaId);
+                if (!resultadoRacao.Succeeded)
+                {
+                    return resultadoRacao;
+                }
+                var racao = (Racao)resultadoRacao.Data;
+
+                var resultadoBusca = await _dietaService.UpdateAsync(dietaId, dto, clinicaId, racao);
+                if (!resultadoBusca.Succeeded)
+                {
+                    _logger.LogWarning("Falha ao atualizar a dieta {DietaId}. Motivo: {Motivo}", dietaId, resultadoBusca.Message);
+                    return resultadoBusca;
+                }
+
+                _logger.LogInformation("Dieta {DietaId} atualizada com sucesso.", dietaId);
+                return resultadoBusca;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro inesperado ao atualizar a dieta {DietaId}.", dietaId);
+                return new ServiceResult { Succeeded = false, Message = "Ocorreu um erro inesperado ao atualizar a dieta." };
+            }
+        }
+
         #endregion
+
+        public async Task<ServiceResult> DeleteDietaAsync(int dietaId, int clinicaId)
+        {
+            _logger.LogInformation("Iniciando processo de exclusão da dieta {DietaId}.", dietaId);
+
+            try
+            {
+                await _dietaService.DeleteAsync(dietaId, clinicaId);
+                _logger.LogInformation("Dieta {DietaId} excluída com sucesso.", dietaId);
+                return new ServiceResult { Succeeded = true, Message = "Dieta excluída com sucesso." };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao excluir a dieta {DietaId}.", dietaId);
+                return new ServiceResult { Succeeded = false, Message = "Erro ao excluir a dieta." };
+            }
+        }
     }
 }

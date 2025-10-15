@@ -15,6 +15,10 @@ export const useAcompanhamentoAnimalManager = () => {
   const [relatorioSelecionado, setRelatorioSelecionado] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Estado para o modal de EDIÇÃO de dieta
+  const [isModalEditarDietaOpen, setIsModalEditarDietaOpen] = useState(false);
+  const [dietaParaEditar, setDietaParaEditar] = useState(null);
+
   // Estado para o modal de VISUALIZAÇÃO de dieta
   const [isModalVisualizarDietaOpen, setIsModalVisualizarDietaOpen] =
     useState(false);
@@ -72,6 +76,16 @@ export const useAcompanhamentoAnimalManager = () => {
     setDietaParaVisualizar(null);
   };
 
+  const handleOpenModalEditarDieta = (dieta) => {
+    setDietaParaEditar(dieta);
+    setIsModalEditarDietaOpen(true);
+  };
+
+  const handleCloseModalEditarDieta = () => {
+    setIsModalEditarDietaOpen(false);
+    setDietaParaEditar(null);
+  };
+
   const handleCriarDieta = async (values) => {
     if (!historico?.acompanhamento?.id) return;
 
@@ -95,6 +109,46 @@ export const useAcompanhamentoAnimalManager = () => {
     }
   };
 
+  const handleEditarDieta = async (values) => {
+    if (!dietaParaEditar?.id) return;
+
+    setIsSubmitting(true);
+    try {
+      // Assumindo que você tem uma função 'dietaAPI.editar'
+      const result = await acompanhamentoAPI.editarDieta(
+        dietaParaEditar.id,
+        values
+      );
+      if (result.succeeded) {
+        message.success("Dieta atualizada com sucesso!");
+        handleCloseModalEditarDieta();
+        await fetchHistorico(); // Recarrega os dados
+      } else {
+        message.error(result.message || "Falha ao atualizar dieta.");
+      }
+    } catch (error) {
+      message.error(error.message || "Ocorreu um erro inesperado.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // NOVA: Função para EXCLUIR a dieta
+  const handleExcluirDieta = async (dietaId) => {
+    try {
+      // Assumindo que você tem uma função 'dietaAPI.excluir'
+      const result = await acompanhamentoAPI.deletarDieta(dietaId);
+      if (result.succeeded) {
+        message.success(result.message || "Dieta excluída com sucesso!");
+        await fetchHistorico(); // Recarrega os dados
+      } else {
+        message.error(result.message || "Falha ao excluir dieta.");
+      }
+    } catch (error) {
+      message.error(error.message || "Ocorreu um erro inesperado.");
+    }
+  };
+
   // Retornamos o hook e a função para recarregar
   return {
     historico,
@@ -102,13 +156,19 @@ export const useAcompanhamentoAnimalManager = () => {
     racoes,
     isModalCriarDietaOpen,
     isModalVisualizarDietaOpen,
+    isModalEditarDietaOpen,
     relatorioSelecionado,
     dietaParaVisualizar,
+    dietaParaEditar,
     isSubmitting,
     handleOpenModalCriarDieta,
     handleCloseModalCriarDieta,
     handleOpenModalVisualizarDieta,
     handleCloseModalVisualizarDieta,
-    handleCriarDieta
+    handleOpenModalEditarDieta,
+    handleCloseModalEditarDieta,
+    handleCriarDieta,
+    handleEditarDieta,
+    handleExcluirDieta,
   };
 };

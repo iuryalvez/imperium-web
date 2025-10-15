@@ -131,10 +131,10 @@ namespace backend.Domain.SaudeAnimal.Impl
         {
             _logger.LogInformation("Buscando todas as dietas para o acompanhamento ID {AcompanhamentoId} na clínica ID {ClinicaId}.", acompanhamentoId, clinicaId);
             try
-            {   
+            {
                 var dietas = await _dietaRepository.GetAllByAcompanhamentoIdAsync(acompanhamentoId);
                 _logger.LogInformation("Encontradas {Count} dietas para o acompanhamento ID {AcompanhamentoId}.", dietas.Count(), acompanhamentoId);
-                
+
                 return _mapper.Map<IEnumerable<GetDietaDto>>(dietas);
             }
             catch (Exception ex)
@@ -144,28 +144,52 @@ namespace backend.Domain.SaudeAnimal.Impl
             }
         }
 
-        public async Task<ServiceResult> UpdateAsync(int dietaId, UpdateDietaDto dto, int clinicaId)
+        public async Task<ServiceResult> UpdateAsync(int dietaId, UpdateDietaDto dto, int clinicaId, Racao racao)
         {
-            _logger.LogInformation("Tentando atualizar a dieta ID {DietaId} para a clínica ID {ClinicaId}.", dietaId, clinicaId);
+            _logger.LogInformation("Iniciando atualização e recálculo da dieta ID {DietaId} para a clínica ID {ClinicaId}.", dietaId, clinicaId);
+
             try
             {
-                var dieta = await _dietaRepository.GetByIdWithIncludesAsync(dietaId);
-                if (dieta?.Relatorio?.Consulta?.ClinicaId != clinicaId)
+                // 1. Obter a dieta existente com todas as suas relações (animal, relatório, etc.)
+                var dietaExistente = await _dietaRepository.GetByIdWithIncludesAsync(dietaId);
+                if (dietaExistente?.Relatorio?.Consulta?.ClinicaId != clinicaId)
                 {
                     _logger.LogWarning("Falha ao atualizar: Dieta ID {DietaId} não encontrada ou acesso negado para a clínica ID {ClinicaId}.", dietaId, clinicaId);
                     return new ServiceResult { Succeeded = false, Message = "Dieta não encontrada ou acesso negado." };
                 }
 
-                _mapper.Map(dto, dieta);
-                await _dietaRepository.SaveChangesAsync();
+                // 2. Extrair as entidades necessárias para o cálculo
+                var animal = dietaExistente.Relatorio.Consulta.Animal;
+                var relatorio = dietaExistente.Relatorio;
 
-                _logger.LogInformation("Dieta ID {DietaId} atualizada com sucesso.", dietaId);
-                return new ServiceResult { Succeeded = true, Message = "Dieta atualizada com sucesso." };
+                // 4. Criar um CreateDietaDto a partir do UpdateDietaDto para passar ao método de cálculo
+                //    (Isso assume que UpdateDietaDto tem os mesmos campos de CreateDietaDto, exceto talvez o RelatorioId)
+                var createDto = _mapper.Map<CreateDietaDto>(dto);
+                createDto.RelatorioId = relatorio.Id; // Garante que o RelatorioId correto seja usado
+
+                // 5. Sincronizar o objeto 'animal' em memória com os dados do DTO, assim como fizemos na criação
+                _logger.LogInformation("Sincronizando 'animal' em memória com dados do DTO de atualização.");
+                animal.Peso = createDto.PesoAtual ?? animal.Peso;
+                animal.PesoIdeal = createDto.PesoIdeal ?? animal.PesoIdeal;
+                if (createDto.TipoDieta == TipoDieta.Lactacao)
+                {
+                    animal.IsLactanteNumeroFilhotes = createDto.IsLactanteNumeroFilhotes ?? animal.IsLactanteNumeroFilhotes;
+                    animal.SemanaLactacao = createDto.SemanaLactacao ?? animal.SemanaLactacao;
+                }
+
+                // 6. Chamar o método de cálculo existente, que já contém a lógica de 'Upsert'
+                _logger.LogInformation("Delegando recálculo para o método CalcularOuAtualizarDietaAsync.");
+                var dietaAtualizada = await CalcularOuAtualizarDietaAsync(animal, relatorio, racao, createDto);
+
+                _logger.LogInformation("Dieta ID {DietaId} atualizada e recalculada com sucesso.", dietaId);
+                var dietaDto = _mapper.Map<GetDietaDto>(dietaAtualizada);
+
+                return new ServiceResult { Succeeded = true, Message = "Dieta atualizada com sucesso.", Data = dietaDto };
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao atualizar a dieta ID {DietaId}.", dietaId);
-                throw;
+                throw; // Relança a exceção para ser tratada pelo middleware global de erros
             }
         }
 

@@ -1,11 +1,17 @@
 // src/pages/AcompanhamentoAnimal/components/ListaRelatorios.jsx
 
 import React from "react";
-import { List, Button, Tag, Descriptions, Space } from "antd"; // Adiciona Space
-import { PlusOutlined, EyeOutlined } from "@ant-design/icons"; // Adiciona EyeOutlined
+import { List, Button, Tag, Descriptions, Space, Popconfirm } from "antd"; // Adiciona Space
+import { PlusOutlined, EyeOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons"; // Adiciona EyeOutlined
 import dayjs from "dayjs";
 
-const ListaRelatorios = ({ relatorios, onOpenModalCriarDieta, onOpenModalVisualizarDieta }) => {
+const ListaRelatorios = ({
+  relatorios,
+  onOpenModalCriarDieta,
+  onOpenModalVisualizarDieta,
+  onOpenModalEditarDieta,
+  onExcluirDieta,
+}) => {
   return (
     <List
       itemLayout="vertical"
@@ -14,15 +20,36 @@ const ListaRelatorios = ({ relatorios, onOpenModalCriarDieta, onOpenModalVisuali
         // Lógica para definir quais botões mostrar
         const actions = [];
         if (relatorio.dieta) {
-          // Se tem dieta, mostra o botão de visualizar
+          // Se tem dieta, mostra o grupo de botões de gestão
           actions.push(
-            <Button
-              key="view"
-              icon={<EyeOutlined />}
-              onClick={() => onOpenModalVisualizarDieta(relatorio.dieta)}
-            >
-              Visualizar Dieta
-            </Button>
+            <Space key="diet-actions">
+              <Button
+                icon={<EyeOutlined />}
+                onClick={() => onOpenModalVisualizarDieta(relatorio.dieta)}
+              >
+                Visualizar
+              </Button>
+              <Button
+                icon={<EditOutlined />}
+                onClick={() => onOpenModalEditarDieta(relatorio.dieta)}
+              >
+                Editar
+              </Button>
+              <Popconfirm
+                title="Excluir a Dieta"
+                description="Tem certeza que deseja excluir esta dieta? Esta ação não pode ser desfeita."
+                onConfirm={() => onExcluirDieta(relatorio.dieta.id)}
+                okText="Sim, Excluir"
+                cancelText="Cancelar"
+              >
+                <Button
+                  icon={<DeleteOutlined />}
+                  danger
+                >
+                  Excluir
+                </Button>
+              </Popconfirm>
+            </Space>
           );
         } else {
           // Se não tem dieta, mostra o botão de calcular

@@ -35,4 +35,36 @@ export const acompanhamentoAPI = {
       throw error.response ? error.response.data : error;
     }
   },
+
+  editarDieta: async (dietaId, dadosDieta) => {
+    try {
+      const response = await api.put(
+        // Constrói a URL dinâmica usando a função do arquivo de endpoints
+        endpoints.clinica.acompanhamento.editarDieta(dietaId),
+        // O segundo argumento é o corpo (body) da requisição
+        dadosDieta,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao editar dieta:", error);
+      // Lança o erro para que a camada de UI (componente/hook) possa tratá-lo
+      throw error.response ? error.response.data : error;
+    }
+  },
+  deletarDieta: async (dietaId) => {
+    try {
+      const response = await api.delete(
+        endpoints.clinica.acompanhamento.deletarDieta(dietaId)
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao deletar dieta:", error);
+      throw error.response ? error.response.data : error;
+    }
+  },
 };

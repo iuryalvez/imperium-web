@@ -19,6 +19,9 @@ public class DietaMappingProfile : Profile
         // Mapeamento para ATUALIZAR: De DTO para Entidade (para o futuro)
         // Ignora campos nulos do DTO, permitindo atualizações parciais
         CreateMap<UpdateDietaDto, DietaPersonalizada>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore()) // Ignora o mapeamento do Id para evitar alterações acidentais
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+        CreateMap<UpdateDietaDto, CreateDietaDto>().ForMember(dest => dest.RelatorioId, opt => opt.Ignore());
     }
 }

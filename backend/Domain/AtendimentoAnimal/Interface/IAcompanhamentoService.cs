@@ -15,5 +15,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
         Task<ServiceResult> ObterPorIdAsync(int acompanhamentoId, int clinicaId);
         Task<ServiceResult> ObterPorAnimalIdAsync(int animalId, int clinicaId);
         Task<ServiceResult> ObterHistoricoCompletoAnimalAsync(int acompanhamentoId, int clinicaId);
+        Task<ServiceResult> UpdateDietaAsync(int dietaId, UpdateDietaDto dto, int clinicaId);
+        Task<ServiceResult> DeleteDietaAsync(int dietaId, int clinicaId);
     }
 }
