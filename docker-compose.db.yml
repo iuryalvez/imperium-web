@@ -1,40 +1,50 @@
-# services:
-#   # Serviço para o banco de dados PostgreSQL
-#   db:
-#     image: postgres:15.7
-#     container_name: software_rural_db
-#     environment:
-#       POSTGRES_USER: ${POSTGRES_USER}
-#       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-#       POSTGRES_DB: ${POSTGRES_DB}
-#       USER_BRIS: ${USER_BRIS}
-#       PASSWORD_BRIS: ${PASSWORD_BRIS}
-#       USER_IMPERIUM: ${USER_IMPERIUM}
-#       PASSWORD_IMPERIUM: ${PASSWORD_IMPERIUM}
-#     volumes:
-#       - ./init.sh:/docker-entrypoint-initdb.d/init.sh
-#       - ${DATA_VOLUME_PATH}:/var/lib/postgresql/data
-#     ports:
-#       - "5433:5432"
-#     networks:
-#       - software-rural-net
+services:
+  # Serviço para o banco de dados PostgreSQL
+  db:
+    image: postgres:15.7
+    container_name: software_rural_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      USER_BRIS: ${USER_BRIS}
+      PASSWORD_BRIS: ${PASSWORD_BRIS}
+      USER_IMPERIUM: ${USER_IMPERIUM}
+      PASSWORD_IMPERIUM: ${PASSWORD_IMPERIUM}
+    volumes:
+      - ./init.sh:/docker-entrypoint-initdb.d/init.sh
+      - ${DATA_VOLUME_PATH}:/var/lib/postgresql/data
+      #- postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - software-rural-net
 
-#   pgadmin:
-#       container_name: pgadmin
-#       image: dpage/pgadmin4:latest
-#       environment:
-#         PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER}
-#         PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
-#       ports:
-#         - "5050:80"
-#       volumes:
-#         - ${DATA_PGADMIN_VOLUME_PATH}:/var/lib/pgadmin
-#       networks:
-#         - software-rural-net
-#       depends_on:
-#         - db
+  pgadmin:
+      container_name: pgadmin
+      image: dpage/pgadmin4:latest
+      environment:
+        PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER}
+        PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      ports:
+        - "5132:80"
+      volumes:
+        - ${DATA_PGADMIN_VOLUME_PATH}:/var/lib/pgadmin
+        #- pgadmin-data:/var/lib/pgadmin
+      networks:
+        - software-rural-net
+      depends_on:
+        - db
 
-# networks:
-#   software-rural-net:
-#     driver: bridge
-#     name: software-rural-net
+networks:
+  software-rural-net:
+    name: software-rural-net
+    driver: bridge
+
+volumes:
+  postgres-data:
+    # Opcional: Define um nome amigável (o Docker gerencia o caminho)
+    name: software_rural_postgres_data
+  pgadmin-data:
+    # Opcional: Define um nome amigável (o Docker gerencia o caminho)
+    name: software_rural_pgadmin_data
