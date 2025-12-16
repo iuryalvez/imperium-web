@@ -1,0 +1,5 @@
+# Ignora dependências locais e artefatos de build
+node_modules/
+build/
+.npm/
+npm-debug.log*

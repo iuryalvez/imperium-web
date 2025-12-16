@@ -65,7 +65,6 @@ mono_crash.*
 /backend/[Ll]ogs/
 /backend/appsettings.json
 /backend/appsettings.Development.json
-/backend/appsettings.Production.json
 
 
 # .NET

@@ -1,0 +1,3 @@
+# Ignora artefatos de build locais para não sujar o contexto do Docker
+**/bin/
+**/obj/
