@@ -318,6 +318,9 @@ internal class Program
 
         // O pipeline define a ORDEM em que uma requisição HTTP é processada. A ordem é CRÍTICA.
 
+        // Register custom middleware
+        app.UseMiddleware<backend.Middlewares.SwaggerBasicAuthMiddleware>();
+
         app.UseCors("AllowSpecificOrigin"); // 1. Aplica a política de CORS
 
         app.UseAuthentication(); // 2. Tenta autenticar o usuário (lê o cookie, valida o token)
@@ -326,11 +329,11 @@ internal class Program
         app.MapControllers(); // 4. Roteia a requisição para o Controller apropriado
 
         // Habilita o Swagger e a UI do Swagger apenas em ambiente de desenvolvimento
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1"); });
-        }
+        // if (app.Environment.IsDevelopment())
+        // {
+        app.UseSwagger();
+        app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1"); });
+        // }
 
         app.Run();
     }
