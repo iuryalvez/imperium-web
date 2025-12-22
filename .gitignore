@@ -65,6 +65,7 @@ mono_crash.*
 /backend/[Ll]ogs/
 /backend/appsettings.json
 /backend/appsettings.Development.json
+/backend/Infra/Data/DatabaseSeeder.cs
 
 
 # .NET
