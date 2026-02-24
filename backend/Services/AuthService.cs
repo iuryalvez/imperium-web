@@ -79,27 +79,42 @@ namespace backend.Services
 
             var currentIp = httpContext.Connection.RemoteIpAddress?.ToString();
             var currentUserAgent = httpContext.Request.Headers["User-Agent"].ToString();
-            var acessoLogin = principal.FindFirst("acessoLogin")?.Value;
-            var tokenIpClaim = principal.FindFirst("UsuarioIP")?.Value;
-            var tokenUserAgentClaim = principal.FindFirst("UsuarioAgent")?.Value;
-            var upcIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var perfisClaim = principal.FindFirst("Perfis")?.Value;
-            bool isAdmin = principal.GetClaimValue<bool>("isAdmin");
+
             bool isAtivo = principal.GetClaimValue<bool>("isAtivo");
 
-            if (tokenIpClaim != currentIp || tokenUserAgentClaim != currentUserAgent)
+            var tokenIpClaim = principal.FindFirst("UsuarioIP")?.Value;
+            var tokenUserAgentClaim = principal.FindFirst("UsuarioAgent")?.Value;
+            var acessoLogin = principal.FindFirst("acessoLogin")?.Value;
+
+            // In local environments, IPv4 and IPv6 loopback addresses might alternate.
+            if (tokenIpClaim != currentIp && !(tokenIpClaim == "::1" && currentIp == "127.0.0.1") && !(tokenIpClaim == "127.0.0.1" && currentIp == "::1"))
             {
-                throw new SecurityTokenException("IP ou navegador não correspondem ao token.");
+                throw new SecurityTokenException("IP não corresponde ao token.");
             }
+
+            if (tokenUserAgentClaim != currentUserAgent)
+            {
+                throw new SecurityTokenException("Navegador não corresponde ao token.");
+            }
+
+            // Se for apenas o token de login inicial, a validação de segurança (IP/Agent) já é suficiente.
+            // The login token does not contain 'Perfis' nor 'UsuarioPerfilClinicaId', so we exit early.
+            if (acessoLogin == "true")
+            {
+                return;
+            }
+
+            // TOKEN DE VÍNCULO.
+            bool isAdmin = principal.GetClaimValue<bool>("isAdmin");
+            var upcIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var perfisClaim = principal.FindFirst("Perfis")?.Value;
 
             if (isAdmin)
             {
-                // Administrador: Perfis vêm direto da claim e não há vínculo no banco
                 if (string.IsNullOrEmpty(perfisClaim))
                 {
-                    throw new SecurityTokenException("Administrador sem perfis atribuídos no token.");
+                    throw new SecurityTokenException("Administrador sem perfis atribuídos no token de vínculo.");
                 }
-                Console.WriteLine($"Administrador autenticado com perfis: {perfisClaim}");
             }
             else
             {
@@ -124,7 +139,7 @@ namespace backend.Services
 
                     // Obtém os perfis ativos do dicionário
                     var perfisAtivos = upc.Perfis;
-                    
+
                     Console.WriteLine($"Usuário autenticado com perfis: {string.Join(", ", perfisAtivos)}");
                 }
                 catch (Exception ex)

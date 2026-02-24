@@ -234,10 +234,10 @@ internal class Program
                         var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
 
                         // Validações de consistência (ex: IP, User-Agent)
-                        authService.ValidateUserClaims(context.Principal, context.HttpContext);
+                        await authService.ValidateUserClaims(context.Principal, context.HttpContext);
 
                         // Lógica para renovar o token se ele estiver perto de expirar
-                        tokenService.RenovaToken(context);
+                        await tokenService.RenovaToken(context);
                     }
                     catch (Exception)
                     {
