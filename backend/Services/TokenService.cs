@@ -32,23 +32,27 @@ namespace backend.Services
             try
             {
                 using var _context = _contextFactory.CreateDbContext();
-                
-                if (!int.TryParse(usuarioId, out int idUsuario)) {
+
+                if (!int.TryParse(usuarioId, out int idUsuario))
+                {
                     _logger.LogError("Id do usuário inválido: {usuarioId}", usuarioId);
                     throw new ArgumentException("Id do usuário deve ser um número inteiro válido.");
                 }
 
                 var usuario = _context.Usuarios.AsNoTracking().FirstOrDefault(u => u.Id == idUsuario);
-                if (usuario == null) {
+                if (usuario == null)
+                {
                     _logger.LogError("Usuário não encontrado para Id: {usuarioId}.", usuarioId);
                     throw new Exception("Usuário não encontrado.");
                 }
 
-                if(!usuario.IsAtivo) {
+                if (!usuario.IsAtivo)
+                {
                     _logger.LogInformation("Usuário de Id {usuarioId} está inativo no sistema.", usuarioId);
                 }
 
-                if (!usuario.IsAdmin) {
+                if (!usuario.IsAdmin)
+                {
                     var upc = _context.UsuariosPerfisClinicas
                         .AsNoTracking()
                         .Include(upc => upc.Usuario)
@@ -62,9 +66,9 @@ namespace backend.Services
                 }
 
                 var usuarioNome = usuario.Nome ?? throw new Exception("Nome não encontrado para o usuário");
-                
+
                 var tokenHandler = new JwtSecurityTokenHandler();
-                
+
                 var secret = _configuration["JWT:Secret"];
                 if (string.IsNullOrWhiteSpace(secret))
                 {
@@ -82,12 +86,14 @@ namespace backend.Services
                 };
 
                 if (usuario.IsAdmin) claims.Add(new Claim("isAdmin", "true"));
-                else {
+                else
+                {
                     claims.Add(new Claim("isAdmin", "false"));
                 }
-                
+
                 if (usuario.IsAtivo) claims.Add(new Claim("isAtivo", "true"));
-                else {
+                else
+                {
                     claims.Add(new Claim("isAtivo", "false"));
                 }
 
@@ -100,9 +106,9 @@ namespace backend.Services
                     Audience = _configuration["JWT:Audience"],
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
                 };
-                
+
                 var token = tokenHandler.CreateToken(tokenDescriptor);
-                
+
                 _logger.LogInformation("Token de login gerado com sucesso para o usuário com ID {UsuarioId}.", usuarioId);
                 return tokenHandler.WriteToken(token);
             }
@@ -118,7 +124,7 @@ namespace backend.Services
             try
             {
                 using var _context = _contextFactory.CreateDbContext();
-                
+
                 var userPrincipal = _httpContextAccessor.HttpContext?.User;
 
                 var isAdmin = userPrincipal.Claims.Any(c => c.Type == "isAdmin" && c.Value == "true");
@@ -146,7 +152,7 @@ namespace backend.Services
                 var nomeClinica = upc.Clinica?.NomeClinica ?? throw new Exception("Clínica não encontrada para o usuário.");
 
                 var usuarioNome = upc.Usuario?.Nome ?? throw new Exception("Nome não encontrado para o usuário.");
-                
+
                 // validação da chave JWT
                 var secret = _configuration["JWT:Secret"];
                 if (string.IsNullOrWhiteSpace(secret))
@@ -154,7 +160,7 @@ namespace backend.Services
                     throw new InvalidOperationException("A chave secreta do JWT não foi configurada.");
                 }
                 var key = Encoding.UTF8.GetBytes(secret);
-                
+
                 var now = DateTime.UtcNow;
 
                 var perfisAtivos = upc.Perfis;
@@ -184,7 +190,7 @@ namespace backend.Services
                 var token = tokenHandler.CreateToken(tokenDescriptor);
 
                 _logger.LogInformation("Token de vínculo gerado com sucesso para o vínculo {UsuarioPerfilClinicaId}, associado à clínica {ClinicaId}.", usuarioPerfilClinicaId, clinicaId);
-                
+
                 return tokenHandler.WriteToken(token);
             }
             catch (ArgumentException ex)
@@ -204,9 +210,9 @@ namespace backend.Services
             try
             {
                 using var _context = _contextFactory.CreateDbContext();
-                
+
                 var userPrincipal = _httpContextAccessor.HttpContext?.User;
-                
+
                 if (userPrincipal == null)
                 {
                     throw new UnauthorizedAccessException("Usuário não autenticado.");
@@ -229,7 +235,7 @@ namespace backend.Services
 
                 var nomeClinica = clinica.NomeClinica;
                 var usuarioNome = userPrincipal.FindFirst(ClaimTypes.Name)?.Value ?? "Administrador";
-                
+
                 // Validação da chave JWT
                 var secret = _configuration["JWT:Secret"];
                 if (string.IsNullOrWhiteSpace(secret))
@@ -251,7 +257,7 @@ namespace backend.Services
                     new Claim("isAtivo", "true"), // TODO: fazer verificações nas funções do controlador com essa claim
                     new Claim("Perfis", JsonSerializer.Serialize(perfisAtivos)) // lista de perfis ativos
                 };
-                
+
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
@@ -281,16 +287,19 @@ namespace backend.Services
 
         public void SetCookieToken(HttpContext context, string token)
         {
+            // Lê a configuração do appsettings.json
+            bool isSecure = _configuration.GetValue<bool>("CookieSecure");
+
             context.Response.Cookies.Append("auth_token", token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true, // Caso esteja em produção com HTTPS
-                SameSite = SameSiteMode.Strict,
+                Secure = isSecure,
+                SameSite = SameSiteMode.Lax,
                 Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["JWT:ExpiresInMinutes"]))
             });
         }
 
-        public Task RenovaToken(TokenValidatedContext context) 
+        public Task RenovaToken(TokenValidatedContext context)
         {
             var token = context.SecurityToken;
             var timeToExpire = token.ValidTo - DateTime.UtcNow;

@@ -43,6 +43,7 @@ namespace backend.Domain.Auth
         }
 
         [HttpGet("check")]
+        [Authorize]
         public IActionResult CheckStatus()
         {
             try
