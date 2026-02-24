@@ -287,11 +287,14 @@ namespace backend.Services
 
         public void SetCookieToken(HttpContext context, string token)
         {
+            // Lê a configuração do appsettings.json
+            bool isSecure = _configuration.GetValue<bool>("CookieSecure");
+
             context.Response.Cookies.Append("auth_token", token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true, // Caso esteja em produção com HTTPS
-                SameSite = SameSiteMode.Strict,
+                Secure = isSecure,
+                SameSite = SameSiteMode.Lax,
                 Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["JWT:ExpiresInMinutes"]))
             });
         }

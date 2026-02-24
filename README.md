@@ -1,5 +1,17 @@
 # Imperium  Web
 
+## Notas de Migração (Branch .NET 10)
+
+Atualização de Pacotes: Todos os pacotes Microsoft.EntityFrameworkCore.* e dependências nativas foram atualizados para 10.0.x.
+
+Entity Framework Core 10 (Strictness): O EF 10 proíbe o uso de valores dinâmicos (DateTime.UtcNow, Guid.NewGuid(), ou hashes gerados com salts aleatórios) na injeção inicial de dados (HasData). O DatabaseSeeder foi refatorado para utilizar apenas valores estáticos (incluindo o ConcurrencyStamp do Identity) para evitar a exceção PendingModelChangesWarning e a geração contínua de migrações fantasmas.
+
+Identity: O pacote de integração com o banco foi corrigido para Microsoft.AspNetCore.Identity.EntityFrameworkCore.
+
+AutoMapper (v16.0.0): A assinatura de injeção de dependência mudou. O registro no Program.cs agora exige um delegate de configuração explícito: builder.Services.AddAutoMapper(config => { }, typeof(Program).Assembly);.
+
+Swagger: O pacote Swashbuckle.AspNetCore foi atualizado para a versão 7.2.0 para manter a compatibilidade com o novo framework.
+
 ## Instalação com o docker-compose
 
  Passos:
@@ -16,14 +28,14 @@
 O Runtime do ASP.NET Core permite executar aplicativos feitos com o .NET que não forneceram o runtime. O comando a seguir instala o runtime do ASP.NET Core, que é o runtime mais compatível com o .NET. Em seu terminal, execute os seguintes comandos:
 
     sudo apt-get update && \
-        sudo apt-get install -y aspnetcore-runtime-8.0
+        sudo apt-get install -y aspnetcore-runtime-10.0
 
 ## Instalação para desenvolvimento no Ubuntu 24.04.1 LTS x86_64
 
 O SDK do .NET permite que você desenvolva aplicativos com o .NET. Se você instalar o SDK do .NET, não será necessário instalar o runtime correspondente. Para instalar o SDK do .NET, execute os seguintes comandos:
 
     sudo apt-get update && \
-        sudo apt-get install -y dotnet-sdk-8.0
+        sudo apt-get install -y dotnet-sdk-10.0
     
 Quando você faz a instalação com um gerenciador de pacotes, essas bibliotecas são instaladas automaticamente. Porém, se você instalar o .NET manualmente ou publicar um aplicativo autossuficiente, será necessário verificar se estas bibliotecas estão instaladas:
 
@@ -45,10 +57,10 @@ As dependências podem ser instaladas por meio do comando apt install. O snippet
 
 <!-- - [Playlist de criação de uma aplicação ASP.NET Web API .NET 8](https://www.youtube.com/playlist?list=PL82C6-O4XrHfrGOCPmKmwTO7M0avXyQKc) -->
 - [.NET 8](https://dotnet.microsoft.com/en-us/download)
-- [Documentação do ASP.NET](https://learn.microsoft.com/pt-br/aspnet/core/?view=aspnetcore-8.0)
+- [Documentação do ASP.NET](https://learn.microsoft.com/pt-br/aspnet/core/?view=aspnetcore-10.0)
 - [.NET API Web e Controladores](https://learn.microsoft.com/pt-br/training/modules/build-web-api-aspnet-core/)
-- [Criar APIs Web com o ASP.NET Core](https://learn.microsoft.com/pt-br/aspnet/core/web-api/?view=aspnetcore-8.0&WT.mc_id=dotnet-35129-website)
-- [Tutorial: criar uma API Web com o ASP.NET Core](https://learn.microsoft.com/pt-br/aspnet/core/tutorials/first-web-api?view=aspnetcore-8.0&tabs=visual-studio)
+- [Criar APIs Web com o ASP.NET Core](https://learn.microsoft.com/pt-br/aspnet/core/web-api/?view=aspnetcore-10.0&WT.mc_id=dotnet-35129-website)
+- [Tutorial: criar uma API Web com o ASP.NET Core](https://learn.microsoft.com/pt-br/aspnet/core/tutorials/first-web-api?view=aspnetcore-10.0&tabs=visual-studio)
 - [pgAdmin4](https://www.pgadmin.org/download/pgadmin-4-apt/)
 
 <!-- ## Add your files
@@ -125,7 +137,7 @@ Within a particular ecosystem, there may be a common way of installing things, s
     dotnet tool uninstall -g dotnet-aspnet-codegenerator
     dotnet tool install -g dotnet-aspnet-codegenerator
     dotnet tool update -g dotnet-aspnet-codegenerator
-    dotnet tool install --global dotnet-ef --version 8.*
+    dotnet tool install --global dotnet-ef --version 10.*
     dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
     dotnet aspnet-codegenerator controller -name ItemController -async -api -m DbItem -dc AppDbContext -outDir Controllers
 
@@ -136,8 +148,8 @@ Within a particular ecosystem, there may be a common way of installing things, s
 ## Comandos dotnet
 
     dotnet restore
-    dotnet ef migrations add InitialCreate
-    dotnet ef database update
+    dotnet ef migrations add SuaMigration
+    dotnet ef database update (se houver uma migration nova, basta rodar isso)
     dotnet build
     dotnet run
 
