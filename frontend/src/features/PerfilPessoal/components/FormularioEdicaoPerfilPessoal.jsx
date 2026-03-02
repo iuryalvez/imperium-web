@@ -1,7 +1,12 @@
 import React, { useEffect } from "react";
 import { Form, Input, Button, Tabs } from "antd";
+import { CpfMaskInput, TelefoneMaskInput } from "../../../utils/masks";
 
-const FormularioEdicaoPerfilPessoal = ({ initialValues, onFinish, isSubmitting }) => {
+const FormularioEdicaoPerfilPessoal = ({
+  initialValues,
+  onFinish,
+  isSubmitting,
+}) => {
   const [form] = Form.useForm();
 
   // Reset required to update the form when fetch completes or re-fetches
@@ -25,20 +30,20 @@ const FormularioEdicaoPerfilPessoal = ({ initialValues, onFinish, isSubmitting }
           <Form.Item name="nome" label="Nome" rules={[{ required: true }]}>
             <Input placeholder="Seu nome completo" />
           </Form.Item>
-          <Form.Item name="email" label="E-mail" rules={[{ type: 'email' }]}>
+          <Form.Item name="email" label="E-mail" rules={[{ type: "email" }]}>
             <Input placeholder="seuemail@exemplo.com" />
           </Form.Item>
           <Form.Item name="formacao" label="Formação">
             <Input placeholder="Ex: Médico Veterinário" />
           </Form.Item>
           <Form.Item name="cpf" label="CPF">
-            <Input placeholder="000.000.000-00" />
+            <CpfMaskInput />
           </Form.Item>
           <Form.Item name="telefone" label="Telefone">
-            <Input placeholder="(00) 0000-0000" />
+            <TelefoneMaskInput />
           </Form.Item>
           <Form.Item name="whatsapp" label="WhatsApp">
-            <Input placeholder="(00) 00000-0000" />
+            <TelefoneMaskInput />
           </Form.Item>
         </div>
       ),
@@ -47,24 +52,50 @@ const FormularioEdicaoPerfilPessoal = ({ initialValues, onFinish, isSubmitting }
       key: "2",
       label: "Segurança",
       children: (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+        <div className="flex flex-col gap-4 mt-2 max-w-md">
           <Form.Item name="senhaAtual" label="Senha Atual">
             <Input.Password placeholder="Digite sua senha atual" />
           </Form.Item>
-          <Form.Item name="novaSenha" label="Nova Senha">
+
+          <Form.Item
+            name="novaSenha"
+            label="Nova Senha"
+            hasFeedback // Adds a visual validation icon (check/cross)
+            rules={[
+              { min: 8, message: "A senha deve ter no mínimo 8 caracteres." },
+              {
+                pattern: /[A-Z]/,
+                message: "Deve conter pelo menos uma letra maiúscula.",
+              },
+              {
+                pattern: /[a-z]/,
+                message: "Deve conter pelo menos uma letra minúscula.",
+              },
+              {
+                pattern: /[0-9]/,
+                message: "Deve conter pelo menos um número.",
+              },
+              {
+                pattern: /[^A-Za-z0-9]/,
+                message: "Deve conter pelo menos um caractere especial.",
+              },
+            ]}
+          >
             <Input.Password placeholder="Digite a nova senha" />
           </Form.Item>
+
           <Form.Item
             name="confirmarSenha"
             label="Confirmar Nova Senha"
-            dependencies={['novaSenha']}
+            dependencies={["novaSenha"]}
+            hasFeedback
             rules={[
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  if (!value || getFieldValue('novaSenha') === value) {
+                  if (!value || getFieldValue("novaSenha") === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error('As senhas não coincidem.'));
+                  return Promise.reject(new Error("As senhas não coincidem."));
                 },
               }),
             ]}
@@ -77,13 +108,9 @@ const FormularioEdicaoPerfilPessoal = ({ initialValues, onFinish, isSubmitting }
   ];
 
   return (
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={onFinish}
-    >
+    <Form form={form} layout="vertical" onFinish={onFinish}>
       <Tabs defaultActiveKey="1" items={items} />
-      
+
       <div className="flex justify-end mt-6">
         <Button type="primary" htmlType="submit" loading={isSubmitting}>
           Salvar Alterações

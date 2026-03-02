@@ -10,6 +10,7 @@ namespace backend.Domain.GestaoDeAcesso.Interfaces
     public interface IUsuarioRepository
     {
         Task<Usuario> GetUserByIdAsync(int userId);
+        Task<Usuario> GetUserWithTotalClinicsById(int userId);
         Task<IEnumerable<Usuario>> GetUnlinkedAdminsAsync(List<int> linkedUserIds, int currentUserId);
         Task<IEnumerable<UsuarioPerfilClinica>> GetVinculosByClinicIdAsync(int clinicaId);
         Task<bool> EmailExistsAsync(string email);

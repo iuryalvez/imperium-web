@@ -21,6 +21,13 @@ public class UsuarioRepository : IUsuarioRepository
         return await _context.Usuarios.FindAsync(userId);
     }
 
+    public async Task<Usuario> GetUserWithTotalClinicsById(int userId)
+    {
+        return await _context.Usuarios
+            .Include(u => u.UsuariosPerfisClinicas) // Necessário para o AutoMapper calcular o .Count
+            .FirstOrDefaultAsync(u => u.Id == userId);
+    }
+
     public async Task<IEnumerable<UsuarioPerfilClinica>> GetAllVinculosSistemaAsync()
     {
         return await _context.UsuariosPerfisClinicas

@@ -62,7 +62,9 @@ namespace backend.Domain.GestaoDeAcesso.Mappers
                 .ForMember(dest => dest.DataUltimoAcesso, opt => opt.MapFrom(src => src.Usuario.DataUltimoAcesso))
                 .ForMember(dest => dest.IsAtivoNaClinica, opt => opt.MapFrom(src => !(src.Perfis != null && src.Perfis.Contains("INATIVO"))));
 
-            CreateMap<Usuario, GetMeuPerfilDto>();
+            CreateMap<Usuario, GetMeuPerfilDto>()
+                .ForMember(dest => dest.TotalClinicasVinculadas, opt => opt.MapFrom(src => 
+                    src.UsuariosPerfisClinicas != null ? src.UsuariosPerfisClinicas.Count : 0));
             CreateMap<UpdateMeuPerfilDto, Usuario>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }

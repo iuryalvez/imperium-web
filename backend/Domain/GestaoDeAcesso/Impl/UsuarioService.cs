@@ -451,7 +451,7 @@ public class UsuarioService : IUsuarioService
 
     public async Task<ServiceResult> GetMeuPerfilAsync(int usuarioId)
     {
-        var usuario = await _usuarioRepository.GetUserByIdAsync(usuarioId);
+        var usuario = await _usuarioRepository.GetUserWithTotalClinicsById(usuarioId);
         if (usuario == null)
             return new ServiceResult { Succeeded = false, Message = "Usuário não encontrado." };
 

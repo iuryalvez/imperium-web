@@ -9,5 +9,7 @@ namespace backend.Domain.GestaoDeAcesso.DTOs.PerfilPessoal
         public string? Cpf { get; set; }
         public string? Telefone { get; set; }
         public string? Whatsapp { get; set; }
+        public DateTime DataCadastro { get; set; }
+        public int TotalClinicasVinculadas { get; set; }
     }
 }
