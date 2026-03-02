@@ -19,8 +19,8 @@ public class EditarUsuarioSistemaDto
     public bool IsAdmin { get; set; } // Determina o fluxo da lógica
     public bool IsAtivo { get; set; }
 
-    // --- NOVOS CAMPOS OPCIONAIS ---
-    public string? Senha { get; set; } // Opcional: preencha apenas se for alterar
+    // --- CAMPOS OPCIONAIS ---
+    public string? Senha { get; set; }
     public string? Cpf { get; set; }
     public string? Formacao { get; set; }
     public string? Telefone { get; set; }

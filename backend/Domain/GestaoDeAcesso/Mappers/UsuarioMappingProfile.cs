@@ -1,5 +1,6 @@
 using AutoMapper;
 using backend.Domain.GestaoDeAcesso.DTOs;
+using backend.Domain.GestaoDeAcesso.DTOs.PerfilPessoal;
 using backend.Domain.GestaoDeAcesso.Entities;
 
 namespace backend.Domain.GestaoDeAcesso.Mappers
@@ -60,7 +61,10 @@ namespace backend.Domain.GestaoDeAcesso.Mappers
                 .ForMember(dest => dest.DataCadastro, opt => opt.MapFrom(src => src.Usuario.DataCadastro))
                 .ForMember(dest => dest.DataUltimoAcesso, opt => opt.MapFrom(src => src.Usuario.DataUltimoAcesso))
                 .ForMember(dest => dest.IsAtivoNaClinica, opt => opt.MapFrom(src => !(src.Perfis != null && src.Perfis.Contains("INATIVO"))));
-        }
 
+            CreateMap<Usuario, GetMeuPerfilDto>();
+            CreateMap<UpdateMeuPerfilDto, Usuario>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+        }
     }
 }

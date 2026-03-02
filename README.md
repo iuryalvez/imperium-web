@@ -1,8 +1,8 @@
-# Imperium  Web
+# Imperium Web
 
 ## Notas de Migração (Branch .NET 10)
 
-Atualização de Pacotes: Todos os pacotes Microsoft.EntityFrameworkCore.* e dependências nativas foram atualizados para 10.0.x.
+Atualização de Pacotes: Todos os pacotes Microsoft.EntityFrameworkCore.\* e dependências nativas foram atualizados para 10.0.x.
 
 Entity Framework Core 10 (Strictness): O EF 10 proíbe o uso de valores dinâmicos (DateTime.UtcNow, Guid.NewGuid(), ou hashes gerados com salts aleatórios) na injeção inicial de dados (HasData). O DatabaseSeeder foi refatorado para utilizar apenas valores estáticos (incluindo o ConcurrencyStamp do Identity) para evitar a exceção PendingModelChangesWarning e a geração contínua de migrações fantasmas.
 
@@ -14,14 +14,14 @@ Swagger: O pacote Swashbuckle.AspNetCore foi atualizado para a versão 7.2.0 par
 
 ## Instalação com o docker-compose
 
- Passos:
+Passos:
+
 - Instale o docker-compose (sudo apt install docker-compose)
 - Baixe o projeto Imperium Web do Gitlab (git clone ...URL...)
 - Entre na pasta do Imperium Web (cd imperium-web)
 - Se for a primeira instalação, rode: ./setup.sh
 - Crie o container com o Banco de Dados (sudo docker-compose -f docker-compose.db.yml up)
 - Crie os containers da aplicação backend e frontend (sudo docker-compose up)
-
 
 ## Instalação para rodar a aplicação no Ubuntu 24.04.1 LTS x86_64
 
@@ -36,7 +36,7 @@ O SDK do .NET permite que você desenvolva aplicativos com o .NET. Se você inst
 
     sudo apt-get update && \
         sudo apt-get install -y dotnet-sdk-10.0
-    
+
 Quando você faz a instalação com um gerenciador de pacotes, essas bibliotecas são instaladas automaticamente. Porém, se você instalar o .NET manualmente ou publicar um aplicativo autossuficiente, será necessário verificar se estas bibliotecas estão instaladas:
 
 - ca-certificates
@@ -56,6 +56,7 @@ As dependências podem ser instaladas por meio do comando apt install. O snippet
 ## Tecnologias backend
 
 <!-- - [Playlist de criação de uma aplicação ASP.NET Web API .NET 8](https://www.youtube.com/playlist?list=PL82C6-O4XrHfrGOCPmKmwTO7M0avXyQKc) -->
+
 - [.NET 8](https://dotnet.microsoft.com/en-us/download)
 - [Documentação do ASP.NET](https://learn.microsoft.com/pt-br/aspnet/core/?view=aspnetcore-10.0)
 - [.NET API Web e Controladores](https://learn.microsoft.com/pt-br/training/modules/build-web-api-aspnet-core/)
@@ -74,6 +75,8 @@ As dependências podem ser instaladas por meio do comando apt install. O snippet
     git remote add origin https://gitlab.com/evz-ufg-software-rural/imperium-web.git
     git branch -M main
     git push -uf origin main
+    git push origin main // para subir no gitlab
+    git push github main // para subir no github
 
 <!-- ## Integrate with your tools
 
@@ -147,6 +150,7 @@ Within a particular ecosystem, there may be a common way of installing things, s
 
 ## Comandos dotnet
 
+    dotnet clean
     dotnet restore
     dotnet ef migrations add SuaMigration
     dotnet ef database update (se houver uma migration nova, basta rodar isso)
@@ -205,12 +209,12 @@ Os responsáveis por fazerem as requisições ao banco de dados através dos end
     [Route("api/usuarios")] // ou api/[controller], mas o "[controller]" é capitalizado e isso não é aesthetic
     [ApiController]
     public class UsuarioController : ControllerBase // ControllerBase: padrão seguido
-    { // código do controlador 
+    { // código do controlador
     }
 
 Em program.cs, adicione os controladores, o swagger e o mapeamento dos controladores para o swagger funcionar:
 
-    builder.Services.AddControllers(); 
+    builder.Services.AddControllers();
 
     if (app.Environment.IsDevelopment())
     {
@@ -278,9 +282,7 @@ Definição e implementação das funções encapsuladas do controlador. Usando 
     To begin the development, run `npm start` or `yarn start`.
     To create a production bundle, use `npm run build` or `yarn build`.
 
-
 ## Documentação do frontend
-
 
 <!-- ## Usage
 Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
@@ -306,4 +308,3 @@ For open source projects, say how it is licensed.
 
 ## Project status
 If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers. -->
-

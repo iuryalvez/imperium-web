@@ -37,6 +37,7 @@ import { ConfigProvider, App as AntApp } from "antd";
 import { themeConfig } from "./theme/ant-theme.js";
 import ptBR from "antd/locale/pt_BR";
 import { validateMessages } from "./theme/validateMessages.js";
+import PerfilPessoal from "./features/PerfilPessoal/PerfilPessoal.jsx";
 
 const App = () => {
   return (
@@ -63,6 +64,10 @@ const App = () => {
                 {/* Rotas para usuário logado (sem vínculo escolhido) */}
                 <Route element={<ProtectedRoute requiresLogged />}>
                   <Route element={<LayoutLogged />}>
+                    <Route
+                      path="/sistema/perfil"
+                      element={<PerfilPessoal />}
+                    />
                     <Route
                       path="/sistema/vinculos"
                       element={<ListaDeVinculos />}

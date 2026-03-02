@@ -33,17 +33,13 @@ namespace backend.Services
         /// <exception cref="SecurityTokenException">Lança exceção se o token for inválido.</exception>
         public ClaimsPrincipal ValidateTokenFromCookie(string token)
         {
-            if (string.IsNullOrEmpty(token))
-            {
-                throw new ArgumentNullException(nameof(token), "Token não pode ser nulo ou vazio.");
-            }
+            if (string.IsNullOrEmpty(token)) throw new ArgumentNullException(nameof(token), "Token não pode ser nulo ou vazio.");
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]);
 
             try
             {
-                // Validação do token
                 var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -59,7 +55,7 @@ namespace backend.Services
             }
             catch (Exception ex)
             {
-                // Você pode adicionar logs aqui se necessário
+                _logger.LogWarning(ex, "[AuthService] Falha ao validar a assinatura/validade do token.");
                 throw new SecurityTokenException("Falha ao validar o token.", ex);
             }
         }
@@ -81,46 +77,51 @@ namespace backend.Services
             var currentUserAgent = httpContext.Request.Headers["User-Agent"].ToString();
 
             bool isAtivo = principal.GetClaimValue<bool>("isAtivo");
-
-            var tokenIpClaim = principal.FindFirst("UsuarioIP")?.Value;
+            var tokenIpClaim = principal.FindFirst("UsuarioIp")?.Value;
             var tokenUserAgentClaim = principal.FindFirst("UsuarioAgent")?.Value;
             var acessoLogin = principal.FindFirst("acessoLogin")?.Value;
 
-            // In local environments, IPv4 and IPv6 loopback addresses might alternate.
+            _logger.LogInformation("[AuthService] Validação de Claims iniciada. IP Atual: {CurrentIP}, IP Token: {TokenIP}, Agent Atual: {CurrentAgent}, Agent Token: {TokenAgent}, Acesso Login: {AcessoLogin}",
+                currentIp, tokenIpClaim, currentUserAgent, tokenUserAgentClaim, acessoLogin);
+
             if (tokenIpClaim != currentIp && !(tokenIpClaim == "::1" && currentIp == "127.0.0.1") && !(tokenIpClaim == "127.0.0.1" && currentIp == "::1"))
             {
+                _logger.LogWarning("[AuthService] Rejeitado: IP não corresponde. Token: {TokenIP}, Requisição: {CurrentIP}", tokenIpClaim, currentIp);
                 throw new SecurityTokenException("IP não corresponde ao token.");
             }
 
             if (tokenUserAgentClaim != currentUserAgent)
             {
+                _logger.LogWarning("[AuthService] Rejeitado: Navegador não corresponde.");
                 throw new SecurityTokenException("Navegador não corresponde ao token.");
             }
 
-            // Se for apenas o token de login inicial, a validação de segurança (IP/Agent) já é suficiente.
-            // The login token does not contain 'Perfis' nor 'UsuarioPerfilClinicaId', so we exit early.
             if (acessoLogin == "true")
             {
+                _logger.LogInformation("[AuthService] Token de login básico (apenas sistema) validado com sucesso.");
                 return;
             }
 
-            // TOKEN DE VÍNCULO.
             bool isAdmin = principal.GetClaimValue<bool>("isAdmin");
             var upcIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var perfisClaim = principal.FindFirst("Perfis")?.Value;
+
+            _logger.LogInformation("[AuthService] Validando token de vínculo. IsAdmin: {IsAdmin}, Perfil/VinculoId: {UpcId}, Perfis: {Perfis}", isAdmin, upcIdClaim, perfisClaim);
 
             if (isAdmin)
             {
                 if (string.IsNullOrEmpty(perfisClaim))
                 {
+                    _logger.LogWarning("[AuthService] Administrador não possui perfis definidos no token de simulação.");
                     throw new SecurityTokenException("Administrador sem perfis atribuídos no token de vínculo.");
                 }
+                _logger.LogInformation("[AuthService] Administrador validado com sucesso para simulação de clínica.");
             }
             else
             {
-                // Usuário comum: Precisa validar o vínculo no banco
                 if (!int.TryParse(upcIdClaim, out int upcId))
                 {
+                    _logger.LogWarning("[AuthService] Id de Vínculo não numérico.");
                     throw new SecurityTokenException("O Id contido no token não é um valor numérico válido!");
                 }
 
@@ -133,18 +134,15 @@ namespace backend.Services
 
                     if (upc == null)
                     {
-                        Console.WriteLine($"Erro: Vínculo com ID {upcId} não encontrado.");
+                        _logger.LogError("[AuthService] Vínculo ID {upcId} não encontrado no banco de dados.", upcId);
                         throw new SecurityTokenException("Vínculo do usuário não encontrado no banco de dados.");
                     }
 
-                    // Obtém os perfis ativos do dicionário
-                    var perfisAtivos = upc.Perfis;
-
-                    Console.WriteLine($"Usuário autenticado com perfis: {string.Join(", ", perfisAtivos)}");
+                    _logger.LogInformation("[AuthService] Vínculo comum validado com sucesso. Perfis ativos: {Perfis}", string.Join(", ", upc.Perfis ?? new List<string>()));
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Erro ao validar vínculo no banco de dados: {ex.Message}");
+                    _logger.LogError(ex, "[AuthService] Erro ao buscar vínculo no banco de dados.");
                     throw new SecurityTokenException("Erro interno ao validar o vínculo.");
                 }
             }

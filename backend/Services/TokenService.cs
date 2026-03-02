@@ -80,7 +80,7 @@ namespace backend.Services
                 {
                     new Claim(ClaimTypes.NameIdentifier, usuarioId),
                     new Claim(ClaimTypes.Name, usuarioNome),
-                    new Claim("UsuarioIP", usuarioIp),
+                    new Claim("UsuarioIp", usuarioIp),
                     new Claim("UsuarioAgent", usuarioAgent),
                     new Claim("acessoLogin", "true"),
                 };
@@ -209,8 +209,8 @@ namespace backend.Services
         {
             try
             {
+                _logger.LogInformation("[TokenService] Iniciando geração de Token Vinculo Admin. ClinicaId: {ClinicaId}, Perfis: {Perfis}", clinicaId, JsonSerializer.Serialize(perfisAtivos));
                 using var _context = _contextFactory.CreateDbContext();
-
                 var userPrincipal = _httpContextAccessor.HttpContext?.User;
 
                 if (userPrincipal == null)
@@ -224,6 +224,7 @@ namespace backend.Services
 
                 if (!isAdmin || !isAtivo || string.IsNullOrEmpty(usuarioId))
                 {
+                    _logger.LogWarning("[TokenService] Permissão negada para gerar token de admin. IsAdmin={IsAdmin}, IsAtivo={IsAtivo}, UserId={UserId}", isAdmin, isAtivo, usuarioId);
                     throw new UnauthorizedAccessException("Usuário não possui permissão de acesso.");
                 }
 
@@ -236,27 +237,24 @@ namespace backend.Services
                 var nomeClinica = clinica.NomeClinica;
                 var usuarioNome = userPrincipal.FindFirst(ClaimTypes.Name)?.Value ?? "Administrador";
 
-                // Validação da chave JWT
                 var secret = _configuration["JWT:Secret"];
-                if (string.IsNullOrWhiteSpace(secret))
-                {
-                    throw new InvalidOperationException("A chave secreta do JWT não foi configurada.");
-                }
+                if (string.IsNullOrWhiteSpace(secret)) throw new InvalidOperationException("A chave secreta não foi configurada.");
+
                 var key = Encoding.UTF8.GetBytes(secret);
                 var now = DateTime.UtcNow;
 
                 var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, usuarioId),
-                    new Claim(ClaimTypes.Name, usuarioNome),
-                    new Claim("UsuarioIp", usuarioIp),
-                    new Claim("UsuarioAgent", usuarioAgent),
-                    new Claim("nomeClinica", nomeClinica),
-                    new Claim("clinicaId", clinicaId.ToString()),
-                    new Claim("isAdmin", "true"), // TODO: fazer verificações nas funções do controlador com essa claim
-                    new Claim("isAtivo", "true"), // TODO: fazer verificações nas funções do controlador com essa claim
-                    new Claim("Perfis", JsonSerializer.Serialize(perfisAtivos)) // lista de perfis ativos
-                };
+        {
+            new Claim(ClaimTypes.NameIdentifier, usuarioId),
+            new Claim(ClaimTypes.Name, usuarioNome),
+            new Claim("UsuarioIp", usuarioIp),
+            new Claim("UsuarioAgent", usuarioAgent),
+            new Claim("nomeClinica", nomeClinica),
+            new Claim("clinicaId", clinicaId.ToString()),
+            new Claim("isAdmin", "true"),
+            new Claim("isAtivo", "true"),
+            new Claim("Perfis", JsonSerializer.Serialize(perfisAtivos))
+        };
 
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var tokenDescriptor = new SecurityTokenDescriptor
@@ -270,17 +268,17 @@ namespace backend.Services
                 };
                 var token = tokenHandler.CreateToken(tokenDescriptor);
 
-                _logger.LogInformation("Token de vínculo gerado com sucesso para o administrador {UsuarioId}, clínica {ClinicaId}.", usuarioId, clinicaId);
+                _logger.LogInformation("[TokenService] Token de vínculo gerado com sucesso para o administrador {UsuarioId} na clínica {ClinicaId}.", usuarioId, clinicaId);
                 return tokenHandler.WriteToken(token);
             }
             catch (ArgumentException ex)
             {
-                _logger.LogWarning(ex, "Erro de entrada ao gerar token de vínculo do administrador: {Message}", ex.Message);
+                _logger.LogWarning(ex, "[TokenService] Erro de entrada (Admin): {Message}", ex.Message);
                 throw new BadHttpRequestException("Requisição inválida: " + ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao gerar token de vínculo para o administrador.");
+                _logger.LogError(ex, "[TokenService] Erro genérico ao gerar token admin.");
                 throw new Exception("Erro interno ao gerar token. Tente novamente mais tarde.");
             }
         }

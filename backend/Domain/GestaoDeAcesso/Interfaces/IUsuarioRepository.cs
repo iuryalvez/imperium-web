@@ -17,6 +17,7 @@ namespace backend.Domain.GestaoDeAcesso.Interfaces
         Task<bool> EmailExistsForAnotherUserAsync(string email, int excludeUserId);
         Task<bool> EmailExistsInClinicForAnotherUserAsync(string email, int clinicaId, int userId);
         Task<(IdentityResult, Usuario)> CreateUserAsync(Usuario user, string password);
+        Task<IdentityResult> ChangeUserPasswordAsync(Usuario user, string currentPassword, string newPassword);
         Task AddUserClinicLinkAsync(UsuarioPerfilClinica link);
         Task<bool> ClinicaExistsAsync(int clinicaId);
         Task<Usuario> GetAdminUserByIdAsync(int userId);

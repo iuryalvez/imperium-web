@@ -99,6 +99,11 @@ public class UsuarioRepository : IUsuarioRepository
         return await _context.Users.AnyAsync(u => u.Email == email && u.Id != excludeUserId);
     }
 
+    public async Task<IdentityResult> ChangeUserPasswordAsync(Usuario user, string currentPassword, string newPassword)
+    {
+        return await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+    }
+
     public async Task<IdentityResult> UpdateUserPasswordAsync(Usuario user, string newPassword)
     {
         // UserManager lida com o hash de forma segura

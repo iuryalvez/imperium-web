@@ -1,4 +1,5 @@
 using backend.Domain.GestaoDeAcesso.DTOs;
+using backend.Domain.GestaoDeAcesso.DTOs.PerfilPessoal;
 
 namespace backend.Domain.GestaoDeAcesso.Interfaces
 {
@@ -13,5 +14,7 @@ namespace backend.Domain.GestaoDeAcesso.Interfaces
         Task<ServiceResult> UpdateUsuarioClinicaAsync(EditarUsuarioClinicaDto dto);
         Task<ServiceResult> UnlinkUserFromClinicAsync(int upcId);
         Task<ServiceResult> SetUserActivationStatusAsync(SetUserStatusDto dto);
+        Task<ServiceResult> GetMeuPerfilAsync(int usuarioId);
+        Task<ServiceResult> UpdateMeuPerfilAsync(int usuarioId, UpdateMeuPerfilDto dto);
     }
 }

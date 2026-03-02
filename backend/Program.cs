@@ -188,7 +188,7 @@ internal class Program
         /// Configura o sistema de autenticação, definindo o JWT (Bearer) como o método padrão.
         /// A API irá esperar um token JWT para autenticar as requisições.
         /// </summary>
-        builder.Services.AddAuthentication(options =>
+        _ = builder.Services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;

@@ -16,7 +16,12 @@ const FormAcessarClinica = ({ clinica, onSuccess }) => {
   const [form] = Form.useForm();
 
   const handleSubmit = async ({ perfis }) => {
-    await escolherVinculoAdmin(clinica.id, perfis, clinica.nomeClinica);
+    console.log("[FormAcessarClinica] Submit interceptado. Dados a enviar:");
+    console.log("-> Clinica ID:", clinica.id);
+    console.log("-> Perfis Selecionados:", perfis);
+    
+    // Removi o 'clinica.nomeClinica' que estava sobrando caso sua API/Context não o espere
+    await escolherVinculoAdmin(clinica.id, perfis);
     if (onSuccess) {
       onSuccess();
     }

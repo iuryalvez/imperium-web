@@ -36,6 +36,10 @@ const endpoints = {
       setStatus: (usuarioId) =>
         `${API_BASE_URL}/sistema/usuarios/${usuarioId}/status`,
       // deletar: (usuarioId) => `${API_BASE_URL}/sistema/usuarios/${usuarioId}`, // acredito que funciona mas estamos usando o setStatus como soft delete por enquanto
+      perfil : {
+        check: `${API_BASE_URL}/sistema/perfil`,
+        editar: `${API_BASE_URL}/sistema/perfil`,
+      },
     },
     raca: {
       listar: `${API_BASE_URL}/sistema/racas`,
