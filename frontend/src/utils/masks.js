@@ -1,13 +1,15 @@
-import React from 'react';
-import { IMaskInput } from 'react-imask';
+import { Button } from "antd";
+import React from "react";
+import { IMaskInput } from "react-imask";
+import { SearchOutlined } from '@ant-design/icons';
 
 // Estilo base para os inputs, para manter a consistência
 const inputStyle = {
-  width: '100%',
-  padding: '4px 11px',
-  border: '1px solid #d9d9d9',
-  borderRadius: '6px',
-  fontSize: '14px',
+  width: "100%",
+  padding: "4px 11px",
+  border: "1px solid #d9d9d9",
+  borderRadius: "6px",
+  fontSize: "14px",
 };
 
 /**
@@ -23,6 +25,42 @@ export const CpfMaskInput = (props) => (
     value={props.value}
     onAccept={(value) => props.onChange(value)}
   />
+);
+
+/**
+ * Componente de Input com máscara para CEP e botão de busca integrado.
+ * @param {object} props - Props do Ant Design Form.Item (value, onChange) e customizadas (onSearch, loading)
+ */
+export const CepSearchInput = ({ value, onChange, onSearch, loading }) => (
+  <div style={{ display: "flex", width: "100%" }}>
+    <IMaskInput
+      mask="00000-000"
+      unmask={true}
+      style={{
+        ...inputStyle,
+        borderTopRightRadius: 0,
+        borderBottomRightRadius: 0,
+        borderRight: "none",
+      }}
+      placeholder="00000-000"
+      value={value}
+      onAccept={(val) => onChange && onChange(val)}
+      // Triggers search on Enter key press
+      onKeyPress={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          onSearch(value);
+        }
+      }}
+    />
+    <Button
+      type="primary"
+      icon={<SearchOutlined />}
+      loading={loading}
+      onClick={() => onSearch(value)}
+      style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+    />
+  </div>
 );
 
 /**

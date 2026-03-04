@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { message } from "antd";
 // Importe a sua API configurada para os endpoints /sistema/perfil
-import { perfilAPI } from "../../api/sistema/perfilAPI.js"; 
+import { perfilAPI } from "../../api/sistema/perfilAPI.js";
+import { sanitizePayload, sanitizeToNumbers } from "../../utils/sanitizers.js";
+import { formatarDataCadastroPerfil } from "../../utils/formatters.js";
 
 export const usePerfilPessoalManager = () => {
   const [perfil, setPerfil] = useState(null);
@@ -12,6 +14,10 @@ export const usePerfilPessoalManager = () => {
     setLoading(true);
     try {
       const dados = await perfilAPI.getMeuPerfil();
+      dados.data = {
+        ...dados.data,
+        dataCadastro: formatarDataCadastroPerfil(dados.data.dataCadastro),
+      }
       setPerfil(dados.data);
     } catch (error) {
       message.error(error.message || "Erro ao carregar perfil.");
@@ -27,15 +33,20 @@ export const usePerfilPessoalManager = () => {
   const handleSubmit = async (values) => {
     setIsSubmitting(true);
     try {
+      // Sanitização de máscaras para garantir o [StringLength] do backend
+      const payload = sanitizePayload({
+        ...values,
+        telefone: sanitizeToNumbers(values.telefone),
+        whatsapp: sanitizeToNumbers(values.whatsapp),
+      });
       // Remove campos auxiliares que não estão no DTO (ex: confirmarSenha)
-      const payload = { ...values };
       delete payload.confirmarSenha;
 
       await perfilAPI.updateMeuPerfil(payload);
       message.success("Perfil atualizado com sucesso!");
-      
+
       // Limpa os campos de senha após sucesso e recarrega dados
-      await fetchPerfil(); 
+      await fetchPerfil();
     } catch (error) {
       message.error(error.message || "Erro ao atualizar perfil.");
     } finally {

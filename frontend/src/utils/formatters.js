@@ -14,6 +14,17 @@ export const formatarData = (data) => {
 };
 
 /**
+ * Formata uma data para o padrão DD/MM/YYYY às HH:mm.
+ * Retorna um componente 'Nunca' se a data for nula.
+ * @param {string | Date} data - A data a ser formatada.
+ * @returns {React.Component | string}
+ */
+export const formatarDataCadastroPerfil = (data) => {
+    if (!data) return <Typography.Text type="secondary">Nunca</Typography.Text>;
+    return dayjs(data).format('DD/MM/YYYY');
+};
+
+/**
  * Formata um CPF (12345678900 -> 123.456.789-00).
  * @param {string} cpf - String contendo 11 dígitos.
  * @returns {string} O CPF formatado.

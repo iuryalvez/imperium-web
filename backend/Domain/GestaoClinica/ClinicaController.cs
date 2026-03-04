@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 
 using backend.Services;
-using backend.Infra.Data;
 
 using backend.Domain.GestaoClinica.DTOs;
 using backend.Domain.GestaoClinica.Interface;
@@ -70,21 +68,40 @@ namespace backend.Domain.GestaoClinica
             return NoContent();
         }
 
-        [HttpPut("clinica/editar")]
+        [HttpGet("clinica/dashboard")]
         [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> UpdateOwnClinica([FromBody] EditarClinicaDto dto)
+        public async Task<IActionResult> GetPerfilDashboard()
         {
-            // 1. Obtém o ID da clínica de forma segura a partir do token do usuário logado
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId == 0)
             {
                 return Forbid("Acesso negado. Informação da clínica não encontrada no token.");
             }
 
-            // 2. Delega toda a lógica para o serviço
+            var result = await _clinicaService.GetClinicaDashboardAsync(clinicaId);
+
+            if (!result.Succeeded)
+            {
+                return NotFound(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPut("clinica/editar")]
+        [Authorize(Policy = "GerenciaClinica")]
+        public async Task<IActionResult> UpdateOwnClinica([FromBody] EditarClinicaDto dto)
+        {
+            // Obtém o ID da clínica de forma segura a partir do token do usuário logado
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId == 0)
+            {
+                return Forbid("Acesso negado. Informação da clínica não encontrada no token.");
+            }
+
             var result = await _clinicaService.UpdateOwnClinicAsync(clinicaId, dto);
 
-            // 3. Retorna a resposta com base no resultado do serviço
+            // Retorna a resposta com base no resultado do serviço
             if (!result.Succeeded)
             {
                 // O serviço pode retornar "Não encontrado" ou erros de validação

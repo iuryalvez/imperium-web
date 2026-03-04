@@ -9,6 +9,7 @@ namespace backend.Domain.GestaoClinica.Interface
     {
         Task<IEnumerable<GetClinicaDto>> GetAllAsync();
         Task<GetClinicaDto?> GetByIdAsync(int clinicaId);
+        Task<ServiceResult> GetClinicaDashboardAsync(int clinicaId);
         Task<ServiceResult> CreateAsync(CadastrarClinicaDto dto);
         Task<ServiceResult> UpdateClinicaAsync(EditarClinicaAdminDto dto);
         Task<ServiceResult> UpdateOwnClinicAsync(int clinicaId, EditarClinicaDto dto);

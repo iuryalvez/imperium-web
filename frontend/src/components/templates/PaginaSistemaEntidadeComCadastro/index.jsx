@@ -5,6 +5,7 @@ import { ArrowLeftOutlined, PlusOutlined } from "@ant-design/icons";
 import LoadingSpinner from "../../atoms/LoadingSpinner.jsx";
 import TabelaEntidade from "../../organisms/TabelaEntidade.jsx";
 import FormCadastroEntidade from "../../molecules/FormCadastroEntidade.jsx";
+import { sanitizePayload, sanitizeToNumbers } from "../../../utils/sanitizers.js";
 
 const PaginaSistemaEntidadeComCadastro = ({
   titulo,
@@ -36,23 +37,18 @@ const PaginaSistemaEntidadeComCadastro = ({
     buscarDados();
   }, [buscarDados]);
 
-  const sanitize = (value) => {
-    if (!value) return "";
-    return value.replace(/\D/g, "");
-  };
-
   const handleCadastrar = async (formData) => {
-    let processedData = { ...formData };
+    let formValues = { ...formData };
 
-    processedData = {
-      ...processedData,
-      cpf: sanitize(formData.cpf),
-      cep: sanitize(formData.cep),
-      telefone: sanitize(formData.telefone),
-      whatsapp: sanitize(formData.whatsapp),
-    };
+    formValues = sanitizePayload({
+      ...formValues,
+      cnpj: sanitizeToNumbers(formValues.cnpj),
+      cep: sanitizeToNumbers(formValues.cep),
+      telefone: sanitizeToNumbers(formValues.telefone),
+      whatsapp: sanitizeToNumbers(formValues.whatsapp),
+    });
 
-    return await api.cadastrar(processedData);
+    return await api.cadastrar(formValues);
   };
 
   const handleSucesso = () => {
@@ -71,12 +67,8 @@ const PaginaSistemaEntidadeComCadastro = ({
         >
           <ArrowLeftOutlined className="mr-2" /> Voltar
         </button>
-        <div 
-          className="flex justify-between items-center mb-4"
-        >
-          <h1 
-            className="text-2xl font-bold text-[var(--verde-medio)]"
-          >
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
             {titulo}
           </h1>
           <Button
