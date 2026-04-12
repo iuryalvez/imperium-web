@@ -178,7 +178,7 @@ namespace backend.Migrations
 
                     b.HasIndex("UsuarioId");
 
-                    b.ToTable("UsuariosPerfisClinicas");
+                    b.ToTable("UsuariosPerfisClinicas", (string)null);
                 });
 
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.AcompanhamentoIndividualizado", b =>
@@ -203,7 +203,7 @@ namespace backend.Migrations
                     b.HasIndex("AnimalId")
                         .IsUnique();
 
-                    b.ToTable("AcompanhamentosInds");
+                    b.ToTable("AcompanhamentosInds", (string)null);
                 });
 
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Animal", b =>
@@ -278,7 +278,7 @@ namespace backend.Migrations
 
                     b.HasIndex("RacaId");
 
-                    b.ToTable("Animais");
+                    b.ToTable("Animais", (string)null);
                 });
 
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.AnimalClinica", b =>
@@ -310,7 +310,7 @@ namespace backend.Migrations
 
                     b.HasIndex("ClinicaId");
 
-                    b.ToTable("AnimaisClinicas");
+                    b.ToTable("AnimaisClinicas", (string)null);
                 });
 
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Consulta", b =>
@@ -349,7 +349,7 @@ namespace backend.Migrations
 
                     b.HasIndex("UsuarioId");
 
-                    b.ToTable("Consultas");
+                    b.ToTable("Consultas", (string)null);
                 });
 
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Raca", b =>
@@ -395,7 +395,7 @@ namespace backend.Migrations
 
                     b.HasIndex("ClinicaId");
 
-                    b.ToTable("Racas");
+                    b.ToTable("Racas", (string)null);
 
                     b.HasData(
                         new
@@ -2160,7 +2160,7 @@ namespace backend.Migrations
 
                     b.HasIndex("RacaoId");
 
-                    b.ToTable("Relatorios");
+                    b.ToTable("Relatorios", (string)null);
                 });
 
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Tutor", b =>
@@ -2220,7 +2220,7 @@ namespace backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tutores");
+                    b.ToTable("Tutores", (string)null);
                 });
 
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.TutorAnimal", b =>
@@ -2246,7 +2246,7 @@ namespace backend.Migrations
 
                     b.HasIndex("TutorId");
 
-                    b.ToTable("TutoresAnimais");
+                    b.ToTable("TutoresAnimais", (string)null);
                 });
 
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.TutorClinica", b =>
@@ -2278,7 +2278,7 @@ namespace backend.Migrations
 
                     b.HasIndex("TutorId");
 
-                    b.ToTable("TutoresClinicas");
+                    b.ToTable("TutoresClinicas", (string)null);
                 });
 
             modelBuilder.Entity("backend.Domain.GestaoClinica.Entities.Clinica", b =>
@@ -2351,7 +2351,7 @@ namespace backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Clinicas");
+                    b.ToTable("Clinicas", (string)null);
                 });
 
             modelBuilder.Entity("backend.Domain.GestaoDeAcesso.Entities.Usuario", b =>
@@ -2616,7 +2616,7 @@ namespace backend.Migrations
                     b.HasIndex("RelatorioId")
                         .IsUnique();
 
-                    b.ToTable("DietasPersonalizadas");
+                    b.ToTable("DietasPersonalizadas", (string)null);
                 });
 
             modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.Racao", b =>
@@ -2692,7 +2692,7 @@ namespace backend.Migrations
 
                     b.HasIndex("ClinicaId");
 
-                    b.ToTable("Racoes");
+                    b.ToTable("Racoes", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
