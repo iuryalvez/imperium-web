@@ -292,47 +292,5 @@ namespace backend.Domain.SaudeAnimal.Services
 
             return manutencao + (peso * ((24 * n) + (12 * m)) * fatorL);
         }
-        
-        // Exemplo de como o método ficaria após buscar a fórmula no banco
-        // private double CalcularLactacaoGato(double peso, int numeroFilhotes, int semana, FormulaCalculo formulaDb)
-        // {
-        //     var p = formulaDb.Parametros;
-        //     var pesoMetabolico = Math.Pow(peso, p.Constantes["Potencia"]);
-        //     double manutencao = p.Constantes["ManutencaoMult"] * pesoMetabolico;
-
-        //     // Resgata o vetor do banco de dados
-        //     var fatores = p.FatoresSemana;
-        //     double fatorL = fatores[Math.Clamp(semana - 1, 0, fatores.Count - 1)];
-
-        //     // Resgata as condicionais do banco de dados
-        //     double multiplicadorFilhotes = numeroFilhotes switch
-        //     {
-        //         < 3 => p.FatorFilhoteBaixo ?? 18,
-        //         3 or 4 => p.FatorFilhoteMedio ?? 60,
-        //         > 4 => p.FatorFilhoteAlto ?? 70,
-        //     };
-
-        //     return manutencao + (multiplicadorFilhotes * peso * fatorL);
-        // }
-
-        // private double CalcularLactacaoCao(double peso, int numeroFilhotes, int semana, FormulaCalculo formulaDb)
-        // {
-        //     var p = formulaDb.Parametros;
-        //     var pesoMetabolico = Math.Pow(peso, p.Constantes["Potencia"]);
-        //     double manutencao = p.Constantes["ManutencaoMult"] * pesoMetabolico;
-
-        //     // Resgata o vetor do banco de dados
-        //     var fatores = p.FatoresSemana;
-        //     double fatorL = fatores[Math.Clamp(semana - 1, 0, fatores.Count - 1)];
-
-        //     int n = Math.Clamp(numeroFilhotes, 0, 4);
-        //     int m = numeroFilhotes > 4 ? numeroFilhotes - 4 : 0;
-
-        //     // Utiliza as constantes N e M definidas no banco
-        //     double multN = p.Constantes["MultN"];
-        //     double multM = p.Constantes["MultM"];
-
-        //     return manutencao + (peso * ((multN * n) + (multM * m)) * fatorL);
-        // }
     }
 }

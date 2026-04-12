@@ -5,7 +5,6 @@ using backend.Domain.GestaoDeAcesso.Entities;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.GestaoClinica.Entities;
 using backend.Domain.SaudeAnimal.Entities;
-using System.Text.Json;
 
 namespace backend.Infra.Data
 {
@@ -30,10 +29,6 @@ namespace backend.Infra.Data
         public DbSet<AnimalClinica> AnimaisClinicas { get; set; }
         public DbSet<TutorAnimal> TutoresAnimais { get; set; }
         public DbSet<Raca> Racas { get; set; }
-        public DbSet<CategoriaDieta> CategoriasDieta { get; set; }
-        public DbSet<PerfilMetabolicoConfig> PerfisMetabolicosConfigs { get; set; }
-        public DbSet<PerfilMetabolicoRules> RegrasPerfilMetabolico { get; set; }
-        public DbSet<FormulaCalculo> FormulasCalculo { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -238,32 +233,6 @@ namespace backend.Infra.Data
                 .WithOne(upc => upc.Usuario)
                 .HasForeignKey(upc => upc.UsuarioId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            // PerfilMetabolicoConfig 1:1 PerfilMetabolicoRules
-            // PerfilMetabolicoConfig 1:N RegraPerfilMetabolico
-            modelBuilder.Entity<PerfilMetabolicoConfig>()
-                .HasMany(p => p.Regras)
-                .WithOne(r => r.PerfilMetabolico)
-                .HasForeignKey(r => r.PerfilMetabolicoConfigId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // FormulaCalculo 1:N CategoriaDieta (N:1, N Formulas para 1 Categoria)
-            modelBuilder.Entity<FormulaCalculo>()
-                .HasOne(f => f.CategoriaDieta)
-                .WithMany()
-                .HasForeignKey(f => f.CategoriaDietaId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Maps the dictionary to a JSONB column in PostgreSQL (EF Core 8+ feature).
-            modelBuilder.Entity<FormulaCalculo>()
-                .Property(f => f.Parametros)
-                .HasConversion(
-                    // Serializes the object to JSON when saving to the database
-                    v => JsonSerializer.Serialize(v, new JsonSerializerOptions()),
-                    // Deserializes the JSON string back to the object when reading
-                    v => JsonSerializer.Deserialize<ParametrosFormula>(v, new JsonSerializerOptions()) ?? new ParametrosFormula()
-                )
-                .HasColumnType("jsonb");
 
             DatabaseSeeder.Seed(modelBuilder);
 
