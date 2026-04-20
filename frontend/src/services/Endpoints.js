@@ -28,7 +28,7 @@ const endpoints = {
     usuario: {
       buscarPorNome: (nome) =>
         `${API_BASE_URL}/sistema/usuarios/buscar?nome=${encodeURIComponent(
-          nome
+          nome,
         )}`,
       listar: `${API_BASE_URL}/sistema/usuarios`,
       cadastrar: `${API_BASE_URL}/sistema/usuarios/cadastrar`,
@@ -36,6 +36,10 @@ const endpoints = {
       setStatus: (usuarioId) =>
         `${API_BASE_URL}/sistema/usuarios/${usuarioId}/status`,
       // deletar: (usuarioId) => `${API_BASE_URL}/sistema/usuarios/${usuarioId}`, // acredito que funciona mas estamos usando o setStatus como soft delete por enquanto
+      perfil: {
+        check: `${API_BASE_URL}/sistema/perfil`,
+        editar: `${API_BASE_URL}/sistema/perfil`,
+      },
     },
     raca: {
       listar: `${API_BASE_URL}/sistema/racas`,
@@ -47,11 +51,12 @@ const endpoints = {
   },
   clinica: {
     editar: `${API_BASE_URL}/clinica/editar`,
+    check: `${API_BASE_URL}/clinica/dashboard`, // Nova rota GET do dashboard
     acompanhamento: {
-      getHistoricoCompleto: (acompanhamentoId) => 
+      getHistoricoCompleto: (acompanhamentoId) =>
         `${API_BASE_URL}/clinica/acompanhamentos/${acompanhamentoId}/historico-completo`,
       // Rota para criar uma dieta associada a um acompanhamento
-      criarDieta: (acompanhamentoId) => 
+      criarDieta: (acompanhamentoId) =>
         `${API_BASE_URL}/clinica/acompanhamentos/${acompanhamentoId}/dieta`,
       editarDieta: (dietaId) =>
         `${API_BASE_URL}/clinica/acompanhamentos/dieta/${dietaId}`,
@@ -67,15 +72,20 @@ const endpoints = {
     },
     consulta: {
       listar: `${API_BASE_URL}/clinica/consultas`,
-      detalhes: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}`,
+      detalhes: (consultaId) =>
+        `${API_BASE_URL}/clinica/consultas/${consultaId}`,
       cadastrar: `${API_BASE_URL}/clinica/consultas`, // Rota POST
       editar: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}`, // Rota PUT
-      deletar: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}`,
+      deletar: (consultaId) =>
+        `${API_BASE_URL}/clinica/consultas/${consultaId}`,
     },
     relatorio: {
-      getByConsultaId: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}/relatorio`,
-      upsert: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}/relatorio`, // Rota PUT para criar/editar
-      deletar: (relatorioId) => `${API_BASE_URL}/clinica/relatorios/${relatorioId}`,
+      getByConsultaId: (consultaId) =>
+        `${API_BASE_URL}/clinica/consultas/${consultaId}/relatorio`,
+      upsert: (consultaId) =>
+        `${API_BASE_URL}/clinica/consultas/${consultaId}/relatorio`, // Rota PUT para criar/editar
+      deletar: (relatorioId) =>
+        `${API_BASE_URL}/clinica/relatorios/${relatorioId}`,
     },
     racao: {
       listar: `${API_BASE_URL}/clinica/racoes`,
@@ -96,7 +106,7 @@ const endpoints = {
       cadastrar: `${API_BASE_URL}/clinica/usuarios/cadastrar`,
       editar: `${API_BASE_URL}/clinica/usuarios/editar`,
       setStatus: (upcId) => `${API_BASE_URL}/clinica/vinculos/${upcId}/status`,
-    }
+    },
   },
 };
 

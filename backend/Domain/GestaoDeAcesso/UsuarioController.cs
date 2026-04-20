@@ -7,6 +7,7 @@ using backend.Infra.Data;
 using System.Security.Claims;
 using backend.Domain.GestaoDeAcesso.DTOs;
 using backend.Domain.GestaoDeAcesso.Interfaces;
+using backend.Domain.GestaoDeAcesso.DTOs.PerfilPessoal;
 
 namespace backend.Domain.GestaoDeAcesso
 {
@@ -247,6 +248,30 @@ namespace backend.Domain.GestaoDeAcesso
         {
             var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
             return Ok(claims);
+        }
+
+        // Endpoints de PERFIL PESSOAL (TODOS USUÁRIOS)
+
+        [HttpGet("sistema/perfil")]
+        [Authorize(Policy = "AcessoLoginPolicy")]
+        public async Task<IActionResult> GetMeuPerfil()
+        {
+            var usuarioId = User.GetClaimValue<int>(ClaimTypes.NameIdentifier);
+            var result = await _usuarioService.GetMeuPerfilAsync(usuarioId);
+
+            if (!result.Succeeded) return NotFound(result);
+            return Ok(result);
+        }
+
+        [HttpPut("sistema/perfil")]
+        [Authorize(Policy = "AcessoLoginPolicy")]
+        public async Task<IActionResult> UpdateMeuPerfil([FromBody] UpdateMeuPerfilDto dto)
+        {
+            var usuarioId = User.GetClaimValue<int>(ClaimTypes.NameIdentifier);
+            var result = await _usuarioService.UpdateMeuPerfilAsync(usuarioId, dto);
+
+            if (!result.Succeeded) return BadRequest(result);
+            return Ok(result);
         }
     }
 }

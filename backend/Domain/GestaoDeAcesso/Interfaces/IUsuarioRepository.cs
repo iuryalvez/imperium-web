@@ -10,6 +10,7 @@ namespace backend.Domain.GestaoDeAcesso.Interfaces
     public interface IUsuarioRepository
     {
         Task<Usuario> GetUserByIdAsync(int userId);
+        Task<Usuario> GetUserWithTotalClinicsById(int userId);
         Task<IEnumerable<Usuario>> GetUnlinkedAdminsAsync(List<int> linkedUserIds, int currentUserId);
         Task<IEnumerable<UsuarioPerfilClinica>> GetVinculosByClinicIdAsync(int clinicaId);
         Task<bool> EmailExistsAsync(string email);
@@ -17,6 +18,7 @@ namespace backend.Domain.GestaoDeAcesso.Interfaces
         Task<bool> EmailExistsForAnotherUserAsync(string email, int excludeUserId);
         Task<bool> EmailExistsInClinicForAnotherUserAsync(string email, int clinicaId, int userId);
         Task<(IdentityResult, Usuario)> CreateUserAsync(Usuario user, string password);
+        Task<IdentityResult> ChangeUserPasswordAsync(Usuario user, string currentPassword, string newPassword);
         Task AddUserClinicLinkAsync(UsuarioPerfilClinica link);
         Task<bool> ClinicaExistsAsync(int clinicaId);
         Task<Usuario> GetAdminUserByIdAsync(int userId);

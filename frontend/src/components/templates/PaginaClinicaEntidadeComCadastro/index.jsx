@@ -5,6 +5,7 @@ import { PlusOutlined } from "@ant-design/icons";
 import LoadingSpinner from "../../atoms/LoadingSpinner.jsx";
 import TabelaEntidade from "../../organisms/TabelaEntidade.jsx";
 import FormCadastroEntidade from "../../molecules/FormCadastroEntidade.jsx";
+import { sanitizePayload, sanitizeToNumbers } from "../../../utils/sanitizers.js";
 
 const PaginaClinicaEntidadeComCadastro = ({
   titulo,
@@ -35,23 +36,18 @@ const PaginaClinicaEntidadeComCadastro = ({
     buscarDados();
   }, [buscarDados]);
 
-  const sanitize = (value) => {
-    if (!value) return "";
-    return value.replace(/\D/g, "");
-  };
-
   const handleCadastrar = async (formData) => {
-    let processedData = { ...formData };
+    let formValues = { ...formData };
 
-    processedData = {
-      ...processedData,
-      cpf: sanitize(formData.cpf),
-      cep: sanitize(formData.cep),
-      telefone: sanitize(formData.telefone),
-      whatsapp: sanitize(formData.whatsapp),
-    };
+    formValues = sanitizePayload({
+      ...formValues,
+      cnpj: sanitizeToNumbers(formValues.cnpj),
+      cep: sanitizeToNumbers(formValues.cep),
+      telefone: sanitizeToNumbers(formValues.telefone),
+      whatsapp: sanitizeToNumbers(formValues.whatsapp),
+    });
 
-    return await api.cadastrar(processedData);
+    return await api.cadastrar(formValues);
   };
 
   const handleSucesso = () => {
@@ -100,7 +96,7 @@ const PaginaClinicaEntidadeComCadastro = ({
       </div>
 
       <Modal
-      title={`Cadastro - ${nomeEntidade}`}
+        title={`Cadastro - ${nomeEntidade}`}
         open={modalVisivel}
         onCancel={() => setModalVisivel(false)}
         footer={null}
@@ -108,7 +104,12 @@ const PaginaClinicaEntidadeComCadastro = ({
         destroyOnClose // Boa prática: destrói os estados internos do form ao fechar
         style={{ minWidth: "40vw", maxWidth: "80vw" }}
         styles={{
-          body: { maxHeight: "80vh", overflowY: "auto", overflowX:"hidden", padding: "1px" },
+          body: {
+            maxHeight: "80vh",
+            overflowY: "auto",
+            overflowX: "hidden",
+            padding: "1px",
+          },
         }}
       >
         <FormCadastroEntidade

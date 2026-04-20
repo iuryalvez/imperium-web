@@ -3,6 +3,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -41,7 +42,7 @@ internal class Program
         /// Adiciona o AutoMapper, uma ferramenta para mapear (converter) objetos de um tipo para outro.
         /// Ex: Converter uma entidade do banco (Animal) para um DTO (AnimalDto).
         /// </summary>
-        builder.Services.AddAutoMapper(typeof(Program));
+        builder.Services.AddAutoMapper(config => { }, typeof(Program));
 
         /// <summary>
         /// Adiciona os serviços necessários para que a API funcione com Controllers (padrão MVC/API).
@@ -149,7 +150,9 @@ internal class Program
         /// A string de conexão é lida do arquivo appsettings.json.
         /// </summary>
         builder.Services.AddDbContextFactory<AppDbContext>(options =>
-            options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+        {
+            options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+        });
         #endregion
 
         // ========================================================================
@@ -185,7 +188,7 @@ internal class Program
         /// Configura o sistema de autenticação, definindo o JWT (Bearer) como o método padrão.
         /// A API irá esperar um token JWT para autenticar as requisições.
         /// </summary>
-        builder.Services.AddAuthentication(options =>
+        _ = builder.Services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -234,10 +237,10 @@ internal class Program
                         var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
 
                         // Validações de consistência (ex: IP, User-Agent)
-                        authService.ValidateUserClaims(context.Principal, context.HttpContext);
+                        await authService.ValidateUserClaims(context.Principal, context.HttpContext);
 
                         // Lógica para renovar o token se ele estiver perto de expirar
-                        tokenService.RenovaToken(context);
+                        await tokenService.RenovaToken(context);
                     }
                     catch (Exception)
                     {

@@ -1,6 +1,7 @@
 // Application/Services/UsuarioService.cs
 using AutoMapper;
 using backend.Domain.GestaoDeAcesso.DTOs;
+using backend.Domain.GestaoDeAcesso.DTOs.PerfilPessoal;
 using backend.Domain.GestaoDeAcesso.Entities;
 using backend.Domain.GestaoDeAcesso.Interfaces;
 using backend.Infra.Data;
@@ -445,6 +446,60 @@ public class UsuarioService : IUsuarioService
             await transaction.RollbackAsync();
             // Logar erro 'ex'
             return new ServiceResult { Succeeded = false, Message = "Erro inesperado ao atualizar usuário." };
+        }
+    }
+
+    public async Task<ServiceResult> GetMeuPerfilAsync(int usuarioId)
+    {
+        var usuario = await _usuarioRepository.GetUserWithTotalClinicsById(usuarioId);
+        if (usuario == null)
+            return new ServiceResult { Succeeded = false, Message = "Usuário não encontrado." };
+
+        var data = _mapper.Map<GetMeuPerfilDto>(usuario);
+        return new ServiceResult { Succeeded = true, Data = data };
+    }
+
+    public async Task<ServiceResult> UpdateMeuPerfilAsync(int usuarioId, UpdateMeuPerfilDto dto)
+    {
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            var usuario = await _usuarioRepository.GetUserByIdAsync(usuarioId);
+            if (usuario == null)
+                return new ServiceResult { Succeeded = false, Message = "Usuário não encontrado." };
+
+            if (!string.IsNullOrWhiteSpace(dto.Email) && dto.Email != usuario.Email)
+            {
+                if (await _usuarioRepository.EmailExistsForAnotherUserAsync(dto.Email, usuarioId))
+                    return new ServiceResult { Succeeded = false, Message = "E-mail já está em uso." };
+            }
+
+            _mapper.Map(dto, usuario);
+
+            if (!string.IsNullOrWhiteSpace(dto.NovaSenha))
+            {
+                if (string.IsNullOrWhiteSpace(dto.SenhaAtual))
+                    return new ServiceResult { Succeeded = false, Message = "A senha atual é obrigatória para redefinição." };
+
+                // Validates the current credentials via Identity before applying the new password
+                var passwordResult = await _usuarioRepository.ChangeUserPasswordAsync(usuario, dto.SenhaAtual, dto.NovaSenha);
+                if (!passwordResult.Succeeded)
+                {
+                    await transaction.RollbackAsync();
+                    return new ServiceResult { Succeeded = false, Errors = passwordResult.Errors.Select(e => e.Description).ToList() };
+                }
+            }
+
+            await _usuarioRepository.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return new ServiceResult { Succeeded = true, Message = "Perfil atualizado com sucesso." };
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(ex, "Erro ao atualizar perfil do usuário {UsuarioId}", usuarioId);
+            return new ServiceResult { Succeeded = false, Message = "Erro interno ao atualizar o perfil." };
         }
     }
 }

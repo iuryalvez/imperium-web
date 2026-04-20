@@ -21,6 +21,13 @@ public class UsuarioRepository : IUsuarioRepository
         return await _context.Usuarios.FindAsync(userId);
     }
 
+    public async Task<Usuario> GetUserWithTotalClinicsById(int userId)
+    {
+        return await _context.Usuarios
+            .Include(u => u.UsuariosPerfisClinicas) // Necessário para o AutoMapper calcular o .Count
+            .FirstOrDefaultAsync(u => u.Id == userId);
+    }
+
     public async Task<IEnumerable<UsuarioPerfilClinica>> GetAllVinculosSistemaAsync()
     {
         return await _context.UsuariosPerfisClinicas
@@ -97,6 +104,11 @@ public class UsuarioRepository : IUsuarioRepository
     public async Task<bool> EmailExistsForAnotherUserAsync(string email, int excludeUserId)
     {
         return await _context.Users.AnyAsync(u => u.Email == email && u.Id != excludeUserId);
+    }
+
+    public async Task<IdentityResult> ChangeUserPasswordAsync(Usuario user, string currentPassword, string newPassword)
+    {
+        return await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
     }
 
     public async Task<IdentityResult> UpdateUserPasswordAsync(Usuario user, string newPassword)

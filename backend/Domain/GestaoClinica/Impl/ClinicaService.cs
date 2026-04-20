@@ -34,6 +34,18 @@ public class ClinicaService : IClinicaService
         return _mapper.Map<GetClinicaDto>(clinica);
     }
 
+    public async Task<ServiceResult> GetClinicaDashboardAsync(int clinicaId)
+    {
+        var dashboardData = await _clinicaRepository.GetClinicaDashboardAsync(clinicaId);
+
+        if (dashboardData == null)
+        {
+            return new ServiceResult { Succeeded = false, Message = "Clínica não encontrada." };
+        }
+
+        return new ServiceResult { Succeeded = true, Data = dashboardData };
+    }
+
     public async Task<ServiceResult> CreateAsync(CadastrarClinicaDto dto)
     {
         var clinica = _mapper.Map<Clinica>(dto);
@@ -62,22 +74,22 @@ public class ClinicaService : IClinicaService
 
     public async Task<ServiceResult> UpdateOwnClinicAsync(int clinicaId, EditarClinicaDto dto)
     {
-        // 1. Busca a clínica usando o ID do token, garantindo a segurança
+        // Busca a clínica usando o ID do token, garantindo a segurança
         var clinica = await _clinicaRepository.GetByIdAsync(clinicaId);
         if (clinica == null)
             return new ServiceResult { Succeeded = false, Message = "Clínica não encontrada ou acesso não permitido." };
 
-        // 2. Validação de negócio (ex: CNPJ único)
+        // Validação de negócio (ex: CNPJ único)
         if (!string.IsNullOrWhiteSpace(dto.Cnpj) && await _clinicaRepository.CnpjExistsForAnotherClinicAsync(dto.Cnpj, clinicaId))
         {
             return new ServiceResult { Succeeded = false, Message = "Este CNPJ já está em uso por outra clínica." };
         }
 
-        // 3. O AutoMapper aplica as alterações do DTO na entidade existente
+        // O AutoMapper aplica as alterações do DTO na entidade existente
         // (Ele irá ignorar campos nulos se o DTO tiver propriedades nullable e o Profile estiver configurado)
         _mapper.Map(dto, clinica);
 
-        // 4. Salva as alterações no banco de dados
+        // Salva as alterações no banco de dados
         await _clinicaRepository.SaveChangesAsync();
         return new ServiceResult { Succeeded = true, Message = "Clínica atualizada com sucesso." };
     }

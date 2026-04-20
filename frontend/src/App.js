@@ -16,7 +16,6 @@ import SistemaClinicas from "./pages/Sistema/Clinicas/index.jsx";
 
 import Clinica from "./pages/Clinica/ClinicaInicio/index.jsx";
 import ClinicaInicio from "./pages/Clinica/ClinicaInicio/index.jsx";
-import ClinicaGerenciamento from "./pages/Clinica/ClinicaGerenciamento/index.jsx";
 import TutoresDaClinica from "./pages/Clinica/TutoresDaClinica/index.jsx";
 
 import Sistema from "./features/SistemaInicioAdmin/SistemaInicioAdmin.jsx";
@@ -37,6 +36,8 @@ import { ConfigProvider, App as AntApp } from "antd";
 import { themeConfig } from "./theme/ant-theme.js";
 import ptBR from "antd/locale/pt_BR";
 import { validateMessages } from "./theme/validateMessages.js";
+import PerfilPessoal from "./features/PerfilPessoal/PerfilPessoal.jsx";
+import PerfilClinica from "./features/ClinicaDashboard/PerfilClinica.jsx";
 
 const App = () => {
   return (
@@ -63,6 +64,10 @@ const App = () => {
                 {/* Rotas para usuário logado (sem vínculo escolhido) */}
                 <Route element={<ProtectedRoute requiresLogged />}>
                   <Route element={<LayoutLogged />}>
+                    <Route
+                      path="/sistema/perfil"
+                      element={<PerfilPessoal />}
+                    />
                     <Route
                       path="/sistema/vinculos"
                       element={<ListaDeVinculos />}
@@ -92,7 +97,7 @@ const App = () => {
                     <Route path="/clinica" element={<Clinica />} />
                     <Route
                       path="/clinica/editar"
-                      element={<ClinicaGerenciamento />}
+                      element={<PerfilClinica />}
                     />
                     <Route
                       path="/clinica/animais"

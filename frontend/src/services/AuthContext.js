@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }) => {
         abrirNotificacao(
           "error",
           "Erro de autenticação",
-          "Não foi possível verificar a autenticação."
+          "Não foi possível verificar a autenticação.",
         );
         setIsAuthenticated(false);
         setIsLogged(false);
@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }) => {
         }
       }
     },
-    [abrirNotificacao]
+    [abrirNotificacao],
   );
 
   useEffect(() => {
@@ -98,7 +98,7 @@ export const AuthProvider = ({ children }) => {
         abrirNotificacao(
           "success",
           "Login bem-sucedido!",
-          "Você foi autenticado com sucesso."
+          "Você foi autenticado com sucesso.",
         );
 
         const authData = await checkAuth(false);
@@ -123,13 +123,13 @@ export const AuthProvider = ({ children }) => {
         abrirNotificacao(
           "error",
           "Erro de validação",
-          "Verifique os campos e tente novamente."
+          "Verifique os campos e tente novamente.",
         );
       } else {
         abrirNotificacao(
           "error",
           "Erro inesperado",
-          "Algo deu errado. Por favor, tente novamente."
+          "Algo deu errado. Por favor, tente novamente.",
         );
       }
     } finally {
@@ -145,7 +145,7 @@ export const AuthProvider = ({ children }) => {
         abrirNotificacao(
           "success",
           "Vínculo selecionado!",
-          "Vínculo acessado com sucesso."
+          "Vínculo acessado com sucesso.",
         );
         await checkAuth(false);
         navigate("/clinica/inicio");
@@ -154,7 +154,7 @@ export const AuthProvider = ({ children }) => {
       abrirNotificacao(
         "error",
         "Erro ao selecionar vínculo",
-        "Não foi possível selecionar o vínculo."
+        "Não foi possível selecionar o vínculo.",
       );
       throw error;
     } finally {
@@ -164,29 +164,42 @@ export const AuthProvider = ({ children }) => {
 
   const escolherVinculoAdmin = async (clinicaId, perfis) => {
     setIsLoading(true);
+    console.log("[AuthContext] Invocando escolherVinculoAdmin.");
+    console.log("-> Payload enviado para a API:", { clinicaId, perfis });
+
     try {
       const response = await autenticacaoAPI.escolherVinculoAdmin(
         clinicaId,
-        perfis
+        perfis,
       );
+      console.log("[AuthContext] Resposta da API recebida:", response.data);
+
       if (response.status === 200) {
         abrirNotificacao(
           "success",
           "Vínculo selecionado!",
-          "Vínculo criado com sucesso."
+          "Simulação de clínica iniciada com sucesso.",
+        );
+
+        console.log(
+          "[AuthContext] Chamando checkAuth para atualizar a sessão...",
         );
         await checkAuth(false);
         navigate("/clinica/inicio");
       }
     } catch (error) {
+      console.error(
+        "[AuthContext] Falha ao tentar escolher vínculo admin:",
+        error,
+      );
       abrirNotificacao(
         "error",
         "Erro ao selecionar vínculo",
-        "Não foi possível selecionar o vínculo."
+        "Não foi possível selecionar o vínculo. Verifique o console.",
       );
       throw error;
     } finally {
-      setIsLoading(false); // Desativa o loading global
+      setIsLoading(false);
     }
   };
 
@@ -202,7 +215,7 @@ export const AuthProvider = ({ children }) => {
       abrirNotificacao(
         "info",
         "Troca de vínculo",
-        "Escolha um novo vínculo para continuar."
+        "Escolha um novo vínculo para continuar.",
       );
 
       // 4. Atualiza o estado da aplicação para refletir a mudança no backend.
@@ -220,7 +233,7 @@ export const AuthProvider = ({ children }) => {
       abrirNotificacao(
         "error",
         "Erro ao trocar vínculo",
-        "Não foi possível trocar de vínculo."
+        "Não foi possível trocar de vínculo.",
       );
     } finally {
       setIsLoading(false); // 6. Finaliza o loading.
@@ -234,7 +247,7 @@ export const AuthProvider = ({ children }) => {
       abrirNotificacao(
         "success",
         "Logout realizado",
-        "Você saiu do sistema com sucesso."
+        "Você saiu do sistema com sucesso.",
       );
       await checkAuth();
       navigate("/login");
@@ -242,7 +255,7 @@ export const AuthProvider = ({ children }) => {
       abrirNotificacao(
         "error",
         "Erro ao fazer logout",
-        "Não foi possível realizar o logout."
+        "Não foi possível realizar o logout.",
       );
     } finally {
       setIsLoading(false); // Desativa o loading global

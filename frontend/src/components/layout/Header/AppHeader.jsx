@@ -22,14 +22,6 @@ const AppHeader = () => {
     if (isAuthenticated) {
       return [
         {
-          key: "perfil",
-          label: (
-            <Link to="/clinica/perfil" className="app-header-menu-item">
-              Perfil
-            </Link>
-          ),
-        },
-        {
           key: "trocar",
           label: <span className="app-header-menu-item">Trocar Vínculo</span>,
           onClick: trocarVinculo,
@@ -45,6 +37,14 @@ const AppHeader = () => {
 
     if (isLogged) {
       return [
+        {
+          key: "perfil",
+          label: (
+            <Link to="/sistema/perfil" className="app-header-menu-item">
+              Perfil
+            </Link>
+          ),
+        },
         {
           key: "sair",
           label: <span className="app-header-menu-item">Sair</span>,
