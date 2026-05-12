@@ -2095,6 +2095,13 @@ namespace backend.Migrations
                             Especie = 2,
                             Nome = "Turkish Van",
                             Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 160,
+                            Especie = 2,
+                            Nome = "Sem Raça Definida (SRD)",
+                            Referencia = ""
                         });
                 });
 

@@ -101,7 +101,7 @@ namespace backend.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Nome = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Cpf = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
+                    Cpf = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: false),
                     Telefone = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
                     Whatsapp = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
                     Email = table.Column<string>(type: "text", nullable: true),
@@ -260,7 +260,7 @@ namespace backend.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ClinicaId = table.Column<int>(type: "integer", nullable: false),
                     Especie = table.Column<int>(type: "integer", nullable: false),
-                    Nome = table.Column<string>(type: "text", nullable: true),
+                    Nome = table.Column<string>(type: "text", nullable: false),
                     IsPorcentagem = table.Column<bool>(type: "boolean", nullable: false),
                     Umidade = table.Column<double>(type: "double precision", nullable: false),
                     ProteinaBruta = table.Column<double>(type: "double precision", nullable: false),
@@ -522,6 +522,7 @@ namespace backend.Migrations
                     SemanaLactacao = table.Column<int>(type: "integer", nullable: false),
                     SemanaGestacao = table.Column<int>(type: "integer", nullable: false),
                     RacaoId = table.Column<int>(type: "integer", nullable: false),
+                    TipoDieta = table.Column<int>(type: "integer", nullable: false),
                     DescricaoDieta = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
@@ -577,7 +578,7 @@ namespace backend.Migrations
                         column: x => x.RacaoId,
                         principalTable: "Racoes",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_DietasPersonalizadas_Relatorios_RelatorioId",
                         column: x => x.RelatorioId,
@@ -591,10 +592,10 @@ namespace backend.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Cpf", "DataCadastro", "DataUltimoAcesso", "Email", "EmailConfirmed", "Formacao", "IsAdmin", "IsAtivo", "LockoutEnabled", "LockoutEnd", "Nome", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "Telefone", "TwoFactorEnabled", "UserName", "Whatsapp" },
                 values: new object[,]
                 {
-                    { -4, 0, "1f2196a8-dd33-4905-ba98-3a0b777949de", "01234567893", new DateTime(2025, 9, 15, 1, 21, 34, 360, DateTimeKind.Utc).AddTicks(575), new DateTime(2025, 9, 15, 1, 21, 34, 360, DateTimeKind.Utc).AddTicks(589), "ceron@gsmail.com", true, "Administrador do Sistema", true, true, false, null, "Admin Ceron", "CERON@GSMAIL.COM", "ADMIN CERON", "AQAAAAIAAYagAAAAEIvOAdAfHTC0jQaMqgnNtAB3YmgEJeqqp1B1/E98hR2XpgFVmwsyo0pb+aR4Lvtwbg==", null, false, "08aca275-3ef2-448e-ad2b-b45ca99fd870", "62940302010", false, "ceron", "62940302010" },
-                    { -3, 0, "85b86f42-c722-4e41-ae35-c397e40304c2", "01234567892", new DateTime(2025, 9, 15, 1, 21, 34, 360, DateTimeKind.Utc).AddTicks(532), new DateTime(2025, 9, 15, 1, 21, 34, 360, DateTimeKind.Utc).AddTicks(542), "hugo@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Hugo", "HUGO@GSMAIL.COM", "ADMIN HUGO", "AQAAAAIAAYagAAAAEABIcWyn4BjvHJYHlDzvfrHOAWVZPhKM/Y92mcmjm/qwYIZWJTk/waXPBzre3zvkzw==", null, false, "752242a0-78cb-4197-afa8-a42d41aef7f4", "62910203040", false, "hugo", "62910203040" },
-                    { -2, 0, "c814c888-4fe1-448a-9fde-f448b4a5ed5b", "01234567891", new DateTime(2025, 9, 15, 1, 21, 34, 360, DateTimeKind.Utc).AddTicks(489), new DateTime(2025, 9, 15, 1, 21, 34, 360, DateTimeKind.Utc).AddTicks(504), "rafael@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Rafael", "RAFAEL@GSMAIL.COM", "ADMIN RAFAEL", "AQAAAAIAAYagAAAAEEggTRzQovc7A/iOMk5C/jtMP2PfJYyClJRbx0M0OgX3RK7iQ5ArVDiNCM/kKmUKQQ==", null, false, "16f00e54-a4c3-4762-8551-5ce6f4ccb4e5", "62912345678", false, "admin.rafael", "62912345678" },
-                    { -1, 0, "e37f6333-700a-4de2-aca3-f439208ea316", "01234567890", new DateTime(2025, 9, 15, 1, 21, 34, 360, DateTimeKind.Utc).AddTicks(443), new DateTime(2025, 9, 15, 1, 21, 34, 360, DateTimeKind.Utc).AddTicks(461), "iury@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Iury", "IURY@GSMAIL.COM", "IURY", "AQAAAAIAAYagAAAAEIiOThbrE3wdsdLHfEIndNjnrJNsEWRCGnLPnFuFg4dhO3ZvlVXMET27OM9zkNZSIw==", null, false, "5e416c1f-6880-45e2-90d8-da95dddf8665", "62987654321", false, "admin.iury", "62987654321" }
+                    { -4, 0, "87654321-4321-4321-4321-cba987654321", "01234567893", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "ceron@gsmail.com", true, "Administrador do Sistema", true, true, false, null, "Admin Ceron", "CERON@GSMAIL.COM", "ADMIN CERON", "AQAAAAIAAYagAAAAEEqfDnpAOVKyqg7A7FlvRKFZPdqMTKTlOPRzjPP3uyO/vtYKGA+Bd6wmkUSWOJcEZw==", null, false, "12345678-1234-1234-1234-123456789abc", "62940302010", false, "ceron", "62940302010" },
+                    { -3, 0, "87654321-4321-4321-4321-cba987654321", "01234567892", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "hugo@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Hugo", "HUGO@GSMAIL.COM", "ADMIN HUGO", "AQAAAAIAAYagAAAAEEqfDnpAOVKyqg7A7FlvRKFZPdqMTKTlOPRzjPP3uyO/vtYKGA+Bd6wmkUSWOJcEZw==", null, false, "12345678-1234-1234-1234-123456789abc", "62910203040", false, "hugo", "62910203040" },
+                    { -2, 0, "87654321-4321-4321-4321-cba987654321", "01234567891", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "rafael@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Rafael", "RAFAEL@GSMAIL.COM", "ADMIN RAFAEL", "AQAAAAIAAYagAAAAEEqfDnpAOVKyqg7A7FlvRKFZPdqMTKTlOPRzjPP3uyO/vtYKGA+Bd6wmkUSWOJcEZw==", null, false, "12345678-1234-1234-1234-123456789abc", "62912345678", false, "admin.rafael", "62912345678" },
+                    { -1, 0, "87654321-4321-4321-4321-cba987654321", "01234567890", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "iury@gsmail.com", true, "Desenvolvedor do Sistema", true, true, false, null, "Admin Iury", "IURY@GSMAIL.COM", "IURY", "AQAAAAIAAYagAAAAEEqfDnpAOVKyqg7A7FlvRKFZPdqMTKTlOPRzjPP3uyO/vtYKGA+Bd6wmkUSWOJcEZw==", null, false, "12345678-1234-1234-1234-123456789abc", "62987654321", false, "admin.iury", "62987654321" }
                 });
 
             migrationBuilder.InsertData(
@@ -760,7 +761,8 @@ namespace backend.Migrations
                     { 156, null, 2, "Sphynx", null, null, null, null, null, "" },
                     { 157, null, 2, "Tonkinese", null, null, null, null, null, "" },
                     { 158, null, 2, "Turkish Angora", null, null, null, null, null, "" },
-                    { 159, null, 2, "Turkish Van", null, null, null, null, null, "" }
+                    { 159, null, 2, "Turkish Van", null, null, null, null, null, "" },
+                    { 160, null, 2, "Sem Raça Definida (SRD)", null, null, null, null, null, "" }
                 });
 
             migrationBuilder.CreateIndex(

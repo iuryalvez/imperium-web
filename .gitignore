@@ -7,6 +7,7 @@
 # Dockers Composes
 docker-compose_db_local.yml
 docker-compose.db.yml
+docker-compose.yml
 
 .env
 
