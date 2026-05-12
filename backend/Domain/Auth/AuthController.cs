@@ -28,10 +28,10 @@ namespace backend.Domain.Auth
         private readonly ITokenService _tokenService;
 
         public AuthController(UserManager<Usuario> userManager,
-                              SignInManager<Usuario> signInManager, 
+                              SignInManager<Usuario> signInManager,
                               ILogger<AuthController> logger,
                               IEmailService emailService,
-                              ITokenService tokenService, 
+                              ITokenService tokenService,
                               AppDbContext context)
         {
             _userManager = userManager;
@@ -58,7 +58,8 @@ namespace backend.Domain.Auth
                     return Unauthorized(new { status = "invalido" });
                 }
 
-                if (!User.GetClaimValue<bool>("isAtivo")) {
+                if (!User.GetClaimValue<bool>("isAtivo"))
+                {
                     return Unauthorized(new { status = "inativo" });
                 }
 
@@ -258,33 +259,51 @@ namespace backend.Domain.Auth
         [HttpGet("sistema")]
         public async Task<IActionResult> GetVinculos()
         {
-            var usuarioId = User.GetClaimValue<int>(ClaimTypes.NameIdentifier);
-            if (usuarioId == 0)
+            var usuarioIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(usuarioIdClaim) || !int.TryParse(usuarioIdClaim, out int usuarioId) || usuarioId == 0)
             {
-                return BadRequest("Erro ao identificar usuário.");
+                _logger.LogWarning("Tentativa de acesso aos vínculos com token sem ID de usuário válido.");
+                return BadRequest(new { mensagem = "Erro ao identificar usuário." });
             }
 
-            var vinculos = await _context.UsuariosPerfisClinicas
-                .Where(p => p.UsuarioId == usuarioId && p.Perfis.Any(perfil => perfil != "INATIVO")) // Verifica se há perfis ativos
-                .Select(p => new GetVinculoDto
+            try
+            {
+                // 1. Busca os vínculos do usuário no banco (traduzido perfeitamente para SQL)
+                var vinculosDb = await _context.UsuariosPerfisClinicas
+                    .Include(p => p.Clinica)
+                    .AsNoTracking() // Melhora a performance em queries de leitura
+                    .Where(p => p.UsuarioId == usuarioId)
+                    .ToListAsync();
+
+                // 2. Filtra em memória os vínculos ativos e mapeia para o DTO
+                var vinculos = vinculosDb
+                    .Where(p => p.Perfis != null && p.Perfis.Any(perfil => perfil.ToUpper() != "INATIVO"))
+                    .Select(p => new GetVinculoDto
+                    {
+                        Id = p.Id,
+                        UsuarioId = p.UsuarioId,
+                        ClinicaId = p.ClinicaId,
+                        NomeClinica = p.Clinica?.NomeClinica ?? "Clínica Desconhecida",
+                        Perfis = p.Perfis
+                    })
+                    .ToList();
+
+                if (!vinculos.Any())
                 {
-                    Id = p.Id,
-                    UsuarioId = p.UsuarioId,
-                    ClinicaId = p.ClinicaId,
-                    NomeClinica = p.Clinica.NomeClinica,
-                    Perfis = p.Perfis // Retorna lista de perfis ativos
-                })
-                .ToListAsync();
+                    _logger.LogWarning("Nenhum vínculo ativo encontrado para o usuário {UsuarioId}", usuarioId);
+                    return NotFound(new { mensagem = "Nenhum vínculo disponível ou ativo no momento." });
+                }
 
-            if (!vinculos.Any())
-            {
-                _logger.LogWarning("Nenhum vínculo encontrado para o usuário {UsuarioId}", usuarioId);
-                return NotFound("Nenhum vínculo disponível.");
+                _logger.LogInformation("Retornando {Count} vínculos para o usuário {UsuarioId}", vinculos.Count, usuarioId);
+
+                return Ok(vinculos);
             }
-
-            _logger.LogInformation("Retornando {Count} vínculos para usuário {UsuarioId}", vinculos.Count, usuarioId);
-            
-            return Ok(vinculos);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro interno ao buscar vínculos para o usuário {UsuarioId}", usuarioId);
+                return StatusCode(500, new { mensagem = "Erro interno ao processar a busca de vínculos." });
+            }
         }
 
         [Authorize(Policy = "AcessoLoginOuTodosUsuarios")]

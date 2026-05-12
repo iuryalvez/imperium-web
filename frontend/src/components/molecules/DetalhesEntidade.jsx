@@ -1,12 +1,10 @@
 import React from "react";
 import DetalhesClinica from "./Detalhes/FormDetalhesClinica";
-import DetalhesTutoresDaClinica from "./Detalhes/FormDetalhesTutoresDaClinica";
 import { Button, Typography } from "antd";
 
 // O mapa de componentes continua o mesmo
 const componentesDeDetalhes = {
-  clinicas: DetalhesClinica,
-  tutoresDaClinica: DetalhesTutoresDaClinica,
+  clinicas: DetalhesClinica
 };
 
 const FormDetalhesEntidade = ({ entidade, valores, onCancel }) => {

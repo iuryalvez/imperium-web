@@ -16,7 +16,7 @@ import SistemaClinicas from "./pages/Sistema/Clinicas/index.jsx";
 
 import Clinica from "./pages/Clinica/ClinicaInicio/index.jsx";
 import ClinicaInicio from "./pages/Clinica/ClinicaInicio/index.jsx";
-import TutoresDaClinica from "./pages/Clinica/TutoresDaClinica/index.jsx";
+import TutoresDaClinica from "./features/TutoresDaClinica/TutoresDaClinica.jsx";
 
 import Sistema from "./features/SistemaInicioAdmin/SistemaInicioAdmin.jsx";
 import ListaDeVinculos from "./pages/Sistema/ListaDeVinculos/ListaDeVinculos.jsx";

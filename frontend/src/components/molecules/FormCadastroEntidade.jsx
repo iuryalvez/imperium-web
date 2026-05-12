@@ -2,11 +2,9 @@ import React, { useState } from "react";
 import { Form, Button, message, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import FormularioCadastroClinica from "./Cadastro/CadastroClinicas";
-import FormularioCadastroTutoresDaClinica from "./Cadastro/CadastroTutoresDaClinica";
 
 const componentesDeCadastro = {
-  clinicas: FormularioCadastroClinica,
-  tutoresDaClinica: FormularioCadastroTutoresDaClinica,
+  clinicas: FormularioCadastroClinica
 };
 
 const FormCadastroEntidade = ({

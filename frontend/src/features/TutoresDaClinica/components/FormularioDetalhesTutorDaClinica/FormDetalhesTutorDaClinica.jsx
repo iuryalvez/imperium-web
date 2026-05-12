@@ -1,15 +1,10 @@
 import React from "react";
 import { Descriptions, Typography, Divider, Form } from "antd";
 
-import {
-  formatarCPF,
-  formatarCEP,
-  formatarTelefone
-} from "../../../utils/formatters";
+import { formatarCEP, formatarCPF, formatarTelefone } from "../../../../utils/formatters";
+import { renderAnimais } from "../../../../utils/renderers";
 
-import { renderAnimais } from "../../../utils/renderers";
-
-const DetalhesTutoresDaClinica = ({ valores }) => {
+const FormularioDetalhesTutorDaClinica = ({ valores }) => {
   const naoInformado = (
     <Typography.Text type="secondary">Não informado</Typography.Text>
   );
@@ -80,4 +75,4 @@ const DetalhesTutoresDaClinica = ({ valores }) => {
   );
 };
 
-export default DetalhesTutoresDaClinica;
+export default FormularioDetalhesTutorDaClinica;
