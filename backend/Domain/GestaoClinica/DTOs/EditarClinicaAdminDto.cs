@@ -23,8 +23,17 @@ namespace backend.Domain.GestaoClinica.DTOs
         [StringLength(11, ErrorMessage = "O telefone deve ter no máximo 11 dígitos.")]
         public string? Whatsapp { get; set; }
 
+        // Variável privada para apoiar a interceptação
+        private string? _email;
+
         [EmailAddress(ErrorMessage = "O e-mail não é válido.")]
-        public string? Email { get; set; }
+        public string? Email
+        {
+            get => _email;
+            // Se o valor for uma string vazia ou só com espaços, vira nulo. 
+            // Assim, o [EmailAddress] ignora a validação.
+            set => _email = string.IsNullOrWhiteSpace(value) ? null : value;
+        }
 
         [StringLength(30, ErrorMessage = "O instagram da clínica deve ter no máximo 30 caracteres.")]
         public string? Instagram { get; set; }

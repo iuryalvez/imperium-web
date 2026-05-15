@@ -11,15 +11,13 @@ import LayoutAuthenticated from "./components/layout/LayoutAuthenticated.jsx";
 import Login from "./pages/Login/Login.jsx";
 import Sobre from "./pages/Sobre/index.jsx";
 
-
-import SistemaClinicas from "./pages/Sistema/Clinicas/index.jsx";
-
 import Clinica from "./pages/Clinica/ClinicaInicio/index.jsx";
 import ClinicaInicio from "./pages/Clinica/ClinicaInicio/index.jsx";
 
 import ListaDeVinculos from "./pages/Sistema/ListaDeVinculos/ListaDeVinculos.jsx";
 
 import Sistema from "./features/Sistema/SistemaInicioAdmin/SistemaInicioAdmin.jsx";
+import ClinicasDoSistema from "./features/Sistema/ClinicasDoSistema/ClinicasDoSistema.jsx";
 import UsuariosDoSistema from "./features/Sistema/UsuariosDoSistema/UsuariosDoSistema.jsx";
 import PerfilPessoal from "./features/Sistema/PerfilPessoal/PerfilPessoal.jsx";
 
@@ -80,7 +78,7 @@ const App = () => {
                     <Route path="/sistema" element={<Sistema />} />
                     <Route
                       path="/sistema/clinicas"
-                      element={<SistemaClinicas />}
+                      element={<ClinicasDoSistema />}
                     />
                     <Route
                       path="/sistema/usuarios"
