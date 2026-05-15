@@ -4,11 +4,11 @@ import { Card, Typography, Spin, Alert, Row, Col, Button } from "antd";
 import { autenticacaoAPI } from "../../../api/autenticacaoAPI";
 import { useAuth } from "../../../services/AuthContext";
 
-import "./ListaDeVinculos.css";
+import "./SistemaInicioUsuario.css";
 
 const { Title, Text } = Typography;
 
-const ListaDeVinculos = () => {
+const SistemaInicioUsuario = () => {
   const { escolherVinculo, isLoading } = useAuth();
   const [vinculos, setVinculos] = useState([]);
   const [pageLoading, setPageLoading] = useState(true);
@@ -84,4 +84,4 @@ const ListaDeVinculos = () => {
   );
 };
 
-export default ListaDeVinculos;
+export default SistemaInicioUsuario;
