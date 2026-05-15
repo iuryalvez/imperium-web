@@ -16,19 +16,20 @@ import SistemaClinicas from "./pages/Sistema/Clinicas/index.jsx";
 
 import Clinica from "./pages/Clinica/ClinicaInicio/index.jsx";
 import ClinicaInicio from "./pages/Clinica/ClinicaInicio/index.jsx";
-import TutoresDaClinica from "./features/TutoresDaClinica/TutoresDaClinica.jsx";
 
-import Sistema from "./features/SistemaInicioAdmin/SistemaInicioAdmin.jsx";
 import ListaDeVinculos from "./pages/Sistema/ListaDeVinculos/ListaDeVinculos.jsx";
 
-import UsuariosDoSistema from "./features/UsuariosDoSistema/UsuariosDoSistema.jsx";
-import UsuariosDaClinica from "./features/UsuariosDaClinica/UsuariosDaClinica.jsx";
+import Sistema from "./features/Sistema/SistemaInicioAdmin/SistemaInicioAdmin.jsx";
+import UsuariosDoSistema from "./features/Sistema/UsuariosDoSistema/UsuariosDoSistema.jsx";
+import PerfilPessoal from "./features/Sistema/PerfilPessoal/PerfilPessoal.jsx";
 
-import AnimaisDaClinica from "./features/AnimaisDaClinica/AnimaisDaClinica.jsx";
-import AcompanhamentoAnimal from "./features/AnimaisDaClinica/AcompanhamentoAnimal/AcompanhamentoAnimal.jsx";
-
-import RacoesDaClinica from "./features/RacoesDaClinica/RacoesDaClinica.jsx";
-import ConsultasDaClinica from "./features/ConsultasDaClinica/ConsultasDaClinica.jsx";
+import UsuariosDaClinica from "./features/Clinica/UsuariosDaClinica/UsuariosDaClinica.jsx";
+import AnimaisDaClinica from "./features/Clinica/AnimaisDaClinica/AnimaisDaClinica.jsx";
+import AcompanhamentoAnimal from "./features/Clinica/AnimaisDaClinica/AcompanhamentoAnimal/AcompanhamentoAnimal.jsx";
+import TutoresDaClinica from "./features/Clinica/TutoresDaClinica/TutoresDaClinica.jsx";
+import RacoesDaClinica from "./features/Clinica/RacoesDaClinica/RacoesDaClinica.jsx";
+import ConsultasDaClinica from "./features/Clinica/ConsultasDaClinica/ConsultasDaClinica.jsx";
+import PerfilClinica from "./features/Clinica/ClinicaDashboard/PerfilClinica.jsx";
 
 import ProtectedRoute from "./components/servicesComponents/ProtectedRoute.js";
 
@@ -36,8 +37,6 @@ import { ConfigProvider, App as AntApp } from "antd";
 import { themeConfig } from "./theme/ant-theme.js";
 import ptBR from "antd/locale/pt_BR";
 import { validateMessages } from "./theme/validateMessages.js";
-import PerfilPessoal from "./features/PerfilPessoal/PerfilPessoal.jsx";
-import PerfilClinica from "./features/ClinicaDashboard/PerfilClinica.jsx";
 
 const App = () => {
   return (
