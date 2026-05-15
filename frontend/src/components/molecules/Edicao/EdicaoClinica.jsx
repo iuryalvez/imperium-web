@@ -2,6 +2,7 @@ import React from "react";
 import { Form, Input, Switch, Row, Col, Divider } from "antd";
 import { IMaskInput } from "react-imask";
 import { CnpjMaskInput, TelefoneMaskInput } from "../../../utils/masks";
+import { validarCNPJ } from "../../../utils/validators";
 
 const inputStyle = {
   width: "100%",
@@ -36,7 +37,21 @@ const EdicaoClinica = ({ form }) => {
         <Form.Item label="Nome Fantasia" name="nomeFantasia">
           <Input placeholder="Nome popular da clínica" />
         </Form.Item>
-        <Form.Item label="CNPJ" name="cnpj">
+        <Form.Item
+          label="CNPJ"
+          name="cnpj"
+          rules={[
+            { required: true, message: "O CNPJ é obrigatório" },
+            () => ({
+              validator(_, value) {
+                if (!value || validarCNPJ(value)) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error("CNPJ inválido"));
+              },
+            }),
+          ]}
+        >
           <CnpjMaskInput />
         </Form.Item>
 

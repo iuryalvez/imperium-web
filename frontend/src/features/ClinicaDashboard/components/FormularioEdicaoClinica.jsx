@@ -7,6 +7,7 @@ import {
   TelefoneMaskInput,
 } from "../../../utils/masks";
 import { useCepHandler } from "../../../utils/useCepHandler";
+import { validarCNPJ } from "../../../utils/validators";
 
 const FormularioEdicaoClinica = ({ initialValues, onFinish, isSubmitting }) => {
   const [form] = Form.useForm();
@@ -36,8 +37,21 @@ const FormularioEdicaoClinica = ({ initialValues, onFinish, isSubmitting }) => {
           <Form.Item name="nomeFantasia" label="Nome Fantasia">
             <Input placeholder="Como a clínica é conhecida" maxLength={100} />
           </Form.Item>
-          <Form.Item name="cnpj" label="CNPJ">
-            {/* Utilize sua máscara de CNPJ aqui */}
+          <Form.Item
+            name="cnpj"
+            label="CNPJ"
+            rules={[
+              { required: true, message: "O CNPJ é obrigatório" },
+              () => ({
+                validator(_, value) {
+                  if (!value || validarCNPJ(value)) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error("CNPJ inválido"));
+                },
+              }),
+            ]}
+          >
             <CnpjMaskInput />
           </Form.Item>
           <Form.Item name="logoUrl" label="URL da Logo">

@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Form, Input, Button, Tabs } from "antd";
 import { CpfMaskInput, TelefoneMaskInput } from "../../../utils/masks";
+import { validarCPF } from "../../../utils/validators";
 
 const FormularioEdicaoPerfilPessoal = ({
   initialValues,
@@ -36,7 +37,21 @@ const FormularioEdicaoPerfilPessoal = ({
           <Form.Item name="formacao" label="Formação">
             <Input placeholder="Ex: Médico Veterinário" />
           </Form.Item>
-          <Form.Item name="cpf" label="CPF">
+          <Form.Item
+            name="cpf"
+            label="CPF"
+            rules={[
+              { required: true, message: "O CPF é obrigatório" },
+              () => ({
+                validator(_, value) {
+                  if (!value || validarCPF(value)) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error("CPF inválido"));
+                },
+              }),
+            ]}
+          >
             <CpfMaskInput />
           </Form.Item>
           <Form.Item name="telefone" label="Telefone">

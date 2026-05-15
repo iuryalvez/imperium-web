@@ -11,6 +11,7 @@ import {
   Switch,
 } from "antd";
 import { CpfMaskInput, TelefoneMaskInput } from "../../../../utils/masks";
+import { validarCPF } from "../../../../utils/validators";
 
 const FormEdicaoUsuarioDoSistema = ({
   onFinish,
@@ -69,7 +70,21 @@ const FormEdicaoUsuarioDoSistema = ({
           >
             <Input />
           </Form.Item>
-          <Form.Item label="CPF" name="cpf">
+          <Form.Item
+            label="CPF"
+            name="cpf"
+            rules={[
+              { required: true, message: "O CPF é obrigatório" },
+              () => ({
+                validator(_, value) {
+                  if (!value || validarCPF(value)) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error("CPF inválido"));
+                },
+              }),
+            ]}
+          >
             <CpfMaskInput />
           </Form.Item>
           <Form.Item label="Formação" name="formacao">
@@ -123,7 +138,11 @@ const FormEdicaoUsuarioDoSistema = ({
             </>
           )}
 
-          <Form.Item label="Status de acesso" name="isAtivo" valuePropName="checked">
+          <Form.Item
+            label="Status de acesso"
+            name="isAtivo"
+            valuePropName="checked"
+          >
             <Switch checkedChildren="ATIVO" unCheckedChildren="INATIVO" />
           </Form.Item>
 

@@ -1,6 +1,7 @@
 import React from "react";
 import { Form, Input, Checkbox, Button, Row, Col, Divider, Switch } from "antd";
 import { CpfMaskInput, TelefoneMaskInput } from "../../../../utils/masks";
+import { validarCPF } from "../../../../utils/validators";
 
 const FormEdicaoUsuarioDaClinica = ({
   onFinish,
@@ -54,7 +55,21 @@ const FormEdicaoUsuarioDaClinica = ({
           >
             <Input />
           </Form.Item>
-          <Form.Item label="CPF" name="cpf">
+          <Form.Item
+            label="CPF"
+            name="cpf"
+            rules={[
+              { required: true, message: "O CPF é obrigatório" },
+              () => ({
+                validator(_, value) {
+                  if (!value || validarCPF(value)) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error("CPF inválido"));
+                },
+              }),
+            ]}
+          >
             <CpfMaskInput />
           </Form.Item>
           <Form.Item label="Formação" name="formacao">

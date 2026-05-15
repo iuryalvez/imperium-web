@@ -125,7 +125,7 @@ internal class Program
             options.AddPolicy("AllowSpecificOrigin", policyBuilder =>
             {
                 policyBuilder.WithOrigins(
-                    "https://200.137.215.116:3001", // Origem de produção
+                    "https://200.137.215.128:3001", // Origem de produção
                     "https://frontend-imperium:3001", // Origem via Docker Compose/rede interna
                     "http://localhost:5050", // Origem de desenvolvimento (ex: Swagger)
                     "http://localhost:3000", // Origem de desenvolvimento (ex: React, Angular)

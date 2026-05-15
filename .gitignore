@@ -1,9 +1,3 @@
-# appsettings de Produção
-/backend/appsettings.Production.json
-
-# Seeder do Database
-/backend/Data/DatabaseSeeder.cs
-
 # Dockers Composes
 docker-compose_db_local.yml
 docker-compose.db.yml
@@ -66,8 +60,12 @@ mono_crash.*
 /backend/[Ll]ogs/
 /backend/appsettings.json
 /backend/appsettings.Development.json
+/backend/appsettings.Production.json
 /backend/Infra/Data/DatabaseSeeder.cs
+/backend/backend.csproj.lscache
+/backend/.vscode/settings.json
 
+.vscode/settings.json
 
 # .NET
 project.lock.json

@@ -1,7 +1,12 @@
 import React from "react";
 import { Descriptions, Typography, Divider, Form } from "antd";
+import dayjs from "dayjs";
 
-import { formatarCEP, formatarCPF, formatarTelefone } from "../../../../utils/formatters";
+import {
+  formatarCEP,
+  formatarCPF,
+  formatarTelefone,
+} from "../../../../utils/formatters";
 import { renderAnimais } from "../../../../utils/renderers";
 
 const FormularioDetalhesTutorDaClinica = ({ valores }) => {
@@ -10,15 +15,20 @@ const FormularioDetalhesTutorDaClinica = ({ valores }) => {
   );
 
   return (
-    <Form>
-      <Descriptions title="Dados Pessoais" bordered column={1}>
-        <Descriptions.Item label="Nome Completo">
+    <Form layout="vertical">
+      <Descriptions title="Dados Pessoais" bordered column={{ xs: 1, sm: 2 }}>
+        <Descriptions.Item label="Nome Completo" span={2}>
           {valores.nome ?? naoInformado}
         </Descriptions.Item>
         <Descriptions.Item label="CPF">
           {formatarCPF(valores.cpf) ?? naoInformado}
         </Descriptions.Item>
-        <Descriptions.Item label="E-mail">
+        <Descriptions.Item label="Data de Cadastro">
+          {valores.dataCadastro 
+            ? dayjs(valores.dataCadastro).format("DD/MM/YYYY HH:mm") 
+            : naoInformado}
+        </Descriptions.Item>
+        <Descriptions.Item label="E-mail" span={2}>
           {valores.email ? (
             <Typography.Link href={`mailto:${valores.email}`}>
               {valores.email}
@@ -31,7 +41,7 @@ const FormularioDetalhesTutorDaClinica = ({ valores }) => {
 
       <Divider />
 
-      <Descriptions title="Contato" bordered column={1}>
+      <Descriptions title="Contato" bordered column={{ xs: 1, sm: 2 }}>
         <Descriptions.Item label="Telefone Principal">
           {formatarTelefone(valores.telefone) ?? naoInformado}
         </Descriptions.Item>
@@ -51,22 +61,29 @@ const FormularioDetalhesTutorDaClinica = ({ valores }) => {
 
       <Divider />
 
-      <Descriptions title="Endereço" bordered column={2}>
-        <Descriptions.Item label="CEP" span={2}>
+      <Descriptions title="Endereço" bordered column={{ xs: 1, sm: 2 }}>
+        <Descriptions.Item label="CEP">
           {formatarCEP(valores.cep) ?? naoInformado}
         </Descriptions.Item>
-        <Descriptions.Item label="Endereço" span={2}>
-          {valores.endereco ?? naoInformado}
+        <Descriptions.Item label="Bairro">
+          {valores.bairro ?? naoInformado}
         </Descriptions.Item>
-        <Descriptions.Item label="Número">
-          {valores.endNumero || naoInformado}
+        <Descriptions.Item label="Logradouro" span={2}>
+          {valores.logradouro ?? naoInformado}
+        </Descriptions.Item>
+        <Descriptions.Item label="Complemento">
+          {valores.complemento ?? naoInformado}
+        </Descriptions.Item>
+        <Descriptions.Item label="Cidade/Estado">
+          {valores.cidade && valores.uf 
+            ? `${valores.cidade} - ${valores.uf}` 
+            : (valores.cidade || valores.uf || naoInformado)}
         </Descriptions.Item>
       </Descriptions>
 
       <Divider />
 
       <Descriptions title="Animais Associados" bordered column={1}>
-        {/* Assumindo que `valores.animais` é um array de objetos animal */}
         <Descriptions.Item label="Animais">
           {renderAnimais(valores.animais)}
         </Descriptions.Item>
