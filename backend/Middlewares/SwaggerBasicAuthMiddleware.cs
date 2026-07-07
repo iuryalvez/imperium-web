@@ -19,7 +19,7 @@ namespace backend.Middlewares
         public async Task InvokeAsync(HttpContext context)
         {
             // Check if request is for swagger endpoint
-            if (context.Request.Path.StartsWithSegments("/swagger"))
+            if (context.Request.Path.StartsWithSegments("/api/docs") || context.Request.Path.StartsWithSegments("/swagger"))
             {
                 string authHeader = context.Request.Headers["Authorization"];
 

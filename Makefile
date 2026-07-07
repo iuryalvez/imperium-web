@@ -102,11 +102,16 @@ seed:
 # 	$(COMPOSE) exec $(SERVICE_API) npm run seed
 
 update:
-	git pull
 	sudo docker compose up -d --build
 	sudo make migrator
 	sudo docker image prune -f
-	sudo docker exec nginx-software-rural nginx -s reload
+	@echo ""
+	@echo "======================================================================"
+	@echo " APLICAÇÃO ATUALIZADA COM SUCESSO!"
+	@echo " Para aplicar as rotas, acesse o proxy global e reinicie o serviço:"
+	@echo " -> cd ~/https-server && sudo make restart"
+	@echo "======================================================================"
+	@echo ""
 
 # Remove containers, redes e imagens, mas PRESERVA o banco de dados (seguro)
 clean:

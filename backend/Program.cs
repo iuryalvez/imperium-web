@@ -330,12 +330,19 @@ internal class Program
 
         app.MapControllers(); // 4. Roteia a requisição para o Controller apropriado
 
-        // Habilita o Swagger e a UI do Swagger apenas em ambiente de desenvolvimento
-        // if (app.Environment.IsDevelopment())
-        // {
-        app.UseSwagger();
-        app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1"); });
-        // }
+        if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
+        {
+            app.UseSwagger(c =>
+            {
+                c.RouteTemplate = "api/docs/{documentName}/swagger.json";
+            });
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/api/docs/v1/swagger.json", "API v1");
+                c.RoutePrefix = "api/docs";
+            });
+        }
 
         app.Run();
     }

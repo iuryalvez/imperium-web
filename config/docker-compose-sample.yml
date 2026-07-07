@@ -15,6 +15,15 @@ services:
     networks:
       - software-rural-network
 
+  pgadmin-imperium:
+    image: dpage/pgadmin4
+    container_name: pgadmin_imperium
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - software-rural-network
+
   backend-imperium:
     container_name: backend-imperium
     build:
