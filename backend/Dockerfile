@@ -1,4 +1,4 @@
-# Estágio 1: Build (usando o SDK completo do .NET 8)
+# Estágio 1: Build (usando o SDK completo do .NET 10)
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
@@ -16,7 +16,7 @@ COPY . .
 WORKDIR "/src/."
 RUN dotnet publish "backend.csproj" -c Release -o /app/publish
 
-# Estágio 2: Final (usando o runtime leve do ASP.NET 8)
+# Estágio 2: Final (usando o runtime leve do ASP.NET 10)
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
 WORKDIR /app
 COPY --from=build /app/publish .
