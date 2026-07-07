@@ -1,82 +1,68 @@
 services:
-  # Serviço do Banco de Dados PostgreSQL
-  db:
+  db-imperium:
     image: postgres:16-alpine
-    container_name: imperium_db
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      # Expõe a porta do Postgres para a máquina host (para acesso via DBeaver, etc.)
-      # Formato: <porta-host>:<porta-container>
-      - "5434:5432"
+    container_name: imperium_database
+    env_file:
+      - .env
     volumes:
-      # Persiste os dados do banco em um volume nomeado
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_imperium_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - software-rural-network
 
-  # Serviço da API Backend (ASP.NET Core)
-  api:
-    container_name: imperium_api
-    # Constrói a imagem a partir do Dockerfile na pasta ./backend
+  backend-imperium:
+    container_name: backend-imperium
     build:
       context: ./backend
       dockerfile: Dockerfile
-    ports:
-      # Expõe a API na porta 8081 do host (evita conflito com Nginx na 80)
-      - "8081:8080"
-    environment:
-      # URL interna que o Kestrel (servidor .NET) vai ouvir
-      - ASPNETCORE_URLS=http://+:8080
-      # Connection string aponta para o serviço 'db' na rede interna do Docker
-      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     depends_on:
-      db:
-        # Garante que a API só inicie após o 'db' estar saudável
+      db-imperium:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - software-rural-network
 
-  # Serviço do Frontend (React + Nginx)
-  web:
-    container_name: imperium_web
-    # Constrói a imagem a partir do Dockerfile na pasta ./frontend
+  frontend-imperium:
+    container_name: frontend-imperium
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    ports:
-      # Expõe o Nginx na porta 80 (HTTP)
-      - "8080:80"
+      args:
+        REACT_APP_API_BASE_URL: ${REACT_APP_API_BASE_URL}
+        REACT_APP_TURNSTILE_SITE_KEY: ${REACT_APP_TURNSTILE_SITE_KEY}
     depends_on:
-      # Garante que o Nginx só inicie após a 'api' (para o proxy reverso)
-      - api
+      - backend-imperium
     restart: unless-stopped
+    networks:
+      - software-rural-network
 
-  # --- NOVO SERVIÇO: MIGRADOR ---
-  migrator:
-    container_name: imperium_migrator
-    # Reutiliza o Dockerfile do backend, mas para no estágio 'build' (que tem o SDK)
+  migrations-imperium:
+    container_name: migrations-imperium
     build:
       context: ./backend
       dockerfile: Dockerfile
       target: build
-    # Comando para instalar a ferramenta EF e rodar a migração
-    # Nota: Usamos Host=db pois estamos dentro da rede do Docker
-    command: /root/.dotnet/tools/dotnet-ef database update --connection "Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+    env_file:
+     - .env
+    command: /root/.dotnet/tools/dotnet-ef database update
     depends_on:
-      db:
+      db-imperium:
         condition: service_healthy
-    # Este container roda e morre (não reinicia)
     restart: "no"
-    profiles:
-      - tools # Isso impede que ele rode sozinho com 'docker compose up' (opcional, mas recomendado)
+    networks:
+      - software-rural-network
 
-# Define os volumes nomeados
+networks:
+  software-rural-network:
+    external: true
+
 volumes:
-  postgres_data:
+  postgres_imperium_data:
     driver: local

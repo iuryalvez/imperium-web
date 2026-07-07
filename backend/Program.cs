@@ -125,11 +125,10 @@ internal class Program
             options.AddPolicy("AllowSpecificOrigin", policyBuilder =>
             {
                 policyBuilder.WithOrigins(
-                    "https://200.137.215.116:3001", // Origem de produção
-                    "https://frontend-imperium:3001", // Origem via Docker Compose/rede interna
-                    "http://localhost:5050", // Origem de desenvolvimento (ex: Swagger)
-                    "http://localhost:3000", // Origem de desenvolvimento (ex: React, Angular)
-                    "http://localhost:8080" // Docker production local testing
+                    "https://imperium.evz.ufg.br",
+                    "http://localhost",
+                    "http://localhost:3000",
+                    "http://localhost:5050"
                 )
                 .AllowAnyHeader() // Permite qualquer cabeçalho na requisição (ex: Content-Type, Authorization)
                 .AllowAnyMethod() // Permite qualquer método HTTP (GET, POST, PUT, DELETE)
