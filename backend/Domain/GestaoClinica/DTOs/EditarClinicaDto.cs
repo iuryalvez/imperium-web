@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace backend.Domain.GestaoClinica.DTOs
@@ -24,8 +23,17 @@ namespace backend.Domain.GestaoClinica.DTOs
         [StringLength(30, ErrorMessage = "O instagram da clínica deve ter no máximo 30 caracteres.")]
         public string? Instagram { get; set; }
 
+        // Variável privada para apoiar a interceptação
+        private string? _email;
+
         [EmailAddress(ErrorMessage = "O e-mail não é válido.")]
-        public string? Email { get; set; }
+        public string? Email 
+        { 
+            get => _email; 
+            // Se o valor for uma string vazia ou só com espaços, vira nulo. 
+            // Assim, o [EmailAddress] ignora a validação.
+            set => _email = string.IsNullOrWhiteSpace(value) ? null : value; 
+        }
 
         // Endereço
         [StringLength(8, ErrorMessage = "O CEP deve ter no máximo 8 dígitos.")]

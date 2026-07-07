@@ -8,27 +8,24 @@ import LayoutPublic from "./components/layout/LayoutPublic.jsx";
 import LayoutLogged from "./components/layout/LayoutLogged.jsx";
 import LayoutAuthenticated from "./components/layout/LayoutAuthenticated.jsx";
 
-import Login from "./pages/Login/Login.jsx";
-import Sobre from "./pages/Sobre/index.jsx";
+import Login from "./features/Login/Login.jsx";
+import Sobre from "./features/Sobre/index.jsx";
 
+import SistemaInicioAdmin from "./features/Sistema/SistemaInicioAdmin/SistemaInicioAdmin.jsx";
+import SistemaInicioUsuario from "./features/Sistema/SistemaInicioUsuario/SistemaInicioUsuario.jsx";
+import ClinicasDoSistema from "./features/Sistema/ClinicasDoSistema/ClinicasDoSistema.jsx";
+import UsuariosDoSistema from "./features/Sistema/UsuariosDoSistema/UsuariosDoSistema.jsx";
+import PerfilPessoal from "./features/Sistema/PerfilPessoal/PerfilPessoal.jsx";
 
-import SistemaClinicas from "./pages/Sistema/Clinicas/index.jsx";
+import ClinicaInicio from "./features/Clinica/ClinicaInicioHome/index.jsx";
 
-import Clinica from "./pages/Clinica/ClinicaInicio/index.jsx";
-import ClinicaInicio from "./pages/Clinica/ClinicaInicio/index.jsx";
-import TutoresDaClinica from "./pages/Clinica/TutoresDaClinica/index.jsx";
-
-import Sistema from "./features/SistemaInicioAdmin/SistemaInicioAdmin.jsx";
-import ListaDeVinculos from "./pages/Sistema/ListaDeVinculos/ListaDeVinculos.jsx";
-
-import UsuariosDoSistema from "./features/UsuariosDoSistema/UsuariosDoSistema.jsx";
-import UsuariosDaClinica from "./features/UsuariosDaClinica/UsuariosDaClinica.jsx";
-
-import AnimaisDaClinica from "./features/AnimaisDaClinica/AnimaisDaClinica.jsx";
-import AcompanhamentoAnimal from "./features/AnimaisDaClinica/AcompanhamentoAnimal/AcompanhamentoAnimal.jsx";
-
-import RacoesDaClinica from "./features/RacoesDaClinica/RacoesDaClinica.jsx";
-import ConsultasDaClinica from "./features/ConsultasDaClinica/ConsultasDaClinica.jsx";
+import UsuariosDaClinica from "./features/Clinica/UsuariosDaClinica/UsuariosDaClinica.jsx";
+import AnimaisDaClinica from "./features/Clinica/AnimaisDaClinica/AnimaisDaClinica.jsx";
+import AcompanhamentoAnimal from "./features/Clinica/AnimaisDaClinica/AcompanhamentoAnimal/AcompanhamentoAnimal.jsx";
+import TutoresDaClinica from "./features/Clinica/TutoresDaClinica/TutoresDaClinica.jsx";
+import RacoesDaClinica from "./features/Clinica/RacoesDaClinica/RacoesDaClinica.jsx";
+import ConsultasDaClinica from "./features/Clinica/ConsultasDaClinica/ConsultasDaClinica.jsx";
+import PerfilClinica from "./features/Clinica/ClinicaDashboard/PerfilClinica.jsx";
 
 import ProtectedRoute from "./components/servicesComponents/ProtectedRoute.js";
 
@@ -36,8 +33,6 @@ import { ConfigProvider, App as AntApp } from "antd";
 import { themeConfig } from "./theme/ant-theme.js";
 import ptBR from "antd/locale/pt_BR";
 import { validateMessages } from "./theme/validateMessages.js";
-import PerfilPessoal from "./features/PerfilPessoal/PerfilPessoal.jsx";
-import PerfilClinica from "./features/ClinicaDashboard/PerfilClinica.jsx";
 
 const App = () => {
   return (
@@ -70,7 +65,7 @@ const App = () => {
                     />
                     <Route
                       path="/sistema/vinculos"
-                      element={<ListaDeVinculos />}
+                      element={<SistemaInicioUsuario />}
                     />
                   </Route>
                 </Route>
@@ -78,10 +73,10 @@ const App = () => {
                 {/* Rotas que exigem ser Admin */}
                 <Route element={<ProtectedRoute requiresAdmin />}>
                   <Route element={<LayoutLogged />}>
-                    <Route path="/sistema" element={<Sistema />} />
+                    <Route path="/sistema" element={<SistemaInicioAdmin />} />
                     <Route
                       path="/sistema/clinicas"
-                      element={<SistemaClinicas />}
+                      element={<ClinicasDoSistema />}
                     />
                     <Route
                       path="/sistema/usuarios"
@@ -94,7 +89,7 @@ const App = () => {
                 <Route element={<ProtectedRoute requiresAuth />}>
                   <Route element={<LayoutAuthenticated />}>
                     <Route path="/clinica/inicio" element={<ClinicaInicio />} />
-                    <Route path="/clinica" element={<Clinica />} />
+                    <Route path="/clinica" element={<ClinicaInicio />} />
                     <Route
                       path="/clinica/editar"
                       element={<PerfilClinica />}
