@@ -146,7 +146,7 @@ Within a particular ecosystem, there may be a common way of installing things, s
 
     dotnet user-secrets init
     dotnet user-secrets set "Smtp:Password" "chave da api"
-    dotnet user-secrets set "JWT:Secret" "segredo do jwt"
+    dotnet user-secrets set "Jwt:Key" "segredo do jwt"
 
 ## Comandos dotnet
 

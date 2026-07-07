@@ -198,7 +198,7 @@ internal class Program
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true, // Garante que o token foi assinado com a chave secreta correta
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"])),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"])),
 
                 ValidateIssuer = true, // Garante que o token foi emitido pelo servidor correto
                 ValidIssuer = builder.Configuration["JWT:Issuer"],

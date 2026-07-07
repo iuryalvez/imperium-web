@@ -36,7 +36,7 @@ namespace backend.Services
             if (string.IsNullOrEmpty(token)) throw new ArgumentNullException(nameof(token), "Token não pode ser nulo ou vazio.");
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]);
+            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
 
             try
             {

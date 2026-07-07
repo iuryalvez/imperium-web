@@ -69,7 +69,7 @@ namespace backend.Services
 
                 var tokenHandler = new JwtSecurityTokenHandler();
 
-                var secret = _configuration["JWT:Secret"];
+                var secret = _configuration["Jwt:Key"];
                 if (string.IsNullOrWhiteSpace(secret))
                 {
                     throw new InvalidOperationException("A chave secreta do JWT não foi configurada.");
@@ -154,7 +154,7 @@ namespace backend.Services
                 var usuarioNome = upc.Usuario?.Nome ?? throw new Exception("Nome não encontrado para o usuário.");
 
                 // validação da chave JWT
-                var secret = _configuration["JWT:Secret"];
+                var secret = _configuration["Jwt:Key"];
                 if (string.IsNullOrWhiteSpace(secret))
                 {
                     throw new InvalidOperationException("A chave secreta do JWT não foi configurada.");
@@ -237,7 +237,7 @@ namespace backend.Services
                 var nomeClinica = clinica.NomeClinica;
                 var usuarioNome = userPrincipal.FindFirst(ClaimTypes.Name)?.Value ?? "Administrador";
 
-                var secret = _configuration["JWT:Secret"];
+                var secret = _configuration["Jwt:Key"];
                 if (string.IsNullOrWhiteSpace(secret)) throw new InvalidOperationException("A chave secreta não foi configurada.");
 
                 var key = Encoding.UTF8.GetBytes(secret);
@@ -310,7 +310,7 @@ namespace backend.Services
                 try
                 {
                     // Valida a chave JWT
-                    var secret = _configuration["JWT:Secret"];
+                    var secret = _configuration["Jwt:Key"];
                     var key = Encoding.UTF8.GetBytes(secret);
                     var now = DateTime.UtcNow;
 
