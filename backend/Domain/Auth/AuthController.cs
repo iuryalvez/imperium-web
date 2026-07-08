@@ -114,9 +114,7 @@ namespace backend.Domain.Auth
                 return BadRequest(ModelState);
             }
 
-            // Retrieve the real client IP behind Nginx/Docker reverse proxy
-            var remoteIp = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault()
-                           ?? HttpContext.Connection.RemoteIpAddress?.ToString();
+            var remoteIp = HttpContext.Connection.RemoteIpAddress?.ToString();
 
             var captchaValido = await _turnstileService.ValidarTokenAsync(model.CaptchaToken, remoteIp);
 
