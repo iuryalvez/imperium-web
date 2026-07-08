@@ -1,9 +1,9 @@
 /* eslint-disable no-template-curly-in-string */
 
 export const validateMessages = {
-  required: "'${label}' é obrigatório!", // Mensagem para a regra 'required: true'
+  required: "${label} é obrigatório!", // Mensagem para a regra 'required: true'
   types: {
-    email: "'${label}' não é um e-mail válido!",
+    email: "E-mail inválido.",
     number: "'${label}' não é um número válido!",
   },
   number: {

@@ -89,10 +89,14 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, [checkAuth]);
 
-  const login = async ({ email, senha }) => {
-    setIsLoading(true);
+  const login = async ({ email, senha, captchaToken, rememberMe }) => {
     try {
-      const response = await autenticacaoAPI.login({ email, senha });
+      const response = await autenticacaoAPI.login({
+        email,
+        senha,
+        captchaToken,
+        rememberMe,
+      });
 
       if (response.status === 200) {
         abrirNotificacao(
@@ -100,9 +104,7 @@ export const AuthProvider = ({ children }) => {
           "Login bem-sucedido!",
           "Você foi autenticado com sucesso.",
         );
-
         const authData = await checkAuth(false);
-
         if (authData?.isAdmin) {
           navigate("/sistema");
         } else {
@@ -110,30 +112,18 @@ export const AuthProvider = ({ children }) => {
         }
       }
     } catch (error) {
-      console.log("Erro completo:", error);
+      console.error("Erro no login:", error);
 
-      // Verificando se o erro possui as propriedades esperadas
-      if (error.errors) {
-        Object.keys(error.errors).forEach((campo) => {
-          error.errors[campo].forEach((mensagem) => {
-            abrirNotificacao("error", "Erro de validação", mensagem);
-          });
-        });
-      } else if (error.status === 400) {
-        abrirNotificacao(
-          "error",
-          "Erro de validação",
-          "Verifique os campos e tente novamente.",
-        );
-      } else {
-        abrirNotificacao(
-          "error",
-          "Erro inesperado",
-          "Algo deu errado. Por favor, tente novamente.",
-        );
-      }
-    } finally {
-      setIsLoading(false); // Desativa o loading global
+      // error is already error.response.data due to API interceptor
+      const mensagemErro =
+        error.message ||
+        error.Message ||
+        "E-mail ou senha inválidos ou erro no servidor.";
+
+      abrirNotificacao("error", "Falha na Autenticação", mensagemErro);
+
+      // Re-throw to allow Login.jsx to catch and reset the Captcha
+      throw error;
     }
   };
 

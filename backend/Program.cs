@@ -3,7 +3,6 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -108,6 +107,9 @@ internal class Program
 
         // Serviços Utilitários
         builder.Services.AddScoped<IEmailService, EmailService>();
+
+        // Captcha Turnstile 
+        builder.Services.AddHttpClient<ITurnstileService, TurnstileService>();
 
         #endregion
 

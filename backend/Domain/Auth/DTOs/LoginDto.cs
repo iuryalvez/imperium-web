@@ -7,6 +7,7 @@ namespace backend.Domain.Auth.DTOs {
         public string Email { get; set; } = string.Empty;
         [Required(ErrorMessage = "A senha é obrigatória")]
         public string Senha { get; set; } = string.Empty;
+        public required string CaptchaToken { get; set; }
         public bool RememberMe { get; set; }
     }
 }

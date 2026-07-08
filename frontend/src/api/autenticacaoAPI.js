@@ -2,11 +2,11 @@ import api from './index';  // configuração do axios
 import endpoints from '../services/Endpoints'; // endpoints
 
 export const autenticacaoAPI = {
-    login: async ({ email, senha, rememberMe }) => {
+    login: async ({ email, senha, captchaToken, rememberMe }) => {
         // console.log("---------------------------Entrou na api---------------------------");
         // console.log("\nemail na api: ", email, "\nsenha na api: ", senha);
         try {
-            const response = await api.post(endpoints.autenticacao.login, { email, senha, rememberMe });
+            const response = await api.post(endpoints.autenticacao.login, { email, senha, captchaToken, rememberMe });
             return response;
         } catch (error) {
             console.error('Erro ao fazer login:', error);

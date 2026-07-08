@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import {
   Row,
   Col,
@@ -10,6 +10,7 @@ import {
   Checkbox,
 } from "antd";
 import { useAuth } from "../../services/AuthContext";
+import { Turnstile } from "@marsidev/react-turnstile";
 import logoUfg from "../../assets/UFG_logo.png";
 import logoEvz from "../../assets/EVZ_UFG.svg";
 import logoInf from "../../assets/INF_UFG.svg";
@@ -20,25 +21,43 @@ import "./Login.css";
 const { Title, Paragraph } = Typography;
 
 const Login = () => {
-  const { login, isLoading } = useAuth();
+  const { login } = useAuth();
+  const [localLoading, setLocalLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const turnstileRef = useRef(null);
 
-  const handleLogin = async ({ email, senha }) => {
-    login({ email, senha }); // chama a função login do contexto
+  const handleLogin = async (values) => {
+    if (!captchaToken) return;
+
+    setLocalLoading(true); // Local state for button loading UI
+
+    try {
+      await login({
+        email: values.email,
+        senha: values.senha,
+        captchaToken,
+        rememberMe: values.lembrar,
+      });
+    } catch (error) {
+      // Executes only because AuthContext re-threw the error
+      turnstileRef.current?.reset();
+      setCaptchaToken(null);
+    } finally {
+      setLocalLoading(false);
+    }
   };
 
   return (
     <Row className="login-page-row">
-      {/* Lado esquerdo - informações */}
-      <Col span={14} className="login-info-col">
+      {/* xs=24 (100% em mobile), md=14 (telas médias+) */}
+      <Col xs={24} md={14} className="login-info-col">
         <Title level={1}>Bem-vindo ao Software IMPERIUM!</Title>
         <Paragraph>
           Este software tem como objetivo auxiliar no controle nutricional de
           cães e gatos, utilizando técnicas de{" "}
           <strong>inteligência artificial</strong>, em especial o{" "}
           <strong>aprendizado de máquina</strong>, para padronizar a avaliação
-          do Escore de Condição Corporal (ECC) dos animais. Com isso, o sistema
-          contribui diretamente para a promoção da saúde e do bem-estar dos
-          pets.
+          do Escore de Condição Corporal (ECC) dos animais.
         </Paragraph>
 
         <Space size="large" className="login-logos-container">
@@ -48,8 +67,7 @@ const Login = () => {
         </Space>
       </Col>
 
-      {/* Lado direito - formulário */}
-      <Col span={10} className="login-form-col">
+      <Col xs={24} md={10} className="login-form-col">
         <div className="login-form-container">
           <Title level={2} className="login-title">
             LOGIN
@@ -82,7 +100,6 @@ const Login = () => {
               />
             </Form.Item>
 
-            {/* 3. Refatorado para usar Flexbox em vez de float */}
             <Form.Item>
               <div className="login-form-options">
                 <Form.Item name="lembrar" valuePropName="checked" noStyle>
@@ -92,13 +109,25 @@ const Login = () => {
               </div>
             </Form.Item>
 
+            <Form.Item style={{ display: "flex", justifyContent: "center" }}>
+              <Turnstile
+                ref={turnstileRef}
+                siteKey={process.env.REACT_APP_TURNSTILE_SITE_KEY}
+                onSuccess={setCaptchaToken}
+                onError={() => setCaptchaToken(null)}
+                onExpire={() => setCaptchaToken(null)}
+                options={{ theme: "light" }}
+              />
+            </Form.Item>
+
             <Form.Item>
               <Button
                 type="primary"
                 htmlType="submit"
-                loading={isLoading}
+                loading={localLoading}
                 block
                 size="large"
+                disabled={!captchaToken}
               >
                 Entrar
               </Button>

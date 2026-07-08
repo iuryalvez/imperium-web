@@ -26,12 +26,14 @@ namespace backend.Domain.Auth
         private readonly ILogger<AuthController> _logger;
         private readonly IEmailService _emailService;
         private readonly ITokenService _tokenService;
+        private readonly ITurnstileService _turnstileService;
 
         public AuthController(UserManager<Usuario> userManager,
                               SignInManager<Usuario> signInManager,
                               ILogger<AuthController> logger,
                               IEmailService emailService,
                               ITokenService tokenService,
+                              ITurnstileService turnstileService,
                               AppDbContext context)
         {
             _userManager = userManager;
@@ -39,6 +41,7 @@ namespace backend.Domain.Auth
             _logger = logger;
             _emailService = emailService;
             _tokenService = tokenService;
+            _turnstileService = turnstileService;
             _context = context;
         }
 
@@ -104,20 +107,33 @@ namespace backend.Domain.Auth
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto model)
         {
-            _logger.LogDebug("Login solicitado para o e-mail {Email}.", model.Email);
-
+            // Validate structural payload first to avoid unnecessary external API calls
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("ModelState inválido para login do e-mail {Email}.", model.Email);
                 return BadRequest(ModelState);
             }
 
+            // Retrieve the real client IP behind Nginx/Docker reverse proxy
+            var remoteIp = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault()
+                           ?? HttpContext.Connection.RemoteIpAddress?.ToString();
+
+            var captchaValido = await _turnstileService.ValidarTokenAsync(model.CaptchaToken, remoteIp);
+
+            if (!captchaValido)
+            {
+                return BadRequest(new { Message = "Falha na verificação do captcha. Recarregue a página e tente novamente." });
+            }
+
+            _logger.LogDebug("Login solicitado para o e-mail {Email}.", model.Email);
+
             var usuario = await _userManager.FindByEmailAsync(model.Email);
 
+            // Prevent Username Enumeration vulnerability by using generic error messages
             if (usuario == null)
             {
                 _logger.LogWarning("Usuário com e-mail {Email} não encontrado.", model.Email);
-                return Unauthorized(new { Message = "Usuário não encontrado." });
+                return Unauthorized(new { Message = "E-mail ou senha inválidos." });
             }
 
             if (!usuario.EmailConfirmed)
@@ -131,19 +147,18 @@ namespace backend.Domain.Auth
             if (!senhaValida)
             {
                 _logger.LogWarning("Senha incorreta para usuário {Email}.", model.Email);
-                return Unauthorized(new { Message = "Senha incorreta." });
+                return Unauthorized(new { Message = "E-mail ou senha inválidos." });
             }
 
             usuario.DataUltimoAcesso = DateTime.UtcNow;
             _context.Usuarios.Update(usuario);
             await _context.SaveChangesAsync();
 
-            var usuarioIp = HttpContext.Connection.RemoteIpAddress?.ToString();
             var usuarioAgent = Request.Headers["User-Agent"].ToString();
-            var tokenLogin = _tokenService.GenerateTokenLogin(usuario.Id.ToString(), usuarioIp, usuarioAgent);
+            var tokenLogin = _tokenService.GenerateTokenLogin(usuario.Id.ToString(), remoteIp, usuarioAgent);
             _tokenService.SetCookieToken(HttpContext, tokenLogin);
 
-            _logger.LogInformation("Usuário {Email} logado com sucesso. IP: {IP}, Agent: {Agent}", model.Email, usuarioIp, usuarioAgent);
+            _logger.LogInformation("Usuário {Email} logado com sucesso. IP: {IP}, Agent: {Agent}", model.Email, remoteIp, usuarioAgent);
 
             return Ok(new { tokenLogin });
         }
