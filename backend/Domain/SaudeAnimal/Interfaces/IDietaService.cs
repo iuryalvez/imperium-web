@@ -1,5 +1,5 @@
 using backend.Domain.AtendimentoAnimal.Entities;
-using backend.Domain.GestaoDeAcesso.Interfaces;
+using backend.Domain.Usuarios.Interfaces;
 using backend.Domain.SaudeAnimal.DTOs.Dieta;
 using backend.Domain.SaudeAnimal.Entities;
 

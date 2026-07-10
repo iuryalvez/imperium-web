@@ -1,12 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
-using backend.Services;
-using backend.Infra.Data;
-using backend.Domain.GestaoClinica.Interface;
+using backend.Domain.Auth.Extensions;
 using backend.Domain.AtendimentoAnimal.DTOs;
-using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interface;
 
 // TODO: Ver possibilidade de refatorar a lógica da persistência dos dados dos tutores:

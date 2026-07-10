@@ -4,7 +4,7 @@ using backend.Domain.GestaoClinica.Interface;
 using Microsoft.EntityFrameworkCore;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.GestaoClinica.DTOs;
-using backend.Domain.GestaoDeAcesso.Interfaces;
+using backend.Domain.Usuarios.Interfaces;
 using AutoMapper;
 
 public class ClinicaService : IClinicaService

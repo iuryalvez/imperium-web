@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-using backend.Services;
+using backend.Domain.Auth.Extensions;
 using backend.Domain.AtendimentoAnimal.Interface;
 using backend.Domain.AtendimentoAnimal.DTOs.Consulta;
 using System.Security.Claims;

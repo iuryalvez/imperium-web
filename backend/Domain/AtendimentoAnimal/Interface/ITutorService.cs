@@ -1,6 +1,6 @@
 using backend.Domain.AtendimentoAnimal.DTOs;
 using backend.Domain.AtendimentoAnimal.Entities;
-using backend.Domain.GestaoDeAcesso.Interfaces;
+using backend.Domain.Usuarios.Interfaces;
 
 namespace backend.Domain.AtendimentoAnimal.Interface
 {

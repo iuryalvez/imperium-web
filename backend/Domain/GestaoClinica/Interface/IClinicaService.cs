@@ -1,7 +1,7 @@
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.GestaoClinica.DTOs;
 using backend.Domain.GestaoClinica.Entities;
-using backend.Domain.GestaoDeAcesso.Interfaces;
+using backend.Domain.Usuarios.Interfaces;
 
 namespace backend.Domain.GestaoClinica.Interface
 {

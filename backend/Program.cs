@@ -7,22 +7,25 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 // Using statements para as camadas de Domínio e Infraestrutura do seu projeto
+using backend.Interfaces;
+using backend.Services;
+using backend.Infra.Data;
+using backend.Infra.Data.Repositories;
 using backend.Domain.AtendimentoAnimal.Impl;
 using backend.Domain.AtendimentoAnimal.Interface;
 using backend.Domain.AtendimentoAnimal.Repository;
 using backend.Domain.AtendimentoAnimal.Services;
 using backend.Domain.GestaoClinica.Impl;
 using backend.Domain.GestaoClinica.Interface;
-using backend.Domain.GestaoDeAcesso.Entities;
-using backend.Domain.GestaoDeAcesso.Interfaces;
+using backend.Domain.Usuarios.Entities;
+using backend.Domain.Usuarios.Interfaces;
 using backend.Domain.SaudeAnimal.Impl;
 using backend.Domain.SaudeAnimal.Interfaces;
-using backend.Domain.SaudeAnimal.Repository;
-using backend.Infra.Data;
-using backend.Infra.Data.Repositories;
-using backend.Interfaces;
-using backend.Services;
 using backend.Domain.SaudeAnimal.Services;
+using backend.Domain.SaudeAnimal.Repository;
+using backend.Domain.Auth.Interfaces;
+using backend.Domain.Auth.Services;
+using backend.Domain.Auth.Extensions;
 
 
 internal class Program
@@ -75,8 +78,9 @@ internal class Program
         // Isso garante que os dados de um usuário não se misturem com os de outro durante a mesma requisição.
 
         // Gestão de Acesso e Autenticação
-        builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddScoped<ITokenService, TokenService>();
+        builder.Services.AddScoped<IValidateService, ValidateService>();
         builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
@@ -234,11 +238,11 @@ internal class Program
                 {
                     try
                     {
-                        var authService = context.HttpContext.RequestServices.GetRequiredService<IAuthService>();
+                        var ValidateService = context.HttpContext.RequestServices.GetRequiredService<IValidateService>();
                         var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
 
                         // Validações de consistência (ex: IP, User-Agent)
-                        await authService.ValidateUserClaims(context.Principal, context.HttpContext);
+                        await ValidateService.ValidateUserClaims(context.Principal, context.HttpContext);
 
                         // Lógica para renovar o token se ele estiver perto de expirar
                         await tokenService.RenovaToken(context);

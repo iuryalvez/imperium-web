@@ -1,7 +1,7 @@
 using backend.Domain.AtendimentoAnimal.DTOs.Relatorio;
 using backend.Domain.AtendimentoAnimal.Interface;
-using backend.Domain.GestaoDeAcesso.Interfaces;
-using backend.Services;
+using backend.Domain.Usuarios.Interfaces;
+using backend.Domain.Auth.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

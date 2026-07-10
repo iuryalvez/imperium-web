@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using backend.Domain.GestaoDeAcesso.Entities;
+using backend.Domain.Usuarios.Entities;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.GestaoClinica.Entities;
 using backend.Domain.SaudeAnimal.Entities;

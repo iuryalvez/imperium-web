@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using backend.Domain.GestaoClinica.Entities;
-using backend.Domain.GestaoDeAcesso.Entities;
+using backend.Domain.Usuarios.Entities;
 
 namespace backend.Domain.AtendimentoAnimal.Entities
 {

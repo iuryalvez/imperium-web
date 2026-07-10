@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 
-using backend.Services;
+using backend.Domain.Auth.Extensions;
 using backend.Infra.Data;
 using backend.Domain.AtendimentoAnimal.DTOs;
 using backend.Domain.GestaoClinica.Interface;

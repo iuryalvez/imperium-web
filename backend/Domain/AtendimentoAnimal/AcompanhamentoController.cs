@@ -2,8 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using backend.Domain.SaudeAnimal.DTOs.Dieta;
 using Microsoft.AspNetCore.Authorization;
 using backend.Domain.AtendimentoAnimal.Services;
-using backend.Domain.GestaoDeAcesso.Interfaces;
-using backend.Services;
+using backend.Domain.Usuarios.Interfaces;
+using backend.Domain.Auth.Extensions;
+
 [ApiController]
 // Padronizado para o plural, que é a convenção REST para coleções de recursos.
 [Route("api/clinica/acompanhamentos")]

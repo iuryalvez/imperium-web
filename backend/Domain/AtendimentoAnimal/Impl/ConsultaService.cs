@@ -2,7 +2,7 @@ using AutoMapper;
 using backend.Domain.AtendimentoAnimal.DTOs.Consulta;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interface;
-using backend.Domain.GestaoDeAcesso.Interfaces;
+using backend.Domain.Usuarios.Interfaces;
 
 namespace backend.Domain.AtendimentoAnimal.Impl
 {

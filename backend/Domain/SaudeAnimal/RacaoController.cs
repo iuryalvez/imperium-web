@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using backend.Services;
+using backend.Domain.Auth.Extensions;
 using backend.Domain.SaudeAnimal.Interfaces;
 using backend.Domain.AtendimentoAnimal.Entities;
 

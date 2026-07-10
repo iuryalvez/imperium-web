@@ -5,7 +5,7 @@ using backend.Domain.AtendimentoAnimal.DTOs.Relatorio;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interface;
 using backend.Domain.AtendimentoAnimal.Services;
-using backend.Domain.GestaoDeAcesso.Interfaces;
+using backend.Domain.Usuarios.Interfaces;
 using backend.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 

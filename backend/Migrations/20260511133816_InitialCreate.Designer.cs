@@ -2364,7 +2364,7 @@ namespace backend.Migrations
                     b.ToTable("Clinicas");
                 });
 
-            modelBuilder.Entity("backend.Domain.GestaoDeAcesso.Entities.Usuario", b =>
+            modelBuilder.Entity("backend.Domain.Usuarios.Entities.Usuario", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2716,7 +2716,7 @@ namespace backend.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("backend.Domain.GestaoDeAcesso.Entities.Usuario", null)
+                    b.HasOne("backend.Domain.Usuarios.Entities.Usuario", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2725,7 +2725,7 @@ namespace backend.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("backend.Domain.GestaoDeAcesso.Entities.Usuario", null)
+                    b.HasOne("backend.Domain.Usuarios.Entities.Usuario", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2740,7 +2740,7 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("backend.Domain.GestaoDeAcesso.Entities.Usuario", null)
+                    b.HasOne("backend.Domain.Usuarios.Entities.Usuario", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2749,7 +2749,7 @@ namespace backend.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("backend.Domain.GestaoDeAcesso.Entities.Usuario", null)
+                    b.HasOne("backend.Domain.Usuarios.Entities.Usuario", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2764,7 +2764,7 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("backend.Domain.GestaoDeAcesso.Entities.Usuario", "Usuario")
+                    b.HasOne("backend.Domain.Usuarios.Entities.Usuario", "Usuario")
                         .WithMany("UsuariosPerfisClinicas")
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2835,7 +2835,7 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("backend.Domain.GestaoDeAcesso.Entities.Usuario", "Usuario")
+                    b.HasOne("backend.Domain.Usuarios.Entities.Usuario", "Usuario")
                         .WithMany("Consultas")
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -3010,7 +3010,7 @@ namespace backend.Migrations
                     b.Navigation("UsuariosPerfisClinicas");
                 });
 
-            modelBuilder.Entity("backend.Domain.GestaoDeAcesso.Entities.Usuario", b =>
+            modelBuilder.Entity("backend.Domain.Usuarios.Entities.Usuario", b =>
                 {
                     b.Navigation("Consultas");
 

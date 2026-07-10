@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
-using backend.Services;
+using backend.Domain.Auth.Extensions;
 
 using backend.Domain.GestaoClinica.DTOs;
 using backend.Domain.GestaoClinica.Interface;

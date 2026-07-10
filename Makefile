@@ -14,11 +14,8 @@ ifneq ($(wildcard $(ENV_FILE)),)
 endif
 
 # ==============================================================================
-# MAPEAMENTO DE VARIÁVEIS PARA O ECOSSISTEMA .NET
+# MAPEAMENTO DE VARIÁVEIS PARA RODAR EM DESENVOLVIMENTO LOCAL (NATIVE MODE)
 # ==============================================================================
-# Converte e formata as variáveis do arquivo .env para a convenção utilizada
-# pelo ASP.NET Core (Double Underscore para hierarquia do JSON).
-# Nota: A ConnectionString é montada sem aspas para evitar erros de parse do driver Npgsql.
 
 ConnectionStrings__DefaultConnection := Host=$(DB_HOST);Port=$(DB_PORT);Database=$(DB_NAME);Username=$(DB_USER);Password=$(DB_PASS)
 Jwt__Key := $(Jwt__Key)

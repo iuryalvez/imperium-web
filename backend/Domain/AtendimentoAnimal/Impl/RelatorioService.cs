@@ -3,7 +3,7 @@ using AutoMapper;
 using backend.Domain.AtendimentoAnimal.DTOs.Relatorio;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interface;
-using backend.Domain.GestaoDeAcesso.Interfaces;
+using backend.Domain.Usuarios.Interfaces;
 using backend.Infra.Data;
 using backend.Infra.Data.Repositories; // Para AppDbContext (apenas para transação)
 
