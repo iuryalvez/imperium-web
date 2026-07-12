@@ -26,7 +26,7 @@ namespace backend.Domain.Auth.Services
             _logger = logger;
         }
 
-        public string GenerateTokenLogin(string usuarioId, string usuarioIp, string usuarioAgent)
+        public string GenerateTokenLogin(string usuarioId, string usuarioIp, string usuarioAgent, bool rememberMe = false)
         {
             try
             {
@@ -82,6 +82,7 @@ namespace backend.Domain.Auth.Services
                     new Claim("UsuarioIp", usuarioIp),
                     new Claim("UsuarioAgent", usuarioAgent),
                     new Claim("acessoLogin", "true"),
+                    new Claim("rememberMe", rememberMe.ToString())
                 };
 
                 if (usuario.IsAdmin) claims.Add(new Claim("isAdmin", "true"));
@@ -96,13 +97,17 @@ namespace backend.Domain.Auth.Services
                     claims.Add(new Claim("isAtivo", "false"));
                 }
 
+                var minutosParaExpirar = rememberMe
+                    ? TimeSpan.FromDays(7).TotalMinutes
+                    : Convert.ToDouble(_configuration["Jwt:ExpiresInMinutes"]);
+
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(claims),
-                    Expires = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["JWT:ExpiresInMinutes"])),
+                    Expires = DateTime.UtcNow.AddMinutes(minutosParaExpirar),
                     NotBefore = DateTime.UtcNow,
-                    Issuer = _configuration["JWT:Issuer"],
-                    Audience = _configuration["JWT:Audience"],
+                    Issuer = _configuration["Jwt:Issuer"],
+                    Audience = _configuration["Jwt:Audience"],
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
                 };
 
@@ -180,10 +185,10 @@ namespace backend.Domain.Auth.Services
                         new Claim("isAtivo", "true"),
                         new Claim("Perfis", JsonSerializer.Serialize(perfisAtivos)) // Lista de perfis ativos
                     }),
-                    Expires = now.AddMinutes(Convert.ToDouble(_configuration["JWT:ExpiresInMinutes"])),
+                    Expires = now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpiresInMinutes"])),
                     NotBefore = now,
-                    Issuer = _configuration["JWT:Issuer"],
-                    Audience = _configuration["JWT:Audience"],
+                    Issuer = _configuration["Jwt:Issuer"],
+                    Audience = _configuration["Jwt:Audience"],
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
                 };
                 var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -259,10 +264,10 @@ namespace backend.Domain.Auth.Services
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(claims),
-                    Expires = now.AddMinutes(Convert.ToDouble(_configuration["JWT:ExpiresInMinutes"])),
+                    Expires = now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpiresInMinutes"])),
                     NotBefore = now,
-                    Issuer = _configuration["JWT:Issuer"],
-                    Audience = _configuration["JWT:Audience"],
+                    Issuer = _configuration["Jwt:Issuer"],
+                    Audience = _configuration["Jwt:Audience"],
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
                 };
                 var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -282,17 +287,21 @@ namespace backend.Domain.Auth.Services
             }
         }
 
-        public void SetCookieToken(HttpContext context, string token)
+        public void SetCookieToken(HttpContext context, string token, bool rememberMe = false)
         {
             // Lê a configuração do appsettings.json
             bool isSecure = _configuration.GetValue<bool>("CookieSecure");
+
+            var minutosParaExpirar = rememberMe
+                ? TimeSpan.FromDays(7).TotalMinutes
+                : double.Parse(_configuration["Jwt:ExpiresInMinutes"]);
 
             context.Response.Cookies.Append("auth_token", token, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = isSecure,
                 SameSite = SameSiteMode.Lax,
-                Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["JWT:ExpiresInMinutes"]))
+                Expires = DateTime.UtcNow.AddMinutes(minutosParaExpirar)
             });
         }
 
@@ -301,10 +310,21 @@ namespace backend.Domain.Auth.Services
             var token = context.SecurityToken as JwtSecurityToken;
             if (token == null) return Task.CompletedTask;
 
+            // Lê se o token original era "Lembrar-me"
+            var rememberMeClaim = context.Principal.FindFirst("rememberMe")?.Value;
+            bool isRememberMe = false;
+            bool.TryParse(rememberMeClaim, out isRememberMe);
+
+            // Se for RememberMe, usamos uma margem maior para renovar (ex: faltam 2 dias para vencer)
+            // Se não, usamos o RenewInMinutesLeft do appsettings
+            var thresholdMinutos = isRememberMe
+                ? TimeSpan.FromDays(2).TotalMinutes
+                : double.Parse(_configuration["Jwt:RenewInMinutesLeft"]);
+
             var timeToExpire = token.ValidTo - DateTime.UtcNow;
 
             // Roda apenas se o tempo restante for menor que o configurado
-            if (timeToExpire.TotalMinutes < double.Parse(_configuration["JWT:RenewInMinutesLeft"]))
+            if (timeToExpire.TotalMinutes < thresholdMinutos)
             {
                 try
                 {
@@ -313,16 +333,20 @@ namespace backend.Domain.Auth.Services
                     var key = Encoding.UTF8.GetBytes(secret);
                     var now = DateTime.UtcNow;
 
+                    var minutosParaExpirar = isRememberMe
+                        ? TimeSpan.FromDays(7).TotalMinutes
+                        : Convert.ToDouble(_configuration["Jwt:ExpiresInMinutes"]);
+
                     // Cria um novo manipulador e descritor baseados nas claims existentes
                     var tokenHandler = new JwtSecurityTokenHandler();
                     var tokenDescriptor = new SecurityTokenDescriptor
                     {
                         // Clona as claims do token atual (evita perder dados como Perfis ou ClinicaId)
                         Subject = new ClaimsIdentity(context.Principal.Claims),
-                        Expires = now.AddMinutes(Convert.ToDouble(_configuration["JWT:ExpiresInMinutes"])),
+                        Expires = now.AddMinutes(minutosParaExpirar),
                         NotBefore = now,
-                        Issuer = _configuration["JWT:Issuer"],
-                        Audience = _configuration["JWT:Audience"],
+                        Issuer = _configuration["Jwt:Issuer"],
+                        Audience = _configuration["Jwt:Audience"],
                         SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
                     };
 
@@ -331,7 +355,7 @@ namespace backend.Domain.Auth.Services
                     var newTokenString = tokenHandler.WriteToken(generatedToken);
 
                     // Substitui o cookie
-                    SetCookieToken(context.HttpContext, newTokenString);
+                    SetCookieToken(context.HttpContext, newTokenString, isRememberMe);
 
                     var userId = context.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                     Console.WriteLine($"Token renovado com sucesso para a sessão do identificador: {userId}");

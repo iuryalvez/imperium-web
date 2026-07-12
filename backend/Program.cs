@@ -207,10 +207,10 @@ internal class Program
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"])),
 
                 ValidateIssuer = true, // Garante que o token foi emitido pelo servidor correto
-                ValidIssuer = builder.Configuration["JWT:Issuer"],
+                ValidIssuer = builder.Configuration["Jwt:Issuer"],
 
                 ValidateAudience = true, // Garante que o token é destinado a esta aplicação
-                ValidAudience = builder.Configuration["JWT:Audience"],
+                ValidAudience = builder.Configuration["Jwt:Audience"],
 
                 ValidateLifetime = true, // Garante que o token não expirou
                 ClockSkew = TimeSpan.Zero // Remove a tolerância de tempo padrão na validação da expiração
