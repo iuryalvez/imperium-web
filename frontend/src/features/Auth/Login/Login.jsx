@@ -1,10 +1,10 @@
 import React, { useState, useRef } from "react";
 import { Row, Col, Typography, Space, Form, Button, Input, Checkbox } from "antd";
-import { useAuth } from "../../services/AuthContext";
+import { useAuth } from "../../../services/AuthContext";
 import { Turnstile } from "@marsidev/react-turnstile";
-import logoUfg from "../../assets/UFG_logo.png";
-import logoEvz from "../../assets/EVZ_UFG.svg";
-import logoInf from "../../assets/INF_UFG.svg";
+import logoUfg from "../../../assets/UFG_logo.png";
+import logoEvz from "../../../assets/EVZ_UFG.svg";
+import logoInf from "../../../assets/INF_UFG.svg";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 
 const { Title, Paragraph } = Typography;

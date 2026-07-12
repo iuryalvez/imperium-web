@@ -75,7 +75,7 @@ const FormularioEdicaoPerfilPessoal = ({
           <Form.Item
             name="novaSenha"
             label="Nova Senha"
-            hasFeedback // Adds a visual validation icon (check/cross)
+            hasFeedback
             rules={[
               { min: 8, message: "A senha deve ter no mínimo 8 caracteres." },
               {

@@ -184,7 +184,7 @@ internal class Program
         /// </summary>
         builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
         {
-            options.TokenLifespan = TimeSpan.FromHours(24);
+            options.TokenLifespan = TimeSpan.FromMinutes(15);
         });
         #endregion
 

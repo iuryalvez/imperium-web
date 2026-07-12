@@ -7,34 +7,37 @@ using backend.Domain.Usuarios.Entities;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Text;
 namespace backend.Domain.Auth.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly IConfiguration _configuration;
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<AuthService> _logger;
         private readonly UserManager<Usuario> _userManager;
         private readonly ITurnstileService _turnstileService;
         private readonly ITokenService _tokenService;
+        private readonly IEmailService _emailService;
 
         public AuthService(
-            IConfiguration configuration, 
-            IDbContextFactory<AppDbContext> contextFactory, 
-            IHttpContextAccessor httpContextAccessor, 
+            IConfiguration configuration,
+            IDbContextFactory<AppDbContext> contextFactory,
+            IHttpContextAccessor httpContextAccessor,
             ILogger<AuthService> logger,
             UserManager<Usuario> userManager,
             ITurnstileService turnstileService,
-            ITokenService tokenService)
+            ITokenService tokenService,
+            IEmailService emailService)
         {
-            _configuration = configuration;
             _contextFactory = contextFactory;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
             _userManager = userManager;
             _turnstileService = turnstileService;
             _tokenService = tokenService;
+            _emailService = emailService;
         }
 
         public async Task<ServiceResult> LoginAsync(LoginDto model, string remoteIp, string userAgent)
@@ -56,7 +59,7 @@ namespace backend.Domain.Auth.Services
                 return new ServiceResult { Succeeded = false, Message = "Confirme seu email antes de fazer login." };
 
             using var context = _contextFactory.CreateDbContext();
-            
+
             // Attach the entity to the new DbContext instance before updating
             context.Usuarios.Attach(usuario);
             usuario.DataUltimoAcesso = DateTime.UtcNow;
@@ -64,10 +67,10 @@ namespace backend.Domain.Auth.Services
 
             var tokenLogin = _tokenService.GenerateTokenLogin(usuario.Id.ToString(), remoteIp, userAgent);
 
-            return new ServiceResult 
-            { 
-                Succeeded = true, 
-                Data = tokenLogin 
+            return new ServiceResult
+            {
+                Succeeded = true,
+                Data = tokenLogin
             };
         }
 
@@ -174,7 +177,7 @@ namespace backend.Domain.Auth.Services
             {
                 var vinculoId = int.Parse(userIdClaim);
                 using var context = _contextFactory.CreateDbContext();
-                
+
                 var vinculo = await context.UsuariosPerfisClinicas
                     .AsNoTracking()
                     .FirstOrDefaultAsync(v => v.Id == vinculoId);
@@ -192,6 +195,72 @@ namespace backend.Domain.Auth.Services
             var tokenLogin = _tokenService.GenerateTokenLogin(usuario.Id.ToString(), remoteIp, userAgent);
 
             return new ServiceResult { Succeeded = true, Data = tokenLogin };
+        }
+
+        public async Task<ServiceResult> ForgotPasswordAsync(ForgotPasswordDto model, string frontendUrl)
+        {
+            var usuario = await _userManager.FindByEmailAsync(model.Email);
+            if (usuario == null)
+            {
+                // Retornar sucesso falso (no controller tratamos para exibir msg genérica)
+                return new ServiceResult { Succeeded = true, Message = "Se o e-mail estiver registrado, um link será enviado." };
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(usuario);
+
+            // Codifica o token para ser seguro na URL
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+            // Monta o link para o Frontend
+            var resetLink = $"{frontendUrl}/recuperar-senha/nova-senha?token={encodedToken}&email={usuario.Email}";
+
+            var corpoEmail = $@"
+                <h2>Redefinição de Senha - Sistema IMPERIUM</h2>
+                <p>Olá,</p>
+                <p>Você solicitou a redefinição da sua senha. Clique no link abaixo para criar uma nova senha:</p>
+                <p><a href='{resetLink}'>Redefinir minha senha</a></p>
+                <p>Se você não solicitou isso, pode ignorar este e-mail com segurança. O link expira em 15 minutos.</p>";
+
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            {
+                _logger.LogWarning("====================================================================");
+                _logger.LogWarning("MOCK DE E-MAIL (Ambiente de Desenvolvimento)");
+                _logger.LogWarning("Link gerado: {ResetLink}", resetLink);
+                _logger.LogWarning("====================================================================");
+            }
+            else
+            {
+                // Em produção, dispara o e-mail real
+                await _emailService.SendEmailAsync(usuario.Email, "Redefinição de Senha - IMPERIUM", corpoEmail);
+            }
+
+            return new ServiceResult { Succeeded = true, Message = "Se o e-mail estiver registrado, um link será enviado." };
+        }
+
+        public async Task<ServiceResult> ResetPasswordAsync(ResetPasswordDto model)
+        {
+            var usuario = await _userManager.FindByEmailAsync(model.Email);
+            if (usuario == null)
+            {
+                return new ServiceResult { Succeeded = false, Message = "Erro ao redefinir senha." }; // Mensagem genérica
+            }
+
+            // Decodifica o token seguro da URL de volta para o formato original do Identity
+            var decodedTokenBytes = WebEncoders.Base64UrlDecode(model.Token);
+            var originalToken = Encoding.UTF8.GetString(decodedTokenBytes);
+
+            var result = await _userManager.ResetPasswordAsync(usuario, originalToken, model.NewPassword);
+
+            if (result.Succeeded)
+            {
+                return new ServiceResult { Succeeded = true, Message = "Senha redefinida com sucesso." };
+            }
+
+            return new ServiceResult
+            {
+                Succeeded = false,
+                Message = "O link de recuperação é inválido ou expirou. Solicite um novo."
+            };
         }
     }
 }

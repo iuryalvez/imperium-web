@@ -8,40 +8,45 @@ namespace backend.Domain.Auth.Services
     public class EmailService : IEmailService
     {
         private readonly IConfiguration _configuration;
+        private readonly ILogger<EmailService> _logger;
 
-        public EmailService(IConfiguration configuration)
+        public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
         {
             _configuration = configuration;
+            _logger = logger;
         }
 
-        public async Task SendEmailAsync(string email, string subject, string message)
+        public async Task SendEmailAsync(string toEmail, string subject, string body)
         {
-            var smtpClient = new SmtpClient(_configuration["Smtp:Host"])
-            {
-                Port = int.Parse(_configuration["Smtp:Port"]),
-                Credentials = new NetworkCredential(_configuration["Smtp:Username"], _configuration["Smtp:Password"]),
-                EnableSsl = bool.Parse(_configuration["Smtp:EnableSsl"])
-            };
-
-            var mailMessage = new MailMessage
-            {
-                From = new MailAddress(_configuration["Smtp:From"]),
-                Subject = subject,
-                Body = message,
-                IsBodyHtml = true,
-            };
-
-            mailMessage.To.Add(email);
-
             try
             {
-                await smtpClient.SendMailAsync(mailMessage);
-                Console.WriteLine($"Email enviado para {email} com assunto '{subject}'.");
+                var smtpServer = _configuration["EmailSettings:SmtpServer"];
+                var smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"]);
+                var smtpUser = _configuration["EmailSettings:SmtpUser"];
+                var smtpPass = _configuration["EmailSettings:SmtpPass"];
+
+                using var client = new SmtpClient(smtpServer, smtpPort)
+                {
+                    Credentials = new NetworkCredential(smtpUser, smtpPass),
+                    EnableSsl = true
+                };
+
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(smtpUser, "Suporte IMPERIUM/BRIS"),
+                    Subject = subject,
+                    Body = body,
+                    IsBodyHtml = true
+                };
+
+                mailMessage.To.Add(toEmail);
+
+                await client.SendMailAsync(mailMessage);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Falha ao enviar email: {ex.Message}");
-                throw;
+                _logger.LogError(ex, "Erro ao enviar e-mail para {ToEmail}", toEmail);
+                throw new InvalidOperationException("Falha no envio de e-mail.");
             }
         }
     }

@@ -5,9 +5,8 @@ const endpoints = {
     checarStatus: `${API_BASE_URL}/auth/check`,
     login: `${API_BASE_URL}/auth/login`,
     logout: `${API_BASE_URL}/auth/logout`,
-    // recuperarSenha: `${API_BASE_URL}/auth/forgot-password`, // TODO
-    // resetPassword: `${API_BASE_URL}/auth/reset-password`, // TODO
-    // sendEmail: `${API_BASE_URL}/auth/send-email`, // TODO
+    recuperarSenha: `${API_BASE_URL}/auth/forgot-password`,
+    resetPassword: `${API_BASE_URL}/auth/reset-password`,
     listarVinculos: `${API_BASE_URL}/auth/sistema`,
     escolherVinculo: (upcId) => `${API_BASE_URL}/auth/sistema/${upcId}`,
     escolherVinculoAdmin: `${API_BASE_URL}/auth/sistema/admin`,

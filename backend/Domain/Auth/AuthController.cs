@@ -15,15 +15,18 @@ namespace backend.Domain.Auth
     [Route("api/auth")]
     public class AuthController : ControllerBase
     {
+        private readonly IConfiguration _configuration;
         private readonly IAuthService _authService;
         private readonly ITokenService _tokenService;
         private readonly ILogger<AuthController> _logger;
 
         public AuthController(
+            IConfiguration configuration,
             IAuthService authService,
             ITokenService tokenService,
             ILogger<AuthController> logger)
         {
+            _configuration = configuration;
             _authService = authService;
             _tokenService = tokenService;
             _logger = logger;
@@ -70,7 +73,7 @@ namespace backend.Domain.Auth
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var remoteIp = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault() 
+            var remoteIp = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault()
                            ?? HttpContext.Connection.RemoteIpAddress?.ToString();
             var userAgent = Request.Headers["User-Agent"].ToString();
 
@@ -181,6 +184,34 @@ namespace backend.Domain.Auth
 
             _tokenService.SetCookieToken(HttpContext, result.Data.ToString());
             return Ok();
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto model)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var frontendUrl = _configuration["FrontendUrl"];
+
+            var result = await _authService.ForgotPasswordAsync(model, frontendUrl);
+
+            // Sempre retorna OK para não vazar a existência do email
+            return Ok(new { message = result.Message });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto model)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var result = await _authService.ResetPasswordAsync(model);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(new { message = result.Message });
+            }
+
+            return Ok(new { message = result.Message });
         }
     }
 }

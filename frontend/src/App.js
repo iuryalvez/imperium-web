@@ -8,8 +8,10 @@ import LayoutPublic from "./components/layout/LayoutPublic.jsx";
 import LayoutLogged from "./components/layout/LayoutLogged.jsx";
 import LayoutAuthenticated from "./components/layout/LayoutAuthenticated.jsx";
 
-import Login from "./features/Login/Login.jsx";
+import Login from "./features/Auth/Login/Login.jsx";
 import Sobre from "./features/Sobre/index.jsx";
+import RecuperarSenha from "./features/Auth/RecuperarSenha/RecuperarSenha.jsx";
+import NovaSenha from "./features/Auth/NovaSenha/NovaSenha.jsx";
 
 import SistemaInicioAdmin from "./features/Sistema/SistemaInicioAdmin/SistemaInicioAdmin.jsx";
 import SistemaInicioUsuario from "./features/Sistema/SistemaInicioUsuario/SistemaInicioUsuario.jsx";
@@ -53,6 +55,8 @@ const App = () => {
                     <Route path="/" element={<Login />} />
                     <Route path="login" element={<Login />} />
                     <Route path="sobre" element={<Sobre />} />
+                    <Route path="recuperar-senha" element={<RecuperarSenha />} />
+                    <Route path="recuperar-senha/nova-senha" element={<NovaSenha />} />
                   </Route>
                 </Route>
 
