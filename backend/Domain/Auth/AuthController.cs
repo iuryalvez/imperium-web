@@ -92,11 +92,13 @@ namespace backend.Domain.Auth
                 return Unauthorized(new { Message = result.Message });
             }
 
-            // O Data agora retorna um objeto anônimo { Token, RememberMe }
-            var responseData = (dynamic)result.Data;
-            _tokenService.SetCookieToken(HttpContext, responseData.Token, responseData.RememberMe);
+            // O result.Data já é a string do token gerado.
+            string token = result.Data.ToString();
 
-            return Ok(new { tokenLogin = responseData.Token });
+            // Lemos o RememberMe direto do model recebido pelo endpoint
+            _tokenService.SetCookieToken(HttpContext, token, model.RememberMe);
+
+            return Ok(new { tokenLogin = token });
         }
 
         [HttpGet("logout")]
