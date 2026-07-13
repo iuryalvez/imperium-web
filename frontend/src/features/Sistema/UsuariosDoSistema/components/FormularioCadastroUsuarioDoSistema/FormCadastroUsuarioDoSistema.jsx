@@ -24,7 +24,7 @@ const FormCadastroUsuarioDoSistema = ({ onFinish, onCancel, isSubmitting }) => {
   // 2. ESTADO DERIVADO: Calculamos as flags lógicas a partir dos perfis selecionados.
   const isAdminSelecionado = perfisSelecionados.includes("ADMIN");
   const isOutroPerfilSelecionado = perfisSelecionados.some(
-    (p) => p !== "ADMIN"
+    (p) => p !== "ADMIN",
   );
 
   // Opções de perfis
@@ -121,7 +121,31 @@ const FormCadastroUsuarioDoSistema = ({ onFinish, onCancel, isSubmitting }) => {
           <Divider orientation="left" plain>
             Segurança
           </Divider>
-          <Form.Item name="senha" label="Senha" rules={[{ required: true }]}>
+          <Form.Item
+            name="senha"
+            label="Senha"
+            hasFeedback
+            rules={[
+              { required: true, message: "A senha é obrigatória." },
+              { min: 8, message: "A senha deve ter no mínimo 8 caracteres." },
+              {
+                pattern: /[A-Z]/,
+                message: "Deve conter pelo menos uma letra maiúscula.",
+              },
+              {
+                pattern: /[a-z]/,
+                message: "Deve conter pelo menos uma letra minúscula.",
+              },
+              {
+                pattern: /[0-9]/,
+                message: "Deve conter pelo menos um número.",
+              },
+              {
+                pattern: /[^A-Za-z0-9]/,
+                message: "Deve conter pelo menos um caractere especial.",
+              },
+            ]}
+          >
             <Input.Password placeholder="Crie uma senha forte" />
           </Form.Item>
           <Form.Item

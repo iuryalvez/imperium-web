@@ -11,6 +11,9 @@ const FormEdicaoUsuarioDaClinica = ({
 }) => {
   const [form] = Form.useForm();
 
+  // Observa o campo "senha" em tempo real para exibir a confirmação dinamicamente
+  const senhaDigitada = Form.useWatch("senha", form);
+
   const perfisOptions = [
     { label: "Gestor", value: "GESTOR" },
     { label: "Veterinário", value: "VETERINARIO" },
@@ -20,7 +23,6 @@ const FormEdicaoUsuarioDaClinica = ({
   ];
 
   return (
-    // Usamos initialValues aqui para que o Form controle o preenchimento inicial
     <Form
       form={form}
       layout="vertical"
@@ -44,14 +46,20 @@ const FormEdicaoUsuarioDaClinica = ({
           <Form.Item
             name="nome"
             label="Nome Completo"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: "O nome é obrigatório." }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             name="email"
             label="E-mail"
-            rules={[{ required: true, type: "email" }]}
+            rules={[
+              {
+                required: true,
+                type: "email",
+                message: "Insira um e-mail válido.",
+              },
+            ]}
           >
             <Input />
           </Form.Item>
@@ -59,13 +67,13 @@ const FormEdicaoUsuarioDaClinica = ({
             label="CPF"
             name="cpf"
             rules={[
-              { required: true, message: "O CPF é obrigatório" },
+              { required: true, message: "O CPF é obrigatório." },
               () => ({
                 validator(_, value) {
                   if (!value || validarCPF(value)) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error("CPF inválido"));
+                  return Promise.reject(new Error("CPF inválido."));
                 },
               }),
             ]}
@@ -97,7 +105,9 @@ const FormEdicaoUsuarioDaClinica = ({
           <Form.Item
             label="Perfis na Clínica"
             name="perfis"
-            rules={[{ required: true }]}
+            rules={[
+              { required: true, message: "Selecione pelo menos um perfil." },
+            ]}
           >
             <Checkbox.Group
               options={perfisOptions}
@@ -116,28 +126,63 @@ const FormEdicaoUsuarioDaClinica = ({
           <Divider orientation="left" plain>
             Alterar Senha (Opcional)
           </Divider>
-          <Form.Item name="senha" label="Nova Senha">
-            <Input.Password placeholder="Deixe em branco para não alterar" />
-          </Form.Item>
+
           <Form.Item
-            name="confirmarSenha"
-            dependencies={["senha"]}
+            name="senha"
+            label="Nova Senha"
+            hasFeedback
+            // extra="Deixe em branco caso não queira alterar a senha atual."
             rules={[
-              ({ getFieldValue }) => ({
-                required: !!getFieldValue("senha"),
-                message: "Confirme a nova senha",
-              }),
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue("senha") === value)
-                    return Promise.resolve();
-                  return Promise.reject(new Error("As senhas não coincidem!"));
-                },
-              }),
+              // Regras ignoradas pelo Ant Design se o campo estiver vazio
+              { min: 8, message: "A senha deve ter no mínimo 8 caracteres." },
+              {
+                pattern: /[A-Z]/,
+                message: "Deve conter pelo menos uma letra maiúscula.",
+              },
+              {
+                pattern: /[a-z]/,
+                message: "Deve conter pelo menos uma letra minúscula.",
+              },
+              {
+                pattern: /[0-9]/,
+                message: "Deve conter pelo menos um número.",
+              },
+              {
+                pattern: /[^A-Za-z0-9]/,
+                message: "Deve conter pelo menos um caractere especial.",
+              },
             ]}
           >
-            <Input.Password placeholder="Repita a nova senha" />
+            <Input.Password placeholder="Deixe em branco para não alterar" />
           </Form.Item>
+
+          {/* Renderiza o confirmar senha APENAS se algo for digitado no campo senha */}
+          {senhaDigitada && (
+            <Form.Item
+              name="confirmarSenha"
+              label="Confirmar Nova Senha"
+              dependencies={["senha"]}
+              hasFeedback
+              rules={[
+                {
+                  required: true,
+                  message: "A confirmação da nova senha é obrigatória.",
+                },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue("senha") === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error("As senhas não coincidem."),
+                    );
+                  },
+                }),
+              ]}
+            >
+              <Input.Password placeholder="Repita a nova senha" />
+            </Form.Item>
+          )}
         </Col>
       </Row>
 
