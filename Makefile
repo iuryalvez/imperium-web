@@ -99,14 +99,14 @@ seed:
 # 	$(COMPOSE) exec $(SERVICE_API) npm run seed
 
 update:
-	sudo docker compose up -d --build
-	sudo make migrator
-	sudo docker image prune -f
+	docker compose up -d --build
+	make migrator
+	docker image prune -f
 	@echo ""
 	@echo "======================================================================"
 	@echo " APLICAÇÃO ATUALIZADA COM SUCESSO!"
 	@echo " Para aplicar as rotas, acesse o proxy global e reinicie o serviço:"
-	@echo " -> cd ~/https-server && sudo make restart"
+	@echo " -> cd ~/https-server && make restart"
 	@echo "======================================================================"
 	@echo ""
 
