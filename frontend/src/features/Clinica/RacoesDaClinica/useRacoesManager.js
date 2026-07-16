@@ -3,13 +3,15 @@ import { message } from "antd";
 import { racoesDaClinicaAPI } from "../../../api/clinica/racoesDaClinicaAPI";
 
 export const useRacoesManager = () => {
-  // Todos os estados ficam aqui
   const [racoes, setRacoes] = useState([]);
   const [loading, setLoading] = useState(true);
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingRacao, setEditingRacao] = useState(null); // Guarda a ração sendo editada
+  const [editingRacao, setEditingRacao] = useState(null);
+  
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [viewingRacao, setViewingRacao] = useState(null);
 
-  // A lógica de busca de dados
   const fetchRacoes = useCallback(async () => {
     setLoading(true);
     try {
@@ -26,30 +28,37 @@ export const useRacoesManager = () => {
     fetchRacoes();
   }, [fetchRacoes]);
 
-  // Todas as funções de manipulação (handlers)
   const handleOpenModal = (racao = null) => {
-    setEditingRacao(racao); // Se for null, é cadastro. Se tiver dados, é edição.
+    setEditingRacao(racao);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setEditingRacao(null); // Limpa o registro selecionado
+    setEditingRacao(null);
+  };
+
+  const handleOpenViewModal = (racao) => {
+    setViewingRacao(racao);
+    setIsViewModalOpen(true);
+  };
+
+  const handleCloseViewModal = () => {
+    setIsViewModalOpen(false);
+    setViewingRacao(null);
   };
 
   const handleSubmit = async (values) => {
     try {
       if (editingRacao) {
-        // Lógica de Edição
         await racoesDaClinicaAPI.editar({ ...editingRacao, ...values });
         message.success("Ração atualizada com sucesso!");
       } else {
-        // Lógica de Cadastro
         await racoesDaClinicaAPI.cadastrar(values);
         message.success("Ração cadastrada com sucesso!");
       }
       handleCloseModal();
-      fetchRacoes(); // Re-busca os dados
+      fetchRacoes();
     } catch (error) {
       message.error(error.message || "Falha na operação.");
     }
@@ -59,20 +68,23 @@ export const useRacoesManager = () => {
     try {
       await racoesDaClinicaAPI.deletar(racaoId);
       message.success("Ração excluída com sucesso!");
-      fetchRacoes(); // Re-busca os dados
+      fetchRacoes();
     } catch (error) {
       message.error("Erro ao excluir ração.");
     }
   };
 
-  // O hook retorna uma "API" para o componente de UI usar
   return {
     racoes,
     loading,
     isModalOpen,
     editingRacao,
+    isViewModalOpen,
+    viewingRacao,
     handleOpenModal,
     handleCloseModal,
+    handleOpenViewModal,
+    handleCloseViewModal,
     handleSubmit,
     handleDelete,
   };

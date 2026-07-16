@@ -12,24 +12,27 @@ import {
   EditOutlined,
   DeleteOutlined,
   SettingOutlined,
+  CalculatorOutlined,
 } from "@ant-design/icons";
-
 import colunas from "./colunas";
 
-const TabelaRacoesDaClinica = ({ racoes, onEdit, onDelete, loading }) => {
-  // ESTADO INTERNO para controlar as colunas visíveis.
-  // Inicializa com todas as colunas visíveis.
+const TabelaRacoesDaClinica = ({
+  racoes,
+  onEdit,
+  onDelete,
+  onView,
+  loading,
+}) => {
   const [visibleColumns, setVisibleColumns] = useState(
-    colunas.map((c) => c.key)
+    colunas.map((c) => c.key),
   );
 
   const handleColumnVisibilityChange = (key) => {
     setVisibleColumns((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
     );
   };
 
-  // DEFINIÇÃO DA COLUNA DE AÇÕES (MEMOIZADA)
   const colunaAcoes = useMemo(
     () => ({
       title: "Ações",
@@ -37,6 +40,12 @@ const TabelaRacoesDaClinica = ({ racoes, onEdit, onDelete, loading }) => {
       fixed: "right",
       render: (_, record) => (
         <Space>
+          <Tooltip title="Ver Cálculos">
+            <Button
+              icon={<CalculatorOutlined />}
+              onClick={() => onView(record)}
+            />
+          </Tooltip>
           <Tooltip title="Editar">
             <Button icon={<EditOutlined />} onClick={() => onEdit(record)} />
           </Tooltip>
@@ -51,16 +60,15 @@ const TabelaRacoesDaClinica = ({ racoes, onEdit, onDelete, loading }) => {
         </Space>
       ),
     }),
-    [onEdit, onDelete]
+    [onEdit, onDelete, onView],
   );
 
-  // 4. CÁLCULO DAS COLUNAS VISÍVEIS (MEMOIZADO)
   const colunasVisiveis = useMemo(
     () => [
       ...colunas.filter((col) => visibleColumns.includes(col.key)),
       colunaAcoes,
     ],
-    [visibleColumns, colunaAcoes]
+    [visibleColumns, colunaAcoes],
   );
 
   const menuColunas = (
@@ -98,6 +106,7 @@ const TabelaRacoesDaClinica = ({ racoes, onEdit, onDelete, loading }) => {
         rowKey="id"
         pagination={{ pageSize: 10, showSizeChanger: true }}
         scroll={{ x: "max-content" }}
+        loading={loading}
       />
     </div>
   );
