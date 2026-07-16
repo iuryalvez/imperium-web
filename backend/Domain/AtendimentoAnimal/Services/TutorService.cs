@@ -6,7 +6,7 @@ using backend.Domain.Usuarios.Interfaces;
 using backend.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace backend.Domain.AtendimentoAnimal.Impl
+namespace backend.Domain.AtendimentoAnimal.Services
 {
     public class TutorService : ITutorService
     {

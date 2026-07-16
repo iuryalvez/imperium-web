@@ -4,7 +4,7 @@ using backend.Domain.GestaoClinica.Interface;
 using backend.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace backend.Domain.GestaoClinica.Impl
+namespace backend.Domain.GestaoClinica.Services
 {
     public class ClinicaRepository : IClinicaRepository
     {

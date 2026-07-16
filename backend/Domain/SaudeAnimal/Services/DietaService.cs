@@ -4,9 +4,8 @@ using backend.Domain.Usuarios.Interfaces;
 using backend.Domain.SaudeAnimal.DTOs.Dieta;
 using backend.Domain.SaudeAnimal.Entities;
 using backend.Domain.SaudeAnimal.Interfaces;
-using backend.Domain.SaudeAnimal.Services;
 
-namespace backend.Domain.SaudeAnimal.Impl
+namespace backend.Domain.SaudeAnimal.Services
 {
     public class DietaService : IDietaService
     {
