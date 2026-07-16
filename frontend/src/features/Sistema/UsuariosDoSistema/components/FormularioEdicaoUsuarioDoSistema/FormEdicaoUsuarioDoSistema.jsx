@@ -20,6 +20,7 @@ const FormEdicaoUsuarioDoSistema = ({
   initialValues,
 }) => {
   const [form] = Form.useForm();
+  const senhaDigitada = Form.useWatch("senha", form);
 
   const isAdmin = initialValues?.isAdmin || false;
 
@@ -32,14 +33,12 @@ const FormEdicaoUsuarioDoSistema = ({
   ];
 
   return (
-    // Usamos initialValues aqui para que o Form controle o preenchimento inicial
     <Form
       form={form}
       layout="vertical"
       onFinish={onFinish}
       initialValues={initialValues}
     >
-      {/* IDs necessários para o backend, mas ocultos para o usuário */}
       <Form.Item name="id" hidden>
         <Input />
       </Form.Item>
@@ -59,14 +58,14 @@ const FormEdicaoUsuarioDoSistema = ({
           <Form.Item
             name="nome"
             label="Nome Completo"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: "O nome é obrigatório." }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             name="email"
             label="E-mail"
-            rules={[{ required: true, type: "email" }]}
+            rules={[{ required: true, type: "email", message: "Insira um e-mail válido." }]}
           >
             <Input />
           </Form.Item>
@@ -110,19 +109,17 @@ const FormEdicaoUsuarioDoSistema = ({
           </Divider>
 
           {isAdmin ? (
-            // --- Lógica para Administradores ---
             <>
               <Form.Item label="Perfil de acesso">
                 <Tag color="blue">Administrador do sistema</Tag>
               </Form.Item>
             </>
           ) : (
-            // --- Lógica para Usuários de Clínica ---
             <>
               <Form.Item
                 label="Perfis na Clínica"
                 name="perfis"
-                rules={[{ required: true }]}
+                rules={[{ required: true, message: "Selecione pelo menos um perfil." }]}
               >
                 <Checkbox.Group
                   options={perfisOptions}
@@ -149,28 +146,61 @@ const FormEdicaoUsuarioDoSistema = ({
           <Divider orientation="left" plain>
             Alterar Senha (Opcional)
           </Divider>
-          <Form.Item name="senha" label="Nova Senha">
-            <Input.Password placeholder="Deixe em branco para não alterar" />
-          </Form.Item>
+          
           <Form.Item
-            name="confirmarSenha"
-            dependencies={["senha"]}
+            name="senha"
+            label="Nova Senha"
+            hasFeedback
+            // extra="Deixe em branco caso não queira alterar a senha atual."
             rules={[
-              ({ getFieldValue }) => ({
-                required: !!getFieldValue("senha"),
-                message: "Confirme a nova senha",
-              }),
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue("senha") === value)
-                    return Promise.resolve();
-                  return Promise.reject(new Error("As senhas não coincidem!"));
-                },
-              }),
+              // O Ant Design ignora essas regras se o campo estiver vazio (sem o "required: true")
+              { min: 8, message: "A senha deve ter no mínimo 8 caracteres." },
+              {
+                pattern: /[A-Z]/,
+                message: "Deve conter pelo menos uma letra maiúscula.",
+              },
+              {
+                pattern: /[a-z]/,
+                message: "Deve conter pelo menos uma letra minúscula.",
+              },
+              {
+                pattern: /[0-9]/,
+                message: "Deve conter pelo menos um número.",
+              },
+              {
+                pattern: /[^A-Za-z0-9]/,
+                message: "Deve conter pelo menos um caractere especial.",
+              },
             ]}
           >
-            <Input.Password placeholder="Repita a nova senha" />
+            <Input.Password placeholder="Deixe em branco para não alterar" />
           </Form.Item>
+
+          {/* Renderiza o confirmar senha APENAS se algo for digitado no campo senha */}
+          {senhaDigitada && (
+            <Form.Item
+              name="confirmarSenha"
+              label="Confirmar Nova Senha"
+              dependencies={["senha"]}
+              hasFeedback
+              rules={[
+                {
+                  required: true,
+                  message: "A confirmação da nova senha é obrigatória.",
+                },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue("senha") === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error("As senhas não coincidem."));
+                  },
+                }),
+              ]}
+            >
+              <Input.Password placeholder="Repita a nova senha" />
+            </Form.Item>
+          )}
         </Col>
       </Row>
 

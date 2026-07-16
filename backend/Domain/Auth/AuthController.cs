@@ -1,13 +1,13 @@
 using backend.Domain.Auth.DTOs;
+using backend.Domain.Usuarios.DTOs;
+using backend.Domain.Auth.Interfaces;
+using backend.Domain.Auth.Extensions;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
 using System.Security.Claims;
 using System.Text.Json;
-using backend.Domain.Usuarios.DTOs;
-using backend.Domain.Auth.Interfaces;
-using backend.Domain.Auth.Extensions;
 
 namespace backend.Domain.Auth
 {
@@ -30,6 +30,15 @@ namespace backend.Domain.Auth
             _authService = authService;
             _tokenService = tokenService;
             _logger = logger;
+        }
+
+        // Método auxiliar privado para centralizar a lógica de extração do IP Real (Clean Code)
+        private string GetRealIpAddress()
+        {
+            var forwardedHeader = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            return !string.IsNullOrEmpty(forwardedHeader)
+                ? forwardedHeader.Split(',')[0].Trim()
+                : HttpContext.Connection.RemoteIpAddress?.ToString();
         }
 
         [HttpGet("check")]
@@ -73,20 +82,23 @@ namespace backend.Domain.Auth
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var remoteIp = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault()
-                           ?? HttpContext.Connection.RemoteIpAddress?.ToString();
+            var remoteIp = GetRealIpAddress();
             var userAgent = Request.Headers["User-Agent"].ToString();
 
             var result = await _authService.LoginAsync(model, remoteIp, userAgent);
 
             if (!result.Succeeded)
             {
-                // Returns 401 Unauthorized for authentication failure context 
                 return Unauthorized(new { Message = result.Message });
             }
 
-            _tokenService.SetCookieToken(HttpContext, result.Data.ToString());
-            return Ok(new { tokenLogin = result.Data.ToString() });
+            // O result.Data já é a string do token gerado.
+            string token = result.Data.ToString();
+
+            // Lemos o RememberMe direto do model recebido pelo endpoint
+            _tokenService.SetCookieToken(HttpContext, token, model.RememberMe);
+
+            return Ok(new { tokenLogin = token });
         }
 
         [HttpGet("logout")]
@@ -125,7 +137,8 @@ namespace backend.Domain.Auth
             if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized("Usuário não autenticado.");
 
             var isAcessoLogin = User.GetClaimValue<bool>("acessoLogin");
-            var remoteIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+
+            var remoteIp = GetRealIpAddress();
             var userAgent = Request.Headers["User-Agent"].ToString();
 
             var result = await _authService.SelecionarVinculoAsync(upcId, userIdClaim, isAcessoLogin, remoteIp, userAgent);
@@ -133,9 +146,8 @@ namespace backend.Domain.Auth
             if (!result.Succeeded)
                 return NotFound(result.Message);
 
-            // Dynamically resolves the anonymous object created in the service layer
             var responseData = (dynamic)result.Data;
-            _tokenService.SetCookieToken(HttpContext, responseData.Token);
+            _tokenService.SetCookieToken(HttpContext, responseData.Token); // Por padrão rememberMe = false ao trocar vínculo
 
             return Ok(responseData.Vinculo);
         }
@@ -150,7 +162,7 @@ namespace backend.Domain.Auth
             var isAdmin = User.Claims.Any(c => c.Type == "isAdmin" && c.Value == "true");
             if (!isAdmin) return Forbid("Apenas administradores podem selecionar vínculo administrativo.");
 
-            var remoteIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var remoteIp = GetRealIpAddress();
             var userAgent = Request.Headers["User-Agent"].ToString();
             var usuarioNome = User.FindFirst(ClaimTypes.Name)?.Value ?? "Administrador";
 
@@ -174,7 +186,8 @@ namespace backend.Domain.Auth
 
             var isAcessoLogin = User.GetClaimValue<bool>("acessoLogin");
             var isAdmin = User.GetClaimValue<bool>("isAdmin");
-            var remoteIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+
+            var remoteIp = GetRealIpAddress();
             var userAgent = Request.Headers["User-Agent"].ToString();
 
             var result = await _authService.TrocarVinculoAsync(userIdClaim, isAcessoLogin, isAdmin, remoteIp, userAgent);
@@ -192,10 +205,8 @@ namespace backend.Domain.Auth
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var frontendUrl = _configuration["FrontendUrl"];
-
             var result = await _authService.ForgotPasswordAsync(model, frontendUrl);
 
-            // Sempre retorna OK para não vazar a existência do email
             return Ok(new { message = result.Message });
         }
 

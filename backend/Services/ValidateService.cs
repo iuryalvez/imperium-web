@@ -74,7 +74,10 @@ namespace backend.Services
                 throw new SecurityTokenException("Usuário não autenticado.");
             }
 
-            var currentIp = httpContext.Connection.RemoteIpAddress?.ToString();
+            var forwardedHeader = httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            var currentIp = !string.IsNullOrEmpty(forwardedHeader) 
+                ? forwardedHeader.Split(',')[0].Trim() 
+                : httpContext.Connection.RemoteIpAddress?.ToString();
             var currentUserAgent = httpContext.Request.Headers["User-Agent"].ToString();
 
             bool isAtivo = principal.GetClaimValue<bool>("isAtivo");
