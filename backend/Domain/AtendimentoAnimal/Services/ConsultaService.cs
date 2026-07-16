@@ -4,7 +4,7 @@ using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interface;
 using backend.Domain.Usuarios.Interfaces;
 
-namespace backend.Domain.AtendimentoAnimal.Impl
+namespace backend.Domain.AtendimentoAnimal.Services
 {
     public class ConsultaService : IConsultaService
     {

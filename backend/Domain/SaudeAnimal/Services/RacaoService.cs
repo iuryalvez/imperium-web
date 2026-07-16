@@ -4,7 +4,7 @@ using backend.Domain.Usuarios.Interfaces;
 using backend.Domain.SaudeAnimal.Entities;
 using backend.Domain.SaudeAnimal.Interfaces;
 
-namespace backend.Domain.SaudeAnimal.Impl;
+namespace backend.Domain.SaudeAnimal.Services;
 
 /// <summary>
 /// Serviço responsável pela lógica de negócio relacionada a Rações.

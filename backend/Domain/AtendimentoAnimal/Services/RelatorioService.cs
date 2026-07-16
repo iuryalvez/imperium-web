@@ -5,9 +5,8 @@ using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interface;
 using backend.Domain.Usuarios.Interfaces;
 using backend.Infra.Data;
-using backend.Infra.Data.Repositories; // Para AppDbContext (apenas para transação)
 
-namespace backend.Domain.AtendimentoAnimal.Impl
+namespace backend.Domain.AtendimentoAnimal.Services
 {
     public class RelatorioService : IRelatorioService
     {
