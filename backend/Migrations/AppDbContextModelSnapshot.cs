@@ -726,7 +726,7 @@ namespace backend.Migrations
                         {
                             Id = 28,
                             Especie = 1,
-                            Nome = "Carlino",
+                            Nome = "Pug",
                             PesoMaximoReferenciaFemea = 6.5,
                             PesoMaximoReferenciaMacho = 8.0,
                             PesoMinimoReferenciaFemea = 6.5,
@@ -1086,7 +1086,7 @@ namespace backend.Migrations
                         {
                             Id = 58,
                             Especie = 1,
-                            Nome = "Grand Danois",
+                            Nome = "Dogue Alemão (Grande Dinamarquês)",
                             PesoMaximoReferenciaFemea = 55.0,
                             PesoMaximoReferenciaMacho = 80.0,
                             PesoMinimoReferenciaFemea = 55.0,
@@ -1326,7 +1326,7 @@ namespace backend.Migrations
                         {
                             Id = 78,
                             Especie = 1,
-                            Nome = "Pequinois",
+                            Nome = "Pequinês",
                             PesoMaximoReferenciaFemea = 4.0,
                             PesoMaximoReferenciaMacho = 6.5,
                             PesoMinimoReferenciaFemea = 4.0,
@@ -1398,7 +1398,7 @@ namespace backend.Migrations
                         {
                             Id = 84,
                             Especie = 1,
-                            Nome = "Ponteiro Alemão",
+                            Nome = "Pointer Alemão (Braco Alemão)",
                             PesoMaximoReferenciaFemea = 27.0,
                             PesoMaximoReferenciaMacho = 32.0,
                             PesoMinimoReferenciaFemea = 20.5,
@@ -1446,7 +1446,7 @@ namespace backend.Migrations
                         {
                             Id = 88,
                             Especie = 1,
-                            Nome = "Retrivier de Pêlo Liso",
+                            Nome = "Flat-Coated Retriever",
                             PesoMaximoReferenciaFemea = 34.0,
                             PesoMaximoReferenciaMacho = 36.0,
                             PesoMinimoReferenciaFemea = 25.0,
@@ -1482,7 +1482,7 @@ namespace backend.Migrations
                         {
                             Id = 91,
                             Especie = 1,
-                            Nome = "Samoyedo",
+                            Nome = "Samoieda",
                             PesoMaximoReferenciaFemea = 25.0,
                             PesoMaximoReferenciaMacho = 30.0,
                             PesoMinimoReferenciaFemea = 17.0,
@@ -1698,7 +1698,7 @@ namespace backend.Migrations
                         {
                             Id = 109,
                             Especie = 1,
-                            Nome = "Terranova",
+                            Nome = "Terra-nova",
                             PesoMaximoReferenciaFemea = 55.0,
                             PesoMaximoReferenciaMacho = 69.0,
                             PesoMinimoReferenciaFemea = 50.0,
@@ -1813,28 +1813,28 @@ namespace backend.Migrations
                         {
                             Id = 119,
                             Especie = 2,
-                            Nome = "Abyssinian",
+                            Nome = "Abissínio",
                             Referencia = ""
                         },
                         new
                         {
                             Id = 120,
                             Especie = 2,
-                            Nome = "American Bobtail",
+                            Nome = "Bobtail Americano",
                             Referencia = ""
                         },
                         new
                         {
                             Id = 121,
                             Especie = 2,
-                            Nome = "American Curl",
+                            Nome = "Curl Americano",
                             Referencia = ""
                         },
                         new
                         {
                             Id = 122,
                             Especie = 2,
-                            Nome = "American Shorthair",
+                            Nome = "Gato de Pelo Curto Americano",
                             Referencia = ""
                         },
                         new
@@ -1848,35 +1848,35 @@ namespace backend.Migrations
                         {
                             Id = 124,
                             Especie = 2,
-                            Nome = "Balinese",
+                            Nome = "Balinês",
                             Referencia = ""
                         },
                         new
                         {
                             Id = 125,
                             Especie = 2,
-                            Nome = "Bengal",
+                            Nome = "Bengal (Gato-de-Bengala)",
                             Referencia = ""
                         },
                         new
                         {
                             Id = 126,
                             Especie = 2,
-                            Nome = "Birman",
+                            Nome = "Birmanês (Sagrado da Birmânia)",
                             Referencia = ""
                         },
                         new
                         {
                             Id = 127,
                             Especie = 2,
-                            Nome = "Bombay",
+                            Nome = "Bombay (Bombaim)",
                             Referencia = ""
                         },
                         new
                         {
                             Id = 128,
                             Especie = 2,
-                            Nome = "British Shorthair",
+                            Nome = "Gato de Pelo Curto Inglês",
                             Referencia = ""
                         },
                         new
@@ -1911,35 +1911,35 @@ namespace backend.Migrations
                         {
                             Id = 133,
                             Especie = 2,
-                            Nome = "Egyptian Mau",
+                            Nome = "Mau Egípcio",
                             Referencia = ""
                         },
                         new
                         {
                             Id = 134,
                             Especie = 2,
-                            Nome = "Exotic Shorthair",
+                            Nome = "Exótico",
                             Referencia = ""
                         },
                         new
                         {
                             Id = 135,
                             Especie = 2,
-                            Nome = "Havana Brown",
+                            Nome = "Havana Brown (Oriental Havana)",
                             Referencia = ""
                         },
                         new
                         {
                             Id = 136,
                             Especie = 2,
-                            Nome = "Himalayan",
+                            Nome = "Himalaio",
                             Referencia = ""
                         },
                         new
                         {
                             Id = 137,
                             Especie = 2,
-                            Nome = "Japanese Bobtail",
+                            Nome = "Bobtail Japonês",
                             Referencia = ""
                         },
                         new
@@ -1967,14 +1967,14 @@ namespace backend.Migrations
                         {
                             Id = 141,
                             Especie = 2,
-                            Nome = "Manx",
+                            Nome = "Manx (Manês)",
                             Referencia = ""
                         },
                         new
                         {
                             Id = 142,
                             Especie = 2,
-                            Nome = "Norwegian Forest Cat",
+                            Nome = "Norueguês da Floresta",
                             Referencia = ""
                         },
                         new
@@ -1988,14 +1988,14 @@ namespace backend.Migrations
                         {
                             Id = 144,
                             Especie = 2,
-                            Nome = "Oriental",
+                            Nome = "Oriental Shorthair",
                             Referencia = ""
                         },
                         new
                         {
                             Id = 145,
                             Especie = 2,
-                            Nome = "Persian",
+                            Nome = "Persa",
                             Referencia = ""
                         },
                         new
@@ -2016,7 +2016,7 @@ namespace backend.Migrations
                         {
                             Id = 148,
                             Especie = 2,
-                            Nome = "Russian Blue",
+                            Nome = "Azul Russo",
                             Referencia = ""
                         },
                         new
@@ -2044,14 +2044,14 @@ namespace backend.Migrations
                         {
                             Id = 152,
                             Especie = 2,
-                            Nome = "Siamese",
+                            Nome = "Siamês",
                             Referencia = ""
                         },
                         new
                         {
                             Id = 153,
                             Especie = 2,
-                            Nome = "Siberian",
+                            Nome = "Siberiano",
                             Referencia = ""
                         },
                         new
@@ -2079,14 +2079,14 @@ namespace backend.Migrations
                         {
                             Id = 157,
                             Especie = 2,
-                            Nome = "Tonkinese",
+                            Nome = "Tonquinês",
                             Referencia = ""
                         },
                         new
                         {
                             Id = 158,
                             Especie = 2,
-                            Nome = "Turkish Angora",
+                            Nome = "Angorá (Turkish Angora)",
                             Referencia = ""
                         },
                         new
@@ -2094,13 +2094,6 @@ namespace backend.Migrations
                             Id = 159,
                             Especie = 2,
                             Nome = "Turkish Van",
-                            Referencia = ""
-                        },
-                        new
-                        {
-                            Id = 160,
-                            Especie = 2,
-                            Nome = "Sem Raça Definida (SRD)",
                             Referencia = ""
                         });
                 });
@@ -2361,6 +2354,145 @@ namespace backend.Migrations
                     b.ToTable("Clinicas");
                 });
 
+            modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.DietaPersonalizada", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CriadoPor")
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly>("DataCriacao")
+                        .HasColumnType("date");
+
+                    b.Property<int?>("DuracaoEstimada")
+                        .HasColumnType("integer");
+
+                    b.Property<double?>("EnergiaMetabolizavel")
+                        .HasColumnType("double precision");
+
+                    b.Property<int?>("FaseVida")
+                        .HasColumnType("integer");
+
+                    b.Property<double?>("MultiplicadorEnergeticoCustom")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("Observacoes")
+                        .HasColumnType("text");
+
+                    b.Property<double?>("PesoAtual")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("PesoIdeal")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("PesoObjetivo")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("PotenciaCustom")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("QtdAlimento")
+                        .HasColumnType("double precision");
+
+                    b.Property<int>("RacaoId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RelatorioId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TipoDieta")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RacaoId");
+
+                    b.HasIndex("RelatorioId")
+                        .IsUnique();
+
+                    b.ToTable("DietasPersonalizadas");
+                });
+
+            modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.Racao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClinicaId")
+                        .HasColumnType("integer");
+
+                    b.Property<double?>("CoeficienteDigestibilidadeEnergia")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("EnergiaBruta")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("EnergiaDigestivel")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("EnergiaExtrativoNaoNitrogenado")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("EnergiaExtratoEtereo")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("EnergiaMetabolizavel")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("EnergiaProteina")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("EnergiaTotalEstimativa")
+                        .HasColumnType("double precision");
+
+                    b.Property<int>("Especie")
+                        .HasColumnType("integer");
+
+                    b.Property<double?>("ExtrativoNaoNitrogenado")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("ExtratoEtereo")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("FibraBruta")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("FibraDieteticaTotal")
+                        .HasColumnType("double precision");
+
+                    b.Property<bool>("IsPorcentagem")
+                        .HasColumnType("boolean");
+
+                    b.Property<double>("MateriaMineral")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("MateriaSeca")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<double>("ProteinaBruta")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("Umidade")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClinicaId");
+
+                    b.ToTable("Racoes");
+                });
+
             modelBuilder.Entity("backend.Domain.Usuarios.Entities.Usuario", b =>
                 {
                     b.Property<int>("Id")
@@ -2561,145 +2693,6 @@ namespace backend.Migrations
                             UserName = "ceron",
                             Whatsapp = "62940302010"
                         });
-                });
-
-            modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.DietaPersonalizada", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CriadoPor")
-                        .HasColumnType("text");
-
-                    b.Property<DateOnly>("DataCriacao")
-                        .HasColumnType("date");
-
-                    b.Property<int?>("DuracaoEstimada")
-                        .HasColumnType("integer");
-
-                    b.Property<double?>("EnergiaMetabolizavel")
-                        .HasColumnType("double precision");
-
-                    b.Property<int?>("FaseVida")
-                        .HasColumnType("integer");
-
-                    b.Property<double?>("MultiplicadorEnergeticoCustom")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("Observacoes")
-                        .HasColumnType("text");
-
-                    b.Property<double?>("PesoAtual")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("PesoIdeal")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("PesoObjetivo")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("PotenciaCustom")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("QtdAlimento")
-                        .HasColumnType("double precision");
-
-                    b.Property<int>("RacaoId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("RelatorioId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TipoDieta")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RacaoId");
-
-                    b.HasIndex("RelatorioId")
-                        .IsUnique();
-
-                    b.ToTable("DietasPersonalizadas");
-                });
-
-            modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.Racao", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ClinicaId")
-                        .HasColumnType("integer");
-
-                    b.Property<double?>("CoeficienteDigestibilidadeEnergia")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("EnergiaBruta")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("EnergiaDigestivel")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("EnergiaExtrativoNaoNitrogenado")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("EnergiaExtratoEtereo")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("EnergiaMetabolizavel")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("EnergiaProteina")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("EnergiaTotalEstimativa")
-                        .HasColumnType("double precision");
-
-                    b.Property<int>("Especie")
-                        .HasColumnType("integer");
-
-                    b.Property<double?>("ExtrativoNaoNitrogenado")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("ExtratoEtereo")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("FibraBruta")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("FibraDieteticaTotal")
-                        .HasColumnType("double precision");
-
-                    b.Property<bool>("IsPorcentagem")
-                        .HasColumnType("boolean");
-
-                    b.Property<double>("MateriaMineral")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("MateriaSeca")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<double>("ProteinaBruta")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("Umidade")
-                        .HasColumnType("double precision");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClinicaId");
-
-                    b.ToTable("Racoes");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -3007,18 +3000,18 @@ namespace backend.Migrations
                     b.Navigation("UsuariosPerfisClinicas");
                 });
 
-            modelBuilder.Entity("backend.Domain.Usuarios.Entities.Usuario", b =>
-                {
-                    b.Navigation("Consultas");
-
-                    b.Navigation("UsuariosPerfisClinicas");
-                });
-
             modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.Racao", b =>
                 {
                     b.Navigation("DietasPersonalizadas");
 
                     b.Navigation("Relatorios");
+                });
+
+            modelBuilder.Entity("backend.Domain.Usuarios.Entities.Usuario", b =>
+                {
+                    b.Navigation("Consultas");
+
+                    b.Navigation("UsuariosPerfisClinicas");
                 });
 #pragma warning restore 612, 618
         }

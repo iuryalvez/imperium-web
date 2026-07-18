@@ -9,7 +9,9 @@ export const useRacasDaClinicaManager = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingRaca, setEditingRaca] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filtroEspecie, setFiltroEspecie] = useState(null); // 'Cao', 'Gato' ou null
+  const [filtroEspecie, setFiltroEspecie] = useState(null);
+
+  const [mostrarRacasSistema, setMostrarRacasSistema] = useState(true);
 
   const fetchRacas = useCallback(async () => {
     setLoading(true);
@@ -28,20 +30,21 @@ export const useRacasDaClinicaManager = () => {
   }, [fetchRacas]);
 
   const filteredRacas = useMemo(() => {
-    // Se não há filtros ativos, retorna a lista completa
-    if (!searchTerm && !filtroEspecie) {
-      return allRacas;
-    }
-
-    // Se há filtros, aplica a lógica
     return allRacas.filter((raca) => {
       const matchWithEspecie = !filtroEspecie || raca.especie === filtroEspecie;
       const matchWithSearch =
         !searchTerm ||
         raca.nome.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchWithEspecie && matchWithSearch;
+
+      // Filters out system breeds if the toggle is disabled
+      // System breeds are identified by the absence of a clinicaId
+      const isSystemBreed =
+        raca.clinicaId === null || raca.clinicaId === undefined;
+      const matchWithSistema = mostrarRacasSistema || !isSystemBreed;
+
+      return matchWithEspecie && matchWithSearch && matchWithSistema;
     });
-  }, [allRacas, filtroEspecie, searchTerm]);
+  }, [allRacas, filtroEspecie, searchTerm, mostrarRacasSistema]);
 
   const handleDelete = async (id) => {
     try {
@@ -57,6 +60,7 @@ export const useRacasDaClinicaManager = () => {
     setEditingRaca(raca);
     setIsModalOpen(true);
   };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingRaca(null);
@@ -64,15 +68,14 @@ export const useRacasDaClinicaManager = () => {
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
-    setFiltroEspecie(null); // Limpa o filtro de espécie ao fazer uma busca textual
+    setFiltroEspecie(null);
   };
 
   const handleFilterByEspecie = (especie) => {
-    setSearchTerm(""); // Limpa a busca textual ao filtrar por espécie
+    setSearchTerm("");
     setFiltroEspecie(especie);
   };
 
-  // Handler para submissão do formulário de raça
   const handleSubmit = async (values) => {
     setIsSubmitting(true);
     try {
@@ -88,7 +91,6 @@ export const useRacasDaClinicaManager = () => {
       message.success(successMessage);
       handleCloseModal();
       await fetchRacas();
-      
     } catch (error) {
       message.error(error.message || "Falha ao salvar a raça.");
     } finally {
@@ -96,7 +98,6 @@ export const useRacasDaClinicaManager = () => {
     }
   };
 
-  // Retorna todos os estados e handlers que a UI precisa
   return {
     loading,
     isModalOpen,
@@ -104,6 +105,8 @@ export const useRacasDaClinicaManager = () => {
     editingRaca,
     filteredRacas,
     searchTerm,
+    mostrarRacasSistema,
+    setMostrarRacasSistema,
     handleOpenModal,
     handleCloseModal,
     handleSubmit,

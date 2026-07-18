@@ -1,6 +1,6 @@
 import React from "react";
-import { Button, Input, Modal, Skeleton, Space } from "antd";
-import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Modal, Skeleton, Space } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import { useAnimaisDaClinicaManager } from "./useAnimaisDaClinicaManager";
 import FormCadastroAnimal from "./components/FormularioCadastroAnimaisDaClinica/FormCadastroAnimais";
 import FormEdicaoAnimal from "./components/FormularioEdicaoAnimaisDaClinica/FormEdicaoAnimais";
@@ -13,14 +13,14 @@ const AnimaisDaClinica = () => {
     animais,
     loading,
     loadingRowKey,
-    searchTerm,
+    // searchTerm,
     isSubmitting,
     isModalAnimalOpen,
     isModalRacasOpen,
     isModalDetalhesOpen,
     editingAnimal,
     viewingAnimal,
-    handleSearch,
+    // handleSearch,
     handleOpenModal,
     handleCloseModal,
     handleOpenModalRacas,
@@ -101,7 +101,8 @@ const AnimaisDaClinica = () => {
         onCancel={handleCloseModalRacas}
         footer={null}
         destroyOnClose
-        width="min(800px, 95vw)"
+        width="min(900px, 95vw)"
+        style={{ top: 90 }}
       >
         <GerenciadorDeRacas />
       </Modal>

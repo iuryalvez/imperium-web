@@ -156,6 +156,23 @@ namespace backend.Domain.AtendimentoAnimal.Services
         }
 
         /// <summary>
+        /// Lista todas as raças disponíveis para a clínica (sistema + específicas), opcionalmente filtradas por espécie.
+        /// </summary>
+        public async Task<List<GetRacaDto>> ListAvailableForClinicaAndEspecieAsync(int clinicaId, EspecieAnimal? especie)
+        {
+            _logger.LogInformation("Buscando raças disponíveis (sistema + clínica) para a clínica {ClinicaId}. Filtro por espécie: {Especie}", clinicaId, especie?.ToString() ?? "Nenhum");
+
+            var racas = await _racaRepository.ListAvailableForClinicaAsync(clinicaId);
+
+            if (especie.HasValue)
+            {
+                racas = racas.Where(r => r.Especie == especie.Value).ToList();
+            }
+
+            return _mapper.Map<List<GetRacaDto>>(racas);
+        }
+
+        /// <summary>
         /// Atualiza uma raça existente. Se a raça for padrão do sistema (ClinicaId nulo), 
         /// cria uma nova cópia específica para a clínica com as alterações. 
         /// Se a raça já for da clínica, atualiza seus dados.

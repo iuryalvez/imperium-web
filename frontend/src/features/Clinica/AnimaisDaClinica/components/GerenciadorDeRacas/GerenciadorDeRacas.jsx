@@ -9,11 +9,13 @@ import {
   Tag,
   Input,
   Divider,
+  Select,
 } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
+  GlobalOutlined,
 } from "@ant-design/icons";
 import { useRacasDaClinicaManager } from "./useRacasDaClinicaManager";
 import FormCadastroRaca from "./FormCadastroRaca";
@@ -27,6 +29,8 @@ const GerenciadorDeRacas = () => {
     editingRaca,
     filteredRacas,
     searchTerm,
+    mostrarRacasSistema,
+    setMostrarRacasSistema,
     handleOpenModal,
     handleCloseModal,
     handleSubmit,
@@ -40,81 +44,124 @@ const GerenciadorDeRacas = () => {
       <div
         style={{
           display: "flex",
-          flexDirection: "column",
           gap: 16,
-          marginBottom: 16,
+          alignItems: "center",
+          flexWrap: "wrap",
+          justifyContent: "space-between",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            gap: 16,
-            alignItems: "center",
-            flexWrap: "wrap",
-          }}
-        >
+        <Space wrap>
           <Input.Search
-            placeholder="Ex: Golden Retriever"
+            placeholder="Buscar por nome..."
             value={searchTerm}
             onChange={handleSearch}
-            style={{ flex: 1, minWidth: 200 }}
+            style={{ maxWidth: 300, flex: 1 }}
             allowClear
           />
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => handleOpenModal()}
-          >
-            Nova Raça
-          </Button>
-        </div>
-        <div>
-          <Space wrap>
-            <Button onClick={() => handleFilterByEspecie("Cao")}>Raças de Cães</Button>
-            <Button onClick={() => handleFilterByEspecie("Gato")}>Raças de Gatos</Button>
-            <Button onClick={() => handleFilterByEspecie(null)}>Todos</Button>
-          </Space>
-        </div>
+
+          {/* Filters grouped into Select components */}
+          <Select
+            defaultValue={null}
+            style={{ width: 200 }}
+            onChange={(value) => handleFilterByEspecie(value)}
+            options={[
+              { value: null, label: "Todas as Espécies" },
+              { value: "Cao", label: "Cães" },
+              { value: "Gato", label: "Gatos" },
+            ]}
+          />
+
+          <Select
+            value={mostrarRacasSistema ? "todas" : "clinica"}
+            style={{ width: 170 }}
+            onChange={(value) => setMostrarRacasSistema(value === "todas")}
+            options={[
+              { value: "todas", label: "Todas as Origens" },
+              { value: "clinica", label: "Apenas da Clínica" },
+            ]}
+          />
+        </Space>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => handleOpenModal()}
+          style={{ marginRight: 8 }}
+        >
+          Nova Raça
+        </Button>
       </div>
 
       <Divider />
 
       <List
         loading={loading}
-        itemLayout="horizontal"
+        grid={{ gutter: 16, column: 3, xs: 1, sm: 2, md: 3 }}
         dataSource={filteredRacas}
-        renderItem={(raca) => (
-          <List.Item
-            actions={[
-              <Tooltip title="Editar">
-                <Button
-                  type="text"
-                  icon={<EditOutlined />}
-                  onClick={() => handleOpenModal(raca)}
-                />
-              </Tooltip>,
-              <Tooltip title="Excluir">
-                <Popconfirm
-                  title="Tem certeza?"
-                  onConfirm={() => handleDelete(raca.id)}
-                  okText="Sim"
-                  cancelText="Não"
-                >
-                  <Button type="text" icon={<DeleteOutlined />} danger />
-                </Popconfirm>
-              </Tooltip>,
-            ]}
-          >
-            <List.Item.Meta
-              title={raca.nome}
-              description={
-                <Tag color={raca.especie === "Cao" ? "blue" : "green"}>
-                  {raca.especie}
-                </Tag>
-              }
-            />
-          </List.Item>
-        )}
+        pagination={{
+          pageSize: 12,
+          align: "center",
+          size: "small",
+        }}
+        renderItem={(raca) => {
+          const isSystemBreed =
+            raca.clinicaId === null || raca.clinicaId === undefined;
+
+          return (
+            <List.Item
+              style={{
+                border: "1px solid #f0f0f0",
+                borderRadius: 8,
+                padding: "12px 16px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 12,
+              }}
+            >
+              <List.Item.Meta
+                title={
+                  <Space>
+                    {raca.nome}
+                    {isSystemBreed && (
+                      <Tooltip title="Raça padrão do sistema">
+                        <GlobalOutlined style={{ color: "#1890ff" }} />
+                      </Tooltip>
+                    )}
+                  </Space>
+                }
+                description={
+                  <Tag
+                    color={raca.especie === "Cao" ? "blue" : "green"}
+                    style={{ marginTop: 4 }}
+                  >
+                    {raca.especie}
+                  </Tag>
+                }
+              />
+              <Space size="small">
+                <Tooltip title={isSystemBreed ? "Personalizar Raça" : "Editar"}>
+                  <Button
+                    type="text"
+                    icon={<EditOutlined />}
+                    onClick={() => handleOpenModal(raca)}
+                  />
+                </Tooltip>
+                {!isSystemBreed && (
+                  <Tooltip title="Excluir">
+                    <Popconfirm
+                      title="Deseja excluir esta raça?"
+                      onConfirm={() => handleDelete(raca.id)}
+                      okText="Sim"
+                      cancelText="Não"
+                    >
+                      <Button type="text" icon={<DeleteOutlined />} danger />
+                    </Popconfirm>
+                  </Tooltip>
+                )}
+              </Space>
+            </List.Item>
+          );
+        }}
         locale={{
           emptyText:
             "Nenhuma raça encontrada. Use a busca ou os filtros acima.",
@@ -122,7 +169,6 @@ const GerenciadorDeRacas = () => {
       />
 
       <Modal
-        // O título muda dinamicamente com base em 'editingRaca'
         title={editingRaca ? "Editar Raça" : "Cadastrar Nova Raça"}
         open={isModalOpen}
         onCancel={handleCloseModal}
@@ -130,7 +176,6 @@ const GerenciadorDeRacas = () => {
         destroyOnClose
         centered
       >
-        {/* Renderiza o formulário correto condicionalmente DENTRO do modal */}
         {editingRaca ? (
           <FormEdicaoRaca
             initialValues={editingRaca}

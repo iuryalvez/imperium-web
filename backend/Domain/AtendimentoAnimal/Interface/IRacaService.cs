@@ -7,6 +7,7 @@ namespace backend.Domain.AtendimentoAnimal.Interface
     {
         Task<List<GetRacaDto>> GetAllSystemByEspecieAsync(EspecieAnimal? especie);
         Task<List<GetRacaDto>> ListByClinicaIdAndEspecieAsync(int clinicaId, EspecieAnimal? especie);
+        Task<List<GetRacaDto>> ListAvailableForClinicaAndEspecieAsync(int clinicaId, EspecieAnimal? especie);
         Task<GetRacaDto?> GetByIdAsync(int id);
         Task<GetRacaDto> CreateAsync(CadastrarRacaDto criarRacaDto, int clinicaId);
         Task<bool> CreateOrUpdateAsync(UpdateRacaDto atualizarRacaDto, int clinicaId);

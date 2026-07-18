@@ -6,6 +6,7 @@ namespace backend.Domain.AtendimentoAnimal.Interface
     {
         Task<List<Raca>> GetAllSystemAsync();
         Task<List<Raca>> ListByClinicaIdAsync(int clinicaId);
+        Task<List<Raca>> ListAvailableForClinicaAsync(int clinicaId);
         Task<Raca?> GetByIdAsync(int id);
         Task AddAsync(Raca raca);
         void Update(Raca raca); // Update is often synchronous at the model level

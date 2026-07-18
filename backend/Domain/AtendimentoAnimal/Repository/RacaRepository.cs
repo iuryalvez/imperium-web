@@ -14,7 +14,8 @@ namespace backend.Domain.AtendimentoAnimal.Repository
             _context = context;
         }
 
-        public async Task<List<Raca>> GetAllSystemAsync() {
+        public async Task<List<Raca>> GetAllSystemAsync()
+        {
             return await _context.Racas
                 .Where(r => r.ClinicaId == null)
                 .ToListAsync();
@@ -29,6 +30,14 @@ namespace backend.Domain.AtendimentoAnimal.Repository
         {
             return await _context.Racas
                 .Where(r => r.ClinicaId == clinicaId)
+                .ToListAsync();
+        }
+
+        public async Task<List<Raca>> ListAvailableForClinicaAsync(int clinicaId)
+        {
+            // Fetches both system breeds (null) and clinic-specific breeds in a single query
+            return await _context.Racas
+                .Where(r => r.ClinicaId == null || r.ClinicaId == clinicaId)
                 .ToListAsync();
         }
 

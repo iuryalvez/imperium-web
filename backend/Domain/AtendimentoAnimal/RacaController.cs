@@ -23,7 +23,9 @@ namespace backend.Domain.AtendimentoAnimal
         public async Task<IActionResult> GetAll([FromQuery] EspecieAnimal? especie)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            var racas = await _racaService.ListByClinicaIdAndEspecieAsync(clinicaId, especie);
+
+            var racas = await _racaService.ListAvailableForClinicaAndEspecieAsync(clinicaId, especie);
+
             return Ok(racas);
         }
 
