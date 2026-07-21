@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Modal } from "antd";
+import { Button, Modal, Typography } from "antd";
 import { PlusOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import { useClinicasDoSistemaManager } from "./useClinicasDoSistemaManager";
 import TabelaClinicasDoSistema from "./components/TabelaClinicasDoSistema/TabelaClinicasDoSistema.jsx";
@@ -8,6 +8,8 @@ import FormularioCadastroClinicaDoSistema from "./components/FormularioCadastroC
 import FormularioDetalhesClinicaDoSistema from "./components/FormularioDetalhesClinicaDoSistema/FormDetalhesClinicaDoSistema.jsx";
 import FormularioAcessoClinicaDoSistema from "./components/FormularioAcessoClinicaDoSistema/FormAcessoClinicaDoSistema.jsx";
 import LoadingSpinner from "../../../components/atoms/LoadingSpinner.jsx";
+
+const { Title } = Typography;
 
 const ClinicasDoSistema = () => {
   const {
@@ -62,7 +64,17 @@ const ClinicasDoSistema = () => {
 
       {/* Modal Cadastro/Edição */}
       <Modal
-        title={editingClinica ? "Editar Clínica" : "Cadastrar Nova Clínica"}
+        title={
+          editingClinica ? (
+            <Title level={3} className="text-verde-escuro m-0">
+              Alterando {editingClinica?.nomeClinica}
+            </Title>
+          ) : (
+            <Title level={3} className="text-verde-escuro m-0">
+              Cadastrando Nova Clínica
+            </Title>
+          )
+        }
         open={isModalOpen}
         onCancel={handleCloseModals}
         footer={null}
@@ -86,7 +98,11 @@ const ClinicasDoSistema = () => {
 
       {/* Modal Detalhes */}
       <Modal
-        title="Detalhes da Clínica"
+        title={
+          <Title level={3} className="text-verde-escuro m-0">
+            Exibindo {viewingClinica?.nomeClinica}
+          </Title>
+        }
         open={isModalDetalhesOpen}
         onCancel={handleCloseModals}
         footer={[
@@ -99,7 +115,16 @@ const ClinicasDoSistema = () => {
         centered
       >
         {viewingClinica && (
-          <FormularioDetalhesClinicaDoSistema valores={viewingClinica} />
+          <div
+            style={{
+              maxHeight: "70vh",
+              overflowY: "auto",
+              overflowX: "hidden",
+              paddingRight: "12px",
+            }}
+          >
+            <FormularioDetalhesClinicaDoSistema valores={viewingClinica} />
+          </div>
         )}
       </Modal>
 

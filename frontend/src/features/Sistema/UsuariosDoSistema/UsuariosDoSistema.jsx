@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Modal } from "antd";
+import { Button, Modal, Typography } from "antd";
 import { PlusOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import { useUsuariosDoSistemaManager } from "./useUsuariosDoSistemaManager.js";
 import LoadingSpinner from "../../../components/atoms/LoadingSpinner.jsx";
@@ -7,6 +7,8 @@ import FormCadastroUsuarioDoSistema from "./components/FormularioCadastroUsuario
 import FormEdicaoUsuarioDoSistema from "./components/FormularioEdicaoUsuarioDoSistema/FormEdicaoUsuarioDoSistema.jsx";
 import TabelaUsuariosDoSistema from "./components/TabelaUsuariosDoSistema/TabelaUsuariosDoSistema.jsx";
 import FormDetalhesUsuarioDoSistema from "./components/FormularioDetalhesUsuarioDoSistema/FormDetalhesUsuarioDoSistema.jsx";
+
+const { Title } = Typography;
 
 const UsuariosDoSistema = () => {
   // O hook agora gerencia apenas a lógica de dados e modais, não mais as colunas.
@@ -62,7 +64,17 @@ const UsuariosDoSistema = () => {
       />
 
       <Modal
-        title={editingUser ? "Editar Usuário" : "Cadastrar Novo Usuário"}
+        title={
+          editingUser ? (
+            <Title level={3} className="text-verde-escuro m-0">
+              {editingUser?.nome}
+            </Title>
+          ) : (
+            <Title level={3} className="text-verde-escuro m-0">
+              Cadastrando Novo Usuário
+            </Title>
+          )
+        }
         open={isModalVisible}
         onCancel={handleModalCancel}
         footer={null}
@@ -90,7 +102,11 @@ const UsuariosDoSistema = () => {
       </Modal>
 
       <Modal
-        title="Detalhes do Usuário"
+        title={
+          <Title level={3} className="text-verde-escuro m-0">
+            Exibindo {viewingUser?.nome}
+          </Title>
+        }
         open={isDetailsModalVisible}
         onCancel={handleDetailsModalCancel}
         footer={[
@@ -100,13 +116,21 @@ const UsuariosDoSistema = () => {
         ]}
         centered
         destroyOnClose
-        style={{ minWidth: "40vw", maxWidth: "90vw" }}
-        styles={{
-          body: { maxHeight: "80vh", overflowY: "auto" },
-        }}
+        width="min(800px, 95vw)"
       >
         {/* Renderiza o componente de detalhes apenas se houver um usuário selecionado */}
-        {viewingUser && <FormDetalhesUsuarioDoSistema valores={viewingUser} />}
+        {viewingUser && (
+          <div
+            style={{
+              maxHeight: "70vh",
+              overflowY: "auto",
+              overflowX: "hidden",
+              paddingRight: "12px",
+            }}
+          >
+            <FormDetalhesUsuarioDoSistema valores={viewingUser} />
+          </div>
+        )}
       </Modal>
     </div>
   );

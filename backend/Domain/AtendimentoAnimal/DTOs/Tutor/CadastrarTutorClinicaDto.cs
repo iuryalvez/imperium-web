@@ -5,7 +5,7 @@ namespace backend.Domain.AtendimentoAnimal.DTOs
     public class CadastrarTutorClinicaDto
     {
         public int ClinicaId { get; set; }
-        public List<int>? AnimalId { get; set; }
+        public List<int>? AnimalIds { get; set; }
         public string Nome { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "O CPF do tutor é obrigatório.")]

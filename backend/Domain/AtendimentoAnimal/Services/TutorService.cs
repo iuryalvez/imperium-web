@@ -175,9 +175,25 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 await _tutorRepository.AddClinicLinkAsync(new TutorClinica { TutorId = tutor.Id, ClinicaId = clinicaId });
 
                 // Lógica de vínculo com animais (se fornecido)
-                if (dto.AnimalId != null && dto.AnimalId.Any())
+                // Verifique se o nome da propriedade no seu DTO é AnimalIds (plural) para dar match com o JSON
+                if (dto.AnimalIds != null && dto.AnimalIds.Any())
                 {
-                    // Validação e vínculo dos animais aqui...
+                    var allAnimalsAreValid = await _animalRepository.AllAnimalsExistInClinicAsync(dto.AnimalIds, clinicaId);
+                    if (!allAnimalsAreValid)
+                    {
+                        await transaction.RollbackAsync();
+                        return new ServiceResult { Succeeded = false, Message = "Um ou mais animais selecionados não são válidos ou não pertencem à clínica." };
+                    }
+
+                    foreach (var animalId in dto.AnimalIds)
+                    {
+                        await _tutorRepository.AddAnimalLinkAsync(new TutorAnimal
+                        {
+                            TutorId = tutor.Id,
+                            AnimalId = animalId,
+                            DataAssociacao = DateTime.UtcNow
+                        });
+                    }
                 }
 
                 await _tutorRepository.SaveChangesAsync();

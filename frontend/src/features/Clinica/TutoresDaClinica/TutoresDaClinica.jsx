@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Modal } from "antd";
+import { Button, Modal, Typography } from "antd";
 import { PlusOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import LoadingSpinner from "../../../components/atoms/LoadingSpinner.jsx";
 import { useTutoresDaClinicaManager } from "./useTutoresDaClinicaManager.js";
@@ -7,6 +7,8 @@ import TabelaTutoresDaClinica from "./components/TabelaTutoresDaClinica/TabelaTu
 import FormularioEdicaoTutorDaClinica from "./components/FormularioEdicaoTutorDaClinica/FormEdicaoTutorDaClinica.jsx";
 import FormularioCadastroTutorDaClinica from "./components/FormularioCadastroTutorDaClinica/FormCadastroTutorDaClinica.jsx";
 import FormularioDetalhesTutorDaClinica from "./components/FormularioDetalhesTutorDaClinica/FormDetalhesTutorDaClinica.jsx";
+
+const { Title } = Typography;
 
 const TutoresDaClinica = () => {
   const {
@@ -59,7 +61,17 @@ const TutoresDaClinica = () => {
       />
 
       <Modal
-        title={editingTutor ? "Editar Tutor" : "Cadastrar Novo Tutor"}
+        title={
+          editingTutor ? (
+            <Title level={3} className="text-verde-escuro m-0">
+              Alterando {editingTutor?.nome}
+            </Title>
+          ) : (
+            <Title level={3} className="text-verde-escuro m-0">
+              Cadastrando Novo Tutor
+            </Title>
+          )
+        }
         open={isModalOpen}
         onCancel={handleCloseModal}
         footer={null}
@@ -85,7 +97,11 @@ const TutoresDaClinica = () => {
       </Modal>
 
       <Modal
-        title="Detalhes do Tutor"
+        title={
+          <Title level={3} className="text-verde-escuro m-0">
+            Exibindo {viewingTutor?.nome}
+          </Title>
+        }
         open={isOpenModalDetalhes}
         onCancel={handleCloseModalDetalhes}
         footer={[
@@ -96,10 +112,18 @@ const TutoresDaClinica = () => {
         centered
         destroyOnClose
         width="min(800px, 95vw)"
-        styles={{ body: { maxHeight: "70vh", overflowY: "auto" } }}
       >
         {viewingTutor && (
-          <FormularioDetalhesTutorDaClinica valores={viewingTutor} />
+          <div
+            style={{
+              maxHeight: "70vh",
+              overflowY: "auto",
+              overflowX: "hidden",
+              paddingRight: "12px",
+            }}
+          >
+            <FormularioDetalhesTutorDaClinica valores={viewingTutor} />
+          </div>
         )}
       </Modal>
     </div>

@@ -90,7 +90,6 @@ const ListaRelatorios = ({
                 <Tag>{relatorio.grauAtividade}</Tag>
               </Descriptions.Item>
             </Descriptions>
-            {/* A renderização direta do <DetalhesDieta /> é removida daqui */}
           </List.Item>
         );
       }}

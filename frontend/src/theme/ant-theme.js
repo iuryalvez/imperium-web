@@ -35,5 +35,13 @@ export const themeConfig = {
       // itemSelectedColor: colors.verde.realce,
       itemSelectedBg: colors.verde.fraco,
     },
+    // Table: {
+    //   // Applies palette colors to table headers globally
+    //   headerBg: colors.cinza.background,
+    //   headerColor: colors.verde.escuro,
+    //   headerBorderRadius: 6,
+    //   borderColor: colors.cinza.desativado,
+    //   rowHoverBg: colors.cinza.background,
+    // },
   },
 };

@@ -16,23 +16,25 @@ const FormularioDetalhesTutorDaClinica = ({ valores }) => {
 
   return (
     <div>
-      <Descriptions title="Dados Pessoais" bordered column={2}>
+      <Descriptions title="Dados Pessoais" bordered column={{ xs: 1, sm: 2 }}>
+        {/* Nome ocupa a linha toda */}
         <Descriptions.Item label="Nome Completo" span={2}>
           {valores.nome ?? naoInformado}
         </Descriptions.Item>
+
         <Descriptions.Item label="CPF">
           {formatarCPF(valores.cpf) ?? naoInformado}
         </Descriptions.Item>
         <Descriptions.Item label="Data de Cadastro">
-          {valores.dataCadastro 
-            ? dayjs(valores.dataCadastro).format("DD/MM/YYYY HH:mm") 
+          {valores.dataCadastro
+            ? dayjs(valores.dataCadastro).format("DD/MM/YYYY HH:mm")
             : naoInformado}
         </Descriptions.Item>
+
+        {/* Email ocupa a linha toda */}
         <Descriptions.Item label="E-mail" span={2}>
           {valores.email ? (
-            <Link href={`mailto:${valores.email}`}>
-              {valores.email}
-            </Link>
+            <Link href={`mailto:${valores.email}`}>{valores.email}</Link>
           ) : (
             naoInformado
           )}
@@ -41,7 +43,7 @@ const FormularioDetalhesTutorDaClinica = ({ valores }) => {
 
       <Divider />
 
-      <Descriptions title="Contato" bordered column={2}>
+      <Descriptions title="Contato" bordered column={{ xs: 1, sm: 2 }}>
         <Descriptions.Item label="Telefone Principal">
           {formatarTelefone(valores.telefone) ?? naoInformado}
         </Descriptions.Item>
@@ -50,6 +52,7 @@ const FormularioDetalhesTutorDaClinica = ({ valores }) => {
             <Link
               href={`https://wa.me/55${valores.whatsapp}`}
               target="_blank"
+              rel="noopener noreferrer"
             >
               {formatarTelefone(valores.whatsapp)}
             </Link>
@@ -61,23 +64,29 @@ const FormularioDetalhesTutorDaClinica = ({ valores }) => {
 
       <Divider />
 
-      <Descriptions title="Endereço" bordered column={2}>
+      <Descriptions title="Endereço" bordered column={1}>
+        <Descriptions.Item label="Cidade/Estado">
+          {valores.cidade && valores.uf
+            ? `${valores.cidade} - ${valores.uf}`
+            : valores.cidade || valores.uf || naoInformado}
+        </Descriptions.Item>
+
         <Descriptions.Item label="CEP">
           {formatarCEP(valores.cep) ?? naoInformado}
         </Descriptions.Item>
+
         <Descriptions.Item label="Bairro">
           {valores.bairro ?? naoInformado}
         </Descriptions.Item>
-        <Descriptions.Item label="Logradouro" span={2}>
-          {valores.logradouro ?? naoInformado}
+
+        <Descriptions.Item label="Logradouro e Número">
+          {valores.logradouro
+            ? `${valores.logradouro}${valores.endNumero ? `, ${valores.endNumero}` : ""}`
+            : naoInformado}
         </Descriptions.Item>
+
         <Descriptions.Item label="Complemento">
           {valores.complemento ?? naoInformado}
-        </Descriptions.Item>
-        <Descriptions.Item label="Cidade/Estado" span={2}>
-          {valores.cidade && valores.uf 
-            ? `${valores.cidade} - ${valores.uf}` 
-            : (valores.cidade || valores.uf || naoInformado)}
         </Descriptions.Item>
       </Descriptions>
 
@@ -85,7 +94,11 @@ const FormularioDetalhesTutorDaClinica = ({ valores }) => {
 
       <Descriptions title="Animais Associados" bordered column={1}>
         <Descriptions.Item label="Animais">
-          {renderAnimais(valores.animais)}
+          {valores.animais && valores.animais.length > 0 ? (
+            renderAnimais(valores.animais)
+          ) : (
+            <Text type="secondary">Nenhum animal vinculado no momento.</Text>
+          )}
         </Descriptions.Item>
       </Descriptions>
     </div>

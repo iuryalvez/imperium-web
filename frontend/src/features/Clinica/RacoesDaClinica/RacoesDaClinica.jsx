@@ -1,10 +1,12 @@
 import React from "react";
-import { Modal, Button, Skeleton } from "antd";
+import { Modal, Button, Skeleton, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useRacoesManager } from "./useRacoesManager";
 import FormCadastroEdicaoRacaoClinica from "./components/FormularioCadastroEdicaoRacao/FormCadastroEdicaoRacaoClinica";
 import TabelaRacoesDaClinica from "./components/TabelaRacoesDaClinica/TabelaRacoesDaClinica";
 import ModalDetalhesCalculoRacao from "./components/ModalDetalhesCalculosRacao/ModalDetalhesCalculosRacao";
+
+const { Title } = Typography;
 
 const RacoesDaClinica = () => {
   const {
@@ -49,7 +51,17 @@ const RacoesDaClinica = () => {
 
       {/* Modal de Cadastro/Edição */}
       <Modal
-        title={editingRacao ? "Editar Ração" : "Cadastrar Nova Ração"}
+        title={
+          editingRacao ? (
+            <Title level={3} className="text-verde-escuro m-0">
+              {editingRacao?.nome}
+            </Title>
+          ) : (
+            <Title level={3} className="text-verde-escuro m-0">
+              Cadastrando Nova Ração
+            </Title>
+          )
+        }
         open={isModalOpen}
         onCancel={handleCloseModal}
         footer={null}

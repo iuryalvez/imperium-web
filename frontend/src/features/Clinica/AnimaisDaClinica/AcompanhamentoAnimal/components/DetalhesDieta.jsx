@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Card, Statistic, Row, Col, Descriptions, Typography, Divider } from 'antd';
-import { FireOutlined, ExperimentOutlined } from '@ant-design/icons';
+import { ExperimentOutlined } from '@ant-design/icons';
 
 const { Text } = Typography;
 
@@ -17,7 +17,6 @@ const DetalhesDieta = ({ dieta }) => {
             title="Necessidade Energética"
             value={dieta.necessidadeEnergeticaKcal}
             precision={2}
-            prefix={<FireOutlined />}
             suffix="kcal/dia"
           />
         </Col>

@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Modal } from "antd";
+import { Button, Modal, Typography } from "antd";
 import { PlusOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import LoadingSpinner from "../../../components/atoms/LoadingSpinner.jsx";
 import { useUsuariosDaClinicaManager } from "./useUsuariosDaClinicaManager.js";
@@ -8,6 +8,7 @@ import FormEdicaoUsuarioDaClinica from "./components/FormularioEdicaoUsuarioDaCl
 import FormCadastroUsuarioDaClinica from "./components/FormularioCadastroUsuarioDaClinica/FormCadastroUsuarioDaClinica.jsx";
 import FormDetalhesUsuarioDaClinica from "./components/FormularioDetalhesUsuarioDaClinica/FormularioDetalhesUsuarioDaClinica.jsx";
 
+const { Title } = Typography;
 
 const UsuariosDaClinica = () => {
   // O hook agora gerencia apenas a lógica de dados e modais, não mais as colunas.
@@ -63,7 +64,17 @@ const UsuariosDaClinica = () => {
       />
 
       <Modal
-        title={editingUser ? "Editar Usuário" : "Cadastrar Novo Usuário"}
+        title={
+          editingUser ? (
+            <Title level={3} className="text-verde-escuro m-0">
+              {editingUser?.nome}
+            </Title>
+          ) : (
+            <Title level={3} className="text-verde-escuro m-0">
+              Cadastro de Usuário
+            </Title>
+          )
+        }
         open={isModalOpen}
         onCancel={handleCloseModal}
         footer={null}
@@ -91,7 +102,11 @@ const UsuariosDaClinica = () => {
       </Modal>
 
       <Modal
-        title="Detalhes do Usuário"
+        title={
+          <Title level={3} className="text-verde-escuro m-0">
+            {viewingUser?.nome}
+          </Title>
+        }
         open={isOpenModalDetalhes}
         onCancel={handleCloseModalDetalhes}
         footer={[
@@ -99,15 +114,22 @@ const UsuariosDaClinica = () => {
             Fechar
           </Button>,
         ]}
-        centered
+        width="min(800px, 95vw)"
         destroyOnClose
-        style={{ minWidth: "40vw", maxWidth: "80vw" }}
-        styles={{
-          body: { maxHeight: "80vh", overflowY: "auto" },
-        }}
       >
         {/* Renderiza o componente de detalhes apenas se houver um usuário selecionado */}
-        {viewingUser && <FormDetalhesUsuarioDaClinica valores={viewingUser} />}
+        {viewingUser && (
+          <div
+            style={{
+              maxHeight: "70vh",
+              overflowY: "auto",
+              overflowX: "hidden",
+              paddingRight: "12px",
+            }}
+          >
+            <FormDetalhesUsuarioDaClinica valores={viewingUser} />
+          </div>
+        )}
       </Modal>
     </div>
   );

@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Modal, Skeleton, Space } from "antd";
+import { Button, Modal, Skeleton, Space, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useAnimaisDaClinicaManager } from "./useAnimaisDaClinicaManager";
 import FormCadastroAnimal from "./components/FormularioCadastroAnimaisDaClinica/FormCadastroAnimais";
@@ -7,6 +7,8 @@ import FormEdicaoAnimal from "./components/FormularioEdicaoAnimaisDaClinica/Form
 import GerenciadorDeRacas from "./components/GerenciadorDeRacas/GerenciadorDeRacas";
 import TabelaAnimais from "./components/TabelaAnimaisDaClinica/TabelaAnimaisDaClinica";
 import FormDetalhesAnimal from "./components/FormularioDetalhesAnimaisDaClinica/FormDetalhesAnimais";
+
+const { Title } = Typography;
 
 const AnimaisDaClinica = () => {
   const {
@@ -71,7 +73,17 @@ const AnimaisDaClinica = () => {
       />
 
       <Modal
-        title={editingAnimal ? "Editar Animal" : "Cadastrar Novo Animal"}
+        title={
+          editingAnimal ? (
+            <Title level={3} className="text-verde-escuro m-0">
+              Alterando {editingAnimal?.nome}
+            </Title>
+          ) : (
+            <Title level={3} className="text-verde-escuro m-0">
+              Cadastrando Novo Animal
+            </Title>
+          )
+        }
         open={isModalAnimalOpen}
         onCancel={handleCloseModal}
         footer={null}
@@ -96,7 +108,11 @@ const AnimaisDaClinica = () => {
       </Modal>
 
       <Modal
-        title="Gerenciamento de Raças"
+        title={
+          <Title level={3} className="text-verde-escuro m-0">
+            Gerenciamento de Raças
+          </Title>
+        }
         open={isModalRacasOpen}
         onCancel={handleCloseModalRacas}
         footer={null}
@@ -108,7 +124,11 @@ const AnimaisDaClinica = () => {
       </Modal>
 
       <Modal
-        title="Detalhes do Animal"
+        title={
+          <Title level={3} className="text-verde-escuro m-0">
+            Exibindo {viewingAnimal?.nome}
+          </Title>
+        }
         open={isModalDetalhesOpen}
         onCancel={handleCloseModalDetalhes}
         footer={[
@@ -119,7 +139,6 @@ const AnimaisDaClinica = () => {
         destroyOnClose
         width="min(800px, 95vw)"
         centered
-        styles={{ body: { maxHeight: "70vh", overflowY: "auto" } }}
       >
         {/* Renderiza o componente de detalhes apenas se houver um animal selecionado */}
         {viewingAnimal && <FormDetalhesAnimal valores={viewingAnimal} />}

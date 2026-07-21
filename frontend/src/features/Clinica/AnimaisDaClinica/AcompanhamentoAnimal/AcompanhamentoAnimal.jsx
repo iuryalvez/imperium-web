@@ -7,18 +7,14 @@ import {
   Typography,
   Divider,
   Modal,
-  Statistic,
-  Col,
-  Row,
-  Card,
 } from "antd";
 import { Link } from "react-router-dom";
 import { useAcompanhamentoAnimalManager } from "./useAcompanhamentoAnimalManager";
-import CabecalhoAnimal from "./components/CabecalhoAnimal";
 import ListaRelatorios from "./components/ListaRelatorios";
 import dayjs from "dayjs";
 import FormularioDieta from "./components/FormularioDieta";
 import DetalhesDieta from "./components/DetalhesDieta";
+import FichaGeralAnimal from "./components/FichaGeralAnimal";
 
 const { Title } = Typography;
 
@@ -76,38 +72,9 @@ const AcompanhamentoAnimal = () => {
 
   return (
     <div>
-      <Title level={2}>Acompanhamento de {historico.nome}</Title>
+      <Title level={2}>Ficha Geral do Animal</Title>
 
-      <Card style={{ marginBottom: 24 }}>
-        <Row gutter={16}>
-          <Col span={8}>
-            <Statistic
-              title="Peso Atual"
-              value={historico.pesoAtual}
-              suffix="kg"
-            />
-          </Col>
-          <Col span={8}>
-            <Statistic
-              title="Condição Corporal"
-              value={historico.condicaoCorporal}
-            />
-          </Col>
-          <Col span={8}>
-            <Statistic
-              title="Kcal Diárias (último cálculo)"
-              value={
-                dietaMaisRecente
-                  ? dietaMaisRecente.necessidadeEnergeticaKcal
-                  : "N/A"
-              }
-              precision={2}
-            />
-          </Col>
-        </Row>
-      </Card>
-
-      <CabecalhoAnimal animal={historico} />
+      <FichaGeralAnimal animal={historico} dieta={dietaMaisRecente} />
 
       <Divider orientation="left">Histórico de Relatórios</Divider>
 
