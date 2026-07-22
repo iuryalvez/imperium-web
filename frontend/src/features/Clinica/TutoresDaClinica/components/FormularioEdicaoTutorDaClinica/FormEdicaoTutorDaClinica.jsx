@@ -49,7 +49,7 @@ const FormularioEdicaoTutorDaClinica = ({
   }, [initialValues, form]);
 
   return (
-    <Form form={form} layout="vertical" onFinish={onFinish}>
+    <Form id="form-edicao-tutor-clinica" form={form} layout="vertical" onFinish={onFinish}>
       <Row gutter={24}>
         <Col xs={24} lg={12}>
           <Divider orientation="left" plain>
@@ -159,11 +159,6 @@ const FormularioEdicaoTutorDaClinica = ({
           </Form.Item>
         </Col>
       </Row>
-      <div className="flex justify-end mt-4">
-        <Button type="primary" htmlType="submit" loading={isSubmitting}>
-          Salvar Alterações
-        </Button>
-      </div>
     </Form>
   );
 };

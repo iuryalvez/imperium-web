@@ -126,7 +126,7 @@ const FormularioEdicaoPerfilPessoal = ({
     <Form form={form} layout="vertical" onFinish={onFinish}>
       <Tabs defaultActiveKey="1" items={items} />
 
-      <div className="flex justify-end mt-6">
+      <div className="flex justify-end mt-4 pt-4 border-t border-gray-200">
         <Button type="primary" htmlType="submit" loading={isSubmitting}>
           Salvar Alterações
         </Button>

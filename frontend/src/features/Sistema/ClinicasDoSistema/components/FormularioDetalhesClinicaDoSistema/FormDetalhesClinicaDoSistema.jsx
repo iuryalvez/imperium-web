@@ -21,15 +21,15 @@ const FormularioDetalhesClinicaDoSistema = ({ valores }) => {
       </Descriptions>
 
       <Divider />
-      <Descriptions title="Localização" bordered column={{ xs: 1, sm: 2 }}>
-        <Descriptions.Item label="CEP">{formatarCEP(valores.cep) ?? naoInformado}</Descriptions.Item>
-        <Descriptions.Item label="Bairro">{valores.bairro ?? naoInformado}</Descriptions.Item>
-        <Descriptions.Item label="Logradouro" span={2}>{valores.logradouro ?? naoInformado}</Descriptions.Item>
-        <Descriptions.Item label="Complemento">{valores.complemento ?? naoInformado}</Descriptions.Item>
+      <Descriptions title="Localização" bordered column={1}>
         <Descriptions.Item label="Cidade/UF" span={2}>
           {valores.cidade && valores.uf ? `${valores.cidade} - ${valores.uf}` : (valores.cidade || valores.uf || naoInformado)}
         </Descriptions.Item>
         <Descriptions.Item label="Estado">{valores.estado ?? naoInformado}</Descriptions.Item>
+        <Descriptions.Item label="CEP">{formatarCEP(valores.cep) ?? naoInformado}</Descriptions.Item>
+        <Descriptions.Item label="Bairro">{valores.bairro ?? naoInformado}</Descriptions.Item>
+        <Descriptions.Item label="Logradouro" span={2}>{valores.logradouro ?? naoInformado}</Descriptions.Item>
+        <Descriptions.Item label="Complemento">{valores.complemento ?? naoInformado}</Descriptions.Item>
       </Descriptions>
 
       <Divider />

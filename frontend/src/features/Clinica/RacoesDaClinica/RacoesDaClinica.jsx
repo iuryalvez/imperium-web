@@ -1,12 +1,10 @@
 import React from "react";
-import { Modal, Button, Skeleton, Typography } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Button, Skeleton } from "antd";
+import { PlusOutlined, EditOutlined, FormOutlined } from "@ant-design/icons";
 import { useRacoesManager } from "./useRacoesManager";
 import FormCadastroEdicaoRacaoClinica from "./components/FormularioCadastroEdicaoRacao/FormCadastroEdicaoRacaoClinica";
 import TabelaRacoesDaClinica from "./components/TabelaRacoesDaClinica/TabelaRacoesDaClinica";
-import ModalDetalhesCalculoRacao from "./components/ModalDetalhesCalculosRacao/ModalDetalhesCalculosRacao";
-
-const { Title } = Typography;
+import ModalPadrao from "../../../components/modal/ModalPadrao";
 
 const RacoesDaClinica = () => {
   const {
@@ -14,12 +12,9 @@ const RacoesDaClinica = () => {
     loading,
     isModalOpen,
     editingRacao,
-    isViewModalOpen,
-    viewingRacao,
+    isSubmitting,
     handleOpenModal,
     handleCloseModal,
-    handleOpenViewModal,
-    handleCloseViewModal,
     handleSubmit,
     handleDelete,
   } = useRacoesManager();
@@ -45,59 +40,23 @@ const RacoesDaClinica = () => {
         racoes={racoes}
         onEdit={handleOpenModal}
         onDelete={handleDelete}
-        onView={handleOpenViewModal}
         loading={loading}
       />
 
-      {/* Modal de Cadastro/Edição */}
-      <Modal
-        title={
-          editingRacao ? (
-            <Title level={3} className="text-verde-escuro m-0">
-              {editingRacao?.nome}
-            </Title>
-          ) : (
-            <Title level={3} className="text-verde-escuro m-0">
-              Cadastrando Nova Ração
-            </Title>
-          )
-        }
+      <ModalPadrao
+        modo={editingRacao ? "edicao" : "criacao"}
         open={isModalOpen}
         onCancel={handleCloseModal}
-        footer={null}
-        destroyOnClose
-        width="min(800px, 95vw)"
+        title={editingRacao ? "Editar Ração" : "Cadastrar Nova Ração"}
+        icon={editingRacao ? <EditOutlined /> : <FormOutlined />}
+        formId="form-cadastro-edicao-racao-clinica"
+        isSubmitting={isSubmitting}
       >
         <FormCadastroEdicaoRacaoClinica
           initialValues={editingRacao}
           onFinish={handleSubmit}
-          onCancel={handleCloseModal}
         />
-      </Modal>
-
-      {/* Modal de Detalhes dos Cálculos */}
-      <Modal
-        title={`Memória de Cálculo - ${viewingRacao?.nome}`}
-        open={isViewModalOpen}
-        onCancel={handleCloseViewModal}
-        footer={[
-          <Button key="close" onClick={handleCloseViewModal}>
-            Fechar
-          </Button>,
-        ]}
-        destroyOnClose
-        width={700}
-        centered
-        styles={{
-          body: {
-            maxHeight: "70vh",
-            overflowY: "auto",
-            paddingRight: "8px", // Prevents content from touching the scrollbar
-          },
-        }}
-      >
-        <ModalDetalhesCalculoRacao racao={viewingRacao} />
-      </Modal>
+      </ModalPadrao>
     </div>
   );
 };

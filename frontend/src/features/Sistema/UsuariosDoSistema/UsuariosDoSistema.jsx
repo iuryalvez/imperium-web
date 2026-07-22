@@ -1,17 +1,21 @@
 import React from "react";
-import { Button, Modal, Typography } from "antd";
-import { PlusOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import { Button } from "antd";
+import {
+  PlusOutlined,
+  ArrowLeftOutlined,
+  EditOutlined,
+  FormOutlined,
+  ProfileOutlined,
+} from "@ant-design/icons";
 import { useUsuariosDoSistemaManager } from "./useUsuariosDoSistemaManager.js";
 import LoadingSpinner from "../../../components/atoms/LoadingSpinner.jsx";
 import FormCadastroUsuarioDoSistema from "./components/FormularioCadastroUsuarioDoSistema/FormCadastroUsuarioDoSistema.jsx";
 import FormEdicaoUsuarioDoSistema from "./components/FormularioEdicaoUsuarioDoSistema/FormEdicaoUsuarioDoSistema.jsx";
 import TabelaUsuariosDoSistema from "./components/TabelaUsuariosDoSistema/TabelaUsuariosDoSistema.jsx";
 import FormDetalhesUsuarioDoSistema from "./components/FormularioDetalhesUsuarioDoSistema/FormDetalhesUsuarioDoSistema.jsx";
-
-const { Title } = Typography;
+import ModalPadrao from "../../../components/modal/ModalPadrao.jsx";
 
 const UsuariosDoSistema = () => {
-  // O hook agora gerencia apenas a lógica de dados e modais, não mais as colunas.
   const {
     usuarios,
     loading,
@@ -42,9 +46,10 @@ const UsuariosDoSistema = () => {
       >
         <ArrowLeftOutlined className="mr-2" /> Voltar
       </button>
+
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
-          Lista de Usuários do Sistema
+          Gerenciamento de Usuários do Sistema
         </h1>
         <Button
           type="primary"
@@ -63,75 +68,40 @@ const UsuariosDoSistema = () => {
         loadingRowKey={loadingRowKey}
       />
 
-      <Modal
-        title={
-          editingUser ? (
-            <Title level={3} className="text-verde-escuro m-0">
-              {editingUser?.nome}
-            </Title>
-          ) : (
-            <Title level={3} className="text-verde-escuro m-0">
-              Cadastrando Novo Usuário
-            </Title>
-          )
-        }
+      {/* MODAL PADRÃO: Cadastro / Edição */}
+      <ModalPadrao
+        modo={editingUser ? "edicao" : "criacao"}
         open={isModalVisible}
         onCancel={handleModalCancel}
-        footer={null}
-        centered
-        destroyOnClose
-        width="min(800px, 95vw)"
-        styles={{
-          body: { maxHeight: "80vh", overflowY: "auto", overflowX: "hidden" },
-        }}
+        title={editingUser ? "Editar Usuário" : "Cadastrar Novo Usuário"}
+        icon={editingUser ? <EditOutlined /> : <FormOutlined />}
+        formId={
+          editingUser
+            ? "form-edicao-usuario-sistema"
+            : "form-cadastro-usuario-sistema"
+        }
+        isSubmitting={isSubmitting}
       >
         {editingUser ? (
           <FormEdicaoUsuarioDoSistema
             onFinish={handleFormFinish}
-            onCancel={handleModalCancel}
-            isSubmitting={isSubmitting}
             initialValues={editingUser}
           />
         ) : (
-          <FormCadastroUsuarioDoSistema
-            onFinish={handleFormFinish}
-            onCancel={handleModalCancel}
-            isSubmitting={isSubmitting}
-          />
+          <FormCadastroUsuarioDoSistema onFinish={handleFormFinish} />
         )}
-      </Modal>
+      </ModalPadrao>
 
-      <Modal
-        title={
-          <Title level={3} className="text-verde-escuro m-0">
-            Exibindo {viewingUser?.nome}
-          </Title>
-        }
+      {/* MODAL PADRÃO: Detalhes */}
+      <ModalPadrao
+        modo="detalhes"
         open={isDetailsModalVisible}
         onCancel={handleDetailsModalCancel}
-        footer={[
-          <Button key="close" onClick={handleDetailsModalCancel}>
-            Fechar
-          </Button>,
-        ]}
-        centered
-        destroyOnClose
-        width="min(800px, 95vw)"
+        title={`Detalhes de ${viewingUser?.nome || "Usuário"}`}
+        icon={<ProfileOutlined />}
       >
-        {/* Renderiza o componente de detalhes apenas se houver um usuário selecionado */}
-        {viewingUser && (
-          <div
-            style={{
-              maxHeight: "70vh",
-              overflowY: "auto",
-              overflowX: "hidden",
-              paddingRight: "12px",
-            }}
-          >
-            <FormDetalhesUsuarioDoSistema valores={viewingUser} />
-          </div>
-        )}
-      </Modal>
+        {viewingUser && <FormDetalhesUsuarioDoSistema valores={viewingUser} />}
+      </ModalPadrao>
     </div>
   );
 };

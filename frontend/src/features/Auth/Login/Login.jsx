@@ -1,11 +1,21 @@
 import React, { useState, useRef } from "react";
-import { Row, Col, Typography, Space, Form, Button, Input, Checkbox } from "antd";
+import {
+  Row,
+  Col,
+  Typography,
+  Space,
+  Form,
+  Button,
+  Input,
+  Checkbox,
+} from "antd";
 import { useAuth } from "../../../services/AuthContext";
 import { Turnstile } from "@marsidev/react-turnstile";
 import logoUfg from "../../../assets/UFG_logo.png";
 import logoEvz from "../../../assets/EVZ_UFG.svg";
 import logoInf from "../../../assets/INF_UFG.svg";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
+import iconLogin from "../../../assets/auth/login-svgrepo-com.png";
 
 const { Title, Paragraph } = Typography;
 
@@ -42,8 +52,9 @@ const Login = () => {
         <Title level={1}>Bem-vindo ao Software IMPERIUM!</Title>
         <Paragraph className="text-base leading-relaxed">
           Este software tem como objetivo auxiliar no controle nutricional de
-          cães e gatos, utilizando técnicas de <strong>inteligência artificial</strong>, 
-          em especial o <strong>aprendizado de máquina</strong>, para padronizar a avaliação
+          cães e gatos, utilizando técnicas de{" "}
+          <strong>inteligência artificial</strong>, em especial o{" "}
+          <strong>aprendizado de máquina</strong>, para padronizar a avaliação
           do Escore de Condição Corporal (ECC) dos animais.
         </Paragraph>
 
@@ -54,7 +65,11 @@ const Login = () => {
         </Space>
       </Col>
 
-      <Col xs={24} md={10} className="p-8 md:pr-16 flex justify-center items-start">
+      <Col
+        xs={24}
+        md={10}
+        className="p-8 md:pr-16 flex justify-center items-start"
+      >
         <div className="flex flex-col items-center bg-white rounded-3xl shadow-lg p-10 w-full max-w-[450px]">
           <Title level={2} className="text-verde-medio mb-6">
             LOGIN
@@ -72,18 +87,18 @@ const Login = () => {
               label="E-mail"
               rules={[{ required: true, type: "email" }]}
             >
-              <Input 
-                prefix={<UserOutlined />} 
-                placeholder="exemplo@email.com" 
-                size="large" 
+              <Input
+                prefix={<UserOutlined />}
+                placeholder="exemplo@email.com"
+                size="large"
               />
             </Form.Item>
 
             <Form.Item name="senha" label="Senha" rules={[{ required: true }]}>
-              <Input.Password 
-                prefix={<LockOutlined />} 
-                placeholder="******" 
-                size="large" 
+              <Input.Password
+                prefix={<LockOutlined />}
+                placeholder="******"
+                size="large"
               />
             </Form.Item>
 
@@ -115,6 +130,15 @@ const Login = () => {
                 block
                 size="large"
                 disabled={!captchaToken}
+                icon={
+                  <Space>
+                    <img
+                      src={iconLogin}
+                      alt="Login"
+                      className="w-4 h-4 object-contain"
+                    ></img>
+                  </Space>
+                }
               >
                 Entrar
               </Button>

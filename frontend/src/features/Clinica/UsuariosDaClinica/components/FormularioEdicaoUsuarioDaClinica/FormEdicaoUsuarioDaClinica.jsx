@@ -1,12 +1,10 @@
 import React from "react";
-import { Form, Input, Checkbox, Button, Row, Col, Divider, Switch } from "antd";
+import { Form, Input, Checkbox, Row, Col, Divider, Switch } from "antd";
 import { CpfMaskInput, TelefoneMaskInput } from "../../../../../utils/masks";
 import { validarCPF } from "../../../../../utils/validators";
 
 const FormEdicaoUsuarioDaClinica = ({
   onFinish,
-  onCancel,
-  isSubmitting,
   initialValues,
 }) => {
   const [form] = Form.useForm();
@@ -24,6 +22,7 @@ const FormEdicaoUsuarioDaClinica = ({
 
   return (
     <Form
+      id="form-edicao-usuario-clinica"
       form={form}
       layout="vertical"
       onFinish={onFinish}
@@ -185,15 +184,6 @@ const FormEdicaoUsuarioDaClinica = ({
           )}
         </Col>
       </Row>
-
-      <div style={{ textAlign: "right", marginTop: 24 }}>
-        <Button onClick={onCancel} style={{ marginRight: 8 }}>
-          Cancelar
-        </Button>
-        <Button type="primary" htmlType="submit" loading={isSubmitting}>
-          Salvar Alterações
-        </Button>
-      </div>
     </Form>
   );
 };

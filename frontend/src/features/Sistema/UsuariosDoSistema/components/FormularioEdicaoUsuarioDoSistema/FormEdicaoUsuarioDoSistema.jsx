@@ -15,8 +15,6 @@ import { validarCPF } from "../../../../../utils/validators";
 
 const FormEdicaoUsuarioDoSistema = ({
   onFinish,
-  onCancel,
-  isSubmitting,
   initialValues,
 }) => {
   const [form] = Form.useForm();
@@ -34,6 +32,7 @@ const FormEdicaoUsuarioDoSistema = ({
 
   return (
     <Form
+      id="form-edicao-usuario-sistema"
       form={form}
       layout="vertical"
       onFinish={onFinish}
@@ -65,7 +64,13 @@ const FormEdicaoUsuarioDoSistema = ({
           <Form.Item
             name="email"
             label="E-mail"
-            rules={[{ required: true, type: "email", message: "Insira um e-mail válido." }]}
+            rules={[
+              {
+                required: true,
+                type: "email",
+                message: "Insira um e-mail válido.",
+              },
+            ]}
           >
             <Input />
           </Form.Item>
@@ -119,7 +124,12 @@ const FormEdicaoUsuarioDoSistema = ({
               <Form.Item
                 label="Perfis na Clínica"
                 name="perfis"
-                rules={[{ required: true, message: "Selecione pelo menos um perfil." }]}
+                rules={[
+                  {
+                    required: true,
+                    message: "Selecione pelo menos um perfil.",
+                  },
+                ]}
               >
                 <Checkbox.Group
                   options={perfisOptions}
@@ -146,7 +156,7 @@ const FormEdicaoUsuarioDoSistema = ({
           <Divider orientation="left" plain>
             Alterar Senha (Opcional)
           </Divider>
-          
+
           <Form.Item
             name="senha"
             label="Nova Senha"
@@ -193,7 +203,9 @@ const FormEdicaoUsuarioDoSistema = ({
                     if (!value || getFieldValue("senha") === value) {
                       return Promise.resolve();
                     }
-                    return Promise.reject(new Error("As senhas não coincidem."));
+                    return Promise.reject(
+                      new Error("As senhas não coincidem."),
+                    );
                   },
                 }),
               ]}
@@ -203,15 +215,6 @@ const FormEdicaoUsuarioDoSistema = ({
           )}
         </Col>
       </Row>
-
-      <div style={{ textAlign: "right", marginTop: 24 }}>
-        <Button onClick={onCancel} style={{ marginRight: 8 }}>
-          Cancelar
-        </Button>
-        <Button type="primary" htmlType="submit" loading={isSubmitting}>
-          Salvar Alterações
-        </Button>
-      </div>
     </Form>
   );
 };

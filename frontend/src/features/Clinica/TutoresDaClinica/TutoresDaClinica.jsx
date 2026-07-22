@@ -1,14 +1,18 @@
 import React from "react";
-import { Button, Modal, Typography } from "antd";
-import { PlusOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import { Button } from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  FormOutlined,
+  ProfileOutlined,
+} from "@ant-design/icons";
 import LoadingSpinner from "../../../components/atoms/LoadingSpinner.jsx";
 import { useTutoresDaClinicaManager } from "./useTutoresDaClinicaManager.js";
 import TabelaTutoresDaClinica from "./components/TabelaTutoresDaClinica/TabelaTutoresDaClinica.jsx";
 import FormularioEdicaoTutorDaClinica from "./components/FormularioEdicaoTutorDaClinica/FormEdicaoTutorDaClinica.jsx";
 import FormularioCadastroTutorDaClinica from "./components/FormularioCadastroTutorDaClinica/FormCadastroTutorDaClinica.jsx";
 import FormularioDetalhesTutorDaClinica from "./components/FormularioDetalhesTutorDaClinica/FormDetalhesTutorDaClinica.jsx";
-
-const { Title } = Typography;
+import ModalPadrao from "../../../components/modal/ModalPadrao.jsx";
 
 const TutoresDaClinica = () => {
   const {
@@ -33,15 +37,9 @@ const TutoresDaClinica = () => {
 
   return (
     <div>
-      <button
-        onClick={() => window.history.back()}
-        className="flex items-center font-bold text-[var(--verde-medio)] mb-2"
-      >
-        <ArrowLeftOutlined className="mr-2" /> Voltar
-      </button>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
-          Tutores da Clínica
+          Gerenciamento de Tutores
         </h1>
         <Button
           type="primary"
@@ -60,72 +58,42 @@ const TutoresDaClinica = () => {
         loadingRowKey={loadingRowKey}
       />
 
-      <Modal
-        title={
-          editingTutor ? (
-            <Title level={3} className="text-verde-escuro m-0">
-              Alterando {editingTutor?.nome}
-            </Title>
-          ) : (
-            <Title level={3} className="text-verde-escuro m-0">
-              Cadastrando Novo Tutor
-            </Title>
-          )
-        }
+      <ModalPadrao
+        modo={editingTutor ? "edicao" : "criacao"}
         open={isModalOpen}
         onCancel={handleCloseModal}
-        footer={null}
-        centered
-        destroyOnClose
-        width="min(800px, 95vw)"
-        styles={{
-          body: { maxHeight: "80vh", overflowY: "auto", overflowX: "hidden" },
-        }}
+        title={
+          editingTutor ? `Editar ${editingTutor.nome}` : "Cadastrar novo tutor"
+        }
+        icon={editingTutor ? <EditOutlined /> : <FormOutlined />}
+        formId={
+          editingTutor
+            ? "form-edicao-tutor-clinica"
+            : "form-cadastro-tutor-clinica"
+        }
+        isSubmitting={isSubmitting}
       >
         {editingTutor ? (
           <FormularioEdicaoTutorDaClinica
             onFinish={handleSubmit}
-            isSubmitting={isSubmitting}
             initialValues={editingTutor}
           />
         ) : (
-          <FormularioCadastroTutorDaClinica
-            onFinish={handleSubmit}
-            isSubmitting={isSubmitting}
-          />
+          <FormularioCadastroTutorDaClinica onFinish={handleSubmit} />
         )}
-      </Modal>
+      </ModalPadrao>
 
-      <Modal
-        title={
-          <Title level={3} className="text-verde-escuro m-0">
-            Exibindo {viewingTutor?.nome}
-          </Title>
-        }
+      <ModalPadrao
+        modo="detalhes"
         open={isOpenModalDetalhes}
         onCancel={handleCloseModalDetalhes}
-        footer={[
-          <Button key="close" onClick={handleCloseModalDetalhes}>
-            Fechar
-          </Button>,
-        ]}
-        centered
-        destroyOnClose
-        width="min(800px, 95vw)"
+        title={`Informações de ${viewingTutor?.nome}`}
+        icon={<ProfileOutlined />}
       >
         {viewingTutor && (
-          <div
-            style={{
-              maxHeight: "70vh",
-              overflowY: "auto",
-              overflowX: "hidden",
-              paddingRight: "12px",
-            }}
-          >
-            <FormularioDetalhesTutorDaClinica valores={viewingTutor} />
-          </div>
+          <FormularioDetalhesTutorDaClinica valores={viewingTutor} />
         )}
-      </Modal>
+      </ModalPadrao>
     </div>
   );
 };

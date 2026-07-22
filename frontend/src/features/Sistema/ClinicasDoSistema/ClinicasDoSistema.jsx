@@ -1,6 +1,13 @@
 import React from "react";
-import { Button, Modal, Typography } from "antd";
-import { PlusOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import { Button, Modal, Space } from "antd";
+import {
+  PlusOutlined,
+  ArrowLeftOutlined,
+  DesktopOutlined,
+  EditOutlined,
+  FormOutlined,
+  ProfileOutlined,
+} from "@ant-design/icons";
 import { useClinicasDoSistemaManager } from "./useClinicasDoSistemaManager";
 import TabelaClinicasDoSistema from "./components/TabelaClinicasDoSistema/TabelaClinicasDoSistema.jsx";
 import FormularioEdicaoClinicaDoSistema from "./components/FormularioEdicaoClinicaDoSistema/FormEdicaoClinicaDoSistema.jsx";
@@ -8,8 +15,7 @@ import FormularioCadastroClinicaDoSistema from "./components/FormularioCadastroC
 import FormularioDetalhesClinicaDoSistema from "./components/FormularioDetalhesClinicaDoSistema/FormDetalhesClinicaDoSistema.jsx";
 import FormularioAcessoClinicaDoSistema from "./components/FormularioAcessoClinicaDoSistema/FormAcessoClinicaDoSistema.jsx";
 import LoadingSpinner from "../../../components/atoms/LoadingSpinner.jsx";
-
-const { Title } = Typography;
+import ModalPadrao from "../../../components/modal/ModalPadrao.jsx";
 
 const ClinicasDoSistema = () => {
   const {
@@ -44,7 +50,7 @@ const ClinicasDoSistema = () => {
 
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
-          Clínicas do Sistema
+          Gerenciamento de Clínicas do Sistema
         </h1>
         <Button
           type="primary"
@@ -62,87 +68,76 @@ const ClinicasDoSistema = () => {
         onAccess={handleOpenModalAcesso}
       />
 
-      {/* Modal Cadastro/Edição */}
-      <Modal
-        title={
-          editingClinica ? (
-            <Title level={3} className="text-verde-escuro m-0">
-              Alterando {editingClinica?.nomeClinica}
-            </Title>
-          ) : (
-            <Title level={3} className="text-verde-escuro m-0">
-              Cadastrando Nova Clínica
-            </Title>
-          )
-        }
+      {/* MODAL PADRÃO: Cadastro / Edição */}
+      <ModalPadrao
+        modo={editingClinica ? "edicao" : "criacao"}
         open={isModalOpen}
         onCancel={handleCloseModals}
-        footer={null}
-        destroyOnClose
+        title={editingClinica ? "Editar Clínica" : "Cadastrar Nova Clínica"}
+        icon={editingClinica ? <EditOutlined /> : <FormOutlined />}
+        formId={
+          editingClinica
+            ? "form-edicao-clinica-sistema"
+            : "form-cadastro-clinica-sistema"
+        }
+        isSubmitting={isSubmitting}
         width="min(850px, 95vw)"
-        centered
       >
         {editingClinica ? (
           <FormularioEdicaoClinicaDoSistema
             initialValues={editingClinica}
             onFinish={handleSubmit}
-            isSubmitting={isSubmitting}
           />
         ) : (
-          <FormularioCadastroClinicaDoSistema
-            onFinish={handleSubmit}
-            isSubmitting={isSubmitting}
-          />
+          <FormularioCadastroClinicaDoSistema onFinish={handleSubmit} />
         )}
-      </Modal>
+      </ModalPadrao>
 
-      {/* Modal Detalhes */}
-      <Modal
-        title={
-          <Title level={3} className="text-verde-escuro m-0">
-            Exibindo {viewingClinica?.nomeClinica}
-          </Title>
-        }
+      {/* MODAL PADRÃO: Detalhes */}
+      <ModalPadrao
+        modo="detalhes"
         open={isModalDetalhesOpen}
         onCancel={handleCloseModals}
-        footer={[
-          <Button key="close" onClick={handleCloseModals}>
-            Fechar
-          </Button>,
-        ]}
-        width="min(800px, 95vw)"
-        destroyOnClose
-        centered
+        title={`Detalhes de ${viewingClinica?.nomeClinica || "Clínica"}`}
+        icon={<ProfileOutlined />}
       >
         {viewingClinica && (
-          <div
-            style={{
-              maxHeight: "70vh",
-              overflowY: "auto",
-              overflowX: "hidden",
-              paddingRight: "12px",
-            }}
-          >
-            <FormularioDetalhesClinicaDoSistema valores={viewingClinica} />
-          </div>
+          <FormularioDetalhesClinicaDoSistema valores={viewingClinica} />
         )}
-      </Modal>
+      </ModalPadrao>
 
-      {/* Modal Acesso (Simulação) */}
+      {/* MODAL NATIVO (Customizado): Acesso (Simulação) */}
       <Modal
-        title={`Simular Acesso: ${accessingClinica?.nomeClinica}`}
+        title={
+          <Space>
+            <DesktopOutlined className="modal-title-icon" />
+            <span className="text-verde-escuro m-0 text-lg">
+              Simular Acesso na clínica {accessingClinica?.nomeClinica}
+            </span>
+          </Space>
+        }
         open={isModalAcessoOpen}
         onCancel={handleCloseModals}
-        footer={null}
+        style={{ top: 40 }}
+        footer={
+          <div className="modal-footer-actions">
+            <Button onClick={handleCloseModals}>Cancelar</Button>
+            <Button form="form-acesso-clinica" type="primary" htmlType="submit">
+              Acessar {accessingClinica?.nomeClinica}
+            </Button>
+          </div>
+        }
         destroyOnClose
-        centered
+        width="min(600px, 95vw)"
       >
-        {accessingClinica && (
-          <FormularioAcessoClinicaDoSistema
-            clinica={accessingClinica}
-            onFinish={handleSimularAcesso}
-          />
-        )}
+        <div className="modal-scroll-container">
+          {accessingClinica && (
+            <FormularioAcessoClinicaDoSistema
+              clinica={accessingClinica}
+              onFinish={handleSimularAcesso}
+            />
+          )}
+        </div>
       </Modal>
     </div>
   );

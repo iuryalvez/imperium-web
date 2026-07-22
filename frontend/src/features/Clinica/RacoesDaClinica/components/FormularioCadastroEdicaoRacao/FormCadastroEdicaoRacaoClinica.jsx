@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Form, Input, Button, Radio, InputNumber, Row, Col, Divider } from 'antd';
+import { Form, Input, Radio, InputNumber, Row, Col, Divider } from 'antd';
 
 const opcoesEspecie = [
     { label: 'Cão', value: 1 },
@@ -11,7 +11,7 @@ const opcoesUnidade = [
     { label: 'Gramas (g/kg)', value: false },
 ];
 
-const FormCadastroEdicaoRacaoClinica = ({ initialValues, onFinish, onCancel }) => {
+const FormCadastroEdicaoRacaoClinica = ({ initialValues, onFinish }) => {
     const [form] = Form.useForm();
 
     // 1. Observa a seleção de unidade em tempo real
@@ -33,7 +33,7 @@ const FormCadastroEdicaoRacaoClinica = ({ initialValues, onFinish, onCancel }) =
     const maximo = isPorcentagem ? 100 : 1000;
 
     return (
-        <Form form={form} layout="vertical" onFinish={onFinish} autoComplete="off">
+        <Form id="form-cadastro-edicao-racao-clinica" form={form} layout="vertical" onFinish={onFinish} autoComplete="off">
             <Row gutter={24}>
                 <Col xs={24} md={12}>
                     <Form.Item name="nome" label="Nome da Ração" rules={[{ required: true }]}>
@@ -82,11 +82,6 @@ const FormCadastroEdicaoRacaoClinica = ({ initialValues, onFinish, onCancel }) =
                     </Form.Item>
                 </Col>
             </Row>
-
-            <div className="flex justify-end gap-2 mt-6">
-                <Button onClick={onCancel}>Cancelar</Button>
-                <Button type="primary" htmlType="submit">Salvar</Button>
-            </div>
         </Form>
     );
 };

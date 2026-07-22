@@ -5,12 +5,13 @@ import { racoesDaClinicaAPI } from "../../../api/clinica/racoesDaClinicaAPI";
 export const useRacoesManager = () => {
   const [racoes, setRacoes] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRacao, setEditingRacao] = useState(null);
-  
+
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewingRacao, setViewingRacao] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchRacoes = useCallback(async () => {
     setLoading(true);
@@ -50,6 +51,7 @@ export const useRacoesManager = () => {
 
   const handleSubmit = async (values) => {
     try {
+      setIsSubmitting(true);
       if (editingRacao) {
         await racoesDaClinicaAPI.editar({ ...editingRacao, ...values });
         message.success("Ração atualizada com sucesso!");
@@ -61,6 +63,8 @@ export const useRacoesManager = () => {
       fetchRacoes();
     } catch (error) {
       message.error(error.message || "Falha na operação.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -81,6 +85,7 @@ export const useRacoesManager = () => {
     editingRacao,
     isViewModalOpen,
     viewingRacao,
+    isSubmitting,
     handleOpenModal,
     handleCloseModal,
     handleOpenViewModal,

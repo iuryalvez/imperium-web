@@ -1,7 +1,7 @@
 import React from "react";
-import { Form, Input, Checkbox, Button, Row, Col, Divider, Switch } from "antd";
+import { Form, Input, Checkbox, Row, Col, Divider, Switch } from "antd";
 
-const FormCadastroUsuarioDaClinica = ({ onFinish, onCancel, isSubmitting }) => {
+const FormCadastroUsuarioDaClinica = ({ onFinish }) => {
   const [form] = Form.useForm();
 
   // Opções de perfis para clínica
@@ -24,7 +24,7 @@ const FormCadastroUsuarioDaClinica = ({ onFinish, onCancel, isSubmitting }) => {
   };
 
   return (
-    <Form form={form} layout="vertical" onFinish={onFinish}>
+    <Form id="form-cadastro-usuario-clinica" form={form} layout="vertical" onFinish={onFinish}>
       <Row gutter={24}>
         {/* --- Coluna 1: Informações Pessoais --- */}
         <Col xs={24} lg={12}>
@@ -119,15 +119,6 @@ const FormCadastroUsuarioDaClinica = ({ onFinish, onCancel, isSubmitting }) => {
           </Form.Item>
         </Col>
       </Row>
-
-      <div style={{ textAlign: "right", marginTop: 24 }}>
-        <Button onClick={onCancel} style={{ marginRight: 8 }}>
-          Cancelar
-        </Button>
-        <Button type="primary" htmlType="submit" loading={isSubmitting}>
-          Cadastrar
-        </Button>
-      </div>
     </Form>
   );
 };
