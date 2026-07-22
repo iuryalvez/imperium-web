@@ -1,22 +1,14 @@
-// src/pages/AcompanhamentoAnimal/index.jsx
 import React from "react";
-import {
-  Skeleton,
-  Result,
-  Button,
-  Typography,
-  Divider,
-  Modal,
-} from "antd";
+import { Skeleton, Result, Button, Divider } from "antd";
 import { Link } from "react-router-dom";
+import { FormOutlined, EditOutlined, ProfileOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 import { useAcompanhamentoAnimalManager } from "./useAcompanhamentoAnimalManager";
 import ListaRelatorios from "./components/ListaRelatorios";
-import dayjs from "dayjs";
 import FormularioDieta from "./components/FormularioDieta";
 import DetalhesDieta from "./components/DetalhesDieta";
 import FichaGeralAnimal from "./components/FichaGeralAnimal";
-
-const { Title } = Typography;
+import ModalPadrao from "../../../../components/modal/ModalPadrao";
 
 const AcompanhamentoAnimal = () => {
   const {
@@ -60,21 +52,22 @@ const AcompanhamentoAnimal = () => {
     );
   }
 
-  if (loading && !historico) {
-    // Mostra Skeleton apenas no load inicial
-    return <Skeleton active paragraph={{ rows: 8 }} />;
-  }
+  // Ordena os relatórios pela data para extrair o mais recente de forma segura
+  const relatoriosOrdenados = [
+    ...(historico.acompanhamento?.relatorios || []),
+  ].sort((a, b) => new Date(b.dataConsulta) - new Date(a.dataConsulta));
 
-  const dietaMaisRecente = historico.acompanhamento.relatorios
-    .filter((rel) => rel.dieta) // Filtra apenas relatórios com dieta
-    .sort((a, b) => new Date(b.dataConsulta) - new Date(a.dataConsulta))[0] // Ordena por data e pega o mais recente
-    ?.dieta;
+  const relatorioMaisRecente = relatoriosOrdenados[0];
+  const dietaMaisRecente = relatoriosOrdenados.find((rel) => rel.dieta)?.dieta;
 
   return (
     <div>
-      <Title level={2}>Ficha Geral do Animal</Title>
-
-      <FichaGeralAnimal animal={historico} dieta={dietaMaisRecente} />
+      {/* Título externo removido, a FichaGeralAnimal agora possui seu próprio título */}
+      <FichaGeralAnimal
+        animal={historico}
+        relatorioRecente={relatorioMaisRecente}
+        dietaRecente={dietaMaisRecente}
+      />
 
       <Divider orientation="left">Histórico de Relatórios</Divider>
 
@@ -86,66 +79,58 @@ const AcompanhamentoAnimal = () => {
         onExcluirDieta={handleExcluirDieta}
       />
 
-      <Modal
-        title={`Calcular Dieta para Consulta de ${dayjs(
-          relatorioSelecionado?.dataConsulta
-        ).format("DD/MM/YYYY")}`}
+      {/* Modal Padrao: Criar Dieta */}
+      <ModalPadrao
+        modo="criacao"
         open={isModalCriarDietaOpen}
         onCancel={handleCloseModalCriarDieta}
-        footer={null} // O formulário terá seus próprios botões
-        destroyOnClose
+        title={`Calcular Dieta (${dayjs(relatorioSelecionado?.dataConsulta).format("DD/MM/YYYY")})`}
+        icon={<FormOutlined />}
+        formId="form-dieta-animal"
+        isSubmitting={isSubmitting}
         width="min(700px, 95vw)"
       >
-        {/* Renderiza o formulário apenas quando o modal estiver aberto */}
         {relatorioSelecionado && (
           <FormularioDieta
             onFinish={handleCriarDieta}
-            onCancel={handleCloseModalCriarDieta}
             relatorioId={relatorioSelecionado.id}
             racoes={racoes}
-            isSubmitting={isSubmitting}
           />
         )}
-      </Modal>
+      </ModalPadrao>
 
-      <Modal
-        title="Detalhes da Dieta Calculada"
-        open={isModalVisualizarDietaOpen}
-        onCancel={handleCloseModalVisualizarDieta}
-        footer={[
-          <Button key="close" onClick={handleCloseModalVisualizarDieta}>
-            Fechar
-          </Button>,
-        ]}
-        destroyOnClose
-        width="min(600px, 95vw)"
-      >
-        {/* Renderiza o componente de detalhes com a dieta selecionada */}
-        {dietaParaVisualizar && <DetalhesDieta dieta={dietaParaVisualizar} />}
-      </Modal>
-
-      <Modal
-        title={`Editar Dieta da Consulta de ${dayjs(
-          dietaParaEditar?.dataConsulta
-        ).format("DD/MM/YYYY")}`}
+      {/* Modal Padrao: Editar Dieta */}
+      <ModalPadrao
+        modo="edicao"
         open={isModalEditarDietaOpen}
         onCancel={handleCloseModalEditarDieta}
-        footer={null}
-        destroyOnClose
-        width="min(700px, 90vw)"
+        title={`Editar Dieta (${dayjs(dietaParaEditar?.dataConsulta).format("DD/MM/YYYY")})`}
+        icon={<EditOutlined />}
+        formId="form-dieta-animal"
+        isSubmitting={isSubmitting}
+        width="min(700px, 95vw)"
       >
         {dietaParaEditar && (
           <FormularioDieta
             onFinish={handleEditarDieta}
-            onCancel={handleCloseModalEditarDieta}
-            // Passamos o initialValues para preencher o formulário
             initialValues={dietaParaEditar}
             relatorioId={dietaParaEditar.relatorioId}
             racoes={racoes}
-            isSubmitting={isSubmitting}
           />
         )}
-      </Modal>
+      </ModalPadrao>
+
+      {/* Modal Padrao: Visualizar Dieta (Detalhes) */}
+      <ModalPadrao
+        modo="detalhes"
+        open={isModalVisualizarDietaOpen}
+        onCancel={handleCloseModalVisualizarDieta}
+        title="Detalhes da Dieta Calculada"
+        icon={<ProfileOutlined />}
+        width="min(600px, 95vw)"
+      >
+        {dietaParaVisualizar && <DetalhesDieta dieta={dietaParaVisualizar} />}
+      </ModalPadrao>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Skeleton, Space, Typography } from "antd";
+import { Button, Skeleton, Space } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -14,8 +14,6 @@ import GerenciadorDeRacas from "./components/GerenciadorDeRacas/GerenciadorDeRac
 import TabelaAnimais from "./components/TabelaAnimaisDaClinica/TabelaAnimaisDaClinica";
 import FormDetalhesAnimal from "./components/FormularioDetalhesAnimaisDaClinica/FormDetalhesAnimais";
 import ModalPadrao from "../../../components/modal/ModalPadrao";
-
-const { Title } = Typography;
 
 const AnimaisDaClinica = () => {
   const {

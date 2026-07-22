@@ -34,7 +34,7 @@ const FormManutencao = () => (
         </Form.Item>
       </Col>
     </Row>
-    <Collapse size="small">
+    {/* <Collapse size="small">
       <Collapse.Panel header="Opções Avançadas de Cálculo" key="1">
         <Text type="secondary">
           Use estes campos apenas para substituir o cálculo padrão do sistema.
@@ -55,7 +55,7 @@ const FormManutencao = () => (
           </Col>
         </Row>
       </Collapse.Panel>
-    </Collapse>
+    </Collapse> */}
   </>
 );
 

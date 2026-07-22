@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Statistic, Button, Avatar, Divider, Space } from "antd";
+import { Card, Statistic, Button, Avatar, Divider } from "antd";
 import { EditOutlined, MedicineBoxOutlined } from "@ant-design/icons";
 
 // Importando os ícones em PNG dos assets

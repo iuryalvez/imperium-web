@@ -10,7 +10,7 @@ const DetalhesDieta = ({ dieta }) => {
   if (!dieta) return null;
 
   return (
-    <Card size="small" type="inner" title="Resultado da Dieta Calculada">
+    <div>
       <Row gutter={[16, 16]}>
         <Col xs={24} md={12}>
           <Statistic
@@ -40,7 +40,7 @@ const DetalhesDieta = ({ dieta }) => {
       <Divider orientation='left' plain>Sugestão de Refeições</Divider>
       <Text>- 2 Refeições de <strong>{(dieta.quantidadeAlimentoGramas / 2).toFixed(1)}g</strong> cada</Text><br/>
       <Text>- 3 Refeições de <strong>{(dieta.quantidadeAlimentoGramas / 3).toFixed(1)}g</strong> cada</Text>
-    </Card>
+    </div>
   );
 };
 

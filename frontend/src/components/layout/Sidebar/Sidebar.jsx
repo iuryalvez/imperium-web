@@ -1,7 +1,7 @@
 import React from "react";
 import { useAuth } from "../../../services/AuthContext";
 import { NavLink } from "react-router-dom";
-import { Menu, Typography } from "antd";
+import { Menu, Tooltip, Typography } from "antd";
 
 import ClinicaIcon from "../../../assets/animal/pet-care-service-pet-grooming-service-svgrepo-com.png";
 import AnimaisIcon from "../../../assets/animal/pet-14-svgrepo-com.png";
@@ -88,12 +88,22 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
 
   return (
     <div className="sidebar-container">
-      {/* 2. Aplica as classes CSS para o header e o estado 'collapsed' */}
       <div className={`sidebar-header ${collapsed ? "collapsed" : ""}`}>
         {!collapsed && (
-          <div className="flex flex-col items-center">
-            <Text className="clinic-name">{nomeClinica || "Clínica"}</Text>
-            <Text className="user-name">{userName || "Usuário"}</Text>
+          // Usando Tailwind w-full e overflow-hidden para garantir que o contêiner não expanda
+          <div className="flex flex-col items-center w-full px-2 overflow-hidden">
+            {/* Tooltip mostra o nome completo caso o usuário passe o mouse sobre o texto truncado */}
+            <Tooltip title={nomeClinica || "Clínica"} placement="right">
+              <Text className="clinic-name text-center w-full" ellipsis={true}>
+                {nomeClinica || "Clínica"}
+              </Text>
+            </Tooltip>
+
+            <Tooltip title={userName || "Usuário"} placement="right">
+              <Text className="user-name text-center w-full" ellipsis={true}>
+                {userName || "Usuário"}
+              </Text>
+            </Tooltip>
           </div>
         )}
       </div>
@@ -104,7 +114,7 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
         defaultSelectedKeys={[window.location.pathname]}
         selectedKeys={[window.location.pathname]}
         className="sidebar-menu"
-        items={menuItems} // 🔑 agora usa items em vez de children
+        items={menuItems}
       />
     </div>
   );
