@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   Form,
-  Button,
   Input,
   InputNumber,
   Slider,
@@ -11,9 +10,7 @@ import {
   Col,
   Divider,
   message,
-  Popconfirm,
 } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
 import { racoesDaClinicaAPI } from "../../../../api/clinica/racoesDaClinicaAPI";
 
 const opcoesGrauAtividade = [
@@ -41,13 +38,7 @@ const opcoesTipoDieta = [
   { value: 4, label: "Gestação" },
 ];
 
-const FormularioRelatorio = ({
-  consulta,
-  initialValues,
-  onFinish,
-  onDelete,
-  onCancel,
-}) => {
+const FormularioRelatorio = ({ consulta, initialValues, onFinish }) => {
   const [form] = Form.useForm();
   const [racoes, setRacoes] = useState([]);
   const [loadingRacoes, setLoadingRacoes] = useState(true);
@@ -62,7 +53,7 @@ const FormularioRelatorio = ({
       racoesDaClinicaAPI
         .listar(consulta.especieAnimal)
         .then((data) =>
-          setRacoes(data.map((r) => ({ label: r.nome, value: r.id })))
+          setRacoes(data.map((r) => ({ label: r.nome, value: r.id }))),
         )
         .catch(() => message.error("Erro ao carregar lista de rações."))
         .finally(() => setLoadingRacoes(false));
@@ -100,7 +91,12 @@ const FormularioRelatorio = ({
   // }, [isLactante, form]);
 
   return (
-    <Form form={form} layout="vertical" onFinish={onFinish}>
+    <Form
+      id="form-relatorio-consulta-clinica"
+      form={form}
+      layout="vertical"
+      onFinish={onFinish}
+    >
       <Row gutter={24}>
         <Col xs={24} md={12}>
           <Form.Item name="peso" label="Peso (kg)" rules={[{ required: true }]}>
@@ -215,8 +211,8 @@ const FormularioRelatorio = ({
                             ? Promise.resolve()
                             : Promise.reject(
                                 new Error(
-                                  "O nº de filhotes deve ser maior que 0"
-                                )
+                                  "O nº de filhotes deve ser maior que 0",
+                                ),
                               ),
                       },
                     ]}
@@ -240,26 +236,6 @@ const FormularioRelatorio = ({
           </Row>
         </>
       )}
-
-      <div className="flex justify-end gap-2 mt-6">
-        <Button onClick={onCancel}>Cancelar</Button>
-        {initialValues && (
-          <Popconfirm
-            title="Excluir relatório"
-            description="Tem certeza que deseja excluir este relatório? Esta ação não pode ser desfeita."
-            onConfirm={() => onDelete(initialValues.id)}
-            okText="Sim, Excluir"
-            cancelText="Cancelar"
-          >
-            <Button icon={<DeleteOutlined />} danger>
-              Excluir
-            </Button>
-          </Popconfirm>
-        )}
-        <Button type="primary" htmlType="submit">
-          Salvar Relatório
-        </Button>
-      </div>
     </Form>
   );
 };

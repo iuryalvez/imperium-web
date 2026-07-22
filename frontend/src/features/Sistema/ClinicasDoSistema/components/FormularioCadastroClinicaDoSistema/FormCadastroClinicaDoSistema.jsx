@@ -1,21 +1,23 @@
 import React from "react";
-import { Form, Input, Row, Col, Divider, Button, Switch } from "antd";
+import { Form, Input, Row, Col, Divider, Switch } from "antd";
 
-const FormularioCadastroClinicaDoSistema = ({ onFinish, isSubmitting }) => {
+const FormularioCadastroClinicaDoSistema = ({ onFinish }) => {
   const [form] = Form.useForm();
 
   return (
-    <Form form={form} layout="vertical" onFinish={onFinish}>
+    <Form id="form-cadastro-clinica-sistema" form={form} layout="vertical" onFinish={onFinish}>
       <Row gutter={24}>
         <Col span={24}>
           <Divider orientation="left" plain>
             Dados Principais
           </Divider>
-          
+
           <Form.Item
             label="Razão Social (Nome)"
             name="nomeClinica"
-            rules={[{ required: true, message: "O nome da clínica é obrigatório" }]}
+            rules={[
+              { required: true, message: "O nome da clínica é obrigatório" },
+            ]}
           >
             <Input placeholder="Nome oficial da clínica" maxLength={100} />
           </Form.Item>
@@ -30,11 +32,6 @@ const FormularioCadastroClinicaDoSistema = ({ onFinish, isSubmitting }) => {
           </Form.Item>
         </Col>
       </Row>
-      <div className="flex justify-end mt-4">
-        <Button type="primary" htmlType="submit" loading={isSubmitting}>
-          Cadastrar Clínica
-        </Button>
-      </div>
     </Form>
   );
 };

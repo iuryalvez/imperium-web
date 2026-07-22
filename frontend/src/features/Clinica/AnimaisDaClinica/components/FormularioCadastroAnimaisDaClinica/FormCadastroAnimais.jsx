@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Select, DatePicker, Switch, Row, Col, Button, message } from "antd";
+import { Form, Input, Select, DatePicker, Switch, Row, Col, message } from "antd";
 import { tutoresDaClinicaAPI } from "../../../../../api/clinica/tutoresDaClinicaAPI";
 import { racasAPI } from "../../../../../api/sistema/racasAPI";
 
 const opcoesEspecie = [{ value: 1, label: "Cão" }, { value: 2, label: "Gato" }];
 const opcoesSexo = [{ value: 1, label: "Macho" }, { value: 2, label: "Fêmea" }];
 
-const FormCadastroAnimal = ({ onFinish, onCancel, isSubmitting }) => {
+const FormCadastroAnimal = ({ onFinish }) => {
   const [form] = Form.useForm();
   const [racas, setRacas] = useState([]);
   const [tutores, setTutores] = useState([]);
@@ -43,7 +43,7 @@ const FormCadastroAnimal = ({ onFinish, onCancel, isSubmitting }) => {
   }, [especieSelecionada, form]);
   
   return (
-    <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{ isCastrado: false }}>
+    <Form id="form-cadastro-animal-clinica" form={form} layout="vertical" onFinish={onFinish} initialValues={{ isCastrado: false }}>
       <Row gutter={24}>
         <Col xs={24} md={12}>
           <Form.Item name="nome" label="Nome do Animal" rules={[{ required: true }]}>
@@ -84,10 +84,6 @@ const FormCadastroAnimal = ({ onFinish, onCancel, isSubmitting }) => {
           </Form.Item>
         </Col>
       </Row>
-      <div className="flex justify-end gap-2 mt-6">
-        <Button onClick={onCancel}>Cancelar</Button>
-        <Button type="primary" htmlType="submit" loading={isSubmitting}>Cadastrar</Button>
-      </div>
     </Form>
   );
 };

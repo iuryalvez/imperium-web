@@ -1,16 +1,20 @@
 import React from "react";
-import { Button, Modal } from "antd";
-import { PlusOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import { Button } from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  FormOutlined,
+  ProfileOutlined,
+} from "@ant-design/icons";
 import LoadingSpinner from "../../../components/atoms/LoadingSpinner.jsx";
 import { useUsuariosDaClinicaManager } from "./useUsuariosDaClinicaManager.js";
 import TabelaUsuariosDaClinica from "./components/TabelaUsuariosDaClinica/TabelaUsuariosDaClinica.jsx";
 import FormEdicaoUsuarioDaClinica from "./components/FormularioEdicaoUsuarioDaClinica/FormEdicaoUsuarioDaClinica.jsx";
 import FormCadastroUsuarioDaClinica from "./components/FormularioCadastroUsuarioDaClinica/FormCadastroUsuarioDaClinica.jsx";
 import FormDetalhesUsuarioDaClinica from "./components/FormularioDetalhesUsuarioDaClinica/FormularioDetalhesUsuarioDaClinica.jsx";
-
+import ModalPadrao from "../../../components/modal/ModalPadrao.jsx";
 
 const UsuariosDaClinica = () => {
-  // O hook agora gerencia apenas a lógica de dados e modais, não mais as colunas.
   const {
     usuarios,
     loading,
@@ -35,15 +39,9 @@ const UsuariosDaClinica = () => {
 
   return (
     <div>
-      <button
-        onClick={() => window.history.back()}
-        className="flex items-center font-bold text-[var(--verde-medio)] mb-2"
-      >
-        <ArrowLeftOutlined className="mr-2" /> Voltar
-      </button>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
-          Lista de Usuários do Sistema
+          Gerenciamento de Usuários
         </h1>
         <Button
           type="primary"
@@ -62,53 +60,40 @@ const UsuariosDaClinica = () => {
         loadingRowKey={loadingRowKey}
       />
 
-      <Modal
-        title={editingUser ? "Editar Usuário" : "Cadastrar Novo Usuário"}
+      {/* Modal de Criação / Edição */}
+      <ModalPadrao
+        modo={editingUser ? "edicao" : "criacao"}
         open={isModalOpen}
         onCancel={handleCloseModal}
-        footer={null}
-        centered
-        destroyOnClose
-        width="min(800px, 95vw)"
-        styles={{
-          body: { maxHeight: "80vh", overflowY: "auto", overflowX: "hidden" },
-        }}
+        title={editingUser ? "Editar Usuário" : "Cadastrar Novo Usuário"}
+        icon={editingUser ? <EditOutlined /> : <FormOutlined />}
+        formId={
+          editingUser
+            ? "form-edicao-usuario-clinica"
+            : "form-cadastro-usuario-clinica"
+        }
+        isSubmitting={isSubmitting}
       >
         {editingUser ? (
           <FormEdicaoUsuarioDaClinica
             onFinish={handleSubmit}
-            onCancel={handleCloseModal}
-            isSubmitting={isSubmitting}
             initialValues={editingUser}
           />
         ) : (
-          <FormCadastroUsuarioDaClinica
-            onFinish={handleSubmit}
-            onCancel={handleCloseModal}
-            isSubmitting={isSubmitting}
-          />
+          <FormCadastroUsuarioDaClinica onFinish={handleSubmit} />
         )}
-      </Modal>
+      </ModalPadrao>
 
-      <Modal
-        title="Detalhes do Usuário"
+      {/* Modal de Detalhes */}
+      <ModalPadrao
+        modo="detalhes"
         open={isOpenModalDetalhes}
         onCancel={handleCloseModalDetalhes}
-        footer={[
-          <Button key="close" onClick={handleCloseModalDetalhes}>
-            Fechar
-          </Button>,
-        ]}
-        centered
-        destroyOnClose
-        style={{ minWidth: "40vw", maxWidth: "80vw" }}
-        styles={{
-          body: { maxHeight: "80vh", overflowY: "auto" },
-        }}
+        title={`Detalhes de ${viewingUser?.nome || "Usuário"}`}
+        icon={<ProfileOutlined />}
       >
-        {/* Renderiza o componente de detalhes apenas se houver um usuário selecionado */}
         {viewingUser && <FormDetalhesUsuarioDaClinica valores={viewingUser} />}
-      </Modal>
+      </ModalPadrao>
     </div>
   );
 };

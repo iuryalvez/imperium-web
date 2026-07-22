@@ -7,7 +7,6 @@ import {
   Switch,
   Row,
   Col,
-  Button,
   message,
 } from "antd";
 import dayjs from "dayjs";
@@ -25,8 +24,6 @@ const opcoesSexo = [
 
 const FormEdicaoAnimal = ({
   onFinish,
-  onCancel,
-  isSubmitting,
   initialValues,
 }) => {
   const [form] = Form.useForm();
@@ -91,8 +88,7 @@ const FormEdicaoAnimal = ({
   console.log("Racas filtradas:", racasFiltradas);
 
   return (
-    // Removido initialValues daqui para controlar o preenchimento via useEffect
-    <Form form={form} layout="vertical" onFinish={onFinish}>
+    <Form id="form-edicao-animal-clinica" form={form} layout="vertical" onFinish={onFinish}>
       <Form.Item name="id" hidden>
         <Input />
       </Form.Item>
@@ -159,12 +155,6 @@ const FormEdicaoAnimal = ({
           </Form.Item>
         </Col>
       </Row>
-      <div className="flex justify-end gap-2 mt-6">
-        <Button onClick={onCancel}>Cancelar</Button>
-        <Button type="primary" htmlType="submit" loading={isSubmitting}>
-          Salvar Alterações
-        </Button>
-      </div>
     </Form>
   );
 };

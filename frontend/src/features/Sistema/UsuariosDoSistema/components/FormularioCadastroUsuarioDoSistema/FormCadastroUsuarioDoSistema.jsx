@@ -11,9 +11,9 @@ import {
   Divider,
   Switch,
 } from "antd";
-import { clinicasAPI } from "../../../../../api/sistema/clinicasAPI"; // Ajuste o caminho
+import { clinicasAPI } from "../../../../../api/sistema/clinicasAPI";
 
-const FormCadastroUsuarioDoSistema = ({ onFinish, onCancel, isSubmitting }) => {
+const FormCadastroUsuarioDoSistema = ({ onFinish }) => {
   const [form] = Form.useForm();
   const [clinicas, setClinicas] = useState([]);
   const [loadingClinicas, setLoadingClinicas] = useState(false);
@@ -37,7 +37,6 @@ const FormCadastroUsuarioDoSistema = ({ onFinish, onCancel, isSubmitting }) => {
     { label: "Técnico", value: "TECNICO" },
   ];
 
-  // 3. EFEITOS COLATERAIS: Reagimos às mudanças no estado derivado.
   useEffect(() => {
     // Se o usuário é admin, limpa a seleção de clínicas.
     if (isAdminSelecionado) {
@@ -91,7 +90,12 @@ const FormCadastroUsuarioDoSistema = ({ onFinish, onCancel, isSubmitting }) => {
   }));
 
   return (
-    <Form form={form} layout="vertical" onFinish={onFinish}>
+    <Form
+      id="form-cadastro-usuario-sistema"
+      form={form}
+      layout="vertical"
+      onFinish={onFinish}
+    >
       {/* Campo 'isAdmin' oculto para corresponder ao DTO, seu valor é derivado dos perfis */}
       <Form.Item name="isAdmin" hidden initialValue={isAdminSelecionado}>
         <Input />
@@ -214,15 +218,6 @@ const FormCadastroUsuarioDoSistema = ({ onFinish, onCancel, isSubmitting }) => {
           )}
         </Col>
       </Row>
-
-      <div style={{ textAlign: "right", marginTop: 24 }}>
-        <Button onClick={onCancel} style={{ marginRight: 8 }}>
-          Cancelar
-        </Button>
-        <Button type="primary" htmlType="submit" loading={isSubmitting}>
-          Cadastrar
-        </Button>
-      </div>
     </Form>
   );
 };

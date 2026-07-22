@@ -134,19 +134,8 @@ const FormularioEdicaoClinica = ({ initialValues, onFinish, isSubmitting }) => {
   ];
 
   return (
-    <Form form={form} layout="vertical" onFinish={onFinish}>
+    <Form id="form-edicao-perfil-clinica" form={form} layout="vertical" onFinish={onFinish}>
       <Tabs defaultActiveKey="1" items={items} />
-
-      <div className="flex justify-end mt-6 pt-4 border-t border-gray-200">
-        <Button
-          type="primary"
-          htmlType="submit"
-          loading={isSubmitting}
-          size="large"
-        >
-          Salvar Alterações
-        </Button>
-      </div>
     </Form>
   );
 };

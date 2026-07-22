@@ -8,6 +8,7 @@ export const useRacoesManager = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRacao, setEditingRacao] = useState(null); // Guarda a ração sendo editada
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // A lógica de busca de dados
   const fetchRacoes = useCallback(async () => {
@@ -39,6 +40,7 @@ export const useRacoesManager = () => {
 
   const handleSubmit = async (values) => {
     try {
+      setIsSubmitting(true);
       if (editingRacao) {
         // Lógica de Edição
         await racoesDaClinicaAPI.editar({ ...editingRacao, ...values });
@@ -52,6 +54,8 @@ export const useRacoesManager = () => {
       fetchRacoes(); // Re-busca os dados
     } catch (error) {
       message.error(error.message || "Falha na operação.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -71,6 +75,7 @@ export const useRacoesManager = () => {
     loading,
     isModalOpen,
     editingRacao,
+    isSubmitting,
     handleOpenModal,
     handleCloseModal,
     handleSubmit,

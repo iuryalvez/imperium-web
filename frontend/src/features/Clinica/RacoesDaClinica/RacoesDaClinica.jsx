@@ -1,9 +1,10 @@
 import React from "react";
-import { Modal, Button, Skeleton } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Button, Skeleton } from "antd";
+import { PlusOutlined, EditOutlined, FormOutlined } from "@ant-design/icons";
 import { useRacoesManager } from "./useRacoesManager";
 import FormCadastroEdicaoRacaoClinica from "./components/FormularioCadastroEdicaoRacao/FormCadastroEdicaoRacaoClinica";
 import TabelaRacoesDaClinica from "./components/TabelaRacoesDaClinica/TabelaRacoesDaClinica";
+import ModalPadrao from "../../../components/modal/ModalPadrao";
 
 const RacoesDaClinica = () => {
   const {
@@ -11,6 +12,7 @@ const RacoesDaClinica = () => {
     loading,
     isModalOpen,
     editingRacao,
+    isSubmitting,
     handleOpenModal,
     handleCloseModal,
     handleSubmit,
@@ -41,20 +43,20 @@ const RacoesDaClinica = () => {
         loading={loading}
       />
 
-      <Modal
-        title={editingRacao ? "Editar Ração" : "Cadastrar Nova Ração"}
+      <ModalPadrao
+        modo={editingRacao ? "edicao" : "criacao"}
         open={isModalOpen}
         onCancel={handleCloseModal}
-        footer={null}
-        destroyOnClose
-        width="min(800px, 95vw)"
+        title={editingRacao ? "Editar Ração" : "Cadastrar Nova Ração"}
+        icon={editingRacao ? <EditOutlined /> : <FormOutlined />}
+        formId="form-cadastro-edicao-racao-clinica"
+        isSubmitting={isSubmitting}
       >
         <FormCadastroEdicaoRacaoClinica
           initialValues={editingRacao}
           onFinish={handleSubmit}
-          onCancel={handleCloseModal}
         />
-      </Modal>
+      </ModalPadrao>
     </div>
   );
 };

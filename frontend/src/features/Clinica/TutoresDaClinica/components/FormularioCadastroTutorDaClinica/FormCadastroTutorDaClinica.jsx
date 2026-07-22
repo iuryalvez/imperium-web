@@ -10,7 +10,7 @@ import { animaisDaClinicaAPI } from "../../../../../api/clinica/animaisDaClinica
 import { useCepHandler } from "../../../../../utils/useCepHandler";
 import { validarCPF } from "../../../../../utils/validators";
 
-const FormularioCadastroTutorDaClinica = ({ onFinish, isSubmitting }) => {
+const FormularioCadastroTutorDaClinica = ({ onFinish }) => {
   const [form] = Form.useForm();
   const [animaisDaClinica, setAnimaisDaClinica] = useState([]);
   const [loadingAnimais, setLoadingAnimais] = useState(false);
@@ -34,7 +34,7 @@ const FormularioCadastroTutorDaClinica = ({ onFinish, isSubmitting }) => {
   }, []);
 
   return (
-    <Form form={form} layout="vertical" onFinish={onFinish}>
+    <Form id="form-cadastro-tutor-clinica" form={form} layout="vertical" onFinish={onFinish}>
       <Row gutter={24}>
         <Col xs={24} lg={12}>
           <Divider orientation="left" plain>
@@ -150,11 +150,6 @@ const FormularioCadastroTutorDaClinica = ({ onFinish, isSubmitting }) => {
           </Form.Item>
         </Col>
       </Row>
-      <div className="flex justify-end mt-4">
-        <Button type="primary" htmlType="submit" loading={isSubmitting}>
-          Cadastrar
-        </Button>
-      </div>
     </Form>
   );
 };

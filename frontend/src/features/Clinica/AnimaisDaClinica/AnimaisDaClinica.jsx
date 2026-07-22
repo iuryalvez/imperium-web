@@ -1,26 +1,33 @@
 import React from "react";
-import { Button, Input, Modal, Skeleton, Space } from "antd";
-import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Skeleton, Space } from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  FormOutlined,
+  ProfileOutlined,
+  UnorderedListOutlined,
+} from "@ant-design/icons";
 import { useAnimaisDaClinicaManager } from "./useAnimaisDaClinicaManager";
 import FormCadastroAnimal from "./components/FormularioCadastroAnimaisDaClinica/FormCadastroAnimais";
 import FormEdicaoAnimal from "./components/FormularioEdicaoAnimaisDaClinica/FormEdicaoAnimais";
 import GerenciadorDeRacas from "./components/GerenciadorDeRacas/GerenciadorDeRacas";
 import TabelaAnimais from "./components/TabelaAnimaisDaClinica/TabelaAnimaisDaClinica";
 import FormDetalhesAnimal from "./components/FormularioDetalhesAnimaisDaClinica/FormDetalhesAnimais";
+import ModalPadrao from "../../../components/modal/ModalPadrao";
 
 const AnimaisDaClinica = () => {
   const {
     animais,
     loading,
     loadingRowKey,
-    searchTerm,
+    // searchTerm,
     isSubmitting,
     isModalAnimalOpen,
     isModalRacasOpen,
     isModalDetalhesOpen,
     editingAnimal,
     viewingAnimal,
-    handleSearch,
+    // handleSearch,
     handleOpenModal,
     handleCloseModal,
     handleOpenModalRacas,
@@ -39,7 +46,9 @@ const AnimaisDaClinica = () => {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Gerenciamento de Animais</h1>
+        <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
+          Gerenciamento de Animais
+        </h1>
         <Space>
           <Button onClick={handleOpenModalRacas}>Gerenciar Raças</Button>
           <Button
@@ -52,15 +61,6 @@ const AnimaisDaClinica = () => {
         </Space>
       </div>
 
-      {/* <Input
-        placeholder="Buscar animal pelo nome..."
-        prefix={<SearchOutlined />}
-        value={searchTerm}
-        onChange={handleSearch}
-        style={{ marginBottom: 16 }}
-        allowClear
-      /> */}
-
       <TabelaAnimais
         data={animais}
         onEdit={handleOpenModal}
@@ -70,59 +70,51 @@ const AnimaisDaClinica = () => {
         loadingRowKey={loadingRowKey}
       />
 
-      <Modal
-        title={editingAnimal ? "Editar Animal" : "Cadastrar Novo Animal"}
+      {/* Modal de Criação / Edição de Animal */}
+      <ModalPadrao
+        modo={editingAnimal ? "edicao" : "criacao"}
         open={isModalAnimalOpen}
         onCancel={handleCloseModal}
-        footer={null}
-        destroyOnClose
-        width="min(800px, 95vw)"
+        title={editingAnimal ? "Editar Animal" : "Cadastrar Novo Animal"}
+        icon={editingAnimal ? <EditOutlined /> : <FormOutlined />}
+        formId={
+          editingAnimal
+            ? "form-edicao-animal-clinica"
+            : "form-cadastro-animal-clinica"
+        }
+        isSubmitting={isSubmitting}
       >
-        {/* Renderiza o formulário correto com base em 'editingAnimal' */}
         {editingAnimal ? (
           <FormEdicaoAnimal
             initialValues={editingAnimal}
             onFinish={handleSubmit}
-            onCancel={handleCloseModal}
-            isSubmitting={isSubmitting}
           />
         ) : (
-          <FormCadastroAnimal
-            onFinish={handleSubmit}
-            onCancel={handleCloseModal}
-            isSubmitting={isSubmitting}
-          />
+          <FormCadastroAnimal onFinish={handleSubmit} />
         )}
-      </Modal>
+      </ModalPadrao>
 
-      <Modal
-        title="Gerenciamento de Raças"
+      {/* Modal de Gerenciamento de Raças */}
+      <ModalPadrao
+        modo="detalhes"
         open={isModalRacasOpen}
         onCancel={handleCloseModalRacas}
-        footer={null}
-        destroyOnClose
-        width="min(800px, 95vw)"
+        title="Gerenciamento de Raças"
+        icon={<UnorderedListOutlined />}
       >
         <GerenciadorDeRacas />
-      </Modal>
+      </ModalPadrao>
 
-      <Modal
-        title="Detalhes do Animal"
+      {/* Modal de Detalhes do Animal */}
+      <ModalPadrao
+        modo="detalhes"
         open={isModalDetalhesOpen}
         onCancel={handleCloseModalDetalhes}
-        footer={[
-          <Button key="close" onClick={handleCloseModalDetalhes}>
-            Fechar
-          </Button>,
-        ]}
-        destroyOnClose
-        width="min(800px, 95vw)"
-        centered
-        styles={{ body: { maxHeight: "70vh", overflowY: "auto" } }}
+        title={`Detalhes de ${viewingAnimal?.nome || "Animal"}`}
+        icon={<ProfileOutlined />}
       >
-        {/* Renderiza o componente de detalhes apenas se houver um animal selecionado */}
         {viewingAnimal && <FormDetalhesAnimal valores={viewingAnimal} />}
-      </Modal>
+      </ModalPadrao>
     </div>
   );
 };

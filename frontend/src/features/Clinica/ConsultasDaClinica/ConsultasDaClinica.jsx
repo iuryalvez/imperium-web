@@ -1,10 +1,17 @@
 import React from "react";
-import { Modal, Button, Skeleton } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Button, Modal, Popconfirm, Skeleton, Space } from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  FormOutlined,
+  FileTextOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import { useConsultasManager } from "./useConsultasManager";
 import TabelaConsultas from "./components/TabelaConsultas";
 import FormularioConsulta from "./components/FormularioConsulta";
 import FormularioRelatorio from "./components/FormularioRelatorio";
+import ModalPadrao from "../../../components/modal/ModalPadrao";
 
 const ConsultasDaClinica = () => {
   const {
@@ -33,7 +40,9 @@ const ConsultasDaClinica = () => {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Gerenciamento de Consultas</h1>
+        <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
+          Gerenciamento de Consultas
+        </h1>
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -47,45 +56,81 @@ const ConsultasDaClinica = () => {
         consultas={consultas}
         onEdit={handleOpenModal}
         onDelete={handleDelete}
-        onOpenRelatorio={handleOpenRelatorioModal} 
+        onOpenRelatorio={handleOpenRelatorioModal}
         loading={loading}
       />
 
+      {/* Modal de Relatório da Consulta */}
       <Modal
-        title={`Relatório da Consulta - ${selectedConsulta?.nomeAnimal || ""}`}
+        title={
+          <Space>
+            <FileTextOutlined className="modal-title-icon" />
+            <span className="text-verde-escuro m-0 text-lg">
+              Relatório da Consulta - {selectedConsulta?.nomeAnimal || ""}
+            </span>
+          </Space>
+        }
         open={isRelatorioModalOpen}
         onCancel={handleCloseRelatorioModal}
-        footer={null}
+        style={{ top: 40 }} // Mantém o modal travado no topo, igual ao ModalPadrao
+        footer={
+          <div className="modal-footer-actions">
+            <Button onClick={handleCloseRelatorioModal}>Cancelar</Button>
+
+            {relatorioData && (
+              <Popconfirm
+                title="Excluir relatório"
+                description="Tem certeza que deseja excluir este relatório? Esta ação não pode ser desfeita."
+                onConfirm={() => handleDeleteRelatorio(relatorioData.id)}
+                okText="Sim, Excluir"
+                cancelText="Cancelar"
+              >
+                <Button icon={<DeleteOutlined />} danger>
+                  Excluir
+                </Button>
+              </Popconfirm>
+            )}
+
+            <Button
+              form="form-relatorio-consulta-clinica"
+              type="primary"
+              htmlType="submit"
+            >
+              Salvar Relatório
+            </Button>
+          </div>
+        }
         destroyOnClose
         width="min(800px, 95vw)"
       >
-        {loadingRelatorio ? (
-          <Skeleton active />
-        ) : (
-          <FormularioRelatorio
-            consulta={selectedConsulta}
-            initialValues={relatorioData}
-            onFinish={handleSubmitRelatorio}
-            onDelete={handleDeleteRelatorio}
-            onCancel={handleCloseRelatorioModal}
-          />
-        )}
+        <div className="modal-scroll-container">
+          {loadingRelatorio ? (
+            <Skeleton active />
+          ) : (
+            <FormularioRelatorio
+              consulta={selectedConsulta}
+              initialValues={relatorioData}
+              onFinish={handleSubmitRelatorio}
+            />
+          )}
+        </div>
       </Modal>
 
-      <Modal
-        title={editingConsulta ? "Editar Consulta" : "Agendar Nova Consulta"}
+      {/* Modal de Criação / Edição de Consulta */}
+      <ModalPadrao
+        modo={editingConsulta ? "edicao" : "criacao"}
         open={isModalOpen}
-        width="min(500px, 50vw)"
         onCancel={handleCloseModal}
-        footer={null}
-        destroyOnClose
+        title={editingConsulta ? "Editar Consulta" : "Agendar Nova Consulta"}
+        icon={editingConsulta ? <EditOutlined /> : <FormOutlined />}
+        formId="form-cadastro-edicao-consulta"
+        width="min(500px, 95vw)"
       >
         <FormularioConsulta
           initialValues={editingConsulta}
           onFinish={handleSubmit}
-          onCancel={handleCloseModal}
         />
-      </Modal>
+      </ModalPadrao>
     </div>
   );
 };
