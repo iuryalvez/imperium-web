@@ -22,12 +22,13 @@ const PaginaSobre = () => {
 
             <Paragraph style={{ fontSize: "16px", lineHeight: "1.8" }}>
               Este software tem como objetivo auxiliar no controle nutricional
-              de cães e gatos, utilizando técnicas de{" "}
-              <strong>inteligência artificial</strong>, em especial o{" "}
-              <strong>aprendizado de máquina</strong>, para padronizar a
-              avaliação do Escore de Condição Corporal (ECC) dos animais. Com
-              isso, o sistema contribui diretamente para a promoção da saúde e
-              do bem-estar dos pets.
+              de cães e gatos, utilizando o{" "}
+              <strong>sistema de regras de Laflamme</strong> para padronizar a
+              avaliação do Escore de Condição Corporal (ECC) e as{" "}
+              <strong>equações metabólicas do NRC</strong> para o cálculo
+              dietético. Com isso, o sistema oferece rigor científico e
+              contribui diretamente para a promoção da saúde e do bem-estar dos
+              pets.
             </Paragraph>
 
             <Divider />

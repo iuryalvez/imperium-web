@@ -10,33 +10,40 @@ import {
   Col,
   Divider,
   message,
+  Typography,
+  Popover,
+  Space,
 } from "antd";
+import { InfoCircleOutlined } from "@ant-design/icons";
 import { racoesDaClinicaAPI } from "../../../../api/clinica/racoesDaClinicaAPI";
+import {
+  opcoesCondicaoCorporal,
+  opcoesGrauAtividade,
+  opcoesTipoDieta,
+} from "./opcoesRelatorio";
 
-const opcoesGrauAtividade = [
-  { value: 1, label: "Baixo" },
-  { value: 2, label: "Moderado" },
-  { value: 3, label: "Alto" },
-];
+const { Text } = Typography;
 
-const marcasCondicaoCorporal = {
-  1: "1",
-  2: "2",
-  3: "3",
-  4: "4",
-  5: "5",
-  6: "6",
-  7: "7",
-  8: "8",
-  9: "9",
-};
-
-const opcoesTipoDieta = [
-  { value: 1, label: "Manutenção" },
-  { value: 2, label: "Crescimento" },
-  { value: 3, label: "Lactação" },
-  { value: 4, label: "Gestação" },
-];
+// Componente auxiliar para renderizar a Label com ícone de Informação
+const LabelComInfo = ({ label, tituloPopover, conteudoPopover }) => (
+  <Space size={4} className="items-center">
+    <span>{label}</span>
+    <Popover
+      title={
+        <Text className="font-bold text-verde-escuro">{tituloPopover}</Text>
+      }
+      content={
+        <div className="max-w-md max-h-80 overflow-y-auto text-xs leading-relaxed text-gray-600">
+          {conteudoPopover}
+        </div>
+      }
+      trigger="click"
+      placement="right"
+    >
+      <InfoCircleOutlined className="text-verde-medio cursor-pointer hover:text-verde-escuro transition-colors" />
+    </Popover>
+  </Space>
+);
 
 const FormularioRelatorio = ({ consulta, initialValues, onFinish }) => {
   const [form] = Form.useForm();
@@ -46,7 +53,18 @@ const FormularioRelatorio = ({ consulta, initialValues, onFinish }) => {
   const isGestante = Form.useWatch("isGestante", form);
   const isLactante = Form.useWatch("isLactante", form);
 
-  const isFemea = consulta?.sexoAnimal === 2 ? true : false;
+  const isFemea =
+    consulta?.sexoAnimal === 2 ||
+    String(consulta?.sexoAnimal).toLowerCase() === "femea";
+  const isGato =
+    consulta?.especieAnimal === 2 ||
+    String(consulta?.especieAnimal).toLowerCase() === "gato";
+
+  useEffect(() => {
+    if (isGato) {
+      form.setFieldsValue({ grauAtividade: undefined });
+    }
+  }, [isGato, form]);
 
   useEffect(() => {
     if (consulta?.especieAnimal) {
@@ -63,32 +81,170 @@ const FormularioRelatorio = ({ consulta, initialValues, onFinish }) => {
   useEffect(() => {
     if (initialValues) {
       const processedValues = { ...initialValues };
-      // Ajusta valores booleanos para switches
       processedValues.isGestante = initialValues.isGestante;
       processedValues.isLactante = initialValues.isLactanteNumeroFilhotes > 0;
       form.setFieldsValue(processedValues);
     } else {
       form.setFieldsValue({
         isGestante: false,
-        isLactanteNumeroFilhotes: 0, // Garante o valor padrão correto
+        isLactanteNumeroFilhotes: 0,
       });
     }
   }, [initialValues, form]);
 
-  // useEffect(() => {
-  //   if (!isGestante) {
-  //     form.setFieldsValue({ semanaGestacao: undefined });
-  //   }
-  // }, [isGestante, form]);
+  // Conteúdos literários dos Popovers
+  const conteudoAtividade = (
+    <ul className="list-disc pl-4 space-y-1">
+      <li>
+        <strong>Baixo:</strong> Cães mantidos em ambiente doméstico com pouca
+        oportunidade ou estímulo à prática de exercício. As necessidades de cães
+        idosos podem ser ainda menores.
+      </li>
+      <li>
+        <strong>Moderado:</strong> Cães adultos com atividade normal, passeios
+        diários regulares ou cães de canil.
+      </li>
+      <li>
+        <strong>Alto:</strong> Cães com ampla oportunidade e forte estímulo a
+        exercícios, como grupos em ambiente rural, domicílios com amplo quintal
+        ou cães de trabalho/esporte.
+      </li>
+    </ul>
+  );
 
-  // useEffect(() => {
-  //   if (!isLactante) {
-  //     form.setFieldsValue({
-  //       isLactanteNumeroFilhotes: 0,
-  //       semanaLactacao: undefined,
-  //     });
-  //   }
-  // }, [isLactante, form]);
+  const conteudoTipoDieta = (
+    <ul className="list-disc pl-4 space-y-1">
+      <li>
+        <strong>Manutenção:</strong> Foco em preservar o peso corporal e a
+        composição corporal atual do animal adulto saudável. Abrange ajustes
+        leves para emagrecimento ou ganho de peso progressivo sem alterar o
+        estágio fisiológico.
+      </li>
+      <li>
+        <strong>Crescimento:</strong> Dieta com densidade energética e proteica
+        otimizada para filhotes em desenvolvimento até a maturidade esquelética.
+      </li>
+      <li>
+        <strong>Gestação:</strong> Dieta formulada para suprir a alta demanda
+        energética no terço final da gestação de fêmeas reprodutoras.
+      </li>
+      <li>
+        <strong>Lactação:</strong> Fase de maior exigência metabólica; visa
+        garantir a produção láctea sem esgotar as reservas corporais da mãe.
+      </li>
+    </ul>
+  );
+
+  const conteudoECC = isGato ? (
+    <div className="space-y-2">
+      <p>
+        <strong>Classificação Felina:</strong>
+      </p>
+      <p>
+        <strong>1 (Emaciado):</strong> Ausência de gordura corporal perceptível.
+        Costelas e proeminências ósseas facilmente visíveis e palpáveis. Cintura
+        ou Reentrância abdominal acentuada.
+      </p>
+      <p>
+        <strong>2 (Muito Magro):</strong> Ausência de gordura corporal palpável.
+        Costelas e proeminências ósseas podem estar visíveis, facilmente
+        palpáveis. Reentrância abdominal marcada.
+      </p>
+      <p>
+        <strong>3 (Magro):</strong> Gordura corporal mínima. Costelas podem
+        estar visíveis, facilmente palpáveis. Cintura ou reentrância abdominal
+        evidentes.
+      </p>
+      <p>
+        <strong>4 (Magro):</strong> Gordura corporal mínima. Costelas não
+        visíveis. Cintura e reentrância abdominal aparentes.
+      </p>
+      <p>
+        <strong>5 (Ideal):</strong> Gordura corporal presente, mas não
+        excessiva. Costelas não visíveis, mas palpáveis. Cintura e reentrância
+        abdominal presentes. Bolsa de gordura abdominal mínima.
+      </p>
+      <p>
+        <strong>6 (Sobrepeso - até 15% acima):</strong> Gordura corporal
+        moderada. Costelas palpáveis com alguma pressão. Cintura visível, mas
+        não acentuada. Reentrância e gordura abdominal aparentes, mas não
+        acentuadas.
+      </p>
+      <p>
+        <strong>7 (Sobrepeso - 16% a 30% acima):</strong> Gordura corporal
+        importante. Costelas palpáveis com dificuldade. Cintura pouco
+        perceptível. Evidente abaulamento abdominal, com bolsa de gordura
+        moderada.
+      </p>
+      <p>
+        <strong>8 (Obesidade Grave - +31% a 45% acima):</strong> Gordura
+        corporal acentuada. Denso depósito de gordura sobre costelas e região
+        lombar. Distensão abdominal proeminente, com significativo depósito de
+        gordura.
+      </p>
+      <p>
+        <strong>9 (Obesidade Grave - acima de 46%):</strong> Gordura corporal
+        extremamente acentuada. Depósitos de gordura maciços sobre costelas,
+        proeminências ósseas, face e membros. Cintura ausente. Distensão
+        abdominal acentuada, com depósitos de gordura abdominal maciços.
+      </p>
+    </div>
+  ) : (
+    <div className="space-y-2">
+      <p>
+        <strong>Classificação Canina:</strong>
+      </p>
+      <p>
+        <strong>1 (Emaciado):</strong> Ausência de gordura corporal perceptível.
+        Costelas e proeminências ósseas facilmente visíveis e palpáveis. Cintura
+        ou reentrância abdominal acentuadas.
+      </p>
+      <p>
+        <strong>2 (Muito Magro):</strong> Ausência de gordura corporal palpável.
+        Costelas e proeminências ósseas visíveis e facilmente palpáveis. Cintura
+        ou reentrância abdominal acentuadas.
+      </p>
+      <p>
+        <strong>3 (Magro):</strong> Ausência de gordura corporal palpável.
+        Costelas e proeminências ósseas podem estar visíveis, facilmente
+        palpáveis. Cintura ou reentrância abdominal acentuadas.
+      </p>
+      <p>
+        <strong>4 (Ideal):</strong> Gordura corporal mínima. Costelas não
+        visíveis, mas palpáveis. Cintura e reentrância abdominal
+        aparentes.
+      </p>
+      <p>
+        <strong>5 (Ideal):</strong> Gordura corporal presente, mas não
+        excessiva. Costelas não visíveis, mas palpáveis. Cintura e reentrância
+        abdominal presentes.
+      </p>
+      <p>
+        <strong>6 (Sobrepeso - até 15% acima):</strong> Gordura corporal
+        moderada. Costelas palpáveis com alguma pressão. Cintura visível, mas
+        não acentuada. Reentrância abdominal aparente.
+      </p>
+      <p>
+        <strong>7 (Sobrepeso - 16% a 30% acima):</strong> Gordura corporal
+        importante. Depósitos de gordura evidente sobre costelas, região lombar
+        e base da cauda. Costelas palpáveis com dificuldade. Cintura e
+        reentrância abdominal pouco perceptíveis ou ausentes.
+      </p>
+      <p>
+        <strong>8 (Obesidade - 31% a 45% acima):</strong> Gordura corporal
+        acentuada. Densos depósitos de gordura sobre costelas, região lombar e
+        base da cauda. Costelas palpáveis somente com pressão acentuada. Cintura
+        e reentrância abdominal ausentes, podendo existir distensão
+        abdominal.
+      </p>
+      <p>
+        <strong>9 (Obesidade Grave - acima de 46%):</strong> Gordura corporal
+        extremamente acentuada. Depósitos de gordura maciços sobre costelas,
+        proeminências ósseas (não palpáveis), pescoço e membros. Cintura e
+        reentrância abdominal ausentes. Distensão abdominal acentuada.
+      </p>
+    </div>
+  );
 
   return (
     <Form
@@ -97,8 +253,9 @@ const FormularioRelatorio = ({ consulta, initialValues, onFinish }) => {
       layout="vertical"
       onFinish={onFinish}
     >
-      <Row gutter={24}>
-        <Col xs={24} md={12}>
+      {/* Grid Autoajustável: Evita espaços em branco */}
+      <Row gutter={16}>
+        <Col xs={24} sm={12}>
           <Form.Item name="peso" label="Peso (kg)" rules={[{ required: true }]}>
             <InputNumber
               placeholder="0,00"
@@ -108,22 +265,34 @@ const FormularioRelatorio = ({ consulta, initialValues, onFinish }) => {
               decimalSeparator=","
             />
           </Form.Item>
-          <Form.Item
-            name="grauAtividade"
-            label="Grau de Atividade"
-            rules={[{ required: true }]}
-          >
-            <Select
-              options={opcoesGrauAtividade}
-              placeholder="Selecione o grau de atividade"
-            />
-          </Form.Item>
         </Col>
-        <Col xs={24} md={12}>
+
+        {!isGato && (
+          <Col xs={24} sm={12}>
+            <Form.Item
+              name="grauAtividade"
+              label={
+                <LabelComInfo
+                  label="Grau de Atividade"
+                  tituloPopover="Referência de Atividade Canina (NRC, 2006)"
+                  conteudoPopover={conteudoAtividade}
+                />
+              }
+              rules={[{ required: true, message: "Selecione a atividade" }]}
+            >
+              <Select
+                options={opcoesGrauAtividade}
+                placeholder="Selecione o grau de atividade"
+              />
+            </Form.Item>
+          </Col>
+        )}
+
+        <Col xs={24} sm={12}>
           <Form.Item
             name="racaoId"
             label="Ração Utilizada"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: "Selecione a ração" }]}
           >
             <Select
               showSearch
@@ -133,9 +302,19 @@ const FormularioRelatorio = ({ consulta, initialValues, onFinish }) => {
               optionFilterProp="label"
             />
           </Form.Item>
+        </Col>
+
+        {/* Se for Gato, expande para 24 colunas para fechar o retângulo do grid com perfeição */}
+        <Col xs={24} sm={isGato ? 24 : 12}>
           <Form.Item
             name="tipoDieta"
-            label="Tipo da Dieta"
+            label={
+              <LabelComInfo
+                label="Tipo da Dieta"
+                tituloPopover="Diretrizes do Tipo de Dieta"
+                conteudoPopover={conteudoTipoDieta}
+              />
+            }
             rules={[
               { required: true, message: "O tipo da dieta é obrigatório." },
             ]}
@@ -147,18 +326,29 @@ const FormularioRelatorio = ({ consulta, initialValues, onFinish }) => {
           </Form.Item>
         </Col>
       </Row>
+
       <Form.Item
         name="condicaoCorporal"
-        label="Condição Corporal (1-9)"
-        rules={[{ required: true }]}
+        label={
+          <LabelComInfo
+            label="Condição Corporal (1-9)"
+            tituloPopover={
+              isGato
+                ? "Escore de Condição Corporal Felino (Laflamme, 1997)"
+                : "Escore de Condição Corporal Canino (Laflamme, 1997)"
+            }
+            conteudoPopover={conteudoECC}
+          />
+        }
+        rules={[{ required: true, message: "Defina o escore corporal" }]}
       >
-        <Slider min={1} max={9} marks={marcasCondicaoCorporal} />
+        <Slider min={1} max={9} marks={opcoesCondicaoCorporal} />
       </Form.Item>
 
       <Form.Item name="descricaoDieta" label="Descrição Adicional da Dieta">
         <Input.TextArea
-          rows={4}
-          placeholder="Ex: Adicionar 50g de alimento úmido pela manhã."
+          rows={3}
+          placeholder="Ex: Adicionar 50g de alimento úmido pela manhã ou dividir em 3 porções."
         />
       </Form.Item>
 
@@ -167,7 +357,7 @@ const FormularioRelatorio = ({ consulta, initialValues, onFinish }) => {
           <Divider orientation="left" plain>
             Status Reprodutivo
           </Divider>
-          <Row gutter={24}>
+          <Row gutter={16}>
             <Col xs={24} sm={12}>
               <Form.Item
                 name="isGestante"
@@ -209,11 +399,7 @@ const FormularioRelatorio = ({ consulta, initialValues, onFinish }) => {
                         validator: (_, value) =>
                           value > 0
                             ? Promise.resolve()
-                            : Promise.reject(
-                                new Error(
-                                  "O nº de filhotes deve ser maior que 0",
-                                ),
-                              ),
+                            : Promise.reject(new Error("Deve ser maior que 0")),
                       },
                     ]}
                   >

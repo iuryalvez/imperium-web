@@ -38,7 +38,6 @@ const Login = () => {
         rememberMe: values.lembrar,
       });
     } catch (error) {
-      // Reset Turnstile token on authentication failure to prevent reuse
       turnstileRef.current?.reset();
       setCaptchaToken(null);
     } finally {
@@ -52,10 +51,11 @@ const Login = () => {
         <Title level={1}>Bem-vindo ao Software IMPERIUM!</Title>
         <Paragraph className="text-base leading-relaxed">
           Este software tem como objetivo auxiliar no controle nutricional de
-          cães e gatos, utilizando técnicas de{" "}
-          <strong>inteligência artificial</strong>, em especial o{" "}
-          <strong>aprendizado de máquina</strong>, para padronizar a avaliação
-          do Escore de Condição Corporal (ECC) dos animais.
+          cães e gatos, utilizando{" "}
+          <strong>metodologias validadas pela literatura científica</strong>,
+          como o sistema de Laflamme e as equações do NRC, para padronizar a
+          avaliação do Escore de Condição Corporal (ECC) e o cálculo das
+          necessidades energéticas dos animais.
         </Paragraph>
 
         <Space size="large" className="mt-10 flex-wrap justify-center">
@@ -136,7 +136,7 @@ const Login = () => {
                       src={iconLogin}
                       alt="Login"
                       className="w-4 h-4 object-contain"
-                    ></img>
+                    />
                   </Space>
                 }
               >
