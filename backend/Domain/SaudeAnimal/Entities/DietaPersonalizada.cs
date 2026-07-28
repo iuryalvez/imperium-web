@@ -17,7 +17,10 @@ namespace backend.Domain.SaudeAnimal.Entities
         [ForeignKey("RelatorioId")]
         public Relatorio? Relatorio { get; set; }
         public TipoDieta TipoDieta { get; set; } // 1-manutenção, 2-crescimento, 3-lactação
-        // Customização opcional pelo usuário
+        public double FatorK { get; set; } // Ex: 130, 95, 100
+        public double Expoente { get; set; } // Ex: 0.75, 0.67, 0.40
+        public string PerfilNutricional { get; set; } = string.Empty; // Ex: "Cães ativos ou de canil (NRC, 2006)"
+        public bool IsCustomizado { get; set; } = false;
         public double? MultiplicadorEnergeticoCustom { get; set; } // exemplo: 150 kcal
         public double? PotenciaCustom { get; set; } // exemplo: 0.8 (em vez de 0.75)
         public double? QtdAlimento { get; set; } // calculado

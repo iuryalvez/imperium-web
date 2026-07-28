@@ -1834,7 +1834,7 @@ namespace backend.Migrations
                         {
                             Id = 122,
                             Especie = 2,
-                            Nome = "Gato de Pelo Curto Americano",
+                            Nome = "American Shorthair",
                             Referencia = ""
                         },
                         new
@@ -1876,7 +1876,7 @@ namespace backend.Migrations
                         {
                             Id = 128,
                             Especie = 2,
-                            Nome = "Gato de Pelo Curto Inglês",
+                            Nome = "British Shorthair",
                             Referencia = ""
                         },
                         new
@@ -2094,6 +2094,14 @@ namespace backend.Migrations
                             Id = 159,
                             Especie = 2,
                             Nome = "Turkish Van",
+                            Referencia = ""
+                        },
+                        new
+                        {
+                            Id = 160,
+                            Especie = 1,
+                            Nome = "American Pit Bull Terrier",
+                            Porte = 2,
                             Referencia = ""
                         });
                 });
@@ -2374,13 +2382,26 @@ namespace backend.Migrations
                     b.Property<double?>("EnergiaMetabolizavel")
                         .HasColumnType("double precision");
 
+                    b.Property<double>("Expoente")
+                        .HasColumnType("double precision");
+
                     b.Property<int?>("FaseVida")
                         .HasColumnType("integer");
+
+                    b.Property<double>("FatorK")
+                        .HasColumnType("double precision");
+
+                    b.Property<bool>("IsCustomizado")
+                        .HasColumnType("boolean");
 
                     b.Property<double?>("MultiplicadorEnergeticoCustom")
                         .HasColumnType("double precision");
 
                     b.Property<string>("Observacoes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PerfilNutricional")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<double?>("PesoAtual")

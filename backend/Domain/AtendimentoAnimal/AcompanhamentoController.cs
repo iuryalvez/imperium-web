@@ -42,7 +42,7 @@ public class AcompanhamentoController : ControllerBase
     /// Cria ou atualiza uma dieta para um relatório.
     /// </summary>
     [HttpPost("{acompanhamentoId}/dieta")]
-    [Authorize(Policy = "GerenciaAnimais")] // Exemplo de política de autorização
+    [Authorize(Policy = "GerenciaAnimais")]
     [ProducesResponseType(typeof(ServiceResult), 200)]
     [ProducesResponseType(typeof(ServiceResult), 400)]
     public async Task<IActionResult> CriarDieta(

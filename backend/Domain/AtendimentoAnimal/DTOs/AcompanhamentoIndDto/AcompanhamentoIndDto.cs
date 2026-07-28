@@ -60,5 +60,13 @@ namespace backend.Domain.AtendimentoAnimal
         public string? RacaoUtilizada { get; set; }
         public string? Observacoes { get; set; }
         public DateOnly DataCriacao { get; set; }
+        public double? PesoAtual { get; set; }
+        public double? PesoObjetivo { get; set; }
+        public double? PesoIdeal { get; set; }
+        public double FatorK { get; set; }
+        public double Expoente { get; set; }
+        public string? PerfilNutricional { get; set; }
+        public bool IsCustomizado { get; set; }
+        public string FormulaExibicao => $"{FatorK} kcal x (PC em kg)^{Expoente}";
     }
 }

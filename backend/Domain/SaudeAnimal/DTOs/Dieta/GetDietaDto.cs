@@ -16,5 +16,13 @@ namespace backend.Domain.SaudeAnimal.DTOs.Dieta
         public double PesoAtual { get; set; }
         public double PesoObjetivo { get; set; }
         public double PesoIdeal { get; set; }
+
+        public double FatorK { get; set; }
+        public double Expoente { get; set; }
+        public string PerfilNutricional { get; set; } = string.Empty;
+        public bool IsCustomizado { get; set; }
+
+        // Propriedade computada para facilitar a exibição no Frontend
+        public string FormulaExibicao => $"{FatorK} kcal x (PC em kg)^{Expoente}";
     }
 }

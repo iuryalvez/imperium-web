@@ -5,18 +5,16 @@ namespace backend.Domain.SaudeAnimal.Services
 {
     public interface ICalculoNecessidadeEnergetica
     {
-        double CalcularGestacao(Animal animal);
-        double CalcularLactacao(Animal animal, int numeroFilhotes, int semanaLactacao);
+        double CalcularGestacao(Animal animal, DietaPersonalizada dieta);
+        double CalcularLactacao(Animal animal, int numeroFilhotes, int semanaLactacao, DietaPersonalizada dieta);
         double CalcularManutencao(Animal animal, DietaPersonalizada dieta);
         double CalcularNecessidadeTotal(Animal animal, DietaPersonalizada dieta);
     }
 
     public class CalculoNecessidadeEnergetica : ICalculoNecessidadeEnergetica
     {
-        // Injects the logger dependency.
         private readonly ILogger<CalculoNecessidadeEnergetica> _logger;
 
-        // The constructor now requires an ILogger instance.
         public CalculoNecessidadeEnergetica(ILogger<CalculoNecessidadeEnergetica> logger)
         {
             _logger = logger;
@@ -30,25 +28,14 @@ namespace backend.Domain.SaudeAnimal.Services
 
             try
             {
-                double resultado;
-                switch (dieta.TipoDieta)
+                double resultado = dieta.TipoDieta switch
                 {
-                    case TipoDieta.Manutencao:
-                        resultado = CalcularManutencao(animal, dieta);
-                        break;
-                    case TipoDieta.Crescimento:
-                        resultado = CalcularCrescimento(animal) ?? 0;
-                        break;
-                    case TipoDieta.Lactacao:
-                        resultado = CalcularLactacao(animal, animal.IsLactanteNumeroFilhotes ?? 0, animal.SemanaLactacao ?? 1);
-                        break;
-                    case TipoDieta.Gestacao:
-                        resultado = CalcularGestacao(animal);
-                        break;
-                    default:
-                        // This specific exception is logged before being thrown.
-                        throw new InvalidOperationException($"Tipo de dieta '{dieta.TipoDieta}' não implementado.");
-                }
+                    TipoDieta.Manutencao => CalcularManutencao(animal, dieta),
+                    TipoDieta.Crescimento => CalcularCrescimento(animal, dieta) ?? 0,
+                    TipoDieta.Lactacao => CalcularLactacao(animal, animal.IsLactanteNumeroFilhotes ?? 0, animal.SemanaLactacao ?? 1, dieta),
+                    TipoDieta.Gestacao => CalcularGestacao(animal, dieta),
+                    _ => throw new InvalidOperationException($"Tipo de dieta '{dieta.TipoDieta}' não implementado.")
+                };
 
                 var resultadoArredondado = Math.Round(resultado, 3);
 
@@ -61,7 +48,6 @@ namespace backend.Domain.SaudeAnimal.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao calcular a necessidade energética total para o animal ID: {AnimalId}.", animal.Id);
-                // Re-throws the exception to let the caller handle it.
                 throw;
             }
         }
@@ -78,25 +64,18 @@ namespace backend.Domain.SaudeAnimal.Services
                 }
 
                 var perfil = PerfilMetabolicoResolver.Resolver(animal, dieta);
-                var (multiplicador, potencia) = PerfilMetabolicoDados.Dados[perfil];
+                var (multiplicador, potencia, descricao) = PerfilMetabolicoDados.Dados[perfil];
 
                 _logger.LogDebug("Perfil metabólico resolvido: {Perfil}. Multiplicador padrão: {Multiplicador}, Potência padrão: {Potencia}.",
                     perfil, multiplicador, potencia);
 
-                if (dieta.MultiplicadorEnergeticoCustom.HasValue)
-                {
-                    multiplicador = dieta.MultiplicadorEnergeticoCustom.Value;
-                    _logger.LogDebug("Usando multiplicador energético customizado: {MultiplicadorCustom}.", multiplicador);
-                }
-
-                if (dieta.PotenciaCustom.HasValue)
-                {
-                    potencia = dieta.PotenciaCustom.Value;
-                    _logger.LogDebug("Usando potência customizada: {PotenciaCustom}.", potencia);
-                }
+                // Injeta transparência para Manutenção
+                dieta.FatorK = multiplicador;
+                dieta.Expoente = potencia;
+                dieta.PerfilNutricional = descricao;
+                dieta.IsCustomizado = false;
 
                 var resultado = multiplicador * Math.Pow(animal.Peso.Value, potencia);
-
                 var resultadoArredondado = Math.Round(resultado, 3);
 
                 _logger.LogInformation(
@@ -112,7 +91,7 @@ namespace backend.Domain.SaudeAnimal.Services
             }
         }
 
-        private double? CalcularCrescimento(Animal animal)
+        private double? CalcularCrescimento(Animal animal, DietaPersonalizada dieta)
         {
             _logger.LogInformation("Iniciando cálculo para crescimento para o animal ID: {AnimalId}.", animal.Id);
 
@@ -160,17 +139,11 @@ namespace backend.Domain.SaudeAnimal.Services
                         throw new InvalidOperationException($"Espécie '{animal.Especie}' não suportada para cálculo de crescimento.");
                 }
 
-                _logger.LogDebug("Necessidade de crescimento (base) calculada: {NecessidadeKcal} kcal/dia.", necessidadeKcal);
-
-                // if (animal.GrauAtividade.HasValue)
-                // {
-                //     _logger.LogDebug("Ajustando por grau de atividade: {GrauAtividade}.", animal.GrauAtividade);
-                //     switch (animal.GrauAtividade)
-                //     {
-                //         case GrauAtividade.Inativo: necessidadeKcal *= 0.85; break; // Redução de 15%
-                //         case GrauAtividade.Ativo: necessidadeKcal *= 1.15; break; // Aumento de 15%
-                //     }
-                // }
+                // Injeta transparência para Crescimento
+                dieta.FatorK = animal.Especie == EspecieAnimal.Cao ? 130 : 100;
+                dieta.Expoente = animal.Especie == EspecieAnimal.Cao ? 0.75 : 0.67;
+                dieta.PerfilNutricional = $"Crescimento ({animal.Especie} - NRC 2006)";
+                dieta.IsCustomizado = false;
 
                 var resultadoFinal = Math.Max(necessidadeKcal, 0);
                 var resultadoArredondado = Math.Round(resultadoFinal, 3);
@@ -188,7 +161,7 @@ namespace backend.Domain.SaudeAnimal.Services
             }
         }
 
-        public double CalcularGestacao(Animal animal)
+        public double CalcularGestacao(Animal animal, DietaPersonalizada dieta)
         {
             _logger.LogInformation("Iniciando cálculo de gestação para o animal ID: {AnimalId} da espécie: {Especie}.", animal.Id, animal.Especie);
 
@@ -204,11 +177,17 @@ namespace backend.Domain.SaudeAnimal.Services
                     resultado = (130 * pesoMetabolico) + (26 * peso);
                     _logger.LogDebug("Fórmula de gestação para cães baseada na necessidade de manutenção.");
                 }
-                else // Gato
+                else
                 {
                     resultado = 100 * pesoMetabolico;
                     _logger.LogDebug("Fórmula de gestação para gatos baseada na necessidade de manutenção.");
                 }
+
+                // Injeta transparência para Gestação
+                dieta.FatorK = animal.Especie == EspecieAnimal.Cao ? 130 : 100;
+                dieta.Expoente = potencia;
+                dieta.PerfilNutricional = $"Gestação ({animal.Especie} - NRC 2006)";
+                dieta.IsCustomizado = false;
 
                 var resultadoArredondado = Math.Round(resultado, 3);
                 _logger.LogInformation(
@@ -223,7 +202,7 @@ namespace backend.Domain.SaudeAnimal.Services
             }
         }
 
-        public double CalcularLactacao(Animal animal, int numeroFilhotes, int semanaLactacao)
+        public double CalcularLactacao(Animal animal, int numeroFilhotes, int semanaLactacao, DietaPersonalizada dieta)
         {
             _logger.LogInformation(
                 "Iniciando cálculo de lactação para o animal ID: {AnimalId}, com {NumeroFilhotes} filhote(s) na {SemanaLactacao}ª semana.",
@@ -237,6 +216,12 @@ namespace backend.Domain.SaudeAnimal.Services
                 double resultado = animal.Especie == EspecieAnimal.Gato
                     ? CalcularLactacaoGato(peso, numeroFilhotes, semanaLactacao)
                     : CalcularLactacaoCao(peso, numeroFilhotes, semanaLactacao);
+
+                // Injeta transparência para Lactação
+                dieta.FatorK = animal.Especie == EspecieAnimal.Cao ? 145 : 100;
+                dieta.Expoente = animal.Especie == EspecieAnimal.Cao ? 0.75 : 0.67;
+                dieta.PerfilNutricional = $"Lactação ({animal.Especie} - NRC 2006)";
+                dieta.IsCustomizado = false;
 
                 var resultadoArredondado = Math.Round(resultado, 3);
                 _logger.LogInformation(

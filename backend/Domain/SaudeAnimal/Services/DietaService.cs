@@ -31,73 +31,51 @@ namespace backend.Domain.SaudeAnimal.Services
             Racao racao,
             CreateDietaDto dto)
         {
-            // 1. Preparar o objeto para o cálculo
-            //    O serviço de cálculo precisa de um objeto 'DietaPersonalizada'
-            var dietaParaCalculo = new DietaPersonalizada
-            {
-                TipoDieta = dto.TipoDieta,
-                MultiplicadorEnergeticoCustom = dto.MultiplicadorEnergeticoCustom,
-                PotenciaCustom = dto.PotenciaCustom
-            };
-
-            // 2. Chamar o serviço de cálculo para obter a necessidade energética diária (kcal)
-            double necessidadeKcal = _calculoService.CalcularNecessidadeTotal(animal, dietaParaCalculo);
-
-            _logger.LogDebug("Necessidade energética diária calculada: {NecessidadeKcal} kcal/dia.", necessidadeKcal);
-
-            // 3. Validar a ração
+            // 1. Validar a ração primeiro
             if (racao.EnergiaMetabolizavel == null || racao.EnergiaMetabolizavel <= 0)
             {
-                _logger.LogError("Ração ID {RacaoId} não possui um valor de energia metabolizável válido para o cálculo.", racao.Id);
-                throw new InvalidOperationException("A ração selecionada não possui um valor de energia metabolizável válido.");
+                _logger.LogError("Ração ID {RacaoId} não possui energia metabolizável válida.", racao.Id);
+                throw new InvalidOperationException("A ração selecionada não possui energia metabolizável válida.");
             }
 
-            // 4. Calcular a quantidade de alimento em gramas;
-            double quantidadeGramas = necessidadeKcal / racao.EnergiaMetabolizavel.Value;
-            _logger.LogDebug("Quantidade de alimento calculada: {QuantidadeGramas} g/dia.", quantidadeGramas);
-
-            // 5. Buscar por uma dieta existente para este relatório (lógica de Upsert)
+            // 2. BUSCAR OU CRIAR A DIETA REAL
             var dietaExistente = await _dietaRepository.FindByRelatorioIdAsync(relatorio.Id);
-
             if (dietaExistente == null)
             {
-                _logger.LogInformation("Nenhuma dieta encontrada para o relatório ID {RelatorioId}. Criando uma nova.", relatorio.Id);
+                _logger.LogInformation("Nenhuma dieta encontrada para o relatório {RelatorioId}. Criando nova.", relatorio.Id);
                 dietaExistente = new DietaPersonalizada();
                 await _dietaRepository.AddAsync(dietaExistente);
             }
             else
             {
-                _logger.LogInformation("Dieta ID {DietaId} encontrada para o relatório ID {RelatorioId}. A dieta será atualizada.", dietaExistente.Id, relatorio.Id);
+                _logger.LogInformation("Dieta ID {DietaId} encontrada para o relatório {RelatorioId}. Atualizando.", dietaExistente.Id, relatorio.Id);
             }
 
-            // 6. Mapear todos os dados do DTO e dos cálculos para a entidade
+            // 3. Atualizar propriedades básicas para que o cálculo saiba o que fazer
+            dietaExistente.TipoDieta = dto.TipoDieta;
             dietaExistente.RelatorioId = relatorio.Id;
             dietaExistente.RacaoId = racao.Id;
-            dietaExistente.TipoDieta = dto.TipoDieta;
 
-            // Dados do DTO
-            dietaExistente.PesoAtual = dto.PesoAtual ?? animal.Peso; // Pega do DTO ou do animal como fallback
+            // 4. CHAMAR O CÁLCULO PASSANDO A ENTIDADE DO BANCO
+            double necessidadeKcal = _calculoService.CalcularNecessidadeTotal(animal, dietaExistente);
+
+            // 5. Calcular gramas diárias
+            double quantidadeGramas = necessidadeKcal / racao.EnergiaMetabolizavel.Value;
+
+            // 6. Atualizar os demais campos vindos do DTO e do cálculo
+            dietaExistente.PesoAtual = dto.PesoAtual ?? animal.Peso;
             dietaExistente.PesoObjetivo = dto.PesoObjetivo;
             dietaExistente.PesoIdeal = dto.PesoIdeal;
             dietaExistente.DuracaoEstimada = dto.DuracaoEstimada;
             dietaExistente.Observacoes = dto.Observacoes;
-            dietaExistente.FaseVida = animal.FaseVida; // Captura a fase de vida do animal no momento da criação da dieta
-
-            // Customizações do cálculo
-            dietaExistente.MultiplicadorEnergeticoCustom = dto.MultiplicadorEnergeticoCustom;
-            dietaExistente.PotenciaCustom = dto.PotenciaCustom;
-
-            // Resultados dos cálculos
+            dietaExistente.FaseVida = animal.FaseVida;
             dietaExistente.EnergiaMetabolizavel = Math.Round(necessidadeKcal, 2);
-            dietaExistente.QtdAlimento = Math.Round(quantidadeGramas, 2); // Quantidade em gramas/dia
-
-            // Metadados
+            dietaExistente.QtdAlimento = Math.Round(quantidadeGramas, 2);
             dietaExistente.DataCriacao = DateOnly.FromDateTime(DateTime.UtcNow);
-            // dietaExistente.CriadoPor = ... // Implementar lógica para pegar usuário logado
 
-            // 7. Salvar as alterações no banco de dados
+            // 7. Salvar no banco (Agora os dados de transparência estão dentro de dietaExistente!)
             await _dietaRepository.SaveChangesAsync();
-            _logger.LogInformation("Dieta ID {DietaId} foi salva com sucesso para o animal ID {AnimalId}.", dietaExistente.Id, animal.Id);
+            _logger.LogInformation("Dieta ID {DietaId} salva com sucesso para o animal {AnimalId}.", dietaExistente.Id, animal.Id);
 
             return dietaExistente;
         }
@@ -145,29 +123,25 @@ namespace backend.Domain.SaudeAnimal.Services
 
         public async Task<ServiceResult> UpdateAsync(int dietaId, UpdateDietaDto dto, int clinicaId, Racao racao)
         {
-            _logger.LogInformation("Iniciando atualização e recálculo da dieta ID {DietaId} para a clínica ID {ClinicaId}.", dietaId, clinicaId);
+            _logger.LogInformation("Iniciando atualização e recálculo da dieta ID {DietaId}.", dietaId);
 
             try
             {
-                // 1. Obter a dieta existente com todas as suas relações (animal, relatório, etc.)
                 var dietaExistente = await _dietaRepository.GetByIdWithIncludesAsync(dietaId);
                 if (dietaExistente?.Relatorio?.Consulta?.ClinicaId != clinicaId)
                 {
-                    _logger.LogWarning("Falha ao atualizar: Dieta ID {DietaId} não encontrada ou acesso negado para a clínica ID {ClinicaId}.", dietaId, clinicaId);
+                    _logger.LogWarning("Dieta {DietaId} não encontrada ou acesso negado.", dietaId);
                     return new ServiceResult { Succeeded = false, Message = "Dieta não encontrada ou acesso negado." };
                 }
 
-                // 2. Extrair as entidades necessárias para o cálculo
                 var animal = dietaExistente.Relatorio.Consulta.Animal;
                 var relatorio = dietaExistente.Relatorio;
 
-                // 4. Criar um CreateDietaDto a partir do UpdateDietaDto para passar ao método de cálculo
-                //    (Isso assume que UpdateDietaDto tem os mesmos campos de CreateDietaDto, exceto talvez o RelatorioId)
+                // Prepara o DTO de criação para delegar ao método principal
                 var createDto = _mapper.Map<CreateDietaDto>(dto);
-                createDto.RelatorioId = relatorio.Id; // Garante que o RelatorioId correto seja usado
+                createDto.RelatorioId = relatorio.Id;
 
-                // 5. Sincronizar o objeto 'animal' em memória com os dados do DTO, assim como fizemos na criação
-                _logger.LogInformation("Sincronizando 'animal' em memória com dados do DTO de atualização.");
+                // Sincroniza o animal em memória se houver novas propriedades no DTO
                 animal.Peso = createDto.PesoAtual ?? animal.Peso;
                 animal.PesoIdeal = createDto.PesoIdeal ?? animal.PesoIdeal;
                 if (createDto.TipoDieta == TipoDieta.Lactacao)
@@ -176,11 +150,8 @@ namespace backend.Domain.SaudeAnimal.Services
                     animal.SemanaLactacao = createDto.SemanaLactacao ?? animal.SemanaLactacao;
                 }
 
-                // 6. Chamar o método de cálculo existente, que já contém a lógica de 'Upsert'
-                _logger.LogInformation("Delegando recálculo para o método CalcularOuAtualizarDietaAsync.");
+                // Delega para o método principal (que agora atualiza a entidade corretamente)
                 var dietaAtualizada = await CalcularOuAtualizarDietaAsync(animal, relatorio, racao, createDto);
-
-                _logger.LogInformation("Dieta ID {DietaId} atualizada e recalculada com sucesso.", dietaId);
                 var dietaDto = _mapper.Map<GetDietaDto>(dietaAtualizada);
 
                 return new ServiceResult { Succeeded = true, Message = "Dieta atualizada com sucesso.", Data = dietaDto };
@@ -188,7 +159,7 @@ namespace backend.Domain.SaudeAnimal.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao atualizar a dieta ID {DietaId}.", dietaId);
-                throw; // Relança a exceção para ser tratada pelo middleware global de erros
+                throw;
             }
         }
 

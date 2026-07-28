@@ -114,7 +114,6 @@ export const useAcompanhamentoAnimalManager = () => {
 
     setIsSubmitting(true);
     try {
-      // Assumindo que você tem uma função 'dietaAPI.editar'
       const result = await acompanhamentoAPI.editarDieta(
         dietaParaEditar.id,
         values
@@ -133,10 +132,9 @@ export const useAcompanhamentoAnimalManager = () => {
     }
   };
 
-  // NOVA: Função para EXCLUIR a dieta
+  // Função para EXCLUIR a dieta
   const handleExcluirDieta = async (dietaId) => {
     try {
-      // Assumindo que você tem uma função 'dietaAPI.excluir'
       const result = await acompanhamentoAPI.deletarDieta(dietaId);
       if (result.succeeded) {
         message.success(result.message || "Dieta excluída com sucesso!");

@@ -21,8 +21,8 @@ namespace backend.Domain.SaudeAnimal.DTOs.Dieta
         public int? DuracaoEstimada { get; set; }
 
         // Customização opcional pelo usuário
-        public double? MultiplicadorEnergeticoCustom { get; set; }
-        public double? PotenciaCustom { get; set; }
+        // public double? MultiplicadorEnergeticoCustom { get; set; }
+        // public double? PotenciaCustom { get; set; }
         public string? Observacoes { get; set; }
         public int? IsLactanteNumeroFilhotes { get; set; }
         public int? SemanaLactacao { get; set; }
