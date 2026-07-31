@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.Domain.AtendimentoAnimal.Entities
 {
-    public class AcompanhamentoIndividualizado
+    public class Acompanhamento
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

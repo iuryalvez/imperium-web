@@ -8,8 +8,10 @@ namespace backend.Domain.AtendimentoAnimal
         public string Sexo { get; set; }
         public int Idade { get; set; }
         public string FaseVida { get; set; }
+        public string FaseVidaLabel { get; set; } = string.Empty;
         public double? PesoAtual { get; set; }
         public string CondicaoCorporal { get; set; }
+        public string CondicaoCorporalLabel { get; set; } = string.Empty;
 
         public RacaResumidaDto Raca { get; set; }
         public List<TutorResumidoDto>? Tutores { get; set; }
@@ -55,6 +57,7 @@ namespace backend.Domain.AtendimentoAnimal
     {
         public int Id { get; set; }
         public string? TipoDieta { get; set; }
+        public string TipoDietaLabel { get; set; } = string.Empty;
         public double QuantidadeAlimentoGramas { get; set; }
         public double NecessidadeEnergeticaKcal { get; set; }
         public string? RacaoUtilizada { get; set; }

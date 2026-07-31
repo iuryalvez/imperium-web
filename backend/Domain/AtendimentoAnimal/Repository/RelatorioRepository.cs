@@ -17,7 +17,7 @@ namespace backend.Domain.AtendimentoAnimal.Repository
         public async Task<Relatorio?> GetByIdAndAcompanhamentoIdAsync(int relatorioId, int acompanhamentoId)
         {
             return await _context.Relatorios
-                .FirstOrDefaultAsync(r => r.Id == relatorioId && r.AcompanhamentoIndividualizadoId == acompanhamentoId);
+                .FirstOrDefaultAsync(r => r.Id == relatorioId && r.AcompanhamentoId == acompanhamentoId);
         }
 
         public async Task<Relatorio?> GetByIdAsync(int relatorioId)

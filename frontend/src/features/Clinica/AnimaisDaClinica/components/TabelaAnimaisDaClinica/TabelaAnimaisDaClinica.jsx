@@ -72,8 +72,8 @@ const TabelaAnimais = ({
               <Button
                 size="small"
                 icon={<SolutionOutlined />}
-                onClick={() => onNavigateToAcompanhamento(record.acompanhamentoIndividualizadoId)} // <-- Ação do botão
-                disabled={isCurrentRowLoading || record.acompanhamentoIndividualizadoId == null}
+                onClick={() => onNavigateToAcompanhamento(record.acompanhamentoId)}
+                disabled={isCurrentRowLoading || record.acompanhamentoId == null}
               />
             </Tooltip>
             <Tooltip title="Excluir">

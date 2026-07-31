@@ -1,4 +1,4 @@
-using backend.Domain.AtendimentoAnimal.Entities;
+using backend.Domain.AtendimentoAnimal.Enums;
 using backend.Domain.Usuarios.Interfaces;
 
 namespace backend.Domain.SaudeAnimal.Interfaces

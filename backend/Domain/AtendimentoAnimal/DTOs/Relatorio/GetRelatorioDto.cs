@@ -1,4 +1,4 @@
-using backend.Domain.AtendimentoAnimal.Entities;
+using backend.Domain.AtendimentoAnimal.Enums;
 using backend.Domain.SaudeAnimal.DTOs.Dieta;
 
 namespace backend.Domain.AtendimentoAnimal.DTOs.Relatorio
@@ -7,6 +7,7 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Relatorio
     {
         public int Id { get; set; }
         public int ConsultaId { get; set; }
+        public int AcompanhamentoId { get; set; }
         public DateTime DataConsulta { get; set; }
         public Sexo SexoAnimal { get; set; }
         public int Idade { get; set; }

@@ -4,6 +4,8 @@ using backend.Domain.Usuarios.Interfaces;
 using backend.Domain.Auth.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using backend.Domain.SaudeAnimal.DTOs.Dieta;
+using backend.Domain.AtendimentoAnimal.Services;
 
 namespace backend.Domain.AtendimentoAnimal
 {
@@ -13,7 +15,12 @@ namespace backend.Domain.AtendimentoAnimal
     public class RelatorioController : ControllerBase
     {
         private readonly IRelatorioService _relatorioService;
-        public RelatorioController(IRelatorioService relatorioService) { _relatorioService = relatorioService; }
+        private readonly IAcompanhamentoService _acompanhamentoService;
+        public RelatorioController(IRelatorioService relatorioService, IAcompanhamentoService acompanhamentoService)
+        {
+            _relatorioService = relatorioService;
+            _acompanhamentoService = acompanhamentoService;
+        }
 
         [HttpGet("consultas/{consultaId}/relatorio")]
         [Authorize(Policy = "VisualizaTudo")]
@@ -22,10 +29,10 @@ namespace backend.Domain.AtendimentoAnimal
         public async Task<IActionResult> Get(int consultaId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            
+
             // O serviço agora retorna ServiceResult
             var result = await _relatorioService.GetDtoByConsultaIdAsync(consultaId, clinicaId);
-            
+
             if (result.Succeeded)
             {
                 return Ok(result);
@@ -43,7 +50,7 @@ namespace backend.Domain.AtendimentoAnimal
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             var result = await _relatorioService.UpsertAsync(consultaId, dto, clinicaId);
-            
+
             if (result.Succeeded)
             {
                 return Ok(result);
@@ -65,7 +72,7 @@ namespace backend.Domain.AtendimentoAnimal
             {
                 return NoContent(); // 204 é o ideal para um delete bem-sucedido
             }
-            
+
             return NotFound(result);
         }
     }

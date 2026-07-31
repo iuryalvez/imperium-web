@@ -1,4 +1,4 @@
-namespace backend.Domain.AtendimentoAnimal.Entities
+namespace backend.Domain.AtendimentoAnimal.Enums
 {
     public enum Porte
     {

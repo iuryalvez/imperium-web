@@ -1,17 +1,30 @@
 import React from "react";
-import { Button, Modal, Popconfirm, Skeleton, Space } from "antd";
+import {
+  Button,
+  Col,
+  Modal,
+  Popconfirm,
+  Result,
+  Row,
+  Skeleton,
+  Space,
+} from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   FormOutlined,
   FileTextOutlined,
   DeleteOutlined,
+  CalculatorOutlined,
+  LineChartOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
 import { useConsultasManager } from "./useConsultasManager";
 import TabelaConsultas from "./components/TabelaConsultas";
 import FormularioConsulta from "./components/FormularioConsulta";
 import FormularioRelatorio from "./components/FormularioRelatorio";
 import ModalPadrao from "../../../components/modal/ModalPadrao";
+import FormularioDieta from "../AnimaisDaClinica/AcompanhamentoAnimal/components/FormularioDieta";
 
 const ConsultasDaClinica = () => {
   const {
@@ -31,6 +44,17 @@ const ConsultasDaClinica = () => {
     handleCloseRelatorioModal,
     handleSubmitRelatorio,
     handleDeleteRelatorio,
+    isNextActionModalOpen,
+    idsSalvos,
+    handleNextActionClose,
+    handleIrParaAcompanhamento,
+    isModalDietaOpen,
+    racoesDisponiveis,
+    isSubmittingDieta,
+    handleCalcularDietaPosRelatorio,
+    handleCloseModalDieta,
+    handleSubmitDieta,
+    handleCalcularDietaDaTabela,
   } = useConsultasManager();
 
   if (loading) {
@@ -57,6 +81,11 @@ const ConsultasDaClinica = () => {
         onEdit={handleOpenModal}
         onDelete={handleDelete}
         onOpenRelatorio={handleOpenRelatorioModal}
+        onVerDieta={(dietaId) =>
+          console.log("Abrir modal de ver dieta", dietaId)
+        }
+        onCalcularDieta={handleCalcularDietaDaTabela}
+        onIrParaAcompanhamento={handleIrParaAcompanhamento}
         loading={loading}
       />
 
@@ -130,6 +159,92 @@ const ConsultasDaClinica = () => {
           initialValues={editingConsulta}
           onFinish={handleSubmit}
         />
+      </ModalPadrao>
+
+      {/* Modal de Próxima Ação */}
+      <Modal
+        open={isNextActionModalOpen}
+        onCancel={handleNextActionClose}
+        footer={null}
+        closable={false}
+        centered
+        width={450}
+      >
+        <Result
+          status="success"
+          title="Relatório salvo com sucesso!"
+          subTitle="O histórico clínico do paciente foi atualizado. O que deseja fazer agora?"
+          extra={
+            <Row gutter={[0, 12]} justify="center" className="mt-4">
+              <Col span={24}>
+                <Button
+                  key="calc"
+                  type="primary"
+                  size="large"
+                  icon={<CalculatorOutlined />}
+                  onClick={handleCalcularDietaPosRelatorio}
+                  block // Faz o botão ocupar 100% da Col
+                >
+                  Calcular Dieta Nutricional
+                </Button>
+              </Col>
+              <Col span={24}>
+                <Button
+                  key="timeline"
+                  size="large"
+                  icon={<LineChartOutlined />}
+                  onClick={() =>
+                    handleIrParaAcompanhamento(idsSalvos?.animalId)
+                  }
+                  block
+                >
+                  Ir para Linha do Tempo
+                </Button>
+              </Col>
+              <Col span={24}>
+                <Button
+                  key="close"
+                  type="text"
+                  onClick={handleNextActionClose}
+                  block
+                >
+                  Fechar e Concluir
+                </Button>
+              </Col>
+            </Row>
+          }
+        />
+      </Modal>
+
+      {/* Modal Padrao: Criar Dieta na Tela de Consultas */}
+      <ModalPadrao
+        modo="criacao"
+        open={isModalDietaOpen}
+        onCancel={handleCloseModalDieta}
+        title="Confirmar Cálculo da Dieta"
+        icon={<CalculatorOutlined />}
+        formId="form-dieta-animal"
+        isSubmitting={isSubmittingDieta}
+        width="min(700px, 95vw)"
+      >
+        <div className="mb-4 p-3 bg-blue-50 text-blue-800 rounded-md border border-blue-200 text-sm">
+          <InfoCircleOutlined className="mr-2" />
+          Os dados abaixo foram importados automaticamente do último relatório
+          salvo. Ajuste apenas se necessário.
+        </div>
+
+        {idsSalvos && (
+          <FormularioDieta
+            onFinish={handleSubmitDieta}
+            initialValues={idsSalvos}
+            racoes={racoesDisponiveis}
+            dadosRaca={{
+              nome: idsSalvos.nomeRaca,
+              pesoMin: idsSalvos.pesoMinimoRaca,
+              pesoMax: idsSalvos.pesoMaximoRaca,
+            }}
+          />
+        )}
       </ModalPadrao>
     </div>
   );

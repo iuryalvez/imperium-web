@@ -1,5 +1,5 @@
 using backend.Domain.AtendimentoAnimal.DTOs;
-using backend.Domain.AtendimentoAnimal.Entities;
+using backend.Domain.AtendimentoAnimal.Enums;
 
 namespace backend.Domain.AtendimentoAnimal
 {
@@ -9,7 +9,7 @@ namespace backend.Domain.AtendimentoAnimal
         public int? RacaId { get; set; }
         public string? RacaNome { get; set; }
         public List<int> TutorIds { get; set; }
-        public int AcompanhamentoIndividualizadoId { get; set; }
+        public int AcompanhamentoId { get; set; }
         public string Nome { get; set; } = string.Empty;
         public EspecieAnimal Especie { get; set; } // 1-cao, 2-gato
         public DateTime Nascimento { get; set; }

@@ -56,7 +56,7 @@ const endpoints = {
         `${API_BASE_URL}/clinica/acompanhamentos/${acompanhamentoId}/historico-completo`,
       // Rota para criar uma dieta associada a um acompanhamento
       criarDieta: (acompanhamentoId) =>
-        `${API_BASE_URL}/clinica/acompanhamentos/${acompanhamentoId}/dieta`,
+        `${API_BASE_URL}/clinica/acompanhamentos/dieta`,
       editarDieta: (dietaId) =>
         `${API_BASE_URL}/clinica/acompanhamentos/dieta/${dietaId}`,
       deletarDieta: (dietaId) =>

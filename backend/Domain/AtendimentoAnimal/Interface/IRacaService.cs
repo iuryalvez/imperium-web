@@ -1,5 +1,5 @@
 using backend.Domain.AtendimentoAnimal.DTOs.Raca;
-using backend.Domain.AtendimentoAnimal.Entities;
+using backend.Domain.AtendimentoAnimal.Enums;
 
 namespace backend.Domain.AtendimentoAnimal.Interface
 {

@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using backend.Domain.AtendimentoAnimal.Entities;
+using backend.Domain.AtendimentoAnimal.Enums;
 
 public class CadastrarRacaoDto
 {

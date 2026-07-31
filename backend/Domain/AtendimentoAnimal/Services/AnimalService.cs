@@ -1,10 +1,8 @@
 using AutoMapper;
 using backend.Domain.AtendimentoAnimal;
 using backend.Domain.AtendimentoAnimal.DTOs;
-using backend.Domain.AtendimentoAnimal.DTOs.Relatorio;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interface;
-using backend.Domain.AtendimentoAnimal.Services;
 using backend.Domain.Usuarios.Interfaces;
 using backend.Infra.Data;
 using Microsoft.EntityFrameworkCore;
@@ -160,7 +158,7 @@ public class AnimalService : IAnimalService
                 return resultadoTutores;
             }
 
-            var acompanhamento = new AcompanhamentoIndividualizado
+            var acompanhamento = new Acompanhamento
             {
                 AnimalId = animal.Id,
                 DataInicio = DateOnly.FromDateTime(DateTime.UtcNow)

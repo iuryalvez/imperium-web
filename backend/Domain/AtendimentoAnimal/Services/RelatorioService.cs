@@ -126,19 +126,19 @@ namespace backend.Domain.AtendimentoAnimal.Services
             }
             else
             {
-                _logger.LogInformation("Animal (ID: {AnimalId}) encontrado. Verificando AcompanhamentoIndividualizado...", consulta.Animal.Id);
+                _logger.LogInformation("Animal (ID: {AnimalId}) encontrado. Verificando Acompanhamento...", consulta.Animal.Id);
 
-                if (consulta.Animal.AcompanhamentoIndividualizado == null)
+                if (consulta.Animal.Acompanhamento == null)
                 {
-                    _logger.LogWarning("A propriedade 'AcompanhamentoIndividualizado' do Animal (ID: {AnimalId}) é nula.", consulta.Animal.Id);
+                    _logger.LogWarning("A propriedade 'Acompanhamento' do Animal (ID: {AnimalId}) é nula.", consulta.Animal.Id);
                 }
                 else
                 {
-                    _logger.LogInformation("AcompanhamentoIndividualizado (ID: {AcompanhamentoId}) encontrado.", consulta.Animal.AcompanhamentoIndividualizado.Id);
+                    _logger.LogInformation("Acompanhamento (ID: {AcompanhamentoId}) encontrado.", consulta.Animal.Acompanhamento.Id);
                 }
             }
 
-            if (consulta?.Animal?.AcompanhamentoIndividualizado == null)
+            if (consulta?.Animal?.Acompanhamento == null)
             {
                 return new ServiceResult { Succeeded = false, Message = "Consulta, animal ou acompanhamento associado não encontrado." };
             }
@@ -166,7 +166,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
                     relatorio = new Relatorio
                     {
                         ConsultaId = consultaId,
-                        AcompanhamentoIndividualizadoId = animal.AcompanhamentoIndividualizado.Id
+                        AcompanhamentoId = animal.Acompanhamento.Id
                     };
                 }
 

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using backend.Domain.AtendimentoAnimal.Enums;
 using backend.Domain.SaudeAnimal.Entities;
 
 namespace backend.Domain.AtendimentoAnimal.Entities
@@ -12,9 +13,9 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         public int ConsultaId { get; set; } // foreign Key para ConsultaId
         [ForeignKey("ConsultaId")]
         public Consulta? Consulta { get; set; }
-        public int AcompanhamentoIndividualizadoId { get; set; }
-        [ForeignKey("AcompanhamentoIndividualizadoId")]
-        public AcompanhamentoIndividualizado? AcompanhamentoIndividualizado { get; set; }
+        public int AcompanhamentoId { get; set; }
+        [ForeignKey("AcompanhamentoId")]
+        public Acompanhamento? Acompanhamento { get; set; }
         public int? UsuarioResponsavelId { get; set; } // UserId de quem criou o relatório
         public DietaPersonalizada? DietaPersonalizada { get; set; }
         public int Idade { get; set; }

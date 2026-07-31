@@ -19,11 +19,19 @@ namespace backend.Domain.AtendimentoAnimal.Repository
         {
             // Query base com todos os includes necessários para evitar N+1 queries
             return _context.Consultas
-                .Include(c => c.Animal)
-                   .ThenInclude(a => a.AcompanhamentoIndividualizado)
+                // 1. Dados Básicos da Consulta
                 .Include(c => c.Tutor)
-                .Include(c => c.Usuario) // Para o nome do veterinário
-                .Include(c => c.Relatorio); // Para saber se já foi preenchido
+                .Include(c => c.Usuario) // Veterinário
+
+                // 2. Dados do Animal e suas sub-entidades (Raça e Acompanhamento)
+                .Include(c => c.Animal)
+                    .ThenInclude(a => a.Raca)
+                .Include(c => c.Animal)
+                    .ThenInclude(a => a.Acompanhamento)
+
+                // 3. Dados do Relatório e sua sub-entidade (Dieta)
+                .Include(c => c.Relatorio)
+                    .ThenInclude(r => r.DietaPersonalizada);
         }
 
         public async Task<Consulta?> GetByIdAsync(int consultaId)

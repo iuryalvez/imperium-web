@@ -1,6 +1,7 @@
 using AutoMapper;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.SaudeAnimal.Entities;
+using backend.Domain.General.Extensions;
 
 namespace backend.Domain.AtendimentoAnimal.Mappers 
 {
@@ -13,6 +14,8 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
                 .ForMember(dest => dest.Especie, opt => opt.MapFrom(src => src.Especie.ToString()))
                 .ForMember(dest => dest.Sexo, opt => opt.MapFrom(src => src.Sexo.ToString()))
                 .ForMember(dest => dest.FaseVida, opt => opt.MapFrom(src => src.FaseVida.ToString()))
+                .ForMember(dest => dest.FaseVidaLabel, opt => opt.MapFrom(src => src.FaseVida.GetDisplayName()))
+                .ForMember(dest => dest.CondicaoCorporalLabel, opt => opt.MapFrom(src => src.CondicaoCorporal.GetDisplayName()))
                 .ForMember(dest => dest.PesoAtual, opt => opt.MapFrom(src => src.Peso))
                 .ForMember(dest => dest.CondicaoCorporal, opt => opt.MapFrom(src => src.CondicaoCorporal.ToString()))
                 // O AutoMapper usará o mapeamento de 'Tutor' para 'TutorResumidoDto' definido abaixo
@@ -20,8 +23,8 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
                     src.TutoresAnimais != null 
                     ? src.TutoresAnimais.Select(ta => ta.Tutor) 
                     : new List<Tutor>()))
-                // O AutoMapper usará o mapeamento de 'AcompanhamentoIndividualizado' para 'AcompanhamentoDto'
-                .ForMember(dest => dest.Acompanhamento, opt => opt.MapFrom(src => src.AcompanhamentoIndividualizado));
+                // O AutoMapper usará o mapeamento de 'Acompanhamento' para 'AcompanhamentoDto'
+                .ForMember(dest => dest.Acompanhamento, opt => opt.MapFrom(src => src.Acompanhamento));
 
             // Mapeamentos Auxiliares (para os DTOs aninhados)
 
@@ -29,7 +32,7 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
 
             CreateMap<Tutor, TutorResumidoDto>();
 
-            CreateMap<AcompanhamentoIndividualizado, AcompanhamentoDto>();
+            CreateMap<Acompanhamento, AcompanhamentoDto>();
 
             CreateMap<Relatorio, RelatorioDetalhadoDto>()
                 // Busca a data da consulta aninhada no relatório
@@ -47,6 +50,7 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
             
             CreateMap<DietaPersonalizada, DietaResumidaDto>()
                 .ForMember(dest => dest.TipoDieta, opt => opt.MapFrom(src => src.TipoDieta.ToString()))
+                .ForMember(dest => dest.TipoDietaLabel, opt => opt.MapFrom(src => src.TipoDieta.GetDisplayName()))
                 // Garante que não haverá erro se o valor for nulo
                 .ForMember(dest => dest.QuantidadeAlimentoGramas, opt => opt.MapFrom(src => src.QtdAlimento ?? 0))
                 .ForMember(dest => dest.NecessidadeEnergeticaKcal, opt => opt.MapFrom(src => src.EnergiaMetabolizavel ?? 0))

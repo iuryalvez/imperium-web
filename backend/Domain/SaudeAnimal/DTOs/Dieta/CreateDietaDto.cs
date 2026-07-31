@@ -7,6 +7,9 @@ namespace backend.Domain.SaudeAnimal.DTOs.Dieta
     {
         [Required]
         public int RelatorioId { get; set; }
+        
+        [Required]
+        public int AcompanhamentoId { get; set; }
 
         [Required]
         public int RacaoId { get; set; }

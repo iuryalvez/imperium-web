@@ -41,16 +41,15 @@ public class AcompanhamentoController : ControllerBase
     /// <summary>
     /// Cria ou atualiza uma dieta para um relatório.
     /// </summary>
-    [HttpPost("{acompanhamentoId}/dieta")]
+    [HttpPost("dieta")]
     [Authorize(Policy = "GerenciaAnimais")]
     [ProducesResponseType(typeof(ServiceResult), 200)]
     [ProducesResponseType(typeof(ServiceResult), 400)]
     public async Task<IActionResult> CriarDieta(
-        [FromRoute] int acompanhamentoId,
         [FromBody] CreateDietaDto dto)
     {
         var clinicaId = User.GetClaimValue<int>("clinicaId");
-        var result = await _acompanhamentoService.CriarDietaParaRelatorioAsync(acompanhamentoId, dto, clinicaId);
+        var result = await _acompanhamentoService.CriarDietaParaRelatorioAsync(dto.AcompanhamentoId, dto, clinicaId);
 
         if (result.Succeeded)
         {

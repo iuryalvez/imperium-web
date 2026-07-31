@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using backend.Domain.AtendimentoAnimal.Enums;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.GestaoClinica.Entities;
 

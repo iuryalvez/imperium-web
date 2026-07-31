@@ -15,7 +15,7 @@ namespace backend.Infra.Data
         }
 
         // DbSets
-        public DbSet<AcompanhamentoIndividualizado> AcompanhamentosInds { get; set; }
+        public DbSet<Acompanhamento> AcompanhamentosInds { get; set; }
         public DbSet<Animal> Animais { get; set; }
         public DbSet<Clinica> Clinicas { get; set; }
         public DbSet<Consulta> Consultas { get; set; }
@@ -85,7 +85,7 @@ namespace backend.Infra.Data
                 .Property(entidade => entidade.Id)
                 .ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<AcompanhamentoIndividualizado>()
+            modelBuilder.Entity<Acompanhamento>()
                 .Property(entidade => entidade.Id)
                 .ValueGeneratedOnAdd();
 
@@ -94,17 +94,17 @@ namespace backend.Infra.Data
                 .ValueGeneratedOnAdd();
 
             // AcompanhamentoInd 1:1 Animal
-            modelBuilder.Entity<AcompanhamentoIndividualizado>()
+            modelBuilder.Entity<Acompanhamento>()
                 .HasOne(ai => ai.Animal)
-                .WithOne(a => a.AcompanhamentoIndividualizado)
-                .HasForeignKey<AcompanhamentoIndividualizado>(ai => ai.AnimalId)
+                .WithOne(a => a.Acompanhamento)
+                .HasForeignKey<Acompanhamento>(ai => ai.AnimalId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // AcompanhamentoInd 1:N Relatorio
-            modelBuilder.Entity<AcompanhamentoIndividualizado>()
+            modelBuilder.Entity<Acompanhamento>()
                 .HasMany(ai => ai.Relatorios)
-                .WithOne(r => r.AcompanhamentoIndividualizado)
-                .HasForeignKey(r => r.AcompanhamentoIndividualizadoId)
+                .WithOne(r => r.Acompanhamento)
+                .HasForeignKey(r => r.AcompanhamentoId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Relatório 1:1 Dieta

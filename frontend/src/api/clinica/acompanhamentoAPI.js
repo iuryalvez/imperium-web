@@ -15,11 +15,11 @@ export const acompanhamentoAPI = {
    * @param {object} dadosDieta O objeto DTO com os dados da dieta (CreateDietaDto).
    * @returns {Promise<object>} A resposta da API.
    */
-  criarDieta: async (acompanhamentoId, dadosDieta) => {
+  criarDieta: async (dadosDieta) => {
     try {
       const response = await api.post(
         // Constrói a URL dinâmica usando a função do arquivo de endpoints
-        endpoints.clinica.acompanhamento.criarDieta(acompanhamentoId),
+        endpoints.clinica.acompanhamento.criarDieta(),
         // O segundo argumento é o corpo (body) da requisição
         dadosDieta,
         {

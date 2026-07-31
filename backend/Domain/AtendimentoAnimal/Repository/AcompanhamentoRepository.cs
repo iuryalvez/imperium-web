@@ -14,7 +14,7 @@ namespace backend.Domain.AtendimentoAnimal.Repository
             _context = context;
         }
 
-        public async Task<AcompanhamentoIndividualizado?> GetByIdAsync(int id)
+        public async Task<Acompanhamento?> GetByIdAsync(int id)
         {
             return await _context.AcompanhamentosInds
                 // Inclui o animal ao qual o acompanhamento pertence
@@ -26,19 +26,19 @@ namespace backend.Domain.AtendimentoAnimal.Repository
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
 
-        public async Task<AcompanhamentoIndividualizado?> GetByAnimalIdAsync(int animalId)
+        public async Task<Acompanhamento?> GetByAnimalIdAsync(int animalId)
         {
             return await _context.AcompanhamentosInds
                 .Include(a => a.Relatorios)
                 .FirstOrDefaultAsync(a => a.AnimalId == animalId);
         }
 
-        public async Task AddAsync(AcompanhamentoIndividualizado acompanhamento)
+        public async Task AddAsync(Acompanhamento acompanhamento)
         {
             await _context.AcompanhamentosInds.AddAsync(acompanhamento);
         }
 
-        public async Task UpdateAsync(AcompanhamentoIndividualizado acompanhamento)
+        public async Task UpdateAsync(Acompanhamento acompanhamento)
         {
             _context.AcompanhamentosInds.Update(acompanhamento);
             await Task.CompletedTask;

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using backend.Domain.AtendimentoAnimal.Enums;
 using backend.Domain.GestaoClinica.Entities;
 
 namespace backend.Domain.AtendimentoAnimal.Entities
@@ -33,6 +34,8 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         public int? ClinicaId { get; set; }
         [ForeignKey("ClinicaId")]
         public Clinica? Clinica { get; set; }
+
+        public CategoriaMetabolica CategoriaMetabolica { get; set; } = CategoriaMetabolica.Padrao;
 
         [NotMapped]
         public double? PesoMedioMacho => (PesoMinimoReferenciaMacho.HasValue && PesoMaximoReferenciaMacho.HasValue)

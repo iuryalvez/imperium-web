@@ -34,7 +34,7 @@ namespace backend.Infra.Data.Repositories
         {
             return await _context.Animais
                 .Include(a => a.TutoresAnimais!).ThenInclude(ta => ta.Tutor)
-                .Include(a => a.AcompanhamentoIndividualizado) // Incluindo o Acompanhamento Individualizado
+                .Include(a => a.Acompanhamento) // Incluindo o Acompanhamento Individualizado
                 .Include(a => a.Raca) // Incluindo a Raça
                 .Where(a => a.AnimaisClinicas!.Any(ac => ac.ClinicaId == clinicaId))
                 .ToListAsync();
@@ -87,7 +87,7 @@ namespace backend.Infra.Data.Repositories
                     .ThenInclude(ta => ta.Tutor)
 
                 // Carrega o acompanhamento lista de relatórios (a linha do tempo)
-                .Include(a => a.AcompanhamentoIndividualizado)
+                .Include(a => a.Acompanhamento)
                     .ThenInclude(ac => ac!.Relatorios!.OrderByDescending(r => r.Consulta!.DataConsulta)) // Ordena pela data da consulta
 
                         // A partir de cada relatório, carrega a dieta e a ração associada
@@ -95,7 +95,7 @@ namespace backend.Infra.Data.Repositories
                             .ThenInclude(d => d!.Racao)
 
                         // A partir de cada relatório, carrega a consulta e o usuário responsável
-                        .Include(a => a.AcompanhamentoIndividualizado)
+                        .Include(a => a.Acompanhamento)
                             .ThenInclude(ac => ac.Relatorios!)
                                 .ThenInclude(r => r.Consulta)
                                     .ThenInclude(c => c.Usuario)

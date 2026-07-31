@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using backend.Domain.AtendimentoAnimal.Entities;
+using backend.Domain.AtendimentoAnimal.Enums;
 
 namespace backend.Domain.AtendimentoAnimal.DTOs.Relatorio
 {
@@ -22,7 +22,6 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Relatorio
         [StringLength(2000)]
         public string? DescricaoDieta { get; set; }
         public int TipoDieta { get; set; }
-        // Novos campos de status reprodutivo
         public bool IsGestante { get; set; }
         public int IsLactanteNumeroFilhotes { get; set; }
         public int SemanaLactacao { get; set; }

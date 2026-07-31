@@ -4,10 +4,10 @@ namespace backend.Domain.AtendimentoAnimal.Interface
 {
     public interface IAcompanhamentoRepository
     {
-        Task<AcompanhamentoIndividualizado?> GetByIdAsync(int id);
-        Task<AcompanhamentoIndividualizado?> GetByAnimalIdAsync(int animalId);
-        Task AddAsync(AcompanhamentoIndividualizado acompanhamento);
-        Task UpdateAsync(AcompanhamentoIndividualizado acompanhamento);
+        Task<Acompanhamento?> GetByIdAsync(int id);
+        Task<Acompanhamento?> GetByAnimalIdAsync(int animalId);
+        Task AddAsync(Acompanhamento acompanhamento);
+        Task UpdateAsync(Acompanhamento acompanhamento);
         Task<bool> ExistsByAnimalIdAsync(int animalId);
         Task<int> SaveChangesAsync();
     }

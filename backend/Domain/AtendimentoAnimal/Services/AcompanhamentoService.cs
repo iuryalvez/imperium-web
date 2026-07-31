@@ -113,7 +113,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
             {
                 return resultadoBusca;
             }
-            var acompanhamento = (AcompanhamentoIndividualizado)resultadoBusca.Data;
+            var acompanhamento = (Acompanhamento)resultadoBusca.Data;
 
             _logger.LogInformation("Delegando para AnimalService a busca do histórico completo do animal {AnimalId}.", acompanhamento.AnimalId);
             return await _animalService.ObterHistoricoCompletoAnimalAsync(acompanhamento.AnimalId, clinicaId);
@@ -138,7 +138,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 return new ServiceResult { Succeeded = false, Message = "Já existe um acompanhamento para este animal." };
             }
 
-            var acompanhamento = new AcompanhamentoIndividualizado
+            var acompanhamento = new Acompanhamento
             {
                 AnimalId = animalId,
                 DataInicio = DateOnly.FromDateTime(DateTime.UtcNow)
@@ -166,7 +166,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
             {
                 return resultadoBusca;
             }
-            var acompanhamento = (AcompanhamentoIndividualizado)resultadoBusca.Data;
+            var acompanhamento = (Acompanhamento)resultadoBusca.Data;
 
             if (acompanhamento.DataFim.HasValue)
             {
@@ -199,7 +199,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
             {
                 var resultadoAcompanhamento = await ObterPorIdAsync(acompanhamentoId, clinicaId);
                 if (!resultadoAcompanhamento.Succeeded) return resultadoAcompanhamento;
-                var acompanhamento = (AcompanhamentoIndividualizado)resultadoAcompanhamento.Data;
+                var acompanhamento = (Acompanhamento)resultadoAcompanhamento.Data;
 
                 var animalResult = await _animalService.ObterPorIdAsync(acompanhamento.AnimalId);
                 if (!animalResult.Succeeded)

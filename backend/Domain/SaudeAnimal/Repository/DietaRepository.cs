@@ -35,7 +35,7 @@ namespace backend.Domain.SaudeAnimal.Repository
             // Busca todas as dietas cujos relatórios pertencem ao acompanhamento especificado
             return await _context.DietasPersonalizadas
                 .Include(d => d.Racao) // Inclui a ração para exibir o nome
-                .Where(d => d.Relatorio!.AcompanhamentoIndividualizadoId == acompanhamentoId)
+                .Where(d => d.Relatorio!.AcompanhamentoId == acompanhamentoId)
                 .OrderByDescending(d => d.DataCriacao)
                 .ToListAsync();
         }

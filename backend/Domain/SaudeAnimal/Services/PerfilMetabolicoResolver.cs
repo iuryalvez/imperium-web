@@ -1,5 +1,6 @@
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.SaudeAnimal.Entities;
+using backend.Domain.AtendimentoAnimal.Enums;
 using backend.Domain.SaudeAnimal.Enums;
 
 namespace backend.Domain.SaudeAnimal.Services
@@ -37,7 +38,7 @@ namespace backend.Domain.SaudeAnimal.Services
                 if (animal.Raca != null && !animal.Raca.Nome.Contains("SRD", StringComparison.OrdinalIgnoreCase))
                     return PerfilMetabolico.GatoExotico;
 
-                if (animal.CondicaoCorporal.HasValue && (int)animal.CondicaoCorporal <= 5)
+                if (animal.CondicaoCorporal.HasValue && (int) animal.CondicaoCorporal.Value <= 5)
                     return PerfilMetabolico.GatoDomesticoMagro;
 
                 return PerfilMetabolico.GatoDomesticoObeso;
@@ -45,32 +46,33 @@ namespace backend.Domain.SaudeAnimal.Services
 
             if (animal.Especie == EspecieAnimal.Cao)
             {
-                string nomeRaca = animal.Raca?.Nome ?? string.Empty;
+                var categoria = animal.Raca?.CategoriaMetabolica ?? CategoriaMetabolica.Padrao;
 
-                if (!string.IsNullOrEmpty(nomeRaca))
-                {
-                    if ((nomeRaca.Contains("dogue alemão", StringComparison.OrdinalIgnoreCase) ||
-                        nomeRaca.Contains("grande dinamarquês", StringComparison.OrdinalIgnoreCase)) &&
-                        animal.GrauAtividade >= GrauAtividade.Ativo && animal.FaseVida == FaseVidaAnimal.Adulto)
-                        return PerfilMetabolico.CaoDogueAlemaoAdultoAtivo;
+                // Exceções Metabólicas
+                if (categoria == CategoriaMetabolica.DogueAlemao &&
+                    (animal.GrauAtividade.Value) >= GrauAtividade.Ativo && animal.FaseVida == FaseVidaAnimal.Adulto)
+                    return PerfilMetabolico.CaoDogueAlemaoAdultoAtivo;
 
-                    if (nomeRaca.Contains("terrier", StringComparison.OrdinalIgnoreCase) &&
-                        animal.GrauAtividade >= GrauAtividade.Ativo && animal.FaseVida == FaseVidaAnimal.Adulto)
-                        return PerfilMetabolico.CaoTerrierAdultoAtivo;
-                }
+                if (categoria == CategoriaMetabolica.Terrier &&
+                    animal.GrauAtividade.Value >= GrauAtividade.Ativo && animal.FaseVida == FaseVidaAnimal.Adulto)
+                    return PerfilMetabolico.CaoTerrierAdultoAtivo;
 
-                if ((animal.FaseVida == FaseVidaAnimal.Senior && animal.GrauAtividade == GrauAtividade.Ativo) ||
-                    (animal.FaseVida == FaseVidaAnimal.Geriatrico && animal.GrauAtividade == GrauAtividade.Ativo))
+                if (categoria == CategoriaMetabolica.TerraNova)
+                    return PerfilMetabolico.CaoIdosoAtivo; // Usa o mesmo multiplicador de 105 kcal
+
+                // Fluxo Padrão (Sem exceção de raça)
+                if ((animal.FaseVida == FaseVidaAnimal.Senior && animal.GrauAtividade.Value == GrauAtividade.Ativo) ||
+                    (animal.FaseVida == FaseVidaAnimal.Geriatrico && animal.GrauAtividade.Value == GrauAtividade.Ativo))
                     return PerfilMetabolico.CaoIdosoAtivo;
 
-                if (animal.GrauAtividade == GrauAtividade.Inativo)
+                if (animal.GrauAtividade.Value == GrauAtividade.Inativo)
                     return PerfilMetabolico.CaoInativo;
 
                 if (animal.FaseVida is FaseVidaAnimal.Jovem or FaseVidaAnimal.Adulto &&
-                    animal.GrauAtividade == GrauAtividade.Ativo)
+                    animal.GrauAtividade.Value == GrauAtividade.Ativo)
                     return PerfilMetabolico.CaoAdultoJovemAtivo;
 
-                return PerfilMetabolico.CaoJovemModerado;
+                return PerfilMetabolico.CaoJovemModerado; // Fallback padrão
             }
 
             throw new InvalidOperationException($"Espécie '{animal.Especie}' não suportada.");

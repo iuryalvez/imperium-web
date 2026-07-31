@@ -1,3 +1,4 @@
+using backend.Domain.AtendimentoAnimal.Enums;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.SaudeAnimal.Entities;
 

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using backend.Domain.Auth.Extensions;
 using backend.Domain.SaudeAnimal.Interfaces;
-using backend.Domain.AtendimentoAnimal.Entities;
+using backend.Domain.AtendimentoAnimal.Enums;
 
 namespace backend.Domain.SaudeAnimal
 {

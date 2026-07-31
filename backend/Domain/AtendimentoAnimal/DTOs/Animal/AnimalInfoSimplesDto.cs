@@ -1,5 +1,4 @@
-// DTO análogo para animais, para ser usado no GetTutoresClinicaDto
-using backend.Domain.AtendimentoAnimal.Entities;
+using backend.Domain.AtendimentoAnimal.Enums;
 
 namespace backend.Domain.AtendimentoAnimal
 {

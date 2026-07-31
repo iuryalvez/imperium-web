@@ -1,42 +1,62 @@
 // src/pages/AcompanhamentoAnimal/components/FormularioNovaDieta/index.jsx
 
-import React from "react";
-import { Form, Input, Select, Button, Row, Col } from "antd";
+import React, { useEffect } from "react";
+import {
+  Form,
+  Input,
+  Select,
+  Row,
+  Col,
+  InputNumber,
+  Alert,
+  Divider,
+} from "antd";
 import { useWatch } from "antd/es/form/Form";
+import { InfoCircleOutlined } from "@ant-design/icons";
 
-// Importando os novos formulários específicos
 import FormManutencao from "./FormManutencao";
 import FormCrescimento from "./FormCrescimento";
 import FormLactacao from "./FormLactacao";
 import FormGestacao from "./FormGestacao";
 
 const opcoesTipoDieta = [
-  { value: 0, label: "Manutenção" },
-  { value: 1, label: "Crescimento" },
-  { value: 2, label: "Lactação" },
-  { value: 3, label: "Gestação" },
+  { value: 1, label: "Manutenção" },
+  { value: 2, label: "Crescimento" },
+  { value: 3, label: "Lactação" },
+  { value: 4, label: "Gestação" },
 ];
 
-const FormularioDieta = ({ onFinish, onCancel, relatorioId, racoes }) => {
+const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
   const [form] = Form.useForm();
-
-  // Observa o valor do campo 'tipoDieta' em tempo real
   const tipoDietaSelecionado = useWatch("tipoDieta", form);
 
-  const racoesOptions = racoes.map((r) => ({ label: r.nome, value: r.id }));
+  useEffect(() => {
+    if (initialValues) {
+      form.setFieldsValue({
+        racaoId: initialValues.racaoId,
+        tipoDieta: initialValues.tipoDieta,
+        pesoAtual: initialValues.peso,
+        numeroFilhotes: initialValues.isLactanteNumeroFilhotes,
+        semanaLactacao: initialValues.semanaLactacao,
+      });
+    }
+  }, [initialValues, form]);
+
+  const racoesOptions =
+    racoes?.map((r) => ({ label: r.nome, value: r.id })) || [];
 
   const renderSpecificForm = () => {
     switch (tipoDietaSelecionado) {
-      case 0: // Manutenção
+      case 1:
         return <FormManutencao />;
-      case 1: // Crescimento
+      case 2:
         return <FormCrescimento />;
-      case 2: // Lactação
+      case 3:
         return <FormLactacao />;
-      case 3: // Gestação
+      case 4:
         return <FormGestacao />;
       default:
-        return null; // Nenhum formulário específico para mostrar
+        return null;
     }
   };
 
@@ -46,25 +66,18 @@ const FormularioDieta = ({ onFinish, onCancel, relatorioId, racoes }) => {
       form={form}
       layout="vertical"
       onFinish={onFinish}
-      initialValues={{ relatorioId: relatorioId }}
     >
-      <Form.Item name="relatorioId" hidden>
-        <Input />
-      </Form.Item>
-
-      {/* Campos Comuns a Todos os Formulários */}
       <Row gutter={16}>
         <Col span={12}>
           <Form.Item
             name="racaoId"
             label="Ração Base"
-            rules={[{ required: true, message: "Selecione a ração." }]}
+            rules={[{ required: true }]}
           >
             <Select
               showSearch
               optionFilterProp="label"
               options={racoesOptions}
-              placeholder="Selecione a ração"
             />
           </Form.Item>
         </Col>
@@ -72,18 +85,68 @@ const FormularioDieta = ({ onFinish, onCancel, relatorioId, racoes }) => {
           <Form.Item
             name="tipoDieta"
             label="Tipo da Dieta"
-            rules={[{ required: true, message: "Selecione o tipo." }]}
+            rules={[{ required: true }]}
           >
-            <Select options={opcoesTipoDieta} placeholder="Selecione o tipo" />
+            <Select options={opcoesTipoDieta} />
           </Form.Item>
         </Col>
       </Row>
 
-      {/* Área Dinâmica para o Formulário Específico */}
-      {renderSpecificForm()}
+      <Divider orientation="left" className="mt-0 mb-4 text-gray-500 text-sm">
+        Parâmetros de Peso
+      </Divider>
 
-      <Form.Item name="observacoes" label="Observações">
-        <Input.TextArea rows={3} placeholder="Instruções adicionais" />
+      {dadosRaca?.nome && (dadosRaca.pesoMin || dadosRaca.pesoMax) && (
+        <Alert
+          className="mb-4"
+          type="info"
+          showIcon
+          icon={<InfoCircleOutlined />}
+          message={`Referência Literária: ${dadosRaca.nome}`}
+          description={`O peso ideal desta raça, ajustado para o sexo do paciente, varia entre ${dadosRaca.pesoMin || "?"}kg e ${dadosRaca.pesoMax || "?"}kg.`}
+        />
+      )}
+
+      <Row gutter={16}>
+        <Col span={12}>
+          <Form.Item
+            name="pesoAtual"
+            label="Peso Atual (kg)"
+            rules={[{ required: true }]}
+          >
+            <InputNumber
+              style={{ width: "100%" }}
+              min={0}
+              step={0.01}
+              decimalSeparator=","
+            />
+          </Form.Item>
+        </Col>
+
+        <Col span={12}>
+          <Form.Item
+            name="pesoIdeal"
+            label="Peso Referência / Ideal (kg)"
+            tooltip="Este peso ficará salvo no cadastro do paciente e será a nova Fonte da Verdade para os cálculos energéticos da dieta, sobrescrevendo a referência geral da raça."
+          >
+            <InputNumber
+              placeholder="Ex: 15,0"
+              style={{ width: "100%" }}
+              min={0}
+              step={0.01}
+              decimalSeparator=","
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+
+      <div className="mt-2">{renderSpecificForm()}</div>
+
+      <Form.Item name="observacoes" label="Observações da Dieta">
+        <Input.TextArea
+          rows={3}
+          placeholder="Instruções para o tutor (Ex: Adicionar água morna)"
+        />
       </Form.Item>
     </Form>
   );

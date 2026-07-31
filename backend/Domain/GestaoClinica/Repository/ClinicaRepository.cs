@@ -57,7 +57,7 @@ namespace backend.Domain.GestaoClinica.Services
                     // Counts reports by checking if the 1:1 consultation relation exists
                     TotalRelatorios = c.Consultas != null ? c.Consultas.Count(con => con.Relatorio != null) : 0,
                     // Counts trackings by checking the 1:1 animal relation
-                    TotalAcompanhamentos = c.AnimaisClinicas != null ? c.AnimaisClinicas.Count(ac => ac.Animal != null && ac.Animal.AcompanhamentoIndividualizado != null) : 0
+                    TotalAcompanhamentos = c.AnimaisClinicas != null ? c.AnimaisClinicas.Count(ac => ac.Animal != null && ac.Animal.Acompanhamento != null) : 0
                 })
                 .FirstOrDefaultAsync();
         }

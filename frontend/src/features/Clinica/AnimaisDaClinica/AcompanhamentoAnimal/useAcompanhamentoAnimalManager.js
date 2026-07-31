@@ -28,15 +28,14 @@ export const useAcompanhamentoAnimalManager = () => {
   const fetchHistorico = useCallback(async () => {
     try {
       setLoading(true);
-      const result = await acompanhamentoAPI.getHistoricoCompleto(
-        acompanhamentoId
-      );
+      const result =
+        await acompanhamentoAPI.getHistoricoCompleto(acompanhamentoId);
       if (result.succeeded) {
         setHistorico(result.data);
         // Quando o histórico carregar, buscamos as rações para a espécie do animal
         if (result.data?.especie) {
           const racoesData = await racoesDaClinicaAPI.listar(
-            result.data.especie === "Cao" ? 1 : 2
+            result.data.especie === "Cao" ? 1 : 2,
           );
           setRacoes(racoesData);
         }
@@ -87,18 +86,24 @@ export const useAcompanhamentoAnimalManager = () => {
   };
 
   const handleCriarDieta = async (values) => {
-    if (!historico?.acompanhamento?.id) return;
+    // O ID deve estar acessível pelo hook ou pelo relatório selecionado
+    if (!historico?.acompanhamento?.id || !relatorioSelecionado?.id) return;
 
     setIsSubmitting(true);
     try {
-      const result = await acompanhamentoAPI.criarDieta(
-        historico.acompanhamento.id,
-        values
-      );
+      // Montamos o payload com todas as chaves obrigatórias do novo backend DTO
+      const payloadDieta = {
+        ...values,
+        acompanhamentoId: historico.acompanhamento.id,
+        relatorioId: relatorioSelecionado.id,
+      };
+
+      const result = await acompanhamentoAPI.criarDieta(payloadDieta);
+
       if (result.succeeded) {
         message.success("Dieta calculada e salva com sucesso!");
         handleCloseModalCriarDieta();
-        await fetchHistorico(); // Recarrega os dados para mostrar a nova dieta na lista
+        await fetchHistorico();
       } else {
         message.error(result.message || "Falha ao criar dieta.");
       }
@@ -116,7 +121,7 @@ export const useAcompanhamentoAnimalManager = () => {
     try {
       const result = await acompanhamentoAPI.editarDieta(
         dietaParaEditar.id,
-        values
+        values,
       );
       if (result.succeeded) {
         message.success("Dieta atualizada com sucesso!");
