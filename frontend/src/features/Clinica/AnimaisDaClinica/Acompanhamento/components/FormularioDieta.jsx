@@ -1,4 +1,4 @@
-// src/pages/AcompanhamentoAnimal/components/FormularioNovaDieta/index.jsx
+// src/pages/Acompanhamento/components/FormularioNovaDieta/index.jsx
 
 import React, { useEffect } from "react";
 import {

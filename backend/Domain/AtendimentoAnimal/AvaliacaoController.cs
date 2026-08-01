@@ -1,4 +1,4 @@
-using backend.Domain.AtendimentoAnimal.DTOs.Relatorio;
+using backend.Domain.AtendimentoAnimal.DTOs.Avaliacao;
 using backend.Domain.AtendimentoAnimal.Interface;
 using backend.Domain.Usuarios.Interfaces;
 using backend.Domain.Auth.Extensions;
@@ -12,17 +12,17 @@ namespace backend.Domain.AtendimentoAnimal
     [ApiController]
     [Route("api/clinica")]
     [Authorize]
-    public class RelatorioController : ControllerBase
+    public class AvaliacaoController : ControllerBase
     {
-        private readonly IRelatorioService _relatorioService;
+        private readonly IAvaliacaoService _avaliacaoService;
         private readonly IAcompanhamentoService _acompanhamentoService;
-        public RelatorioController(IRelatorioService relatorioService, IAcompanhamentoService acompanhamentoService)
+        public AvaliacaoController(IAvaliacaoService avaliacaoService, IAcompanhamentoService acompanhamentoService)
         {
-            _relatorioService = relatorioService;
+            _avaliacaoService = avaliacaoService;
             _acompanhamentoService = acompanhamentoService;
         }
 
-        [HttpGet("consultas/{consultaId}/relatorio")]
+        [HttpGet("consultas/{consultaId}/avaliacao")]
         [Authorize(Policy = "VisualizaTudo")]
         [ProducesResponseType(typeof(ServiceResult), 200)]
         [ProducesResponseType(typeof(ServiceResult), 404)]
@@ -31,7 +31,7 @@ namespace backend.Domain.AtendimentoAnimal
             var clinicaId = User.GetClaimValue<int>("clinicaId");
 
             // O serviço agora retorna ServiceResult
-            var result = await _relatorioService.GetDtoByConsultaIdAsync(consultaId, clinicaId);
+            var result = await _avaliacaoService.GetDtoByConsultaIdAsync(consultaId, clinicaId);
 
             if (result.Succeeded)
             {
@@ -41,14 +41,14 @@ namespace backend.Domain.AtendimentoAnimal
             return NotFound(result);
         }
 
-        [HttpPut("consultas/{consultaId}/relatorio")]
+        [HttpPut("consultas/{consultaId}/avaliacao")]
         [Authorize(Policy = "GerenciaAnimais")]
         [ProducesResponseType(typeof(ServiceResult), 200)]
         [ProducesResponseType(typeof(ServiceResult), 400)]
-        public async Task<IActionResult> Upsert(int consultaId, [FromBody] UpsertRelatorioDto dto)
+        public async Task<IActionResult> Upsert(int consultaId, [FromBody] UpsertAvaliacaoDto dto)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            var result = await _relatorioService.UpsertAsync(consultaId, dto, clinicaId);
+            var result = await _avaliacaoService.UpsertAsync(consultaId, dto, clinicaId);
 
             if (result.Succeeded)
             {
@@ -58,14 +58,14 @@ namespace backend.Domain.AtendimentoAnimal
             return BadRequest(result);
         }
 
-        [HttpDelete("relatorios/{relatorioId}")]
+        [HttpDelete("avaliacoes/{avaliacaoId}")]
         [Authorize(Policy = "GerenciaAnimais")]
         [ProducesResponseType(204)] // NoContent
         [ProducesResponseType(typeof(ServiceResult), 404)]
-        public async Task<IActionResult> Delete(int relatorioId)
+        public async Task<IActionResult> Delete(int avaliacaoId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            var result = await _relatorioService.DeleteAsync(relatorioId, clinicaId);
+            var result = await _avaliacaoService.DeleteAsync(avaliacaoId, clinicaId);
 
             if (result.Succeeded)
             {

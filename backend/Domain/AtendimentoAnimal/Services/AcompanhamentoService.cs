@@ -14,7 +14,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
     public class AcompanhamentoService : IAcompanhamentoService
     {
         private readonly IAcompanhamentoRepository _acompanhamentoRepository;
-        private readonly IRelatorioService _relatorioService;
+        private readonly IAvaliacaoService _avaliacaoService;
         private readonly IRacaoService _racaoService;
         private readonly IDietaService _dietaService;
         private readonly IAnimalService _animalService;
@@ -25,7 +25,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
         /// Inicializa uma nova instância do serviço de Acompanhamento.
         /// </summary>
         public AcompanhamentoService(IAcompanhamentoRepository acompanhamentoRepository,
-                                     IRelatorioService relatorioService,
+                                     IAvaliacaoService avaliacaoService,
                                      IRacaoService racaoService,
                                      IDietaService dietaService,
                                      IAnimalService animalService,
@@ -33,7 +33,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
                                      ILogger<AcompanhamentoService> logger)
         {
             _acompanhamentoRepository = acompanhamentoRepository;
-            _relatorioService = relatorioService;
+            _avaliacaoService = avaliacaoService;
             _racaoService = racaoService;
             _dietaService = dietaService;
             _animalService = animalService;
@@ -191,9 +191,9 @@ namespace backend.Domain.AtendimentoAnimal.Services
         /// <param name="dto">Dados para a criação da dieta.</param>
         /// <param name="clinicaId">ID da clínica para validação de acesso.</param>
         /// <returns>ServiceResult contendo o DTO da dieta criada ou uma mensagem de erro.</returns>
-        public async Task<ServiceResult> CriarDietaParaRelatorioAsync(int acompanhamentoId, CreateDietaDto dto, int clinicaId)
+        public async Task<ServiceResult> CriarDietaParaAvaliacaoAsync(int acompanhamentoId, CreateDietaDto dto, int clinicaId)
         {
-            _logger.LogInformation("Iniciando orquestração para criar dieta para o relatório {RelatorioId} no acompanhamento {AcompanhamentoId}.", dto.RelatorioId, acompanhamentoId);
+            _logger.LogInformation("Iniciando orquestração para criar dieta para o relatório {AvaliacaoId} no acompanhamento {AcompanhamentoId}.", dto.AvaliacaoId, acompanhamentoId);
 
             try
             {
@@ -212,14 +212,14 @@ namespace backend.Domain.AtendimentoAnimal.Services
 
                 _logger.LogDebug("Animal {AnimalId} obtido com sucesso.", animal.Id);
 
-                var resultadoRelatorio = await _relatorioService.ObterPorIdEIdAcompanhamentoAsync(dto.RelatorioId, acompanhamentoId, clinicaId);
-                if (!resultadoRelatorio.Succeeded)
+                var resultadoAvaliacao = await _avaliacaoService.ObterPorIdEIdAcompanhamentoAsync(dto.AvaliacaoId, acompanhamentoId, clinicaId);
+                if (!resultadoAvaliacao.Succeeded)
                 {
-                    _logger.LogWarning("Falha ao obter relatório {RelatorioId}. Motivo: {Motivo}", dto.RelatorioId, resultadoRelatorio.Message);
-                    return resultadoRelatorio;
+                    _logger.LogWarning("Falha ao obter relatório {AvaliacaoId}. Motivo: {Motivo}", dto.AvaliacaoId, resultadoAvaliacao.Message);
+                    return resultadoAvaliacao;
                 }
-                var relatorio = (Relatorio)resultadoRelatorio.Data;
-                _logger.LogDebug("Relatório {RelatorioId} obtido com sucesso.", relatorio.Id);
+                var avaliacao = (Avaliacao)resultadoAvaliacao.Data;
+                _logger.LogDebug("Avaliação {AvaliacaoId} obtida com sucesso.", avaliacao.Id);
 
                 var resultadoRacao = await _racaoService.ObterPorIdEClinicaIdAsync(dto.RacaoId, clinicaId);
                 if (!resultadoRacao.Succeeded)
@@ -254,10 +254,10 @@ namespace backend.Domain.AtendimentoAnimal.Services
             animal.Id, animal.Peso, animal.IsLactanteNumeroFilhotes, animal.SemanaLactacao);
 
                 _logger.LogInformation("Delegando cálculo da dieta para o DietaService.");
-                var dieta = await _dietaService.CalcularOuAtualizarDietaAsync(animal, relatorio, racao, dto);
+                var dieta = await _dietaService.CalcularOuAtualizarDietaAsync(animal, avaliacao, racao, dto);
                 var dietaDto = _mapper.Map<GetDietaDto>(dieta);
 
-                _logger.LogInformation("Dieta para o relatório {RelatorioId} calculada com sucesso.", dto.RelatorioId);
+                _logger.LogInformation("Dieta para o relatório {AvaliacaoId} calculada com sucesso.", dto.AvaliacaoId);
 
                 return new ServiceResult { Succeeded = true, Message = "Dieta calculada e salva com sucesso.", Data = dietaDto };
             }
@@ -269,7 +269,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro inesperado ao criar dieta para o relatório {RelatorioId}.", dto.RelatorioId);
+                _logger.LogError(ex, "Erro inesperado ao criar dieta para o relatório {AvaliacaoId}.", dto.AvaliacaoId);
 
                 return new ServiceResult { Succeeded = false, Message = "Ocorreu um erro inesperado ao calcular a dieta." };
             }

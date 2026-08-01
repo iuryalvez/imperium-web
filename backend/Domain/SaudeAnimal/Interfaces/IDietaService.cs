@@ -7,9 +7,9 @@ namespace backend.Domain.SaudeAnimal.Interfaces
 {
     public interface IDietaService
     {
-        Task<DietaPersonalizada> CalcularOuAtualizarDietaAsync(
+        Task<Dieta> CalcularOuAtualizarDietaAsync(
             Animal animal,
-            Relatorio relatorio,
+            Avaliacao avaliacao,
             Racao racao,
             CreateDietaDto dto);
 

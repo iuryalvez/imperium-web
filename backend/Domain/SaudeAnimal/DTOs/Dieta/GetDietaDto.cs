@@ -7,7 +7,7 @@ namespace backend.Domain.SaudeAnimal.DTOs.Dieta
         public int Id { get; set; }
         public int RacaoId { get; set; }
         public string NomeRacao { get; set; } = string.Empty; // Facilita a exibição no frontend
-        public int RelatorioId { get; set; }
+        public int AvaliacaoId { get; set; }
 
         public TipoDieta TipoDieta { get; set; } // Mantido como enum, será serializado como número
 

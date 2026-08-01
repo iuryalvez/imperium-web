@@ -28,7 +28,7 @@ namespace backend.Domain.GestaoClinica.DTOs
         public int TotalRacas { get; set; }
         public int TotalRacoes { get; set; }
         public int TotalConsultas { get; set; }
-        public int TotalRelatorios { get; set; }
+        public int TotalAvaliacoes{ get; set; }
         public int TotalAcompanhamentos { get; set; }
     }
 }

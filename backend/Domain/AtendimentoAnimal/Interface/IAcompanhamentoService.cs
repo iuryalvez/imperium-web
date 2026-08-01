@@ -9,7 +9,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
         // --- Métodos de Escrita ---
         Task<ServiceResult> CreateAsync(int animalId);
         Task<ServiceResult> EncerrarAcompanhamentoAsync(int acompanhamentoId, int clinicaId);
-        Task<ServiceResult> CriarDietaParaRelatorioAsync(int acompanhamentoId, CreateDietaDto dto, int clinicaId);
+        Task<ServiceResult> CriarDietaParaAvaliacaoAsync(int acompanhamentoId, CreateDietaDto dto, int clinicaId);
 
         // --- Métodos de Leitura ---
         Task<ServiceResult> ObterPorIdAsync(int acompanhamentoId, int clinicaId);

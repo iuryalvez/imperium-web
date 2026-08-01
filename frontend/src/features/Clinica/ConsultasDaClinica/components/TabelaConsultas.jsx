@@ -11,7 +11,7 @@ const TabelaConsultas = ({
   consultas,
   onEdit,
   onDelete,
-  onOpenRelatorio,
+  onOpenAvaliacao,
   onVerDieta,
   onCalcularDieta,
   onIrParaAcompanhamento,
@@ -37,8 +37,8 @@ const TabelaConsultas = ({
     },
     { title: "Veterinário", dataIndex: "nomeUsuario" },
     {
-      title: "Relatório",
-      dataIndex: "relatorioPreenchido",
+      title: "Avaliação",
+      dataIndex: "avaliacaoPreenchida",
       render: (preenchido) => (
         <Tag color={preenchido ? "green" : "orange"}>
           {preenchido ? "Preenchido" : "Pendente"}
@@ -48,7 +48,7 @@ const TabelaConsultas = ({
         { text: "Preenchido", value: true },
         { text: "Pendente", value: false },
       ],
-      onFilter: (value, record) => record.relatorioPreenchido === value,
+      onFilter: (value, record) => record.avaliacaoPreenchida === value,
     },
     {
       title: "Ações",
@@ -61,12 +61,12 @@ const TabelaConsultas = ({
           overlay={
             <Menu>
               <Menu.Item
-                key="edit-relatorio"
-                onClick={() => onOpenRelatorio(consulta)}
+                key="edit-avaliacao"
+                onClick={() => onOpenAvaliacao(consulta)}
               >
-                {consulta.relatorioPreenchido
-                  ? "Editar Relatório Clínico"
-                  : "Preencher Relatório Clínico"}
+                {consulta.avaliacaoPreenchida
+                  ? "Editar Avaliação Clínica"
+                  : "Preencher Avaliação Clínica"}
               </Menu.Item>
 
               <Menu.Divider />
@@ -84,7 +84,7 @@ const TabelaConsultas = ({
                   key="calc-diet"
                   icon={<CalculatorOutlined />}
                   onClick={() => onCalcularDieta(consulta)}
-                  disabled={!consulta.relatorioPreenchido}
+                  disabled={!consulta.avaliacaoPreenchida}
                 >
                   Calcular Dieta
                 </Menu.Item>

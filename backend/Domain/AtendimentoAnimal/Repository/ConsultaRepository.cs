@@ -29,9 +29,9 @@ namespace backend.Domain.AtendimentoAnimal.Repository
                 .Include(c => c.Animal)
                     .ThenInclude(a => a.Acompanhamento)
 
-                // 3. Dados do Relatório e sua sub-entidade (Dieta)
-                .Include(c => c.Relatorio)
-                    .ThenInclude(r => r.DietaPersonalizada);
+                // 3. Dados do Avaliação e sua sub-entidade (Dieta)
+                .Include(c => c.Avaliacao)
+                    .ThenInclude(r => r.Dieta);
         }
 
         public async Task<Consulta?> GetByIdAsync(int consultaId)

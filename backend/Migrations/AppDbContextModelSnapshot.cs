@@ -313,6 +313,71 @@ namespace backend.Migrations
                     b.ToTable("AnimaisClinicas");
                 });
 
+            modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Avaliacao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AcompanhamentoId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CondicaoCorporal")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ConsultaId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DescricaoDieta")
+                        .HasColumnType("text");
+
+                    b.Property<int>("GrauAtividade")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Idade")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsGestante")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("IsLactanteNumeroFilhotes")
+                        .HasColumnType("integer");
+
+                    b.Property<double>("Peso")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("PesoIdeal")
+                        .HasColumnType("double precision");
+
+                    b.Property<int>("RacaoId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SemanaGestacao")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SemanaLactacao")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TipoDieta")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("UsuarioResponsavelId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AcompanhamentoId");
+
+                    b.HasIndex("ConsultaId")
+                        .IsUnique();
+
+                    b.HasIndex("RacaoId");
+
+                    b.ToTable("Avaliacoes");
+                });
+
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Consulta", b =>
                 {
                     b.Property<int>("Id")
@@ -2269,71 +2334,6 @@ namespace backend.Migrations
                         });
                 });
 
-            modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Relatorio", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AcompanhamentoId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CondicaoCorporal")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ConsultaId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("DescricaoDieta")
-                        .HasColumnType("text");
-
-                    b.Property<int>("GrauAtividade")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Idade")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsGestante")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("IsLactanteNumeroFilhotes")
-                        .HasColumnType("integer");
-
-                    b.Property<double>("Peso")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("PesoIdeal")
-                        .HasColumnType("double precision");
-
-                    b.Property<int>("RacaoId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SemanaGestacao")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SemanaLactacao")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TipoDieta")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("UsuarioResponsavelId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AcompanhamentoId");
-
-                    b.HasIndex("ConsultaId")
-                        .IsUnique();
-
-                    b.HasIndex("RacaoId");
-
-                    b.ToTable("Relatorios");
-                });
-
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Tutor", b =>
                 {
                     b.Property<int>("Id")
@@ -2525,13 +2525,16 @@ namespace backend.Migrations
                     b.ToTable("Clinicas");
                 });
 
-            modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.DietaPersonalizada", b =>
+            modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.Dieta", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AvaliacaoId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("CriadoPor")
                         .HasColumnType("text");
@@ -2585,20 +2588,17 @@ namespace backend.Migrations
                     b.Property<int>("RacaoId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("RelatorioId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("TipoDieta")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RacaoId");
-
-                    b.HasIndex("RelatorioId")
+                    b.HasIndex("AvaliacaoId")
                         .IsUnique();
 
-                    b.ToTable("DietasPersonalizadas");
+                    b.HasIndex("RacaoId");
+
+                    b.ToTable("Dietas");
                 });
 
             modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.Racao", b =>
@@ -2989,6 +2989,33 @@ namespace backend.Migrations
                     b.Navigation("Clinica");
                 });
 
+            modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Avaliacao", b =>
+                {
+                    b.HasOne("backend.Domain.AtendimentoAnimal.Entities.Acompanhamento", "Acompanhamento")
+                        .WithMany("Avaliacoes")
+                        .HasForeignKey("AcompanhamentoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend.Domain.AtendimentoAnimal.Entities.Consulta", "Consulta")
+                        .WithOne("Avaliacao")
+                        .HasForeignKey("backend.Domain.AtendimentoAnimal.Entities.Avaliacao", "ConsultaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend.Domain.SaudeAnimal.Entities.Racao", "Racao")
+                        .WithMany("Avaliacoes")
+                        .HasForeignKey("RacaoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Acompanhamento");
+
+                    b.Navigation("Consulta");
+
+                    b.Navigation("Racao");
+                });
+
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Consulta", b =>
                 {
                     b.HasOne("backend.Domain.AtendimentoAnimal.Entities.Animal", "Animal")
@@ -3034,33 +3061,6 @@ namespace backend.Migrations
                     b.Navigation("Clinica");
                 });
 
-            modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Relatorio", b =>
-                {
-                    b.HasOne("backend.Domain.AtendimentoAnimal.Entities.Acompanhamento", "Acompanhamento")
-                        .WithMany("Relatorios")
-                        .HasForeignKey("AcompanhamentoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("backend.Domain.AtendimentoAnimal.Entities.Consulta", "Consulta")
-                        .WithOne("Relatorio")
-                        .HasForeignKey("backend.Domain.AtendimentoAnimal.Entities.Relatorio", "ConsultaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("backend.Domain.SaudeAnimal.Entities.Racao", "Racao")
-                        .WithMany("Relatorios")
-                        .HasForeignKey("RacaoId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Acompanhamento");
-
-                    b.Navigation("Consulta");
-
-                    b.Navigation("Racao");
-                });
-
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.TutorAnimal", b =>
                 {
                     b.HasOne("backend.Domain.AtendimentoAnimal.Entities.Animal", "Animal")
@@ -3099,23 +3099,23 @@ namespace backend.Migrations
                     b.Navigation("Tutor");
                 });
 
-            modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.DietaPersonalizada", b =>
+            modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.Dieta", b =>
                 {
+                    b.HasOne("backend.Domain.AtendimentoAnimal.Entities.Avaliacao", "Avaliacao")
+                        .WithOne("Dieta")
+                        .HasForeignKey("backend.Domain.SaudeAnimal.Entities.Dieta", "AvaliacaoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("backend.Domain.SaudeAnimal.Entities.Racao", "Racao")
-                        .WithMany("DietasPersonalizadas")
+                        .WithMany("Dietas")
                         .HasForeignKey("RacaoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("backend.Domain.AtendimentoAnimal.Entities.Relatorio", "Relatorio")
-                        .WithOne("DietaPersonalizada")
-                        .HasForeignKey("backend.Domain.SaudeAnimal.Entities.DietaPersonalizada", "RelatorioId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.Navigation("Avaliacao");
 
                     b.Navigation("Racao");
-
-                    b.Navigation("Relatorio");
                 });
 
             modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.Racao", b =>
@@ -3131,7 +3131,7 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Acompanhamento", b =>
                 {
-                    b.Navigation("Relatorios");
+                    b.Navigation("Avaliacoes");
                 });
 
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Animal", b =>
@@ -3145,19 +3145,19 @@ namespace backend.Migrations
                     b.Navigation("TutoresAnimais");
                 });
 
+            modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Avaliacao", b =>
+                {
+                    b.Navigation("Dieta");
+                });
+
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Consulta", b =>
                 {
-                    b.Navigation("Relatorio");
+                    b.Navigation("Avaliacao");
                 });
 
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Raca", b =>
                 {
                     b.Navigation("Animais");
-                });
-
-            modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Relatorio", b =>
-                {
-                    b.Navigation("DietaPersonalizada");
                 });
 
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Tutor", b =>
@@ -3186,9 +3186,9 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.Racao", b =>
                 {
-                    b.Navigation("DietasPersonalizadas");
+                    b.Navigation("Avaliacoes");
 
-                    b.Navigation("Relatorios");
+                    b.Navigation("Dietas");
                 });
 
             modelBuilder.Entity("backend.Domain.Usuarios.Entities.Usuario", b =>

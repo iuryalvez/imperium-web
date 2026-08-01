@@ -7,7 +7,7 @@ namespace backend.Domain.SaudeAnimal.Services
 {
     public static class PerfilMetabolicoResolver
     {
-        public static PerfilMetabolico Resolver(Animal animal, DietaPersonalizada dieta)
+        public static PerfilMetabolico Resolver(Animal animal, Dieta dieta)
         {
             switch (dieta.TipoDieta)
             {

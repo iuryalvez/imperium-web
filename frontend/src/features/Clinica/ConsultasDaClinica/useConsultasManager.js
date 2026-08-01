@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
 import { consultasDaClinicaAPI } from "../../../api/clinica/consultasDaClinicaAPI";
-import { relatoriosDaClinicaAPI } from "../../../api/clinica/relatoriosDaClinicaAPI";
+import { avaliacoesDaClinicaAPI } from "../../../api/clinica/avaliacoesDaClinicaAPI";
 import { racoesDaClinicaAPI } from "../../../api/clinica/racoesDaClinicaAPI";
 import { acompanhamentoAPI } from "../../../api/clinica/acompanhamentoAPI";
 
@@ -13,13 +13,13 @@ export const useConsultasManager = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingConsulta, setEditingConsulta] = useState(null);
 
-  const [isRelatorioModalOpen, setIsRelatorioModalOpen] = useState(false);
+  const [isAvaliacaoModalOpen, setIsAvaliacaoModalOpen] = useState(false);
   const [selectedConsulta, setSelectedConsulta] = useState(null); // Consulta dona do relatório
-  const [relatorioData, setRelatorioData] = useState(null); // Dados do relatório a ser editado
-  const [loadingRelatorio, setLoadingRelatorio] = useState(false);
+  const [avaliacaoData, setAvaliacaoData] = useState(null); // Dados do relatório a ser editado
+  const [loadingAvaliacao, setLoadingAvaliacao] = useState(false);
 
   const [isNextActionModalOpen, setIsNextActionModalOpen] = useState(false);
-  const [idsSalvos, setIdsSalvos] = useState(null); // { relatorioId, acompanhamentoId, animalId }
+  const [idsSalvos, setIdsSalvos] = useState(null); // { avaliacaoId, acompanhamentoId, animalId }
   const [isModalDietaOpen, setIsModalDietaOpen] = useState(false);
   const [racoesDisponiveis, setRacoesDisponiveis] = useState([]);
   const [isSubmittingDieta, setIsSubmittingDieta] = useState(false);
@@ -104,46 +104,46 @@ export const useConsultasManager = () => {
     }
   };
 
-  const handleOpenRelatorioModal = useCallback(async (consulta) => {
+  const handleOpenAvaliacaoModal = useCallback(async (consulta) => {
     setSelectedConsulta(consulta);
-    setIsRelatorioModalOpen(true);
-    setLoadingRelatorio(true);
-    if (consulta.relatorioPreenchido) {
+    setIsAvaliacaoModalOpen(true);
+    setLoadingAvaliacao(true);
+    if (consulta.avaliacaoPreenchido) {
       try {
-        const response = await relatoriosDaClinicaAPI.getByConsultaId(
+        const response = await avaliacoesDaClinicaAPI.getByConsultaId(
           consulta.id,
         );
-        setRelatorioData(response.data);
+        setAvaliacaoData(response.data);
       } catch (error) {
         // message.error("Erro ao carregar dados do relatório.");
-        setRelatorioData(null); // Se não houver relatório, iniciamos com null para um novo
+        setAvaliacaoData(null); // Se não houver relatório, iniciamos com null para um novo
       } finally {
-        setLoadingRelatorio(false);
+        setLoadingAvaliacao(false);
       }
     } else {
-      setRelatorioData(null); // Novo relatório
-      setLoadingRelatorio(false);
+      setAvaliacaoData(null); // Novo relatório
+      setLoadingAvaliacao(false);
     }
   }, []);
 
-  const handleCloseRelatorioModal = () => {
-    setIsRelatorioModalOpen(false);
+  const handleCloseAvaliacaoModal = () => {
+    setIsAvaliacaoModalOpen(false);
     setSelectedConsulta(null);
-    setRelatorioData(null);
+    setAvaliacaoData(null);
   };
 
-  const handleSubmitRelatorio = async (formValues) => {
+  const handleSubmitAvaliacao = async (formValues) => {
     if (!selectedConsulta) return;
     try {
-      const response = await relatoriosDaClinicaAPI.upsert(
+      const response = await avaliacoesDaClinicaAPI.upsert(
         selectedConsulta.id,
         formValues,
       );
-      message.success("Relatório salvo com sucesso!");
+      message.success("Avaliação salva com sucesso!");
 
       // 1. Prepara os dados repassados para a Dieta (incluindo dados da Raça para a UI)
       setIdsSalvos({
-        relatorioId: response.data?.id || response.data?.relatorioId,
+        avaliacaoId: response.data?.id || response.data?.avaliacaoId,
         acompanhamentoId: selectedConsulta.acompanhamentoId,
         animalId: selectedConsulta.animalId,
         // Autopreenchimento:
@@ -164,7 +164,7 @@ export const useConsultasManager = () => {
       const racoes = await racoesDaClinicaAPI.listar(especie);
       setRacoesDisponiveis(racoes);
 
-      handleCloseRelatorioModal();
+      handleCloseAvaliacaoModal();
       await fetchConsultas();
       setIsNextActionModalOpen(true); // Abre o Modal de "Próxima Ação"
     } catch (error) {
@@ -183,19 +183,19 @@ export const useConsultasManager = () => {
     navigate(`/clinica/animais/acompanhamento/${animalId}`);
   };
 
-  const handleDeleteRelatorio = async (relatorioId) => {
+  const handleDeleteAvaliacao = async (avaliacaoId) => {
     if (!selectedConsulta) return;
     try {
-      await relatoriosDaClinicaAPI.deletar(relatorioId);
-      message.success("Relatório excluído com sucesso!");
-      handleCloseRelatorioModal();
+      await avaliacoesDaClinicaAPI.deletar(avaliacaoId);
+      message.success("Avaliação excluída com sucesso!");
+      handleCloseAvaliacaoModal();
       await fetchConsultas(); // Re-busca as consultas para atualizar o status do relatório na tabela
     } catch (error) {
-      message.error("Falha ao excluir o relatório.");
+      message.error("Falha ao excluir a avaliação.");
     }
   };
 
-  const handleCalcularDietaPosRelatorio = () => {
+  const handleCalcularDietaPosAvaliacao = () => {
     setIsNextActionModalOpen(false); // Fecha o pop-up
     setIsModalDietaOpen(true); // Abre o formulário da dieta
   };
@@ -211,7 +211,7 @@ export const useConsultasManager = () => {
       const payloadDieta = {
         ...formValues,
         acompanhamentoId: idsSalvos.acompanhamentoId,
-        relatorioId: idsSalvos.relatorioId,
+        avaliacaoId: idsSalvos.avaliacaoId,
       };
 
       const result = await acompanhamentoAPI.criarDieta(payloadDieta);
@@ -233,19 +233,19 @@ export const useConsultasManager = () => {
   const handleCalcularDietaDaTabela = async (consulta) => {
     try {
       // 1. Precisamos dos dados vitais (peso, racao) que estão dentro do relatório
-      const response = await relatoriosDaClinicaAPI.getByConsultaId(
+      const response = await avaliacoesDaClinicaAPI.getByConsultaId(
         consulta.id,
       );
-      const relatorio = response.data;
+      const avaliacao = response.data;
 
       // 2. Prepara o objeto para a UI
       setIdsSalvos({
-        relatorioId: relatorio.id,
+        avaliacaoId: avaliacao.id,
         acompanhamentoId: consulta.acompanhamentoId,
         animalId: consulta.animalId,
-        peso: relatorio.peso,
-        racaoId: relatorio.racaoId,
-        tipoDieta: relatorio.tipoDieta,
+        peso: avaliacao.peso,
+        racaoId: avaliacao.racaoId,
+        tipoDieta: avaliacao.tipoDieta,
         nomeRaca: consulta.nomeRaca,
         pesoMinimoRaca: consulta.pesoMinimoRaca,
         pesoMaximoRaca: consulta.pesoMaximoRaca,
@@ -269,13 +269,13 @@ export const useConsultasManager = () => {
   const handleVerDietaDaTabela = async (consulta) => {
     try {
       // Fetches the report to extract the nested diet object
-      const response = await relatoriosDaClinicaAPI.getByConsultaId(
+      const response = await avaliacoesDaClinicaAPI.getByConsultaId(
         consulta.id,
       );
-      const relatorio = response.data;
+      const avaliacao = response.data;
 
-      // Extract the diet (adjust 'dietaPersonalizada' to match your backend DTO property name if necessary)
-      const dieta = relatorio.dieta || relatorio.dietaPersonalizada;
+      // Extract the diet (adjust 'dieta' to match your backend DTO property name if necessary)
+      const dieta = avaliacao.dieta || avaliacao.dieta;
 
       if (dieta) {
         setDietaParaVisualizar(dieta);
@@ -302,14 +302,14 @@ export const useConsultasManager = () => {
     handleCloseModal,
     handleSubmit,
     handleDelete,
-    isRelatorioModalOpen,
+    isAvaliacaoModalOpen,
     selectedConsulta,
-    relatorioData,
-    loadingRelatorio,
-    handleOpenRelatorioModal,
-    handleCloseRelatorioModal,
-    handleSubmitRelatorio,
-    handleDeleteRelatorio,
+    avaliacaoData,
+    loadingAvaliacao,
+    handleOpenAvaliacaoModal,
+    handleCloseAvaliacaoModal,
+    handleSubmitAvaliacao,
+    handleDeleteAvaliacao,
     isNextActionModalOpen,
     idsSalvos,
     handleNextActionClose,
@@ -317,7 +317,7 @@ export const useConsultasManager = () => {
     isModalDietaOpen,
     racoesDisponiveis,
     isSubmittingDieta,
-    handleCalcularDietaPosRelatorio,
+    handleCalcularDietaPosAvaliacao,
     handleCloseModalDieta,
     handleSubmitDieta,
     handleCalcularDietaDaTabela,

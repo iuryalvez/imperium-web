@@ -16,8 +16,8 @@ import ImperiumIconSrc from "../../../../../assets/imperium-icon.png";
 
 const { Text } = Typography;
 
-const ListaRelatorios = ({
-  relatorios,
+const ListaAvaliacoes= ({
+  avaliacoes,
   onOpenModalCriarDieta,
   onOpenModalVisualizarDieta,
   onOpenModalEditarDieta,
@@ -26,28 +26,28 @@ const ListaRelatorios = ({
   return (
     <List
       itemLayout="vertical"
-      dataSource={relatorios}
-      renderItem={(relatorio) => {
+      dataSource={avaliacoes}
+      renderItem={(avaliacao) => {
         const actions = [];
-        if (relatorio.dieta) {
+        if (avaliacao.dieta) {
           actions.push(
             <Space className="pl-4" key="diet-actions">
               <Button
                 icon={<EyeOutlined />}
-                onClick={() => onOpenModalVisualizarDieta(relatorio.dieta)}
+                onClick={() => onOpenModalVisualizarDieta(avaliacao.dieta)}
               >
                 Visualizar Dieta
               </Button>
               <Button
                 icon={<EditOutlined />}
-                onClick={() => onOpenModalEditarDieta(relatorio.dieta)}
+                onClick={() => onOpenModalEditarDieta(avaliacao.dieta)}
               >
                 Editar
               </Button>
               <Popconfirm
                 title="Excluir a Dieta"
                 description="Tem certeza que deseja excluir esta dieta? Esta ação não pode ser desfeita."
-                onConfirm={() => onExcluirDieta(relatorio.dieta.id)}
+                onConfirm={() => onExcluirDieta(avaliacao.dieta.id)}
                 okText="Sim, Excluir"
                 cancelText="Cancelar"
               >
@@ -71,7 +71,7 @@ const ListaRelatorios = ({
                     className="w-4 h-4 object-contain brightness-0 invert"
                   />
                 }
-                onClick={() => onOpenModalCriarDieta(relatorio)}
+                onClick={() => onOpenModalCriarDieta(avaliacao)}
               >
                 Calcular Dieta
               </Button>
@@ -82,13 +82,13 @@ const ListaRelatorios = ({
 
         return (
           <List.Item
-            key={relatorio.id}
+            key={avaliacao.id}
             actions={actions}
             className="bg-white px-5 py-4 mb-4 rounded-md shadow-sm border border-gray-200"
           >
             <div className="mb-3">
               <span className="text-verde-escuro font-bold text-base pl-4">
-                Consulta de {dayjs(relatorio.dataConsulta).format("DD/MM/YYYY")}
+                Consulta de {dayjs(avaliacao.dataConsulta).format("DD/MM/YYYY")}
               </span>
             </div>
 
@@ -100,7 +100,7 @@ const ListaRelatorios = ({
                     Profissional
                   </Text>
                   <Text className="text-gray-700">
-                    {relatorio.profissionalResponsavel}
+                    {avaliacao.profissionalResponsavel}
                   </Text>
                 </Col>
 
@@ -109,7 +109,7 @@ const ListaRelatorios = ({
                     Peso Registrado
                   </Text>
                   <Text className="text-gray-700">
-                    {`${relatorio.peso} kg`}
+                    {`${avaliacao.peso} kg`}
                   </Text>
                 </Col>
 
@@ -118,7 +118,7 @@ const ListaRelatorios = ({
                     Condição Corporal
                   </Text>
                   <Tag color="orange" className="m-0">
-                    {relatorio.condicaoCorporal}
+                    {avaliacao.condicaoCorporal}
                   </Tag>
                 </Col>
 
@@ -127,7 +127,7 @@ const ListaRelatorios = ({
                     Grau de Atividade
                   </Text>
                   <Tag className="m-0 bg-white border-gray-200 text-gray-600">
-                    {relatorio.grauAtividade}
+                    {avaliacao.grauAtividade}
                   </Tag>
                 </Col>
               </Row>
@@ -139,4 +139,4 @@ const ListaRelatorios = ({
   );
 };
 
-export default ListaRelatorios;
+export default ListaAvaliacoes;

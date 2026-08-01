@@ -5,62 +5,62 @@ using Microsoft.EntityFrameworkCore;
 
 namespace backend.Domain.AtendimentoAnimal.Repository
 {
-    public class RelatorioRepository : IRelatorioRepository
+    public class AvaliacaoRepository : IAvaliacaoRepository
     {
         private readonly AppDbContext _context;
 
-        public RelatorioRepository(AppDbContext context)
+        public AvaliacaoRepository(AppDbContext context)
         {
             _context = context;
         }
 
-        public async Task<Relatorio?> GetByIdAndAcompanhamentoIdAsync(int relatorioId, int acompanhamentoId)
+        public async Task<Avaliacao?> GetByIdAndAcompanhamentoIdAsync(int avaliacaoId, int acompanhamentoId)
         {
-            return await _context.Relatorios
-                .FirstOrDefaultAsync(r => r.Id == relatorioId && r.AcompanhamentoId == acompanhamentoId);
+            return await _context.Avaliacoes
+                .FirstOrDefaultAsync(r => r.Id == avaliacaoId && r.AcompanhamentoId == acompanhamentoId);
         }
 
-        public async Task<Relatorio?> GetByIdAsync(int relatorioId)
+        public async Task<Avaliacao?> GetByIdAsync(int avaliacaoId)
         {
             // Inclui a Racao para que o nome possa ser usado no DTO
-            return await _context.Relatorios
+            return await _context.Avaliacoes
                 .Include(r => r.Racao)
-                .FirstOrDefaultAsync(r => r.Id == relatorioId);
+                .FirstOrDefaultAsync(r => r.Id == avaliacaoId);
         }
 
-        public async Task<Relatorio?> GetByConsultaIdAsync(int consultaId)
+        public async Task<Avaliacao?> GetByConsultaIdAsync(int consultaId)
         {
-            return await _context.Relatorios
+            return await _context.Avaliacoes
                 .Include(r => r.Racao)
-                .Include(r => r.DietaPersonalizada)
+                .Include(r => r.Dieta)
                 .Include(r => r.Consulta)
                     .ThenInclude(c => c.Animal)
                 .FirstOrDefaultAsync(r => r.ConsultaId == consultaId);
         }
 
-        public async Task<Relatorio?> GetByIdWithConsultaAsync(int relatorioId)
+        public async Task<Avaliacao?> GetByIdWithConsultaAsync(int avaliacaoId)
         {
-            return await _context.Relatorios
+            return await _context.Avaliacoes
                 .Include(r => r.Consulta) // Inclui a consulta associada
-                .FirstOrDefaultAsync(r => r.Id == relatorioId);
+                .FirstOrDefaultAsync(r => r.Id == avaliacaoId);
         }
 
-        public async Task<Relatorio?> GetByIdWithAnimalAsync(int relatorioId)
+        public async Task<Avaliacao?> GetByIdWithAnimalAsync(int avaliacaoId)
         {
             // Busca o relatório e carrega a entidade Animal relacionada
-            return await _context.Relatorios
+            return await _context.Avaliacoes
                 .Include(r => r.Consulta!.Animal)
-                .FirstOrDefaultAsync(r => r.Id == relatorioId);
+                .FirstOrDefaultAsync(r => r.Id == avaliacaoId);
         }
 
-        public async Task AddAsync(Relatorio relatorio)
+        public async Task AddAsync(Avaliacao avaliacao)
         {
-            await _context.Relatorios.AddAsync(relatorio);
+            await _context.Avaliacoes.AddAsync(avaliacao);
         }
 
-        public void Delete(Relatorio relatorio)
+        public void Delete(Avaliacao avaliacao)
         {
-            _context.Relatorios.Remove(relatorio);
+            _context.Avaliacoes.Remove(avaliacao);
         }
     }
 }

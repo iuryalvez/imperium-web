@@ -23,10 +23,10 @@ import {
 import { useConsultasManager } from "./useConsultasManager";
 import TabelaConsultas from "./components/TabelaConsultas";
 import FormularioConsulta from "./components/FormularioConsulta";
-import FormularioRelatorio from "./components/FormularioRelatorio";
+import FormularioAvaliacao from "./components/FormularioAvaliacao";
 import ModalPadrao from "../../../components/modal/ModalPadrao";
-import FormularioDieta from "../AnimaisDaClinica/AcompanhamentoAnimal/components/FormularioDieta";
-import DetalhesDieta from "../AnimaisDaClinica/AcompanhamentoAnimal/components/DetalhesDieta";
+import FormularioDieta from "../AnimaisDaClinica/Acompanhamento/components/FormularioDieta";
+import DetalhesDieta from "../AnimaisDaClinica/Acompanhamento/components/DetalhesDieta";
 
 const ConsultasDaClinica = () => {
   const {
@@ -38,14 +38,14 @@ const ConsultasDaClinica = () => {
     handleCloseModal,
     handleSubmit,
     handleDelete,
-    isRelatorioModalOpen,
+    isAvaliacaoModalOpen,
     selectedConsulta,
-    relatorioData,
-    loadingRelatorio,
-    handleOpenRelatorioModal,
-    handleCloseRelatorioModal,
-    handleSubmitRelatorio,
-    handleDeleteRelatorio,
+    avaliacaoData,
+    loadingAvaliacao,
+    handleOpenAvaliacaoModal,
+    handleCloseAvaliacaoModal,
+    handleSubmitAvaliacao,
+    handleDeleteAvaliacao,
     isNextActionModalOpen,
     idsSalvos,
     handleNextActionClose,
@@ -53,7 +53,7 @@ const ConsultasDaClinica = () => {
     isModalDietaOpen,
     racoesDisponiveis,
     isSubmittingDieta,
-    handleCalcularDietaPosRelatorio,
+    handleCalcularDietaPosAvaliacao,
     handleCloseModalDieta,
     handleSubmitDieta,
     handleCalcularDietaDaTabela,
@@ -86,35 +86,35 @@ const ConsultasDaClinica = () => {
         consultas={consultas}
         onEdit={handleOpenModal}
         onDelete={handleDelete}
-        onOpenRelatorio={handleOpenRelatorioModal}
+        onOpenAvaliacao={handleOpenAvaliacaoModal}
         onVerDieta={handleVerDietaDaTabela}
         onCalcularDieta={handleCalcularDietaDaTabela}
         onIrParaAcompanhamento={handleIrParaAcompanhamento}
         loading={loading}
       />
 
-      {/* Modal de Relatório da Consulta */}
+      {/* Modal de Avaliação da Consulta */}
       <Modal
         title={
           <Space>
             <FileTextOutlined className="modal-title-icon" />
             <span className="text-verde-escuro m-0 text-lg">
-              Relatório da Consulta - {selectedConsulta?.nomeAnimal || ""}
+              Avaliação da Consulta - {selectedConsulta?.nomeAnimal || ""}
             </span>
           </Space>
         }
-        open={isRelatorioModalOpen}
-        onCancel={handleCloseRelatorioModal}
+        open={isAvaliacaoModalOpen}
+        onCancel={handleCloseAvaliacaoModal}
         style={{ top: 40 }} // Mantém o modal travado no topo, igual ao ModalPadrao
         footer={
           <div className="modal-footer-actions">
-            <Button onClick={handleCloseRelatorioModal}>Cancelar</Button>
+            <Button onClick={handleCloseAvaliacaoModal}>Cancelar</Button>
 
-            {relatorioData && (
+            {avaliacaoData && (
               <Popconfirm
                 title="Excluir relatório"
                 description="Tem certeza que deseja excluir este relatório? Esta ação não pode ser desfeita."
-                onConfirm={() => handleDeleteRelatorio(relatorioData.id)}
+                onConfirm={() => handleDeleteAvaliacao(avaliacaoData.id)}
                 okText="Sim, Excluir"
                 cancelText="Cancelar"
               >
@@ -125,11 +125,11 @@ const ConsultasDaClinica = () => {
             )}
 
             <Button
-              form="form-relatorio-consulta-clinica"
+              form="form-avaliacao-consulta-clinica"
               type="primary"
               htmlType="submit"
             >
-              Salvar Relatório
+              Salvar Avaliação
             </Button>
           </div>
         }
@@ -137,13 +137,13 @@ const ConsultasDaClinica = () => {
         width="min(800px, 95vw)"
       >
         <div className="modal-scroll-container">
-          {loadingRelatorio ? (
+          {loadingAvaliacao ? (
             <Skeleton active />
           ) : (
-            <FormularioRelatorio
+            <FormularioAvaliacao
               consulta={selectedConsulta}
-              initialValues={relatorioData}
-              onFinish={handleSubmitRelatorio}
+              initialValues={avaliacaoData}
+              onFinish={handleSubmitAvaliacao}
             />
           )}
         </div>
@@ -176,7 +176,7 @@ const ConsultasDaClinica = () => {
       >
         <Result
           status="success"
-          title="Relatório salvo com sucesso!"
+          title="Avaliação salva com sucesso!"
           subTitle="O histórico clínico do paciente foi atualizado. O que deseja fazer agora?"
           extra={
             <Row gutter={[0, 12]} justify="center" className="mt-4">
@@ -186,7 +186,7 @@ const ConsultasDaClinica = () => {
                   type="primary"
                   size="large"
                   icon={<CalculatorOutlined />}
-                  onClick={handleCalcularDietaPosRelatorio}
+                  onClick={handleCalcularDietaPosAvaliacao}
                   block // Faz o botão ocupar 100% da Col
                 >
                   Calcular Dieta Nutricional

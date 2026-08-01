@@ -20,7 +20,7 @@ import {
   opcoesCondicaoCorporal,
   opcoesGrauAtividade,
   opcoesTipoDieta,
-} from "./opcoesRelatorio";
+} from "./opcoesAvaliacao";
 
 const { Text } = Typography;
 
@@ -45,7 +45,7 @@ const LabelComInfo = ({ label, tituloPopover, conteudoPopover }) => (
   </Space>
 );
 
-const FormularioRelatorio = ({ consulta, initialValues, onFinish }) => {
+const FormularioAvaliacao = ({ consulta, initialValues, onFinish }) => {
   const [form] = Form.useForm();
   const [racoes, setRacoes] = useState([]);
   const [loadingRacoes, setLoadingRacoes] = useState(true);
@@ -248,7 +248,7 @@ const FormularioRelatorio = ({ consulta, initialValues, onFinish }) => {
 
   return (
     <Form
-      id="form-relatorio-consulta-clinica"
+      id="form-avaliacao-consulta-clinica"
       form={form}
       layout="vertical"
       onFinish={onFinish}
@@ -426,4 +426,4 @@ const FormularioRelatorio = ({ consulta, initialValues, onFinish }) => {
   );
 };
 
-export default FormularioRelatorio;
+export default FormularioAvaliacao;

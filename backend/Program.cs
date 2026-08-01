@@ -104,8 +104,8 @@ internal class Program
         builder.Services.AddScoped<IAcompanhamentoService, AcompanhamentoService>();
         builder.Services.AddScoped<IRacaoService, RacaoService>();
         builder.Services.AddScoped<IRacaoRepository, RacaoRepository>();
-        builder.Services.AddScoped<IRelatorioService, RelatorioService>();
-        builder.Services.AddScoped<IRelatorioRepository, RelatorioRepository>();
+        builder.Services.AddScoped<IAvaliacaoService, AvaliacaoService>();
+        builder.Services.AddScoped<IAvaliacaoRepository, AvaliacaoRepository>();
         builder.Services.AddScoped<ICalculoNecessidadeEnergetica, CalculoNecessidadeEnergetica>();
 
         // Serviços Utilitários

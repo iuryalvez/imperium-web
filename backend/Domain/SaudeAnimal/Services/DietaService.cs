@@ -25,9 +25,9 @@ namespace backend.Domain.SaudeAnimal.Services
             _mapper = mapper;
         }
 
-        public async Task<DietaPersonalizada> CalcularOuAtualizarDietaAsync(
+        public async Task<Dieta> CalcularOuAtualizarDietaAsync(
             Animal animal,
-            Relatorio relatorio,
+            Avaliacao avaliacao,
             Racao racao,
             CreateDietaDto dto)
         {
@@ -39,21 +39,21 @@ namespace backend.Domain.SaudeAnimal.Services
             }
 
             // 2. BUSCAR OU CRIAR A DIETA REAL
-            var dietaExistente = await _dietaRepository.FindByRelatorioIdAsync(relatorio.Id);
+            var dietaExistente = await _dietaRepository.FindByAvaliacaoIdAsync(avaliacao.Id);
             if (dietaExistente == null)
             {
-                _logger.LogInformation("Nenhuma dieta encontrada para o relatório {RelatorioId}. Criando nova.", relatorio.Id);
-                dietaExistente = new DietaPersonalizada();
+                _logger.LogInformation("Nenhuma dieta encontrada para o relatório {AvaliacaoId}. Criando nova.", avaliacao.Id);
+                dietaExistente = new Dieta();
                 await _dietaRepository.AddAsync(dietaExistente);
             }
             else
             {
-                _logger.LogInformation("Dieta ID {DietaId} encontrada para o relatório {RelatorioId}. Atualizando.", dietaExistente.Id, relatorio.Id);
+                _logger.LogInformation("Dieta ID {DietaId} encontrada para o relatório {AvaliacaoId}. Atualizando.", dietaExistente.Id, avaliacao.Id);
             }
 
             // 3. Atualizar propriedades básicas para que o cálculo saiba o que fazer
             dietaExistente.TipoDieta = dto.TipoDieta;
-            dietaExistente.RelatorioId = relatorio.Id;
+            dietaExistente.AvaliacaoId = avaliacao.Id;
             dietaExistente.RacaoId = racao.Id;
 
             // 4. CHAMAR O CÁLCULO PASSANDO A ENTIDADE DO BANCO
@@ -88,7 +88,7 @@ namespace backend.Domain.SaudeAnimal.Services
                 var dieta = await _dietaRepository.GetByIdWithIncludesAsync(dietaId);
 
                 // Verificação de segurança
-                if (dieta?.Relatorio?.Consulta?.ClinicaId != clinicaId)
+                if (dieta?.Avaliacao?.Consulta?.ClinicaId != clinicaId)
                 {
                     _logger.LogWarning("Acesso negado ou dieta não encontrada para o ID {DietaId} e clínica ID {ClinicaId}.", dietaId, clinicaId);
                     return null;
@@ -128,18 +128,18 @@ namespace backend.Domain.SaudeAnimal.Services
             try
             {
                 var dietaExistente = await _dietaRepository.GetByIdWithIncludesAsync(dietaId);
-                if (dietaExistente?.Relatorio?.Consulta?.ClinicaId != clinicaId)
+                if (dietaExistente?.Avaliacao?.Consulta?.ClinicaId != clinicaId)
                 {
                     _logger.LogWarning("Dieta {DietaId} não encontrada ou acesso negado.", dietaId);
                     return new ServiceResult { Succeeded = false, Message = "Dieta não encontrada ou acesso negado." };
                 }
 
-                var animal = dietaExistente.Relatorio.Consulta.Animal;
-                var relatorio = dietaExistente.Relatorio;
+                var animal = dietaExistente.Avaliacao.Consulta.Animal;
+                var avaliacao = dietaExistente.Avaliacao;
 
                 // Prepara o DTO de criação para delegar ao método principal
                 var createDto = _mapper.Map<CreateDietaDto>(dto);
-                createDto.RelatorioId = relatorio.Id;
+                createDto.AvaliacaoId = avaliacao.Id;
 
                 // Sincroniza o animal em memória se houver novas propriedades no DTO
                 animal.Peso = createDto.PesoAtual ?? animal.Peso;
@@ -151,7 +151,7 @@ namespace backend.Domain.SaudeAnimal.Services
                 }
 
                 // Delega para o método principal (que agora atualiza a entidade corretamente)
-                var dietaAtualizada = await CalcularOuAtualizarDietaAsync(animal, relatorio, racao, createDto);
+                var dietaAtualizada = await CalcularOuAtualizarDietaAsync(animal, avaliacao, racao, createDto);
                 var dietaDto = _mapper.Map<GetDietaDto>(dietaAtualizada);
 
                 return new ServiceResult { Succeeded = true, Message = "Dieta atualizada com sucesso.", Data = dietaDto };
@@ -169,7 +169,7 @@ namespace backend.Domain.SaudeAnimal.Services
             try
             {
                 var dieta = await _dietaRepository.GetByIdWithIncludesAsync(dietaId);
-                if (dieta?.Relatorio?.Consulta?.ClinicaId != clinicaId)
+                if (dieta?.Avaliacao?.Consulta?.ClinicaId != clinicaId)
                 {
                     _logger.LogWarning("Falha ao excluir: Dieta ID {DietaId} não encontrada ou acesso negado para a clínica ID {ClinicaId}.", dietaId, clinicaId);
                     return new ServiceResult { Succeeded = false, Message = "Dieta não encontrada ou acesso negado." };

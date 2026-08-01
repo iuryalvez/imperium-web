@@ -11,7 +11,7 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         public int AnimalId { get; set; }
         [ForeignKey("AnimalId")]
         public Animal? Animal { get; set; }
-        public virtual ICollection<Relatorio>? Relatorios { get; set; }
+        public virtual ICollection<Avaliacao>? Avaliacoes{ get; set; }
         public DateOnly DataInicio { get; set; }
         public DateOnly? DataFim { get; set; }
     }

@@ -1,4 +1,4 @@
-// src/pages/AcompanhamentoAnimal/components/DetalhesDieta.jsx
+// src/pages/Acompanhamento/components/DetalhesDieta.jsx
 
 import React from "react";
 import {

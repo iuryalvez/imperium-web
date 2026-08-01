@@ -1,10 +1,10 @@
 import api from "../index";
 import endpoints from "../../services/Endpoints";
 
-export const relatoriosDaClinicaAPI = {
+export const avaliacoesDaClinicaAPI = {
   getByConsultaId: async (consultaId) => {
     try {
-      const url = endpoints.clinica.relatorio.getByConsultaId(consultaId);
+      const url = endpoints.clinica.avaliacao.getByConsultaId(consultaId);
       const response = await api.get(url);
       return response.data;
     } catch (error) {
@@ -17,10 +17,10 @@ export const relatoriosDaClinicaAPI = {
     }
   },
   
-  upsert: async (consultaId, dadosRelatorio) => {
+  upsert: async (consultaId, dadosAvaliacao) => {
     try {
-      const url = endpoints.clinica.relatorio.upsert(consultaId);
-      const response = await api.put(url, dadosRelatorio);
+      const url = endpoints.clinica.avaliacao.upsert(consultaId);
+      const response = await api.put(url, dadosAvaliacao);
       return response.data;
     } catch (error) {
       console.error(`Erro ao salvar relatório da consulta ${consultaId}:`, error);
@@ -28,12 +28,12 @@ export const relatoriosDaClinicaAPI = {
     }
   },
   
-  deletar: async (relatorioId) => {
+  deletar: async (avaliacaoId) => {
     try {
-      const url = endpoints.clinica.relatorio.deletar(relatorioId);
+      const url = endpoints.clinica.avaliacao.deletar(avaliacaoId);
       await api.delete(url);
     } catch (error) {
-      console.error(`Erro ao deletar relatório ${relatorioId}:`, error);
+      console.error(`Erro ao deletar relatório ${avaliacaoId}:`, error);
       throw error;
     }
   },

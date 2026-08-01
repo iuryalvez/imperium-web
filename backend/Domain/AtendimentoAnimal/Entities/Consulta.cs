@@ -24,6 +24,6 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         [ForeignKey("AnimalId")]
         public Animal? Animal { get; set; } // Navigation property to the animal
         public DateTime DataConsulta { get; set; }
-        public Relatorio? Relatorio { get; set; }
+        public Avaliacao? Avaliacao { get; set; }
     }
 }

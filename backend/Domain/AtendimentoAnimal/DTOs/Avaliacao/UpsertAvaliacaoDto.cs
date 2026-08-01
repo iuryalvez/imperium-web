@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using backend.Domain.AtendimentoAnimal.Enums;
 
-namespace backend.Domain.AtendimentoAnimal.DTOs.Relatorio
+namespace backend.Domain.AtendimentoAnimal.DTOs.Avaliacao
 {
-    public class UpsertRelatorioDto
+    public class UpsertAvaliacaoDto
     {
         // O ID da Consulta virá da rota da URL, não do corpo da requisição.
 

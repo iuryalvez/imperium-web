@@ -4,13 +4,13 @@ namespace backend.Domain.SaudeAnimal.Interfaces
 {
     public interface IDietaRepository
     {
-        Task<DietaPersonalizada?> GetByIdWithIncludesAsync(int dietaId);
-        Task<DietaPersonalizada?> GetByRelatorioIdAsync(int relatorioId);
-        Task<IEnumerable<DietaPersonalizada>> GetAllByAcompanhamentoIdAsync(int acompanhamentoId);
-        Task<DietaPersonalizada?> FindByRelatorioIdAsync(int relatorioId);
-        Task AddAsync(DietaPersonalizada dieta);
-        Task UpdateAsync(DietaPersonalizada dieta);
+        Task<Dieta?> GetByIdWithIncludesAsync(int dietaId);
+        Task<Dieta?> GetByAvaliacaoIdAsync(int avaliacaoId);
+        Task<IEnumerable<Dieta>> GetAllByAcompanhamentoIdAsync(int acompanhamentoId);
+        Task<Dieta?> FindByAvaliacaoIdAsync(int avaliacaoId);
+        Task AddAsync(Dieta dieta);
+        Task UpdateAsync(Dieta dieta);
         Task SaveChangesAsync();
-        void Delete(DietaPersonalizada dieta);
+        void Delete(Dieta dieta);
     }
 }

@@ -20,16 +20,16 @@ namespace backend.Domain.AtendimentoAnimal.Repository
                 // Inclui o animal ao qual o acompanhamento pertence
                 .Include(a => a.Animal)
                 // Inclui a lista de relatórios do acompanhamento
-                .Include(a => a.Relatorios!)
+                .Include(a => a.Avaliacoes!)
                     // Para cada relatório, inclui a dieta personalizada associada
-                    .ThenInclude(r => r.DietaPersonalizada)
+                    .ThenInclude(r => r.Dieta)
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
 
         public async Task<Acompanhamento?> GetByAnimalIdAsync(int animalId)
         {
             return await _context.AcompanhamentosInds
-                .Include(a => a.Relatorios)
+                .Include(a => a.Avaliacoes)
                 .FirstOrDefaultAsync(a => a.AnimalId == animalId);
         }
 

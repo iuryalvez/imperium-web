@@ -78,13 +78,13 @@ const endpoints = {
       deletar: (consultaId) =>
         `${API_BASE_URL}/clinica/consultas/${consultaId}`,
     },
-    relatorio: {
+    avaliacao: {
       getByConsultaId: (consultaId) =>
-        `${API_BASE_URL}/clinica/consultas/${consultaId}/relatorio`,
+        `${API_BASE_URL}/clinica/consultas/${consultaId}/avaliacao`,
       upsert: (consultaId) =>
-        `${API_BASE_URL}/clinica/consultas/${consultaId}/relatorio`, // Rota PUT para criar/editar
-      deletar: (relatorioId) =>
-        `${API_BASE_URL}/clinica/relatorios/${relatorioId}`,
+        `${API_BASE_URL}/clinica/consultas/${consultaId}/avaliacao`, // Rota PUT para criar/editar
+      deletar: (avaliacaoId) =>
+        `${API_BASE_URL}/clinica/avaliacoes/${avaliacaoId}`,
     },
     racao: {
       listar: `${API_BASE_URL}/clinica/racoes`,

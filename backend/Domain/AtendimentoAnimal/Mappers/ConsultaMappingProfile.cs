@@ -22,12 +22,12 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
                 .ForMember(dest => dest.EspecieAnimal, opt => opt.MapFrom(src => src.Animal != null ? src.Animal.Especie : default))
                 .ForMember(dest => dest.SexoAnimal, opt => opt.MapFrom(src => src.Animal != null ? src.Animal.Sexo : default))
 
-                // Relatório e Dieta
+                // Avaliação e Dieta
                 // Sobrescreve agressivamente qualquer booleano do banco: se o objeto existe, é true.
-                .ForMember(dest => dest.RelatorioPreenchido, opt => opt.MapFrom(src => src.Relatorio != null))
+                .ForMember(dest => dest.AvaliacaoPreenchida, opt => opt.MapFrom(src => src.Avaliacao != null))
                 .ForMember(dest => dest.DietaId, opt => opt.MapFrom(src =>
-                    src.Relatorio != null && src.Relatorio.DietaPersonalizada != null
-                    ? src.Relatorio.DietaPersonalizada.Id : (int?)null))
+                    src.Avaliacao != null && src.Avaliacao.Dieta != null
+                    ? src.Avaliacao.Dieta.Id : (int?)null))
 
                 // Acompanhamento e Raça
                 .ForMember(dest => dest.AcompanhamentoId, opt => opt.MapFrom(src =>
@@ -54,7 +54,7 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
                 .ForMember(dest => dest.EmailTutor, opt => opt.MapFrom(src => src.Tutor.Email))
                 .ForMember(dest => dest.TelefoneTutor, opt => opt.MapFrom(src => src.Tutor.Telefone))
                 .ForMember(dest => dest.NomeVeterinario, opt => opt.MapFrom(src => src.Usuario.Nome))
-                .ForMember(dest => dest.RelatorioId, opt => opt.MapFrom(src => src.Relatorio != null ? src.Relatorio.Id : (int?)null));
+                .ForMember(dest => dest.AvaliacaoId, opt => opt.MapFrom(src => src.Avaliacao != null ? src.Avaliacao.Id : (int?)null));
         }
     }
 }

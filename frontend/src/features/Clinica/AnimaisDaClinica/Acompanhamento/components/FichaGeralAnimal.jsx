@@ -20,18 +20,18 @@ const CustomIconMask = ({ src, className = "w-4 h-4" }) => (
   />
 );
 
-const FichaGeralAnimal = ({ animal, relatorioRecente, dietaRecente }) => {
+const FichaGeralAnimal = ({ animal, avaliacaoRecente, dietaRecente }) => {
   if (!animal) return null;
 
   const nomeRaca = animal.raca?.nome || "SRD";
-  const dataRelatorio = relatorioRecente?.dataConsulta
-    ? dayjs(relatorioRecente.dataConsulta).format("DD/MM/YYYY")
+  const dataAvaliacao = avaliacaoRecente?.dataConsulta
+    ? dayjs(avaliacaoRecente.dataConsulta).format("DD/MM/YYYY")
     : "Sem registros";
 
   // Alguns dados da dieta podem vir de relatórios anteriores, então pegamos a data vinculada à dieta, se existir.
   const dataDieta = dietaRecente?.dataCalculo // Supondo que tenha data, senão usa a do relatório
     ? dayjs(dietaRecente.dataCalculo).format("DD/MM/YYYY")
-    : dataRelatorio;
+    : dataAvaliacao;
 
   return (
     <Card
@@ -79,7 +79,7 @@ const FichaGeralAnimal = ({ animal, relatorioRecente, dietaRecente }) => {
           </div>
         </Col>
 
-        {/* Coluna 2: Dados Clínicos (Variáveis do Relatório) */}
+        {/* Coluna 2: Dados Clínicos (Variáveis da Avaliação) */}
         <Col xs={24} md={8} className="md:border-r border-gray-100">
           <div className="flex items-center gap-2 mb-3 text-verde-medio">
             <CustomIconMask src={WeightIconSrc} className="w-5 h-5" />
@@ -88,23 +88,23 @@ const FichaGeralAnimal = ({ animal, relatorioRecente, dietaRecente }) => {
             </Text>
           </div>
           <Text className="block text-xs text-gray-400 mb-3">
-            Última avaliação: {dataRelatorio}
+            Última avaliação: {dataAvaliacao}
           </Text>
 
           <div className="flex flex-col gap-2">
             <Text className="text-cinza-escuro">
               <strong>Peso Atual:</strong>{" "}
-              {relatorioRecente?.peso
-                ? `${relatorioRecente.peso} kg`
+              {avaliacaoRecente?.peso
+                ? `${avaliacaoRecente.peso} kg`
                 : "Não avaliado"}
             </Text>
             <Text className="text-cinza-escuro">
               <strong>Escore Corporal (ECC):</strong>{" "}
-              {relatorioRecente?.condicaoCorporal || "Não avaliado"}
+              {avaliacaoRecente?.condicaoCorporal || "Não avaliado"}
             </Text>
             <Text className="text-cinza-escuro">
               <strong>Grau de Atividade:</strong>{" "}
-              {relatorioRecente?.grauAtividade || "Não avaliado"}
+              {avaliacaoRecente?.grauAtividade || "Não avaliado"}
             </Text>
           </div>
         </Col>

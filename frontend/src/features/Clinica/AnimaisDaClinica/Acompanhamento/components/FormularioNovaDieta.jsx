@@ -1,4 +1,4 @@
-// src/pages/AcompanhamentoAnimal/components/FormularioNovaDieta.jsx
+// src/pages/Acompanhamento/components/FormularioNovaDieta.jsx
 
 import React from "react";
 import { Form, Input, InputNumber, Select, Button, Row, Col } from "antd";
@@ -12,7 +12,7 @@ const opcoesTipoDieta = [
   // Adicione outros tipos se houver
 ];
 
-const FormularioNovaDieta = ({ onFinish, onCancel, relatorioId, racoes }) => {
+const FormularioNovaDieta = ({ onFinish, onCancel, avaliacaoId, racoes }) => {
   const [form] = Form.useForm();
 
   const racoesOptions = racoes.map((r) => ({ label: r.nome, value: r.id }));
@@ -22,10 +22,10 @@ const FormularioNovaDieta = ({ onFinish, onCancel, relatorioId, racoes }) => {
       form={form}
       layout="vertical"
       onFinish={onFinish}
-      initialValues={{ relatorioId: relatorioId }}
+      initialValues={{ avaliacaoId: avaliacaoId }}
     >
       {/* Campo escondido para enviar o ID do relatório */}
-      <Form.Item name="relatorioId" hidden>
+      <Form.Item name="avaliacaoId" hidden>
         <Input />
       </Form.Item>
 

@@ -17,7 +17,7 @@ namespace backend.Domain.AtendimentoAnimal.Interface
         // --- Métodos de Escrita ---
         Task<ServiceResult> CreateAsync(CadastrarAnimalClinicaDto dto, int clinicaId);
         Task<ServiceResult> UpdateAsync(EditarAnimalClinicaDto dto, int clinicaId);
-        // Task<ServiceResult> AtualizarEstadoPeloRelatorioAsync(int animalId, int clinicaId, UpsertRelatorioDto dadosRelatorio);
+        // Task<ServiceResult> AtualizarEstadoPeloAvaliacaoAsync(int animalId, int clinicaId, UpsertAvaliacaoDto dadosAvaliacao);
         Task<ServiceResult> DesativarVinculoAnimalAsync(int animalId, int clinicaId);
 
         // --- Método de Validação ---

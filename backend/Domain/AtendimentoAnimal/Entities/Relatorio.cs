@@ -5,7 +5,7 @@ using backend.Domain.SaudeAnimal.Entities;
 
 namespace backend.Domain.AtendimentoAnimal.Entities
 {
-    public class Relatorio
+    public class Avaliacao
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -17,7 +17,7 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         [ForeignKey("AcompanhamentoId")]
         public Acompanhamento? Acompanhamento { get; set; }
         public int? UsuarioResponsavelId { get; set; } // UserId de quem criou o relatório
-        public DietaPersonalizada? DietaPersonalizada { get; set; }
+        public Dieta? Dieta { get; set; }
         public int Idade { get; set; }
         public double Peso { get; set; }
         public double? PesoIdeal { get; set; }

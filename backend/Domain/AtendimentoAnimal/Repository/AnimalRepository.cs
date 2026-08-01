@@ -88,15 +88,15 @@ namespace backend.Infra.Data.Repositories
 
                 // Carrega o acompanhamento lista de relatórios (a linha do tempo)
                 .Include(a => a.Acompanhamento)
-                    .ThenInclude(ac => ac!.Relatorios!.OrderByDescending(r => r.Consulta!.DataConsulta)) // Ordena pela data da consulta
+                    .ThenInclude(ac => ac!.Avaliacoes!.OrderByDescending(r => r.Consulta!.DataConsulta)) // Ordena pela data da consulta
 
                         // A partir de cada relatório, carrega a dieta e a ração associada
-                        .ThenInclude(r => r.DietaPersonalizada)
+                        .ThenInclude(r => r.Dieta)
                             .ThenInclude(d => d!.Racao)
 
                         // A partir de cada relatório, carrega a consulta e o usuário responsável
                         .Include(a => a.Acompanhamento)
-                            .ThenInclude(ac => ac.Relatorios!)
+                            .ThenInclude(ac => ac.Avaliacoes!)
                                 .ThenInclude(r => r.Consulta)
                                     .ThenInclude(c => c.Usuario)
 

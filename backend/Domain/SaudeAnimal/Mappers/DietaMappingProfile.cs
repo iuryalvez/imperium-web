@@ -6,11 +6,11 @@ public class DietaMappingProfile : Profile
 {
     public DietaMappingProfile()
     {
-        CreateMap<CreateDietaDto, DietaPersonalizada>()
+        CreateMap<CreateDietaDto, Dieta>()
             .ForMember(dest => dest.DataCriacao, opt => opt.MapFrom(_ => DateOnly.FromDateTime(DateTime.UtcNow)));
 
         // Mapeamento para CONSULTAR: De Entidade para DTO
-        CreateMap<DietaPersonalizada, GetDietaDto>()
+        CreateMap<Dieta, GetDietaDto>()
             .ForMember(
                 dest => dest.NomeRacao, // Para o campo 'NomeRacao' no DTO...
                 opt => opt.MapFrom(src => src.Racao.Nome) // ...busque o valor em src.Racao.Nome
@@ -18,10 +18,10 @@ public class DietaMappingProfile : Profile
 
         // Mapeamento para ATUALIZAR: De DTO para Entidade (para o futuro)
         // Ignora campos nulos do DTO, permitindo atualizações parciais
-        CreateMap<UpdateDietaDto, DietaPersonalizada>()
+        CreateMap<UpdateDietaDto, Dieta>()
             .ForMember(dest => dest.Id, opt => opt.Ignore()) // Ignora o mapeamento do Id para evitar alterações acidentais
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
-        CreateMap<UpdateDietaDto, CreateDietaDto>().ForMember(dest => dest.RelatorioId, opt => opt.Ignore());
+        CreateMap<UpdateDietaDto, CreateDietaDto>().ForMember(dest => dest.AvaliacaoId, opt => opt.Ignore());
     }
 }

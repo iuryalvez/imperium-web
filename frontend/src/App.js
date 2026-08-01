@@ -23,7 +23,7 @@ import ClinicaInicio from "./features/Clinica/ClinicaInicioHome/index.jsx";
 
 import UsuariosDaClinica from "./features/Clinica/UsuariosDaClinica/UsuariosDaClinica.jsx";
 import AnimaisDaClinica from "./features/Clinica/AnimaisDaClinica/AnimaisDaClinica.jsx";
-import AcompanhamentoAnimal from "./features/Clinica/AnimaisDaClinica/AcompanhamentoAnimal/AcompanhamentoAnimal.jsx";
+import Acompanhamento from "./features/Clinica/AnimaisDaClinica/Acompanhamento/Acompanhamento.jsx";
 import TutoresDaClinica from "./features/Clinica/TutoresDaClinica/TutoresDaClinica.jsx";
 import RacoesDaClinica from "./features/Clinica/RacoesDaClinica/RacoesDaClinica.jsx";
 import ConsultasDaClinica from "./features/Clinica/ConsultasDaClinica/ConsultasDaClinica.jsx";
@@ -104,7 +104,7 @@ const App = () => {
                     />
                     <Route
                       path="/clinica/animais/acompanhamento/:acompanhamentoId"
-                      element={<AcompanhamentoAnimal />}
+                      element={<Acompanhamento />}
                     />
                     <Route
                       path="/clinica/tutores"

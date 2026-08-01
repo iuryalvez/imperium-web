@@ -150,7 +150,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
             }
 
             // Regra de Negócio Opcional: Impedir exclusão se já houver um relatório.
-            if (consulta.Relatorio != null)
+            if (consulta.Avaliacao != null)
             {
                 return new ServiceResult { Succeeded = false, Message = "Não é possível excluir uma consulta que já possui um relatório preenchido." };
             }

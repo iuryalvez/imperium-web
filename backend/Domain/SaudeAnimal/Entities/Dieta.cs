@@ -5,7 +5,7 @@ using backend.Domain.AtendimentoAnimal.Enums;
 
 namespace backend.Domain.SaudeAnimal.Entities
 {
-    public class DietaPersonalizada
+    public class Dieta
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -13,10 +13,10 @@ namespace backend.Domain.SaudeAnimal.Entities
         public int RacaoId { get; set; }
         [ForeignKey("RacaoId")]
         public Racao? Racao { get; set; }
-        public int RelatorioId { get; set; }
+        public int AvaliacaoId { get; set; }
 
-        [ForeignKey("RelatorioId")]
-        public Relatorio? Relatorio { get; set; }
+        [ForeignKey("AvaliacaoId")]
+        public Avaliacao? Avaliacao { get; set; }
         public TipoDieta TipoDieta { get; set; } // 1-manutenção, 2-crescimento, 3-lactação
         public double FatorK { get; set; } // Ex: 130, 95, 100
         public double Expoente { get; set; } // Ex: 0.75, 0.67, 0.40

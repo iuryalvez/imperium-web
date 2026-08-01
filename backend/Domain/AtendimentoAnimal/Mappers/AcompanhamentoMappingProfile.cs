@@ -34,7 +34,7 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
 
             CreateMap<Acompanhamento, AcompanhamentoDto>();
 
-            CreateMap<Relatorio, RelatorioDetalhadoDto>()
+            CreateMap<Avaliacao, AvaliacaoDetalhadoDto>()
                 // Busca a data da consulta aninhada no relatório
                 .ForMember(dest => dest.DataConsulta, opt => opt.MapFrom(src => 
                     src.Consulta != null ? src.Consulta.DataConsulta : default))
@@ -45,10 +45,10 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
                     : "Não informado"))
                 .ForMember(dest => dest.CondicaoCorporal, opt => opt.MapFrom(src => src.CondicaoCorporal.ToString()))
                 .ForMember(dest => dest.GrauAtividade, opt => opt.MapFrom(src => src.GrauAtividade.ToString()))
-                // O AutoMapper usará o mapeamento de 'DietaPersonalizada' para 'DietaResumidaDto'
-                .ForMember(dest => dest.Dieta, opt => opt.MapFrom(src => src.DietaPersonalizada));
+                // O AutoMapper usará o mapeamento de 'Dieta' para 'DietaResumidaDto'
+                .ForMember(dest => dest.Dieta, opt => opt.MapFrom(src => src.Dieta));
             
-            CreateMap<DietaPersonalizada, DietaResumidaDto>()
+            CreateMap<Dieta, DietaResumidaDto>()
                 .ForMember(dest => dest.TipoDieta, opt => opt.MapFrom(src => src.TipoDieta.ToString()))
                 .ForMember(dest => dest.TipoDietaLabel, opt => opt.MapFrom(src => src.TipoDieta.GetDisplayName()))
                 // Garante que não haverá erro se o valor for nulo

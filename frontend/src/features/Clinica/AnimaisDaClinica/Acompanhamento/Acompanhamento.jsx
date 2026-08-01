@@ -3,14 +3,14 @@ import { Skeleton, Result, Button, Divider } from "antd";
 import { Link } from "react-router-dom";
 import { FormOutlined, EditOutlined, ProfileOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { useAcompanhamentoAnimalManager } from "./useAcompanhamentoAnimalManager";
-import ListaRelatorios from "./components/ListaRelatorios";
+import { useAcompanhamentoManager } from "./useAcompanhamentoManager";
+import ListaAvaliacoes from "./components/ListaAvaliacoes";
 import FormularioDieta from "./components/FormularioDieta";
 import DetalhesDieta from "./components/DetalhesDieta";
 import FichaGeralAnimal from "./components/FichaGeralAnimal";
 import ModalPadrao from "../../../../components/modal/ModalPadrao";
 
-const AcompanhamentoAnimal = () => {
+const Acompanhamento = () => {
   const {
     historico,
     loading,
@@ -18,7 +18,7 @@ const AcompanhamentoAnimal = () => {
     isModalCriarDietaOpen,
     isModalVisualizarDietaOpen,
     isModalEditarDietaOpen,
-    relatorioSelecionado,
+    avaliacaoSelecionado,
     dietaParaVisualizar,
     dietaParaEditar,
     isSubmitting,
@@ -31,7 +31,7 @@ const AcompanhamentoAnimal = () => {
     handleCriarDieta,
     handleEditarDieta,
     handleExcluirDieta,
-  } = useAcompanhamentoAnimalManager();
+  } = useAcompanhamentoManager();
 
   if (loading) {
     return <Skeleton active paragraph={{ rows: 8 }} />;
@@ -53,26 +53,26 @@ const AcompanhamentoAnimal = () => {
   }
 
   // Ordena os relatórios pela data para extrair o mais recente de forma segura
-  const relatoriosOrdenados = [
-    ...(historico.acompanhamento?.relatorios || []),
+  const avaliacoesOrdenados = [
+    ...(historico.acompanhamento?.avaliacoes || []),
   ].sort((a, b) => new Date(b.dataConsulta) - new Date(a.dataConsulta));
 
-  const relatorioMaisRecente = relatoriosOrdenados[0];
-  const dietaMaisRecente = relatoriosOrdenados.find((rel) => rel.dieta)?.dieta;
+  const avaliacaoMaisRecente = avaliacoesOrdenados[0];
+  const dietaMaisRecente = avaliacoesOrdenados.find((rel) => rel.dieta)?.dieta;
 
   return (
     <div>
       {/* Título externo removido, a FichaGeralAnimal agora possui seu próprio título */}
       <FichaGeralAnimal
         animal={historico}
-        relatorioRecente={relatorioMaisRecente}
+        avaliacaoRecente={avaliacaoMaisRecente}
         dietaRecente={dietaMaisRecente}
       />
 
-      <Divider orientation="left">Histórico de Relatórios</Divider>
+      <Divider orientation="left">Histórico</Divider>
 
-      <ListaRelatorios
-        relatorios={historico.acompanhamento.relatorios}
+      <ListaAvaliacoes
+        avaliacoes={historico.acompanhamento.avaliacoes}
         onOpenModalCriarDieta={handleOpenModalCriarDieta}
         onOpenModalVisualizarDieta={handleOpenModalVisualizarDieta}
         onOpenModalEditarDieta={handleOpenModalEditarDieta}
@@ -84,16 +84,16 @@ const AcompanhamentoAnimal = () => {
         modo="criacao"
         open={isModalCriarDietaOpen}
         onCancel={handleCloseModalCriarDieta}
-        title={`Calcular Dieta (${dayjs(relatorioSelecionado?.dataConsulta).format("DD/MM/YYYY")})`}
+        title={`Calcular Dieta (${dayjs(avaliacaoSelecionado?.dataConsulta).format("DD/MM/YYYY")})`}
         icon={<FormOutlined />}
         formId="form-dieta-animal"
         isSubmitting={isSubmitting}
         width="min(700px, 95vw)"
       >
-        {relatorioSelecionado && (
+        {avaliacaoSelecionado && (
           <FormularioDieta
             onFinish={handleCriarDieta}
-            relatorioId={relatorioSelecionado.id}
+            avaliacaoId={avaliacaoSelecionado.id}
             racoes={racoes}
           />
         )}
@@ -114,7 +114,7 @@ const AcompanhamentoAnimal = () => {
           <FormularioDieta
             onFinish={handleEditarDieta}
             initialValues={dietaParaEditar}
-            relatorioId={dietaParaEditar.relatorioId}
+            avaliacaoId={dietaParaEditar.avaliacaoId}
             racoes={racoes}
           />
         )}
@@ -135,4 +135,4 @@ const AcompanhamentoAnimal = () => {
   );
 };
 
-export default AcompanhamentoAnimal;
+export default Acompanhamento;

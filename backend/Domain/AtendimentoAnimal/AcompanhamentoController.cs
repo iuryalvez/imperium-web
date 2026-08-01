@@ -49,7 +49,7 @@ public class AcompanhamentoController : ControllerBase
         [FromBody] CreateDietaDto dto)
     {
         var clinicaId = User.GetClaimValue<int>("clinicaId");
-        var result = await _acompanhamentoService.CriarDietaParaRelatorioAsync(dto.AcompanhamentoId, dto, clinicaId);
+        var result = await _acompanhamentoService.CriarDietaParaAvaliacaoAsync(dto.AcompanhamentoId, dto, clinicaId);
 
         if (result.Succeeded)
         {

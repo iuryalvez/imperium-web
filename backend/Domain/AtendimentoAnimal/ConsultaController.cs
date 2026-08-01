@@ -67,7 +67,7 @@ namespace backend.Domain.AtendimentoAnimal
 
             if (!result.Succeeded)
             {
-                // O serviço retorna a mensagem de erro apropriada (ex: "Não encontrado" ou "Relatório já preenchido")
+                // O serviço retorna a mensagem de erro apropriada (ex: "Não encontrado" ou "Avaliação já preenchida")
                 return BadRequest(result);
             }
 

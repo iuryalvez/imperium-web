@@ -1,12 +1,12 @@
-// // src/pages/AcompanhamentoAnimal/components/GraficoEvolucaoPeso.jsx
+// // src/pages/Acompanhamento/components/GraficoEvolucaoPeso.jsx
 
 // import React from 'react';
 // import { Line } from '@ant-design/charts';
 // import dayjs from 'dayjs';
 
-// const GraficoEvolucaoPeso = ({ relatorios }) => {
+// const GraficoEvolucaoPeso = ({ avaliacoes }) => {
 //   // 1. Transforma os dados para o formato que o gráfico espera
-//   const data = relatorios
+//   const data = avaliacoes
 //     .map(r => ({
 //       data: dayjs(r.dataConsulta).format('DD/MM/YY'),
 //       peso: r.peso,

@@ -36,8 +36,8 @@ namespace backend.Domain.SaudeAnimal.Entities
         [Required(ErrorMessage = "A fibra bruta da ração é obrigatória.")]
         public double FibraBruta { get; set; }
         public double? MateriaSeca { get; set; } // Retirar a umidade do cálculo do ENN
-        public ICollection<DietaPersonalizada>? DietasPersonalizadas { get; set; } // referência de navegação do dependente
-        public ICollection<Relatorio>? Relatorios { get; set; } // referência de navegação do dependente
+        public ICollection<Dieta>? Dietas { get; set; } // referência de navegação do dependente
+        public ICollection<Avaliacao>? Avaliacoes{ get; set; } // referência de navegação do dependente
 
         // Atributos que serão calculados e armazenados
         public double? ExtrativoNaoNitrogenado { get; set; }

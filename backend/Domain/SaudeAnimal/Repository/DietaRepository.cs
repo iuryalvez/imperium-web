@@ -14,52 +14,52 @@ namespace backend.Domain.SaudeAnimal.Repository
             _context = context;
         }
 
-        public async Task<DietaPersonalizada?> GetByRelatorioIdAsync(int relatorioId)
+        public async Task<Dieta?> GetByAvaliacaoIdAsync(int avaliacaoId)
         {
-            return await _context.DietasPersonalizadas
+            return await _context.Dietas
                 .Include(d => d.Racao)
-                .Include(d => d.Relatorio)
-                .FirstOrDefaultAsync(d => d.RelatorioId == relatorioId);
+                .Include(d => d.Avaliacao)
+                .FirstOrDefaultAsync(d => d.AvaliacaoId == avaliacaoId);
         }
 
-        public async Task<DietaPersonalizada?> FindByRelatorioIdAsync(int relatorioId)
+        public async Task<Dieta?> FindByAvaliacaoIdAsync(int avaliacaoId)
         {
             // This is a specific query to support the "update-or-insert" (upsert) logic.
             // It checks for the existence of a diet based on its foreign key relationship with the report.
-            return await _context.DietasPersonalizadas
-                .FirstOrDefaultAsync(d => d.RelatorioId == relatorioId);
+            return await _context.Dietas
+                .FirstOrDefaultAsync(d => d.AvaliacaoId == avaliacaoId);
         }
 
-        public async Task<IEnumerable<DietaPersonalizada>> GetAllByAcompanhamentoIdAsync(int acompanhamentoId)
+        public async Task<IEnumerable<Dieta>> GetAllByAcompanhamentoIdAsync(int acompanhamentoId)
         {
             // Busca todas as dietas cujos relatórios pertencem ao acompanhamento especificado
-            return await _context.DietasPersonalizadas
+            return await _context.Dietas
                 .Include(d => d.Racao) // Inclui a ração para exibir o nome
-                .Where(d => d.Relatorio!.AcompanhamentoId == acompanhamentoId)
+                .Where(d => d.Avaliacao!.AcompanhamentoId == acompanhamentoId)
                 .OrderByDescending(d => d.DataCriacao)
                 .ToListAsync();
         }
 
-        public async Task<DietaPersonalizada?> GetByIdWithIncludesAsync(int dietaId)
+        public async Task<Dieta?> GetByIdWithIncludesAsync(int dietaId)
         {
             // Inclui a cadeia de navegação para permitir a validação de segurança no serviço
-            // Dieta -> Relatorio -> Consulta -> ClinicaId
-            return await _context.DietasPersonalizadas
+            // Dieta -> Avaliacao -> Consulta -> ClinicaId
+            return await _context.Dietas
                 .Include(d => d.Racao)
-                .Include(d => d.Relatorio)
+                .Include(d => d.Avaliacao)
                     .ThenInclude(r => r.Consulta)
                         .ThenInclude(c => c.Animal)
                 .FirstOrDefaultAsync(d => d.Id == dietaId);
         }
 
-        public async Task AddAsync(DietaPersonalizada dieta)
+        public async Task AddAsync(Dieta dieta)
         {
-            await _context.DietasPersonalizadas.AddAsync(dieta);
+            await _context.Dietas.AddAsync(dieta);
         }
 
-        public async Task UpdateAsync(DietaPersonalizada dieta)
+        public async Task UpdateAsync(Dieta dieta)
         {
-            _context.DietasPersonalizadas.Update(dieta);
+            _context.Dietas.Update(dieta);
         }
 
         public async Task SaveChangesAsync()
@@ -67,9 +67,9 @@ namespace backend.Domain.SaudeAnimal.Repository
             await _context.SaveChangesAsync();
         }
 
-        public void Delete(DietaPersonalizada dieta)
+        public void Delete(Dieta dieta)
         {
-            _context.DietasPersonalizadas.Remove(dieta);
+            _context.Dietas.Remove(dieta);
         }
     }
 }

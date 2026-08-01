@@ -1,17 +1,17 @@
 using AutoMapper;
-using backend.Domain.AtendimentoAnimal.DTOs.Relatorio;
+using backend.Domain.AtendimentoAnimal.DTOs.Avaliacao;
 using backend.Domain.AtendimentoAnimal.Entities;
 
 namespace backend.Domain.AtendimentoAnimal.Mappers
 {
-    public class RelatorioMappingProfile : Profile
+    public class AvaliacaoMappingProfile : Profile
     {
-        public RelatorioMappingProfile()
+        public AvaliacaoMappingProfile()
         {
-            CreateMap<UpsertRelatorioDto, Relatorio>();
+            CreateMap<UpsertAvaliacaoDto, Avaliacao>();
 
-            CreateMap<Relatorio, GetRelatorioDto>()
-                .ForMember(dest => dest.Dieta, opt => opt.MapFrom(src => src.DietaPersonalizada))
+            CreateMap<Avaliacao, GetAvaliacaoDto>()
+                .ForMember(dest => dest.Dieta, opt => opt.MapFrom(src => src.Dieta))
                 .ForMember(dest => dest.DataConsulta, opt => opt.MapFrom(src =>
                     src.Consulta != null ? src.Consulta.DataConsulta : default))
                 .ForMember(dest => dest.NomeRacao, opt => opt.MapFrom(src =>

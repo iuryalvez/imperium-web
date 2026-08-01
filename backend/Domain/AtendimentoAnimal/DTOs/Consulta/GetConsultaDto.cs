@@ -27,8 +27,8 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Consulta
         public int UsuarioId { get; set; }
         public string? NomeUsuario { get; set; }
 
-        // Status do Relatório e Dieta
-        public bool RelatorioPreenchido { get; set; }
+        // Status do Avaliação e Dieta
+        public bool AvaliacaoPreenchida { get; set; }
         public int? DietaId { get; set; }
     }
 }

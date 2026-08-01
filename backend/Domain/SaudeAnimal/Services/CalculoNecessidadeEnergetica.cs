@@ -6,10 +6,10 @@ namespace backend.Domain.SaudeAnimal.Services
 {
     public interface ICalculoNecessidadeEnergetica
     {
-        double CalcularGestacao(Animal animal, DietaPersonalizada dieta);
-        double CalcularLactacao(Animal animal, int numeroFilhotes, int semanaLactacao, DietaPersonalizada dieta);
-        double CalcularManutencao(Animal animal, DietaPersonalizada dieta);
-        double CalcularNecessidadeTotal(Animal animal, DietaPersonalizada dieta);
+        double CalcularGestacao(Animal animal, Dieta dieta);
+        double CalcularLactacao(Animal animal, int numeroFilhotes, int semanaLactacao, Dieta dieta);
+        double CalcularManutencao(Animal animal, Dieta dieta);
+        double CalcularNecessidadeTotal(Animal animal, Dieta dieta);
     }
 
     public class CalculoNecessidadeEnergetica : ICalculoNecessidadeEnergetica
@@ -21,7 +21,7 @@ namespace backend.Domain.SaudeAnimal.Services
             _logger = logger;
         }
 
-        public double CalcularNecessidadeTotal(Animal animal, DietaPersonalizada dieta)
+        public double CalcularNecessidadeTotal(Animal animal, Dieta dieta)
         {
             _logger.LogInformation(
                 "Iniciando cálculo de necessidade energética total para o animal ID: {AnimalId} com tipo de dieta: {TipoDieta}.",
@@ -53,7 +53,7 @@ namespace backend.Domain.SaudeAnimal.Services
             }
         }
 
-        public double CalcularManutencao(Animal animal, DietaPersonalizada dieta)
+        public double CalcularManutencao(Animal animal, Dieta dieta)
         {
             _logger.LogInformation("Iniciando cálculo de manutenção para o animal ID: {AnimalId}.", animal.Id);
 
@@ -92,7 +92,7 @@ namespace backend.Domain.SaudeAnimal.Services
             }
         }
 
-        private double? CalcularCrescimento(Animal animal, DietaPersonalizada dieta)
+        private double? CalcularCrescimento(Animal animal, Dieta dieta)
         {
             _logger.LogInformation("Iniciando cálculo para crescimento para o animal ID: {AnimalId}.", animal.Id);
 
@@ -162,7 +162,7 @@ namespace backend.Domain.SaudeAnimal.Services
             }
         }
 
-        public double CalcularGestacao(Animal animal, DietaPersonalizada dieta)
+        public double CalcularGestacao(Animal animal, Dieta dieta)
         {
             _logger.LogInformation("Iniciando cálculo de gestação para o animal ID: {AnimalId} da espécie: {Especie}.", animal.Id, animal.Especie);
 
@@ -203,7 +203,7 @@ namespace backend.Domain.SaudeAnimal.Services
             }
         }
 
-        public double CalcularLactacao(Animal animal, int numeroFilhotes, int semanaLactacao, DietaPersonalizada dieta)
+        public double CalcularLactacao(Animal animal, int numeroFilhotes, int semanaLactacao, Dieta dieta)
         {
             _logger.LogInformation(
                 "Iniciando cálculo de lactação para o animal ID: {AnimalId}, com {NumeroFilhotes} filhote(s) na {SemanaLactacao}ª semana.",

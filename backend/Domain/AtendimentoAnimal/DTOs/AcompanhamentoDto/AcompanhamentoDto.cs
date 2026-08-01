@@ -36,10 +36,10 @@ namespace backend.Domain.AtendimentoAnimal
     {
         public int Id { get; set; }
         public DateOnly DataInicio { get; set; }
-        public List<RelatorioDetalhadoDto>? Relatorios { get; set; } // A linha do tempo
+        public List<AvaliacaoDetalhadoDto>? Avaliacoes{ get; set; } // A linha do tempo
     }
 
-    public class RelatorioDetalhadoDto
+    public class AvaliacaoDetalhadoDto
     {
         public int Id { get; set; }
         public DateTime DataConsulta { get; set; }

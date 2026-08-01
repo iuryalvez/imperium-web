@@ -1,9 +1,9 @@
 using backend.Domain.AtendimentoAnimal.Enums;
 using backend.Domain.SaudeAnimal.DTOs.Dieta;
 
-namespace backend.Domain.AtendimentoAnimal.DTOs.Relatorio
+namespace backend.Domain.AtendimentoAnimal.DTOs.Avaliacao
 {
-    public class GetRelatorioDto
+    public class GetAvaliacaoDto
     {
         public int Id { get; set; }
         public int ConsultaId { get; set; }

@@ -17,9 +17,9 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Consulta
         public int UsuarioId { get; set; }
         public string? NomeVeterinario { get; set; }
 
-        public int? RelatorioId { get; set; } // ID do relatório, se existir
+        public int? AvaliacaoId { get; set; } // ID do relatório, se existir
 
         // Futuramente, podemos incluir aqui o objeto completo do relatório
-        // public GetRelatorioDto Relatorio { get; set; }
+        // public GetAvaliacaoDto Avaliacao { get; set; }
     }
 }

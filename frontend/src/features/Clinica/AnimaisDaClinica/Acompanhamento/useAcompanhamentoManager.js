@@ -4,7 +4,7 @@ import { acompanhamentoAPI } from "../../../../api/clinica/acompanhamentoAPI";
 import { racoesDaClinicaAPI } from "../../../../api/clinica/racoesDaClinicaAPI";
 import { message } from "antd";
 
-export const useAcompanhamentoAnimalManager = () => {
+export const useAcompanhamentoManager = () => {
   const { acompanhamentoId } = useParams(); // <-- Pega o ID correto da URL
   const [historico, setHistorico] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -12,7 +12,7 @@ export const useAcompanhamentoAnimalManager = () => {
 
   // Estado para o modal de CRIAÇÃO de dieta
   const [isModalCriarDietaOpen, setIsModalCriarDietaOpen] = useState(false);
-  const [relatorioSelecionado, setRelatorioSelecionado] = useState(null);
+  const [avaliacaoSelecionado, setAvaliacaoSelecionado] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Estado para o modal de EDIÇÃO de dieta
@@ -57,12 +57,12 @@ export const useAcompanhamentoAnimalManager = () => {
 
   const handleCloseModalCriarDieta = () => {
     setIsModalCriarDietaOpen(false);
-    setRelatorioSelecionado(null);
+    setAvaliacaoSelecionado(null);
   };
 
-  const handleOpenModalCriarDieta = async (relatorio) => {
+  const handleOpenModalCriarDieta = async (avaliacao) => {
     setIsModalCriarDietaOpen(true);
-    setRelatorioSelecionado(relatorio);
+    setAvaliacaoSelecionado(avaliacao);
   };
 
   const handleOpenModalVisualizarDieta = (dieta) => {
@@ -87,7 +87,7 @@ export const useAcompanhamentoAnimalManager = () => {
 
   const handleCriarDieta = async (values) => {
     // O ID deve estar acessível pelo hook ou pelo relatório selecionado
-    if (!historico?.acompanhamento?.id || !relatorioSelecionado?.id) return;
+    if (!historico?.acompanhamento?.id || !avaliacaoSelecionado?.id) return;
 
     setIsSubmitting(true);
     try {
@@ -95,7 +95,7 @@ export const useAcompanhamentoAnimalManager = () => {
       const payloadDieta = {
         ...values,
         acompanhamentoId: historico.acompanhamento.id,
-        relatorioId: relatorioSelecionado.id,
+        avaliacaoId: avaliacaoSelecionado.id,
       };
 
       const result = await acompanhamentoAPI.criarDieta(payloadDieta);
@@ -160,7 +160,7 @@ export const useAcompanhamentoAnimalManager = () => {
     isModalCriarDietaOpen,
     isModalVisualizarDietaOpen,
     isModalEditarDietaOpen,
-    relatorioSelecionado,
+    avaliacaoSelecionado,
     dietaParaVisualizar,
     dietaParaEditar,
     isSubmitting,
