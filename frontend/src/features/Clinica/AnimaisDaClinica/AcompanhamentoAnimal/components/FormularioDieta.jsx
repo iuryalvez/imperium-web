@@ -126,7 +126,7 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
         <Col span={12}>
           <Form.Item
             name="pesoIdeal"
-            label="Peso Referência / Ideal (kg)"
+            label="Peso Ideal (kg)"
             tooltip="Este peso ficará salvo no cadastro do paciente e será a nova Fonte da Verdade para os cálculos energéticos da dieta, sobrescrevendo a referência geral da raça."
           >
             <InputNumber

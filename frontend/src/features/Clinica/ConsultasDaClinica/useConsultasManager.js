@@ -24,6 +24,10 @@ export const useConsultasManager = () => {
   const [racoesDisponiveis, setRacoesDisponiveis] = useState([]);
   const [isSubmittingDieta, setIsSubmittingDieta] = useState(false);
 
+  const [isModalVisualizarDietaOpen, setIsModalVisualizarDietaOpen] =
+    useState(false);
+  const [dietaParaVisualizar, setDietaParaVisualizar] = useState(null);
+
   const fetchConsultas = useCallback(async () => {
     setLoading(true);
     try {
@@ -262,6 +266,33 @@ export const useConsultasManager = () => {
     }
   };
 
+  const handleVerDietaDaTabela = async (consulta) => {
+    try {
+      // Fetches the report to extract the nested diet object
+      const response = await relatoriosDaClinicaAPI.getByConsultaId(
+        consulta.id,
+      );
+      const relatorio = response.data;
+
+      // Extract the diet (adjust 'dietaPersonalizada' to match your backend DTO property name if necessary)
+      const dieta = relatorio.dieta || relatorio.dietaPersonalizada;
+
+      if (dieta) {
+        setDietaParaVisualizar(dieta);
+        setIsModalVisualizarDietaOpen(true);
+      } else {
+        message.warning("Dados da dieta não encontrados neste relatório.");
+      }
+    } catch (error) {
+      message.error("Erro ao carregar os dados da dieta.");
+    }
+  };
+
+  const handleCloseModalVisualizarDieta = () => {
+    setIsModalVisualizarDietaOpen(false);
+    setDietaParaVisualizar(null);
+  };
+
   return {
     consultas,
     loading,
@@ -290,5 +321,9 @@ export const useConsultasManager = () => {
     handleCloseModalDieta,
     handleSubmitDieta,
     handleCalcularDietaDaTabela,
+    isModalVisualizarDietaOpen,
+    dietaParaVisualizar,
+    handleVerDietaDaTabela,
+    handleCloseModalVisualizarDieta,
   };
 };

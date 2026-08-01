@@ -96,7 +96,7 @@ const FormularioRelatorio = ({ consulta, initialValues, onFinish }) => {
   const conteudoAtividade = (
     <ul className="list-disc pl-4 space-y-1">
       <li>
-        <strong>Baixo:</strong> Cães mantidos em ambiente doméstico com pouca
+        <strong>Inativo:</strong> Cães mantidos em ambiente doméstico com pouca
         oportunidade ou estímulo à prática de exercício. As necessidades de cães
         idosos podem ser ainda menores.
       </li>
@@ -105,7 +105,7 @@ const FormularioRelatorio = ({ consulta, initialValues, onFinish }) => {
         diários regulares ou cães de canil.
       </li>
       <li>
-        <strong>Alto:</strong> Cães com ampla oportunidade e forte estímulo a
+        <strong>Ativo:</strong> Cães com ampla oportunidade e forte estímulo a
         exercícios, como grupos em ambiente rural, domicílios com amplo quintal
         ou cães de trabalho/esporte.
       </li>
@@ -177,7 +177,7 @@ const FormularioRelatorio = ({ consulta, initialValues, onFinish }) => {
         moderada.
       </p>
       <p>
-        <strong>8 (Obesidade Grave - +31% a 45% acima):</strong> Gordura
+        <strong>8 (Obesidade Grave - 31% a 45% acima):</strong> Gordura
         corporal acentuada. Denso depósito de gordura sobre costelas e região
         lombar. Distensão abdominal proeminente, com significativo depósito de
         gordura.

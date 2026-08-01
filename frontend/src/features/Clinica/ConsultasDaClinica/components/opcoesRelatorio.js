@@ -1,7 +1,7 @@
 export const opcoesGrauAtividade = [
-  { value: 1, label: "Baixo (Inativo / Indoor)" },
-  { value: 2, label: "Moderado (Ativo / Normal)" },
-  { value: 3, label: "Alto (Trabalho / Esporte)" },
+  { value: 1, label: "Inativo" },
+  { value: 2, label: "Moderado" },
+  { value: 3, label: "Ativo" },
 ];
 
 export const opcoesCondicaoCorporal = {

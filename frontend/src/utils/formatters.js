@@ -88,9 +88,9 @@ export const formatarSexo = (value) => (value === 1 ? 'Macho' : 'Fêmea');
  */
 export const formatarGrauAtividade = (value) => {
     switch (value) {
-        case 1: return 'Baixo / Inativo';
-        case 2: return 'Moderado / Normal';
-        case 3: return 'Alto / Atleta';
+        case 1: return 'Inativo';
+        case 2: return 'Moderado';
+        case 3: return 'Alto';
         default: return <Typography.Text type="secondary">Não informado</Typography.Text>;
     }
 };

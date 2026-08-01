@@ -39,7 +39,6 @@ namespace backend.Domain.AtendimentoAnimal
             }
 
             return NotFound(result);
-
         }
 
         [HttpPut("consultas/{consultaId}/relatorio")]

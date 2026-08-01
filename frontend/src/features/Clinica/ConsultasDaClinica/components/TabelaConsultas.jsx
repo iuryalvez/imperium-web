@@ -75,7 +75,7 @@ const TabelaConsultas = ({
               {consulta.dietaId ? (
                 <Menu.Item
                   key="view-diet"
-                  onClick={() => onVerDieta(consulta.dietaId)}
+                  onClick={() => onVerDieta(consulta)}
                 >
                   Ver Dieta Prescrita
                 </Menu.Item>
@@ -83,8 +83,8 @@ const TabelaConsultas = ({
                 <Menu.Item
                   key="calc-diet"
                   icon={<CalculatorOutlined />}
-                  onClick={() => onCalcularDieta(consulta.id)}
-                  disabled={!consulta.relatorioPreenchido} // Só pode calcular dieta se tiver relatório!
+                  onClick={() => onCalcularDieta(consulta)}
+                  disabled={!consulta.relatorioPreenchido}
                 >
                   Calcular Dieta
                 </Menu.Item>

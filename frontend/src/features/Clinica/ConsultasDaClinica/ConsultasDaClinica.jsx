@@ -18,6 +18,7 @@ import {
   CalculatorOutlined,
   LineChartOutlined,
   InfoCircleOutlined,
+  ProfileOutlined,
 } from "@ant-design/icons";
 import { useConsultasManager } from "./useConsultasManager";
 import TabelaConsultas from "./components/TabelaConsultas";
@@ -25,6 +26,7 @@ import FormularioConsulta from "./components/FormularioConsulta";
 import FormularioRelatorio from "./components/FormularioRelatorio";
 import ModalPadrao from "../../../components/modal/ModalPadrao";
 import FormularioDieta from "../AnimaisDaClinica/AcompanhamentoAnimal/components/FormularioDieta";
+import DetalhesDieta from "../AnimaisDaClinica/AcompanhamentoAnimal/components/DetalhesDieta";
 
 const ConsultasDaClinica = () => {
   const {
@@ -55,6 +57,10 @@ const ConsultasDaClinica = () => {
     handleCloseModalDieta,
     handleSubmitDieta,
     handleCalcularDietaDaTabela,
+    isModalVisualizarDietaOpen,
+    dietaParaVisualizar,
+    handleVerDietaDaTabela,
+    handleCloseModalVisualizarDieta,
   } = useConsultasManager();
 
   if (loading) {
@@ -81,9 +87,7 @@ const ConsultasDaClinica = () => {
         onEdit={handleOpenModal}
         onDelete={handleDelete}
         onOpenRelatorio={handleOpenRelatorioModal}
-        onVerDieta={(dietaId) =>
-          console.log("Abrir modal de ver dieta", dietaId)
-        }
+        onVerDieta={handleVerDietaDaTabela}
         onCalcularDieta={handleCalcularDietaDaTabela}
         onIrParaAcompanhamento={handleIrParaAcompanhamento}
         loading={loading}
@@ -229,8 +233,8 @@ const ConsultasDaClinica = () => {
       >
         <div className="mb-4 p-3 bg-blue-50 text-blue-800 rounded-md border border-blue-200 text-sm">
           <InfoCircleOutlined className="mr-2" />
-          Os dados abaixo foram importados automaticamente do último relatório
-          salvo. Ajuste apenas se necessário.
+          Os dados abaixo foram importados automaticamente da avaliação da
+          consulta salva. Ajuste apenas se necessário.
         </div>
 
         {idsSalvos && (
@@ -245,6 +249,17 @@ const ConsultasDaClinica = () => {
             }}
           />
         )}
+      </ModalPadrao>
+
+      <ModalPadrao
+        modo="detalhes"
+        open={isModalVisualizarDietaOpen}
+        onCancel={handleCloseModalVisualizarDieta}
+        title="Detalhes da Dieta Calculada"
+        icon={<ProfileOutlined />}
+        width="min(600px, 95vw)"
+      >
+        {dietaParaVisualizar && <DetalhesDieta dieta={dietaParaVisualizar} />}
       </ModalPadrao>
     </div>
   );

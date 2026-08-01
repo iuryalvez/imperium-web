@@ -32,6 +32,9 @@ namespace backend.Domain.AtendimentoAnimal.Repository
         {
             return await _context.Relatorios
                 .Include(r => r.Racao)
+                .Include(r => r.DietaPersonalizada)
+                .Include(r => r.Consulta)
+                    .ThenInclude(c => c.Animal)
                 .FirstOrDefaultAsync(r => r.ConsultaId == consultaId);
         }
 

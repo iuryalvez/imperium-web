@@ -11,17 +11,15 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
             CreateMap<UpsertRelatorioDto, Relatorio>();
 
             CreateMap<Relatorio, GetRelatorioDto>()
-                // Mapeia a propriedade 'Dieta' do DTO a partir da propriedade 'DietaPersonalizada' da entidade.
-                // O AutoMapper usará automaticamente o 'DietaMappingProfile' que criamos para fazer a conversão interna.
-                .ForMember(
-                    dest => dest.Dieta,
-                    opt => opt.MapFrom(src => src.DietaPersonalizada)
-                )
-                // Adiciona a data da consulta, que está em uma entidade relacionada
-                .ForMember(
-                    dest => dest.DataConsulta,
-                    opt => opt.MapFrom(src => src.Consulta.DataConsulta)
-                );
+                .ForMember(dest => dest.Dieta, opt => opt.MapFrom(src => src.DietaPersonalizada))
+                .ForMember(dest => dest.DataConsulta, opt => opt.MapFrom(src =>
+                    src.Consulta != null ? src.Consulta.DataConsulta : default))
+                .ForMember(dest => dest.NomeRacao, opt => opt.MapFrom(src =>
+                    src.Racao != null ? src.Racao.Nome : string.Empty))
+                .ForMember(dest => dest.SexoAnimal, opt => opt.MapFrom(src =>
+                    src.Consulta != null && src.Consulta.Animal != null ? src.Consulta.Animal.Sexo : default))
+                .ForMember(dest => dest.Idade, opt => opt.MapFrom(src =>
+                    src.Consulta != null && src.Consulta.Animal != null ? src.Consulta.Animal.Idade : 0));
         }
     }
 }
