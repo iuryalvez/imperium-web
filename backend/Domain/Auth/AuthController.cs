@@ -143,11 +143,14 @@ namespace backend.Domain.Auth
 
             var result = await _authService.SelecionarVinculoAsync(upcId, userIdClaim, isAcessoLogin, remoteIp, userAgent);
 
-            if (!result.Succeeded)
-                return NotFound(result.Message);
+            if (!result.Succeeded) return NotFound(result.Message);
 
             var responseData = (dynamic)result.Data;
-            _tokenService.SetCookieToken(HttpContext, responseData.Token); // Por padrão rememberMe = false ao trocar vínculo
+
+            var isRememberMe = User.GetClaimValue<bool>("rememberMe");
+
+            // Pass the extracted state to keep the 7-day expiration if applicable
+            _tokenService.SetCookieToken(HttpContext, responseData.Token, isRememberMe);
 
             return Ok(responseData.Vinculo);
         }
@@ -166,13 +169,15 @@ namespace backend.Domain.Auth
             var userAgent = Request.Headers["User-Agent"].ToString();
             var usuarioNome = User.FindFirst(ClaimTypes.Name)?.Value ?? "Administrador";
 
+            var isRememberMe = User.GetClaimValue<bool>("rememberMe");
+
             var result = await _authService.SelecionarVinculoAdminAsync(dto, userIdClaim, remoteIp, userAgent, usuarioNome);
 
             if (!result.Succeeded)
                 return NotFound(result.Message);
 
             var responseData = (dynamic)result.Data;
-            _tokenService.SetCookieToken(HttpContext, responseData.Token);
+            _tokenService.SetCookieToken(HttpContext, responseData.Token, isRememberMe);
 
             return Ok(new { clinicaId = responseData.ClinicaId, perfisAtivos = responseData.PerfisAtivos });
         }
@@ -195,7 +200,9 @@ namespace backend.Domain.Auth
             if (!result.Succeeded)
                 return BadRequest(result.Message);
 
-            _tokenService.SetCookieToken(HttpContext, result.Data.ToString());
+            var isRememberMe = User.GetClaimValue<bool>("rememberMe");
+
+            _tokenService.SetCookieToken(HttpContext, result.Data.ToString(), isRememberMe);
             return Ok();
         }
 

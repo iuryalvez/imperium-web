@@ -133,6 +133,8 @@ namespace backend.Domain.Auth.Services
 
                 var isAdmin = userPrincipal.Claims.Any(c => c.Type == "isAdmin" && c.Value == "true");
 
+                var isRememberMe = userPrincipal.GetClaimValue<bool>("rememberMe");
+
                 if (!int.TryParse(usuarioPerfilClinicaId, out int idVinculo))
                 {
                     _logger.LogError("ID do vínculo inválido: {UsuarioPerfilClinicaId}", usuarioPerfilClinicaId);
@@ -183,6 +185,7 @@ namespace backend.Domain.Auth.Services
                         new Claim("clinicaId", clinicaId.ToString()),
                         new Claim("isAdmin", "false"),
                         new Claim("isAtivo", "true"),
+                        new Claim("rememberMe", isRememberMe.ToString()),
                         new Claim("Perfis", JsonSerializer.Serialize(perfisAtivos)) // Lista de perfis ativos
                     }),
                     Expires = now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpiresInMinutes"])),
@@ -358,11 +361,11 @@ namespace backend.Domain.Auth.Services
                     SetCookieToken(context.HttpContext, newTokenString, isRememberMe);
 
                     var userId = context.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                    Console.WriteLine($"Token renovado com sucesso para a sessão do identificador: {userId}");
+                    _logger.LogInformation("Token renovado com sucesso para a sessão do identificador: {userId}", userId);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Falha silenciosa ao tentar renovar token: {ex.Message}");
+                    _logger.LogWarning("Falha silenciosa ao tentar renovar token: {Message}", ex.Message);
                     // Não relançamos a exceção aqui para não invalidar o token atual que ainda tem alguns minutos.
                 }
             }
