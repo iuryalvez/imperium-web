@@ -14,15 +14,18 @@ export const useConsultasManager = () => {
   const [editingConsulta, setEditingConsulta] = useState(null);
 
   const [isAvaliacaoModalOpen, setIsAvaliacaoModalOpen] = useState(false);
-  const [selectedConsulta, setSelectedConsulta] = useState(null); // Consulta dona do relatório
-  const [avaliacaoData, setAvaliacaoData] = useState(null); // Dados do relatório a ser editado
+  const [selectedConsulta, setSelectedConsulta] = useState(null);
+  const [avaliacaoData, setAvaliacaoData] = useState(null);
   const [loadingAvaliacao, setLoadingAvaliacao] = useState(false);
 
   const [isNextActionModalOpen, setIsNextActionModalOpen] = useState(false);
-  const [idsSalvos, setIdsSalvos] = useState(null); // { avaliacaoId, acompanhamentoId, animalId }
+  const [dadosConsulta, setDadosConsulta] = useState(null);
   const [isModalDietaOpen, setIsModalDietaOpen] = useState(false);
   const [racoesDisponiveis, setRacoesDisponiveis] = useState([]);
   const [isSubmittingDieta, setIsSubmittingDieta] = useState(false);
+
+  // Estado para controlar a dieta em edição
+  const [dietaEmEdicao, setDietaEmEdicao] = useState(null);
 
   const [isModalVisualizarDietaOpen, setIsModalVisualizarDietaOpen] =
     useState(false);
@@ -55,27 +58,14 @@ export const useConsultasManager = () => {
   };
 
   const handleSubmit = async (formValues) => {
-    // 1. Create a mutable copy of the form formValues to prepare for submission.
-    //    Criamos uma cópia dos valores para poder modificá-los sem afetar o estado original.
     const payload = { ...formValues };
-
-    // 2. Clean up data based on conditional logic.
-    //    Executamos a lógica de limpeza para garantir a consistência dos dados.
-    if (!payload.isGestante) {
-      payload.semanaGestacao = null; // ou undefined, dependendo do que sua API espera
-    }
-
-    // Assumindo que o switch de lactação se chama 'emLactacao' no formulário
+    if (!payload.isGestante) payload.semanaGestacao = null;
     if (!payload.emLactacao) {
       payload.isLactanteNumeroFilhotes = 0;
-      payload.semanaLactacao = null; // ou undefined
+      payload.semanaLactacao = null;
     }
-
-    // O campo 'emLactacao' é apenas para controle de UI, podemos removê-lo do payload final.
     delete payload.emLactacao;
 
-    // 3. Perform the upsert (update or insert) operation.
-    //    Realizamos a operação de cadastro ou edição.
     try {
       if (editingConsulta) {
         await consultasDaClinicaAPI.editar(editingConsulta.id, formValues);
@@ -88,7 +78,7 @@ export const useConsultasManager = () => {
       await fetchConsultas();
     } catch (error) {
       message.error(error.message || "Falha ao salvar consulta.");
-      throw error; // Re-lança o erro para o formulário poder manter o modal aberto
+      throw error;
     }
   };
 
@@ -108,20 +98,19 @@ export const useConsultasManager = () => {
     setSelectedConsulta(consulta);
     setIsAvaliacaoModalOpen(true);
     setLoadingAvaliacao(true);
-    if (consulta.avaliacaoPreenchido) {
+    if (consulta.avaliacaoPreenchida) {
       try {
         const response = await avaliacoesDaClinicaAPI.getByConsultaId(
           consulta.id,
         );
         setAvaliacaoData(response.data);
       } catch (error) {
-        // message.error("Erro ao carregar dados do relatório.");
-        setAvaliacaoData(null); // Se não houver relatório, iniciamos com null para um novo
+        setAvaliacaoData(null);
       } finally {
         setLoadingAvaliacao(false);
       }
     } else {
-      setAvaliacaoData(null); // Novo relatório
+      setAvaliacaoData(null);
       setLoadingAvaliacao(false);
     }
   }, []);
@@ -141,21 +130,22 @@ export const useConsultasManager = () => {
       );
       message.success("Avaliação salva com sucesso!");
 
-      // 1. Prepara os dados repassados para a Dieta (incluindo dados da Raça para a UI)
-      setIdsSalvos({
+      setDadosConsulta({
+        consultaId: selectedConsulta.id, // Adicionado para a transição futura
         avaliacaoId: response.data?.id || response.data?.avaliacaoId,
         acompanhamentoId: selectedConsulta.acompanhamentoId,
         animalId: selectedConsulta.animalId,
-        // Autopreenchimento:
+        nomeAnimal: selectedConsulta.nomeAnimal,
+        especieAnimal: selectedConsulta.especieAnimal,
         peso: formValues.peso,
         racaoId: formValues.racaoId,
         tipoDieta: formValues.tipoDieta,
+        condicaoCorporal: formValues.condicaoCorporal,
         nomeRaca: selectedConsulta.nomeRaca || "",
         pesoMinimoRaca: selectedConsulta.pesoMinimoRaca || "",
         pesoMaximoRaca: selectedConsulta.pesoMaximoRaca || "",
       });
 
-      // 2. Busca as rações da clínica de acordo com a espécie
       const especie =
         selectedConsulta.especieAnimal === "Gato" ||
         selectedConsulta.especieAnimal === 2
@@ -166,7 +156,7 @@ export const useConsultasManager = () => {
 
       handleCloseAvaliacaoModal();
       await fetchConsultas();
-      setIsNextActionModalOpen(true); // Abre o Modal de "Próxima Ação"
+      setIsNextActionModalOpen(true);
     } catch (error) {
       message.error("Falha ao salvar o relatório.");
       throw error;
@@ -175,7 +165,7 @@ export const useConsultasManager = () => {
 
   const handleNextActionClose = () => {
     setIsNextActionModalOpen(false);
-    setIdsSalvos(null);
+    setDadosConsulta(null);
   };
 
   const handleIrParaAcompanhamento = (animalId) => {
@@ -189,39 +179,70 @@ export const useConsultasManager = () => {
       await avaliacoesDaClinicaAPI.deletar(avaliacaoId);
       message.success("Avaliação excluída com sucesso!");
       handleCloseAvaliacaoModal();
-      await fetchConsultas(); // Re-busca as consultas para atualizar o status do relatório na tabela
+      await fetchConsultas();
     } catch (error) {
       message.error("Falha ao excluir a avaliação.");
     }
   };
 
   const handleCalcularDietaPosAvaliacao = () => {
-    setIsNextActionModalOpen(false); // Fecha o pop-up
-    setIsModalDietaOpen(true); // Abre o formulário da dieta
+    setIsNextActionModalOpen(false);
+    setIsModalDietaOpen(true);
   };
 
   const handleCloseModalDieta = () => {
     setIsModalDietaOpen(false);
-    setIdsSalvos(null);
+    setDadosConsulta(null);
+    setDietaEmEdicao(null);
   };
 
   const handleSubmitDieta = async (formValues) => {
     setIsSubmittingDieta(true);
     try {
-      const payloadDieta = {
-        ...formValues,
-        acompanhamentoId: idsSalvos.acompanhamentoId,
-        avaliacaoId: idsSalvos.avaliacaoId,
-      };
-
-      const result = await acompanhamentoAPI.criarDieta(payloadDieta);
+      let result;
+      if (dietaEmEdicao) {
+        // Atualiza a dieta existente
+        result = await acompanhamentoAPI.editarDieta(
+          dietaEmEdicao.id,
+          formValues,
+        );
+      } else {
+        // Cria uma nova dieta
+        const payloadDieta = {
+          ...formValues,
+          acompanhamentoId: dadosConsulta.acompanhamentoId,
+          avaliacaoId: dadosConsulta.avaliacaoId,
+        };
+        result = await acompanhamentoAPI.criarDieta(payloadDieta);
+      }
 
       if (result.succeeded) {
-        message.success("Dieta calculada e salva com sucesso!");
+        message.success(
+          dietaEmEdicao
+            ? "Dieta atualizada com sucesso!"
+            : "Dieta calculada e salva com sucesso!",
+        );
         handleCloseModalDieta();
         await fetchConsultas();
+
+        const consultaIdOrigem =
+          dadosConsulta?.consultaId || dietaEmEdicao?.consultaOrigem?.id;
+        if (consultaIdOrigem) {
+          const resp =
+            await avaliacoesDaClinicaAPI.getByConsultaId(consultaIdOrigem);
+          const dietaAtualizada = resp.data?.dieta;
+          if (dietaAtualizada) {
+            // Injeta a consulta novamente para não perdermos as referências
+            setDietaParaVisualizar({
+              ...dietaAtualizada,
+              consultaOrigem:
+                dadosConsulta?.consultaOrigem || dietaEmEdicao?.consultaOrigem,
+            });
+            setIsModalVisualizarDietaOpen(true);
+          }
+        }
       } else {
-        message.error(result.message || "Falha ao criar dieta.");
+        message.error(result.message || "Falha ao salvar dieta.");
       }
     } catch (error) {
       message.error(error.message || "Ocorreu um erro inesperado.");
@@ -232,26 +253,28 @@ export const useConsultasManager = () => {
 
   const handleCalcularDietaDaTabela = async (consulta) => {
     try {
-      // 1. Precisamos dos dados vitais (peso, racao) que estão dentro do relatório
       const response = await avaliacoesDaClinicaAPI.getByConsultaId(
         consulta.id,
       );
       const avaliacao = response.data;
 
-      // 2. Prepara o objeto para a UI
-      setIdsSalvos({
+      setDadosConsulta({
+        consultaId: consulta.id, // Injetado para o UX contínuo
+        consultaOrigem: consulta, // Guardamos o objeto inteiro para ações futuras
         avaliacaoId: avaliacao.id,
         acompanhamentoId: consulta.acompanhamentoId,
         animalId: consulta.animalId,
+        nomeAnimal: consulta.nomeAnimal,
+        especieAnimal: consulta.especieAnimal,
         peso: avaliacao.peso,
         racaoId: avaliacao.racaoId,
         tipoDieta: avaliacao.tipoDieta,
+        condicaoCorporal: avaliacao.condicaoCorporal,
         nomeRaca: consulta.nomeRaca,
         pesoMinimoRaca: consulta.pesoMinimoRaca,
         pesoMaximoRaca: consulta.pesoMaximoRaca,
       });
 
-      // 3. Busca a lista de rações baseada na espécie
       const especie =
         consulta.especieAnimal === "Gato" || consulta.especieAnimal === 2
           ? 2
@@ -259,7 +282,7 @@ export const useConsultasManager = () => {
       const racoes = await racoesDaClinicaAPI.listar(especie);
       setRacoesDisponiveis(racoes);
 
-      // 4. Abre o modal
+      setDietaEmEdicao(null);
       setIsModalDietaOpen(true);
     } catch (error) {
       message.error("Não foi possível carregar os dados base para a dieta.");
@@ -268,17 +291,15 @@ export const useConsultasManager = () => {
 
   const handleVerDietaDaTabela = async (consulta) => {
     try {
-      // Fetches the report to extract the nested diet object
       const response = await avaliacoesDaClinicaAPI.getByConsultaId(
         consulta.id,
       );
       const avaliacao = response.data;
-
-      // Extract the diet (adjust 'dieta' to match your backend DTO property name if necessary)
-      const dieta = avaliacao.dieta || avaliacao.dieta;
+      const dieta = avaliacao.dieta || avaliacao.dietaPersonalizada;
 
       if (dieta) {
-        setDietaParaVisualizar(dieta);
+        // INJETANDO a consulta no objeto da dieta para podermos Editar a partir do footer
+        setDietaParaVisualizar({ ...dieta, consultaOrigem: consulta });
         setIsModalVisualizarDietaOpen(true);
       } else {
         message.warning("Dados da dieta não encontrados neste relatório.");
@@ -291,6 +312,62 @@ export const useConsultasManager = () => {
   const handleCloseModalVisualizarDieta = () => {
     setIsModalVisualizarDietaOpen(false);
     setDietaParaVisualizar(null);
+  };
+
+  // Abre a edição aproveitando a inteligência do cálculo da tabela
+  const handleEditarDietaDaTabela = async (consulta) => {
+    try {
+      const response = await avaliacoesDaClinicaAPI.getByConsultaId(
+        consulta.id,
+      );
+      const avaliacao = response.data;
+      const dieta = avaliacao.dieta || avaliacao.dietaPersonalizada;
+
+      if (!dieta) return message.warning("Dieta não encontrada.");
+
+      // Popula os dados base
+      setDadosConsulta({
+        consultaId: consulta.id,
+        consultaOrigem: consulta,
+        avaliacaoId: avaliacao.id,
+        acompanhamentoId: consulta.acompanhamentoId,
+        animalId: consulta.animalId,
+        nomeAnimal: consulta.nomeAnimal,
+        especieAnimal: consulta.especieAnimal,
+        peso: avaliacao.peso,
+        condicaoCorporal: avaliacao.condicaoCorporal,
+        nomeRaca: consulta.nomeRaca,
+        pesoMinimoRaca: consulta.pesoMinimoRaca,
+        pesoMaximoRaca: consulta.pesoMaximoRaca,
+      });
+
+      const especie =
+        consulta.especieAnimal === "Gato" || consulta.especieAnimal === 2
+          ? 2
+          : 1;
+      const racoes = await racoesDaClinicaAPI.listar(especie);
+      setRacoesDisponiveis(racoes);
+
+      // Define que estamos em modo de edição
+      setDietaEmEdicao({ ...dieta, consultaOrigem: consulta });
+      setIsModalVisualizarDietaOpen(false); // Fecha visualização se estiver aberta
+      setIsModalDietaOpen(true);
+    } catch (error) {
+      message.error("Erro ao preparar a edição da dieta.");
+    }
+  };
+
+  // Exclusão global da dieta
+  const handleExcluirDieta = async (dietaId) => {
+    try {
+      await acompanhamentoAPI.deletarDieta(dietaId);
+      message.success("Dieta excluída com sucesso!");
+      handleCloseModalVisualizarDieta(); // Fecha se estiver visualizando
+      handleCloseModalDieta(); // Fecha se estiver editando
+      await fetchConsultas();
+    } catch (error) {
+      message.error("Erro ao excluir a dieta.");
+    }
   };
 
   return {
@@ -311,7 +388,8 @@ export const useConsultasManager = () => {
     handleSubmitAvaliacao,
     handleDeleteAvaliacao,
     isNextActionModalOpen,
-    idsSalvos,
+    dadosConsulta,
+    dietaEmEdicao,
     handleNextActionClose,
     handleIrParaAcompanhamento,
     isModalDietaOpen,
@@ -321,6 +399,8 @@ export const useConsultasManager = () => {
     handleCloseModalDieta,
     handleSubmitDieta,
     handleCalcularDietaDaTabela,
+    handleEditarDietaDaTabela,
+    handleExcluirDieta,
     isModalVisualizarDietaOpen,
     dietaParaVisualizar,
     handleVerDietaDaTabela,

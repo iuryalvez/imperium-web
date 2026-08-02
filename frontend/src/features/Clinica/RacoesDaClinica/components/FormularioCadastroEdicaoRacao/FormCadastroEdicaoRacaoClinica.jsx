@@ -58,27 +58,27 @@ const FormCadastroEdicaoRacaoClinica = ({ initialValues, onFinish }) => {
             <Row gutter={24}>
                 <Col xs={12} sm={8}>
                     <Form.Item name="umidade" label="Umidade" rules={[{ required: true }]}>
-                        <InputNumber style={{ width: '100%' }} placeholder='0,00' min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
+                        <InputNumber style={{ width: '100%' }} placeholder='Ex: 9,87' min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
                     </Form.Item>
                 </Col>
                 <Col xs={12} sm={8}>
                     <Form.Item name="proteinaBruta" label="Proteína Bruta" rules={[{ required: true }]}>
-                        <InputNumber style={{ width: '100%' }} placeholder='0,00' min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
+                        <InputNumber style={{ width: '100%' }} placeholder='Ex: 9,87' min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
                     </Form.Item>
                 </Col>
                 <Col xs={12} sm={8}>
                     <Form.Item name="extratoEtereo" label="Extrato Etéreo" rules={[{ required: true }]}>
-                        <InputNumber style={{ width: '100%' }} placeholder='0,00' min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
+                        <InputNumber style={{ width: '100%' }} placeholder='Ex: 9,87' min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
                     </Form.Item>
                 </Col>
                 <Col xs={12} sm={8}>
                     <Form.Item name="materiaMineral" label="Matéria Mineral" rules={[{ required: true }]}>
-                        <InputNumber style={{ width: '100%' }} placeholder='0,00' min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
+                        <InputNumber style={{ width: '100%' }} placeholder='Ex: 9,87' min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
                     </Form.Item>
                 </Col>
                 <Col xs={12} sm={8}>
                     <Form.Item name="fibraBruta" label="Fibra Bruta" rules={[{ required: true }]}>
-                        <InputNumber style={{ width: '100%' }} placeholder='0,00' min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
+                        <InputNumber style={{ width: '100%' }} placeholder='Ex: 9,87' min={0} max={maximo} step={0.1} decimalSeparator="," addonAfter={suffix} />
                     </Form.Item>
                 </Col>
             </Row>

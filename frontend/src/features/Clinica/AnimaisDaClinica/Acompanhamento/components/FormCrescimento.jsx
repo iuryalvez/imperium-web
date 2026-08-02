@@ -2,34 +2,28 @@ import React from "react";
 import { Form, InputNumber, Row, Col } from "antd";
 
 const FormCrescimento = () => (
-  <Row gutter={16}>
-    <Col span={12}>
-      <Form.Item
-        name="pesoAtual"
-        label="Peso Atual (kg)"
-        rules={[{ required: true }]}
-      >
-        <InputNumber
-          placeholder="Ex: 0,8"
-          style={{ width: "100%" }}
-          min={0}
-          step={0.01}
-          decimalSeparator=","
-        />
-      </Form.Item>
-    </Col>
-    <Col span={12}>
-      <Form.Item name="pesoObjetivo" label="Peso Adulto Estimado (kg)">
-        <InputNumber
-          placeholder="Ex: 5,0"
-          style={{ width: "100%" }}
-          min={0}
-          step={0.01}
-          decimalSeparator=","
-        />
-      </Form.Item>
-    </Col>
-  </Row>
+  <div className="bg-gray-50 p-4 rounded-md border border-gray-200 mb-4">
+    <h4 className="text-sm font-semibold text-gray-700 mb-3">
+      Ajuste Específico de Crescimento
+    </h4>
+    <Row gutter={16}>
+      <Col span={24}>
+        <Form.Item
+          name="pesoObjetivo"
+          label="Peso Adulto Estimado (kg)"
+          tooltip="A meta de peso apenas para esta prescrição específica. Se deixado em branco, o sistema usará o Peso Ideal cadastrado."
+        >
+          <InputNumber
+            placeholder="Ex: 17,5"
+            style={{ width: "100%" }}
+            min={0}
+            step={0.01}
+            decimalSeparator=","
+          />
+        </Form.Item>
+      </Col>
+    </Row>
+  </div>
 );
 
 export default FormCrescimento;

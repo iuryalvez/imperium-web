@@ -50,7 +50,7 @@ const FormCadastroRaca = ({ onFinish, onCancel, isSubmitting }) => {
         <Col xs={24} md={12}>
           <Form.Item name="pesoMinimoReferenciaFemea" label="Peso Mínimo (kg)">
             <InputNumber
-              placeholder="0,00"
+              placeholder="Ex: 9,87"
               style={{ width: "100%" }}
               min={0}
               step={0.01}
@@ -61,7 +61,7 @@ const FormCadastroRaca = ({ onFinish, onCancel, isSubmitting }) => {
         <Col xs={24} md={12}>
           <Form.Item name="pesoMaximoReferenciaFemea" label="Peso Máximo (kg)">
             <InputNumber
-              placeholder="0,00"
+              placeholder="Ex: 9,87"
               style={{ width: "100%" }}
               min={0}
               step={0.01}
@@ -78,7 +78,7 @@ const FormCadastroRaca = ({ onFinish, onCancel, isSubmitting }) => {
         <Col xs={24} md={12}>
           <Form.Item name="pesoMinimoReferenciaMacho" label="Peso Mínimo (kg)">
             <InputNumber
-              placeholder="0,00"
+              placeholder="Ex: 9,87"
               style={{ width: "100%" }}
               min={0}
               step={0.01}
@@ -89,7 +89,7 @@ const FormCadastroRaca = ({ onFinish, onCancel, isSubmitting }) => {
         <Col xs={24} md={12}>
           <Form.Item name="pesoMaximoReferenciaMacho" label="Peso Máximo (kg)">
             <InputNumber
-              placeholder="0,00"
+              placeholder="Ex: 9,87"
               style={{ width: "100%" }}
               min={0}
               step={0.01}

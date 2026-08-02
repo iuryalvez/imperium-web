@@ -1,5 +1,3 @@
-// src/pages/Acompanhamento/components/FormularioNovaDieta/index.jsx
-
 import React, { useEffect } from "react";
 import {
   Form,
@@ -10,6 +8,7 @@ import {
   InputNumber,
   Alert,
   Divider,
+  Tag,
 } from "antd";
 import { useWatch } from "antd/es/form/Form";
 import { InfoCircleOutlined } from "@ant-design/icons";
@@ -48,7 +47,12 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
   const renderSpecificForm = () => {
     switch (tipoDietaSelecionado) {
       case 1:
-        return <FormManutencao />;
+        return (
+          <FormManutencao
+            form={form}
+            especie={initialValues?.especieAnimal} // 0/1 ou 'Cao'/'Gato' dependendo do seu DTO
+          />
+        );
       case 2:
         return <FormCrescimento />;
       case 3:
@@ -75,6 +79,7 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
             rules={[{ required: true }]}
           >
             <Select
+              placeholder="Selecione a ração"
               showSearch
               optionFilterProp="label"
               options={racoesOptions}
@@ -93,8 +98,26 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
       </Row>
 
       <Divider orientation="left" className="mt-0 mb-4 text-gray-500 text-sm">
-        Parâmetros de Peso
+        Parâmetros de Peso e Condição
       </Divider>
+
+      {/* Exibição do ECC registrado no relatório */}
+      <div className="mb-4 flex items-center bg-gray-50 border border-gray-200 p-3 rounded-md">
+        <span className="text-gray-600 mr-2 text-sm">
+          Condição Corporal (ECC) Registrada:
+        </span>
+        <Tag
+          color={initialValues?.condicaoCorporal === 5 ? "green" : "orange"}
+          className="m-0 font-bold"
+        >
+          {initialValues?.condicaoCorporal
+            ? `${initialValues.condicaoCorporal} / 9`
+            : "N/A"}
+        </Tag>
+        <span className="text-xs text-gray-400 ml-2">
+          (Definido na avaliação clínica)
+        </span>
+      </div>
 
       {dadosRaca?.nome && (dadosRaca.pesoMin || dadosRaca.pesoMax) && (
         <Alert
@@ -116,6 +139,7 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
           >
             <InputNumber
               style={{ width: "100%" }}
+              placeholder="Ex: 15,0"
               min={0}
               step={0.01}
               decimalSeparator=","
@@ -126,8 +150,8 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
         <Col span={12}>
           <Form.Item
             name="pesoIdeal"
-            label="Peso Ideal (kg)"
-            tooltip="Este peso ficará salvo no cadastro do paciente e será a nova Fonte da Verdade para os cálculos energéticos da dieta, sobrescrevendo a referência geral da raça."
+            label="Peso Referência / Ideal (kg)"
+            tooltip="Ficará salvo no cadastro do paciente e será a nova base para os cálculos energéticos, sobrescrevendo a raça."
           >
             <InputNumber
               placeholder="Ex: 15,0"

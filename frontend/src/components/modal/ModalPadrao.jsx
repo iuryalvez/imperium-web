@@ -1,5 +1,6 @@
 import React from "react";
-import { Modal, Button, Space } from "antd";
+import { Modal, Button, Space, Popconfirm } from "antd";
+import { DeleteOutlined, EditOutlined, FormOutlined } from "@ant-design/icons";
 
 const ModalPadrao = ({
   open,
@@ -8,15 +9,40 @@ const ModalPadrao = ({
   icon,
   formId,
   isSubmitting,
-  modo = "edicao", // Aceita "criacao", "edicao" ou "detalhes"
+  isDeleting, // Optional loading state for delete actions
+  onEdit, // Triggers edit mode from details view
+  onDelete, // Triggers deletion
+  modo = "edicao",
   width = "min(800px, 95vw)",
   children,
 }) => {
-  // Dynamically renders the footer based on the modal's mode
   const renderFooter = () => {
     if (modo === "detalhes") {
+      // Renders View-only actions with optional Edit and Delete buttons
       return (
         <div className="modal-footer-actions">
+          {onDelete && (
+            <Popconfirm
+              title="Tem certeza que deseja excluir este item?"
+              onConfirm={onDelete}
+              okText="Sim"
+              cancelText="Não"
+            >
+              <Button danger icon={<DeleteOutlined />} loading={isDeleting}>
+                Excluir
+              </Button>
+            </Popconfirm>
+          )}
+          {onEdit && (
+            <Button
+              key="edit"
+              type="primary"
+              onClick={onEdit}
+              icon={<EditOutlined />}
+            >
+              Editar
+            </Button>
+          )}
           <Button key="close" onClick={onCancel}>
             Fechar
           </Button>
@@ -24,8 +50,21 @@ const ModalPadrao = ({
       );
     }
 
+    // Renders Form actions. Delete is conditionally shown only during 'edicao'
     return (
       <div className="modal-footer-actions">
+        {modo === "edicao" && onDelete && (
+          <Popconfirm
+            title="Tem certeza que deseja excluir este item?"
+            onConfirm={onDelete}
+            okText="Sim"
+            cancelText="Não"
+          >
+            <Button danger icon={<DeleteOutlined />} loading={isDeleting}>
+              Excluir
+            </Button>
+          </Popconfirm>
+        )}
         <Button key="cancel" onClick={onCancel}>
           Cancelar
         </Button>
@@ -35,6 +74,7 @@ const ModalPadrao = ({
           type="primary"
           htmlType="submit"
           loading={isSubmitting}
+          icon={<FormOutlined />}
         >
           {modo === "criacao" ? "Cadastrar" : "Salvar Alterações"}
         </Button>
@@ -47,9 +87,7 @@ const ModalPadrao = ({
       title={
         <Space>
           {icon && React.cloneElement(icon, { className: "modal-title-icon" })}
-          <span className="text-verde-escuro m-0 text-lg">
-            {title}
-          </span>
+          <span className="text-verde-escuro m-0 text-lg">{title}</span>
         </Space>
       }
       open={open}

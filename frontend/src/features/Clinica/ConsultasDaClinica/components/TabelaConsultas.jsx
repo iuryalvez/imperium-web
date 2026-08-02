@@ -4,6 +4,8 @@ import {
   MoreOutlined,
   LineChartOutlined,
   CalculatorOutlined,
+  EditOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 
@@ -14,6 +16,7 @@ const TabelaConsultas = ({
   onOpenAvaliacao,
   onVerDieta,
   onCalcularDieta,
+  onEditarDieta,
   onIrParaAcompanhamento,
   loading,
 }) => {
@@ -53,16 +56,14 @@ const TabelaConsultas = ({
     {
       title: "Ações",
       key: "acoes",
-      render: (
-        _,
-        consulta,
-      ) => (
+      render: (_, consulta) => (
         <Dropdown
           overlay={
             <Menu>
               <Menu.Item
                 key="edit-avaliacao"
                 onClick={() => onOpenAvaliacao(consulta)}
+                icon={<EditOutlined />}
               >
                 {consulta.avaliacaoPreenchida
                   ? "Editar Avaliação Clínica"
@@ -71,14 +72,23 @@ const TabelaConsultas = ({
 
               <Menu.Divider />
 
-              {/* Se o DTO mandar a prop dietaId preenchida, mostramos Ver. Se não, Calcular. */}
               {consulta.dietaId ? (
-                <Menu.Item
-                  key="view-diet"
-                  onClick={() => onVerDieta(consulta)}
-                >
-                  Ver Dieta Prescrita
-                </Menu.Item>
+                <>
+                  <Menu.Item
+                    key="view-diet"
+                    icon={<EyeOutlined />}
+                    onClick={() => onVerDieta(consulta)}
+                  >
+                    Ver Dieta Prescrita
+                  </Menu.Item>
+                  <Menu.Item
+                    key="edit-diet"
+                    icon={<EditOutlined />}
+                    onClick={() => onEditarDieta(consulta)}
+                  >
+                    Editar Dieta Prescrita
+                  </Menu.Item>
+                </>
               ) : (
                 <Menu.Item
                   key="calc-diet"

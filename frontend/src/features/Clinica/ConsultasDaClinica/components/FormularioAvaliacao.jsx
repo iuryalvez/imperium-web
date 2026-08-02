@@ -258,7 +258,7 @@ const FormularioAvaliacao = ({ consulta, initialValues, onFinish }) => {
         <Col xs={24} sm={12}>
           <Form.Item name="peso" label="Peso (kg)" rules={[{ required: true }]}>
             <InputNumber
-              placeholder="0,00"
+              placeholder="Ex: 9,87"
               style={{ width: "100%" }}
               min={0}
               step={0.01}

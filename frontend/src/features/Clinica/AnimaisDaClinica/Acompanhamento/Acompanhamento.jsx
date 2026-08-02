@@ -84,7 +84,7 @@ const Acompanhamento = () => {
         modo="criacao"
         open={isModalCriarDietaOpen}
         onCancel={handleCloseModalCriarDieta}
-        title={`Calcular Dieta (${dayjs(avaliacaoSelecionado?.dataConsulta).format("DD/MM/YYYY")})`}
+        title={`Dieta - Paciente: ${historico?.nome || "Desconhecido"} (${dayjs(avaliacaoSelecionado?.dataConsulta).format("DD/MM/YYYY")})`}
         icon={<FormOutlined />}
         formId="form-dieta-animal"
         isSubmitting={isSubmitting}
@@ -104,7 +104,7 @@ const Acompanhamento = () => {
         modo="edicao"
         open={isModalEditarDietaOpen}
         onCancel={handleCloseModalEditarDieta}
-        title={`Editar Dieta (${dayjs(dietaParaEditar?.dataConsulta).format("DD/MM/YYYY")})`}
+        title={`Editar Dieta - Paciente: ${historico?.nome || "Desconhecido"} (${dayjs(dietaParaEditar?.dataConsulta).format("DD/MM/YYYY")})`}
         icon={<EditOutlined />}
         formId="form-dieta-animal"
         isSubmitting={isSubmitting}

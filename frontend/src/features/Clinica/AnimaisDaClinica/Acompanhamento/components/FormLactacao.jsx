@@ -1,4 +1,3 @@
-// .../FormularioNovaDieta/FormLactacao.jsx
 import React from 'react';
 import { Form, InputNumber, Row, Col } from 'antd';
 
