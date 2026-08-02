@@ -1,14 +1,15 @@
 import React from "react";
-import { Skeleton, Result, Button, Divider } from "antd";
+import { Skeleton, Result, Button, Tabs, Modal, Space, Popconfirm } from "antd";
 import { Link } from "react-router-dom";
-import { FormOutlined, EditOutlined, ProfileOutlined } from "@ant-design/icons";
+import { FormOutlined, EditOutlined, ProfileOutlined, FileTextOutlined, DeleteOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useAcompanhamentoManager } from "./useAcompanhamentoManager";
-import ListaAvaliacoes from "./components/ListaAvaliacoes";
+import TabelaConsultasAvaliacoesDietas from "./components/TabelaConsultasAvaliacoesDietas";
 import FormularioDieta from "./components/FormularioDieta";
 import DetalhesDieta from "./components/DetalhesDieta";
 import FichaGeralAnimal from "./components/FichaGeralAnimal";
 import ModalPadrao from "../../../../components/modal/ModalPadrao";
+import FormularioAvaliacao from "../../ConsultasDaClinica/components/FormularioAvaliacao";
 
 const Acompanhamento = () => {
   const {
@@ -22,6 +23,14 @@ const Acompanhamento = () => {
     dietaParaVisualizar,
     dietaParaEditar,
     isSubmitting,
+    isAvaliacaoModalOpen,
+    selectedConsulta,
+    avaliacaoData,
+    loadingAvaliacao,
+    handleOpenAvaliacaoModal,
+    handleCloseAvaliacaoModal,
+    handleSubmitAvaliacao,
+    handleDeleteAvaliacao,
     handleOpenModalCriarDieta,
     handleCloseModalCriarDieta,
     handleOpenModalVisualizarDieta,
@@ -60,24 +69,93 @@ const Acompanhamento = () => {
   const avaliacaoMaisRecente = avaliacoesOrdenados[0];
   const dietaMaisRecente = avaliacoesOrdenados.find((rel) => rel.dieta)?.dieta;
 
+  const tabItems = [
+    {
+      key: "1",
+      label: "Ficha Geral",
+      children: (
+        <FichaGeralAnimal
+          animal={historico}
+          avaliacaoRecente={avaliacaoMaisRecente}
+          dietaRecente={dietaMaisRecente}
+        />
+      ),
+    },
+    {
+      key: "2",
+      label: "Consultas",
+      children: (
+        <TabelaConsultasAvaliacoesDietas
+          avaliacoes={historico.acompanhamento.avaliacoes}
+          onOpenAvaliacao={handleOpenAvaliacaoModal}
+          onOpenModalCriarDieta={handleOpenModalCriarDieta}
+          onOpenModalVisualizarDieta={handleOpenModalVisualizarDieta}
+          onOpenModalEditarDieta={handleOpenModalEditarDieta}
+          onExcluirDieta={handleExcluirDieta}
+        />
+      ),
+    },
+  ];
+
   return (
     <div>
-      {/* Título externo removido, a FichaGeralAnimal agora possui seu próprio título */}
-      <FichaGeralAnimal
-        animal={historico}
-        avaliacaoRecente={avaliacaoMaisRecente}
-        dietaRecente={dietaMaisRecente}
-      />
+      <Tabs defaultActiveKey="1" items={tabItems} className="mt-4" />
 
-      <Divider orientation="left">Histórico</Divider>
+      {/* Modal de Avaliação da Consulta */}
+      <Modal
+        title={
+          <Space>
+            <FileTextOutlined className="modal-title-icon" />
+            <span className="text-verde-escuro m-0 text-lg">
+              Avaliação da Consulta - {selectedConsulta?.nomeAnimal || historico?.nome}
+            </span>
+          </Space>
+        }
+        open={isAvaliacaoModalOpen}
+        onCancel={handleCloseAvaliacaoModal}
+        style={{ top: 40 }}
+        footer={
+          <div className="modal-footer-actions">
+            <Button onClick={handleCloseAvaliacaoModal}>Cancelar</Button>
 
-      <ListaAvaliacoes
-        avaliacoes={historico.acompanhamento.avaliacoes}
-        onOpenModalCriarDieta={handleOpenModalCriarDieta}
-        onOpenModalVisualizarDieta={handleOpenModalVisualizarDieta}
-        onOpenModalEditarDieta={handleOpenModalEditarDieta}
-        onExcluirDieta={handleExcluirDieta}
-      />
+            {avaliacaoData && (
+              <Popconfirm
+                title="Excluir relatório"
+                description="Tem certeza que deseja excluir este relatório? Esta ação não pode ser desfeita."
+                onConfirm={() => handleDeleteAvaliacao(avaliacaoData.id)}
+                okText="Sim, Excluir"
+                cancelText="Cancelar"
+              >
+                <Button icon={<DeleteOutlined />} danger>
+                  Excluir
+                </Button>
+              </Popconfirm>
+            )}
+
+            <Button
+              form="form-avaliacao-consulta-clinica"
+              type="primary"
+              htmlType="submit"
+            >
+              Salvar Avaliação
+            </Button>
+          </div>
+        }
+        destroyOnClose
+        width="min(800px, 95vw)"
+      >
+        <div className="modal-scroll-container">
+          {loadingAvaliacao ? (
+            <Skeleton active />
+          ) : (
+            <FormularioAvaliacao
+              consulta={selectedConsulta || { especieAnimal: historico?.especie, sexoAnimal: historico?.sexo }}
+              initialValues={avaliacaoData}
+              onFinish={handleSubmitAvaliacao}
+            />
+          )}
+        </div>
+      </Modal>
 
       {/* Modal Padrao: Criar Dieta */}
       <ModalPadrao

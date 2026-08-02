@@ -2,13 +2,20 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { acompanhamentoAPI } from "../../../../api/clinica/acompanhamentoAPI";
 import { racoesDaClinicaAPI } from "../../../../api/clinica/racoesDaClinicaAPI";
+import { avaliacoesDaClinicaAPI } from "../../../../api/clinica/avaliacoesDaClinicaAPI";
 import { message } from "antd";
 
 export const useAcompanhamentoManager = () => {
-  const { acompanhamentoId } = useParams(); // <-- Pega o ID correto da URL
+  const { acompanhamentoId } = useParams();
   const [historico, setHistorico] = useState(null);
   const [loading, setLoading] = useState(true);
   const [racoes, setRacoes] = useState([]);
+
+  // Estado para Avaliações
+  const [isAvaliacaoModalOpen, setIsAvaliacaoModalOpen] = useState(false);
+  const [selectedConsulta, setSelectedConsulta] = useState(null);
+  const [avaliacaoData, setAvaliacaoData] = useState(null);
+  const [loadingAvaliacao, setLoadingAvaliacao] = useState(false);
 
   // Estado para o modal de CRIAÇÃO de dieta
   const [isModalCriarDietaOpen, setIsModalCriarDietaOpen] = useState(false);
@@ -55,6 +62,68 @@ export const useAcompanhamentoManager = () => {
     }
   }, [acompanhamentoId, fetchHistorico]);
 
+  // --- LÓGICA DE AVALIAÇÕES ---
+  const handleOpenAvaliacaoModal = useCallback(async (consulta) => {
+    setSelectedConsulta(consulta);
+    setIsAvaliacaoModalOpen(true);
+    setLoadingAvaliacao(true);
+    
+    // Na tabela detalhada (antiga ListaAvaliacoes), a 'consulta' pode ser na verdade um objeto avaliacao
+    // com um id da avaliação. Mas a API espera o ID da consulta original (consultaId) ou já retorna a avaliação?
+    // Atualmente, as listagens em 'avaliacoes' são as próprias avaliações. 
+    // Como combinamos com o usuário que listaríamos "todas as consultas" (ainda a implementar no back),
+    // vamos assumir que 'consulta' terá consultaId e avaliacaoPreenchida ou usaremos consulta.id
+    const consultaId = consulta.consultaId || consulta.id; // Fallback temporário
+    
+    // Se estivermos abrindo de uma avaliação existente, já temos os dados no objeto,
+    // mas por garantia, buscaremos da API
+    try {
+      // Como na Listagem atual a prop é avaliacao.id (que é o id da avaliação) e precisamos do ID da consulta,
+      // usaremos o endpoint se for uma consulta que já possui avaliação.
+      const response = await avaliacoesDaClinicaAPI.getByConsultaId(consultaId);
+      setAvaliacaoData(response.data);
+    } catch (error) {
+      // Se não encontrar, ou for nova, setamos null
+      // Vamos injetar os dados da avaliação existente se houver
+      setAvaliacaoData(consulta.condicaoCorporal ? consulta : null);
+    } finally {
+      setLoadingAvaliacao(false);
+    }
+  }, []);
+
+  const handleCloseAvaliacaoModal = () => {
+    setIsAvaliacaoModalOpen(false);
+    setSelectedConsulta(null);
+    setAvaliacaoData(null);
+  };
+
+  const handleSubmitAvaliacao = async (formValues) => {
+    if (!selectedConsulta) return;
+    const consultaId = selectedConsulta.consultaId || selectedConsulta.id;
+    try {
+      await avaliacoesDaClinicaAPI.upsert(consultaId, formValues);
+      message.success("Avaliação salva com sucesso!");
+      handleCloseAvaliacaoModal();
+      await fetchHistorico(); // Recarrega os dados do acompanhamento
+    } catch (error) {
+      message.error("Falha ao salvar a avaliação.");
+      throw error;
+    }
+  };
+
+  const handleDeleteAvaliacao = async (avaliacaoId) => {
+    try {
+      await avaliacoesDaClinicaAPI.deletar(avaliacaoId);
+      message.success("Avaliação excluída com sucesso!");
+      handleCloseAvaliacaoModal();
+      await fetchHistorico();
+    } catch (error) {
+      message.error("Falha ao excluir a avaliação.");
+    }
+  };
+
+
+  // --- LÓGICA DE DIETAS ---
   const handleCloseModalCriarDieta = () => {
     setIsModalCriarDietaOpen(false);
     setAvaliacaoSelecionado(null);
@@ -86,12 +155,10 @@ export const useAcompanhamentoManager = () => {
   };
 
   const handleCriarDieta = async (values) => {
-    // O ID deve estar acessível pelo hook ou pelo relatório selecionado
     if (!historico?.acompanhamento?.id || !avaliacaoSelecionado?.id) return;
 
     setIsSubmitting(true);
     try {
-      // Montamos o payload com todas as chaves obrigatórias do novo backend DTO
       const payloadDieta = {
         ...values,
         acompanhamentoId: historico.acompanhamento.id,
@@ -126,7 +193,7 @@ export const useAcompanhamentoManager = () => {
       if (result.succeeded) {
         message.success("Dieta atualizada com sucesso!");
         handleCloseModalEditarDieta();
-        await fetchHistorico(); // Recarrega os dados
+        await fetchHistorico(); 
       } else {
         message.error(result.message || "Falha ao atualizar dieta.");
       }
@@ -137,13 +204,12 @@ export const useAcompanhamentoManager = () => {
     }
   };
 
-  // Função para EXCLUIR a dieta
   const handleExcluirDieta = async (dietaId) => {
     try {
       const result = await acompanhamentoAPI.deletarDieta(dietaId);
       if (result.succeeded) {
         message.success(result.message || "Dieta excluída com sucesso!");
-        await fetchHistorico(); // Recarrega os dados
+        await fetchHistorico(); 
       } else {
         message.error(result.message || "Falha ao excluir dieta.");
       }
@@ -152,7 +218,6 @@ export const useAcompanhamentoManager = () => {
     }
   };
 
-  // Retornamos o hook e a função para recarregar
   return {
     historico,
     loading,
@@ -164,6 +229,14 @@ export const useAcompanhamentoManager = () => {
     dietaParaVisualizar,
     dietaParaEditar,
     isSubmitting,
+    isAvaliacaoModalOpen,
+    selectedConsulta,
+    avaliacaoData,
+    loadingAvaliacao,
+    handleOpenAvaliacaoModal,
+    handleCloseAvaliacaoModal,
+    handleSubmitAvaliacao,
+    handleDeleteAvaliacao,
     handleOpenModalCriarDieta,
     handleCloseModalCriarDieta,
     handleOpenModalVisualizarDieta,

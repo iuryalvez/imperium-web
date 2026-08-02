@@ -43,18 +43,19 @@ const TabelaRacoesDaClinica = ({
           <Tooltip title="Ver Cálculos">
             <Button
               icon={<CalculatorOutlined />}
+              size="small"
               onClick={() => onView(record)}
             />
           </Tooltip>
           <Tooltip title="Editar">
-            <Button icon={<EditOutlined />} onClick={() => onEdit(record)} />
+            <Button icon={<EditOutlined />} size="small" onClick={() => onEdit(record)} />
           </Tooltip>
           <Tooltip title="Excluir">
             <Popconfirm
               title="Tem certeza que deseja excluir esta ração?"
               onConfirm={() => onDelete(record.id)}
             >
-              <Button icon={<DeleteOutlined />} danger />
+              <Button icon={<DeleteOutlined />} size="small" danger />
             </Popconfirm>
           </Tooltip>
         </Space>

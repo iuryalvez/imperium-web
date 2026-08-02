@@ -92,7 +92,7 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
             label="Tipo da Dieta"
             rules={[{ required: true }]}
           >
-            <Select options={opcoesTipoDieta} />
+            <Select options={opcoesTipoDieta} placeholder="Selecione o tipo da dieta" />
           </Form.Item>
         </Col>
       </Row>

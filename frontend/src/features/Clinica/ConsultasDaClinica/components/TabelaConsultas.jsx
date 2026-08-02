@@ -1,11 +1,9 @@
 import React from "react";
-import { Table, Button, Tag, Menu, Dropdown } from "antd";
+import { Table, Button, Tag, Space, Popconfirm, Tooltip } from "antd";
 import {
-  MoreOutlined,
   LineChartOutlined,
-  CalculatorOutlined,
   EditOutlined,
-  EyeOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 
@@ -13,10 +11,6 @@ const TabelaConsultas = ({
   consultas,
   onEdit,
   onDelete,
-  onOpenAvaliacao,
-  onVerDieta,
-  onCalcularDieta,
-  onEditarDieta,
   onIrParaAcompanhamento,
   loading,
 }) => {
@@ -57,63 +51,39 @@ const TabelaConsultas = ({
       title: "Ações",
       key: "acoes",
       render: (_, consulta) => (
-        <Dropdown
-          overlay={
-            <Menu>
-              <Menu.Item
-                key="edit-avaliacao"
-                onClick={() => onOpenAvaliacao(consulta)}
-                icon={<EditOutlined />}
-              >
-                {consulta.avaliacaoPreenchida
-                  ? "Editar Avaliação Clínica"
-                  : "Preencher Avaliação Clínica"}
-              </Menu.Item>
+        <Space size="small">
+          <Tooltip title="Editar Agendamento">
+            <Button
+              type="primary"
+              size="small"
+              icon={<EditOutlined />}
+              onClick={() => onEdit(consulta)}
+              ghost
+            />
+          </Tooltip>
 
-              <Menu.Divider />
+          <Tooltip title="Excluir Consulta">
+            <Popconfirm
+              title="Excluir consulta"
+              description="Tem certeza que deseja excluir esta consulta?"
+              onConfirm={() => onDelete(consulta.id)}
+              okText="Sim"
+              cancelText="Não"
+            >
+              <Button type="primary" size="small" danger icon={<DeleteOutlined />} ghost />
+            </Popconfirm>
+          </Tooltip>
 
-              {consulta.dietaId ? (
-                <>
-                  <Menu.Item
-                    key="view-diet"
-                    icon={<EyeOutlined />}
-                    onClick={() => onVerDieta(consulta)}
-                  >
-                    Ver Dieta Prescrita
-                  </Menu.Item>
-                  <Menu.Item
-                    key="edit-diet"
-                    icon={<EditOutlined />}
-                    onClick={() => onEditarDieta(consulta)}
-                  >
-                    Editar Dieta Prescrita
-                  </Menu.Item>
-                </>
-              ) : (
-                <Menu.Item
-                  key="calc-diet"
-                  icon={<CalculatorOutlined />}
-                  onClick={() => onCalcularDieta(consulta)}
-                  disabled={!consulta.avaliacaoPreenchida}
-                >
-                  Calcular Dieta
-                </Menu.Item>
-              )}
-
-              <Menu.Divider />
-
-              <Menu.Item
-                key="timeline"
-                icon={<LineChartOutlined />}
-                onClick={() => onIrParaAcompanhamento(consulta.animalId)}
-              >
-                Ver Acompanhamento
-              </Menu.Item>
-            </Menu>
-          }
-        >
-          <Button type="text" icon={<MoreOutlined />} />
-        </Dropdown>
+          <Tooltip title="Ver Acompanhamento (Ficha/Avaliação/Dieta)">
+            <Button
+              type="primary"
+              size="small"
+              icon={<LineChartOutlined />}
+              onClick={() => onIrParaAcompanhamento(consulta.animalId)}
+              className="bg-verde-medio border-none hover:bg-verde-realce text-white"
+            />
+          </Tooltip>
+        </Space>
       ),
     },
   ];
