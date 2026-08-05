@@ -1,11 +1,20 @@
-import React from "react";
-import { Table, Button, Tag, Space, Popconfirm, Tooltip } from "antd";
+import React, { useState, useMemo } from "react";
+import {
+  Table,
+  Button,
+  Space,
+  Popconfirm,
+  Tooltip,
+  Dropdown,
+  Checkbox,
+} from "antd";
 import {
   LineChartOutlined,
   EditOutlined,
   DeleteOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
-import dayjs from "dayjs";
+import colunas from "./colunas";
 
 const TabelaConsultas = ({
   consultas,
@@ -14,51 +23,31 @@ const TabelaConsultas = ({
   onIrParaAcompanhamento,
   loading,
 }) => {
-  const colunas = [
-    {
-      title: "Data da Consulta",
-      dataIndex: "dataConsulta",
-      render: (data) => dayjs(data).format("DD/MM/YYYY HH:mm"),
-      sorter: (a, b) =>
-        dayjs(a.dataConsulta).unix() - dayjs(b.dataConsulta).unix(),
-    },
-    {
-      title: "Paciente",
-      dataIndex: "nomeAnimal",
-      sorter: (a, b) => a.nomeAnimal.localeCompare(b.nomeAnimal),
-    },
-    {
-      title: "Tutor",
-      dataIndex: "nomeTutor",
-      sorter: (a, b) => a.nomeTutor.localeCompare(b.nomeTutor),
-    },
-    { title: "Veterinário", dataIndex: "nomeUsuario" },
-    {
-      title: "Avaliação",
-      dataIndex: "avaliacaoPreenchida",
-      render: (preenchido) => (
-        <Tag color={preenchido ? "green" : "orange"}>
-          {preenchido ? "Preenchido" : "Pendente"}
-        </Tag>
-      ),
-      filters: [
-        { text: "Preenchido", value: true },
-        { text: "Pendente", value: false },
-      ],
-      onFilter: (value, record) => record.avaliacaoPreenchida === value,
-    },
-    {
+  const [visibleColumns, setVisibleColumns] = useState([
+    "dataConsulta",
+    "nomeAnimal",
+    "nomeTutor",
+    "nomeUsuario",
+    "avaliacaoPreenchida",
+  ]);
+
+  const handleColumnVisibilityChange = (key) => {
+    setVisibleColumns((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
+  };
+
+  const colunaAcoes = useMemo(
+    () => ({
       title: "Ações",
       key: "acoes",
       render: (_, consulta) => (
         <Space size="small">
           <Tooltip title="Editar Agendamento">
             <Button
-              type="primary"
               size="small"
               icon={<EditOutlined />}
               onClick={() => onEdit(consulta)}
-              ghost
             />
           </Tooltip>
 
@@ -70,7 +59,7 @@ const TabelaConsultas = ({
               okText="Sim"
               cancelText="Não"
             >
-              <Button type="primary" size="small" danger icon={<DeleteOutlined />} ghost />
+              <Button size="small" danger icon={<DeleteOutlined />} />
             </Popconfirm>
           </Tooltip>
 
@@ -85,16 +74,55 @@ const TabelaConsultas = ({
           </Tooltip>
         </Space>
       ),
-    },
-  ];
+    }),
+    [onEdit, onDelete, onIrParaAcompanhamento]
+  );
+
+  const colunasVisiveis = useMemo(
+    () => [
+      ...colunas.filter((col) => visibleColumns.includes(col.key)),
+      colunaAcoes,
+    ],
+    [visibleColumns, colunaAcoes]
+  );
+
+  const menuColunas = (
+    <div
+      style={{
+        padding: 8,
+        backgroundColor: "white",
+        border: "1px solid #d9d9d9",
+        borderRadius: 4,
+      }}
+    >
+      {colunas.map((col) => (
+        <div key={col.key}>
+          <Checkbox
+            checked={visibleColumns.includes(col.key)}
+            onChange={() => handleColumnVisibilityChange(col.key)}
+          >
+            {col.title}
+          </Checkbox>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
-    <Table
-      dataSource={consultas}
-      columns={colunas}
-      rowKey="id"
-      loading={loading}
-    />
+    <div>
+      <div style={{ marginBottom: 16, textAlign: "right" }}>
+        <Dropdown dropdownRender={() => menuColunas} trigger={["click"]}>
+          <Button icon={<SettingOutlined />}>Colunas</Button>
+        </Dropdown>
+      </div>
+      <Table
+        dataSource={consultas}
+        columns={colunasVisiveis}
+        rowKey="id"
+        loading={loading}
+        scroll={{ x: "max-content" }}
+      />
+    </div>
   );
 };
 

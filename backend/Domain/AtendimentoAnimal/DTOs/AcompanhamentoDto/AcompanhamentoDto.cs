@@ -6,16 +6,19 @@ namespace backend.Domain.AtendimentoAnimal
         public string Nome { get; set; }
         public string Especie { get; set; }
         public string Sexo { get; set; }
-        public int Idade { get; set; }
-        public string FaseVida { get; set; }
-        public string FaseVidaLabel { get; set; } = string.Empty;
+        public DateTime Nascimento { get; set; }
+        public bool IsCastrado { get; set; }
+        public string IdadeFormatada { get; set; }
+        public string FaseVidaAtual { get; set; }
+        public string FaseVidaAtualLabel { get; set; } = string.Empty;
         public double? PesoAtual { get; set; }
-        public string CondicaoCorporal { get; set; }
-        public string CondicaoCorporalLabel { get; set; } = string.Empty;
+        public string CondicaoCorporalAtual { get; set; }
+        public string CondicaoCorporalAtualLabel { get; set; } = string.Empty;
 
         public RacaResumidaDto Raca { get; set; }
         public List<TutorResumidoDto>? Tutores { get; set; }
         public AcompanhamentoDto Acompanhamento { get; set; }
+        public List<ConsultaDetalhadaDto>? Consultas { get; set; }
     }
 
     public class RacaResumidaDto
@@ -36,14 +39,20 @@ namespace backend.Domain.AtendimentoAnimal
     {
         public int Id { get; set; }
         public DateOnly DataInicio { get; set; }
-        public List<AvaliacaoDetalhadoDto>? Avaliacoes{ get; set; } // A linha do tempo
+    }
+
+    public class ConsultaDetalhadaDto
+    {
+        public int Id { get; set; }
+        public DateTime DataConsulta { get; set; }
+        public int TutorId { get; set; }
+        public string? ProfissionalResponsavel { get; set; }
+        public AvaliacaoDetalhadoDto? Avaliacao { get; set; }
     }
 
     public class AvaliacaoDetalhadoDto
     {
         public int Id { get; set; }
-        public DateTime DataConsulta { get; set; }
-        public string? ProfissionalResponsavel { get; set; }
 
         // Dados do relatório
         public double Peso { get; set; }

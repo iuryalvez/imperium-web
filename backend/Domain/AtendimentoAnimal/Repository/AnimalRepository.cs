@@ -86,22 +86,21 @@ namespace backend.Infra.Data.Repositories
                 .Include(a => a.TutoresAnimais!)
                     .ThenInclude(ta => ta.Tutor)
 
-                // Carrega o acompanhamento lista de relatórios (a linha do tempo)
+                // Carrega o acompanhamento
                 .Include(a => a.Acompanhamento)
-                    .ThenInclude(ac => ac!.Avaliacoes!.OrderByDescending(r => r.Consulta!.DataConsulta)) // Ordena pela data da consulta
 
-                        // A partir de cada relatório, carrega a dieta e a ração associada
-                        .ThenInclude(r => r.Dieta)
+                // Carrega as consultas do animal (a linha do tempo)
+                .Include(a => a.Consultas!.OrderByDescending(c => c.DataConsulta))
+                    .ThenInclude(c => c.Avaliacao)
+                        .ThenInclude(av => av!.Dieta)
                             .ThenInclude(d => d!.Racao)
 
-                        // A partir de cada relatório, carrega a consulta e o usuário responsável
-                        .Include(a => a.Acompanhamento)
-                            .ThenInclude(ac => ac.Avaliacoes!)
-                                .ThenInclude(r => r.Consulta)
-                                    .ThenInclude(c => c.Usuario)
+                // A partir de cada consulta, carrega o usuário responsável
+                .Include(a => a.Consultas)
+                    .ThenInclude(c => c.Usuario)
 
                 // Garante que estamos pegando o animal correto da clínica correta
-                .Where(a => a.Id == animalId && a.AnimaisClinicas.Any(ac => ac.ClinicaId == clinicaId))
+                .Where(a => a.Id == animalId && a.AnimaisClinicas!.Any(ac => ac.ClinicaId == clinicaId))
                 .FirstOrDefaultAsync();
         }
 

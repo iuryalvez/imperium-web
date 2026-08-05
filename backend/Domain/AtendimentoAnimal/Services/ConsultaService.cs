@@ -134,6 +134,12 @@ namespace backend.Domain.AtendimentoAnimal.Services
             if (consulta == null)
                 return new ServiceResult { Succeeded = false, Message = "Consulta não encontrada." };
 
+            // Validações de Negócio
+            if (await _animalRepository.GetByIdAndClinicaIdWithIncludesAsync(dto.AnimalId, clinicaId) == null)
+                return new ServiceResult { Succeeded = false, Message = "Animal não encontrado ou não pertence a esta clínica." };
+            if (await _tutorRepository.GetByIdAndClinicIdWithIncludesAsync(dto.TutorId, clinicaId) == null)
+                return new ServiceResult { Succeeded = false, Message = "Tutor não encontrado ou não pertence a esta clínica." };
+
             // Mapeia apenas os campos do DTO para a entidade existente
             _mapper.Map(dto, consulta);
 

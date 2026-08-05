@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import { acompanhamentoAPI } from "../../../../api/clinica/acompanhamentoAPI";
 import { racoesDaClinicaAPI } from "../../../../api/clinica/racoesDaClinicaAPI";
 import { avaliacoesDaClinicaAPI } from "../../../../api/clinica/avaliacoesDaClinicaAPI";
+import { consultasDaClinicaAPI } from "../../../../api/clinica/consultasDaClinicaAPI";
+import { animaisDaClinicaAPI } from "../../../../api/clinica/animaisDaClinicaAPI";
 import { message } from "antd";
 
 export const useAcompanhamentoManager = () => {
@@ -30,6 +32,27 @@ export const useAcompanhamentoManager = () => {
   const [isModalVisualizarDietaOpen, setIsModalVisualizarDietaOpen] =
     useState(false);
   const [dietaParaVisualizar, setDietaParaVisualizar] = useState(null);
+
+  // Estado para o modal de EDIÇÃO de consulta
+  const [isConsultaModalOpen, setIsConsultaModalOpen] = useState(false);
+  const [consultaToEdit, setConsultaToEdit] = useState(null);
+
+  // Estado para o modal de EDIÇÃO do animal
+  const [isEditAnimalModalOpen, setIsEditAnimalModalOpen] = useState(false);
+
+  const handleOpenEditAnimalModal = () => setIsEditAnimalModalOpen(true);
+  const handleCloseEditAnimalModal = () => setIsEditAnimalModalOpen(false);
+
+  const handleSubmitEditAnimal = async (values) => {
+    try {
+      await animaisDaClinicaAPI.atualizar(historico.id, values);
+      message.success("Animal atualizado com sucesso!");
+      handleCloseEditAnimalModal();
+      await fetchHistorico();
+    } catch (error) {
+      message.error("Erro ao atualizar o animal.");
+    }
+  };
 
   // Usamos useCallback para evitar recriações desnecessárias da função
   const fetchHistorico = useCallback(async () => {
@@ -218,6 +241,39 @@ export const useAcompanhamentoManager = () => {
     }
   };
 
+  const handleDeleteConsulta = async (consultaId) => {
+    try {
+      await consultasDaClinicaAPI.deletar(consultaId);
+      message.success("Consulta excluída com sucesso!");
+      await fetchHistorico();
+    } catch (error) {
+      message.error("Falha ao excluir a consulta.");
+    }
+  };
+
+  const handleEditConsulta = (consulta) => {
+    setConsultaToEdit(consulta);
+    setIsConsultaModalOpen(true);
+  };
+
+  const handleCloseConsultaModal = () => {
+    setIsConsultaModalOpen(false);
+    setConsultaToEdit(null);
+  };
+
+  const handleSubmitConsulta = async (values) => {
+    try {
+      if (consultaToEdit) {
+        await consultasDaClinicaAPI.atualizar(consultaToEdit.id, values);
+        message.success("Consulta atualizada com sucesso!");
+      }
+      handleCloseConsultaModal();
+      await fetchHistorico();
+    } catch (error) {
+      message.error("Falha ao salvar consulta.");
+    }
+  };
+
   return {
     historico,
     loading,
@@ -233,6 +289,8 @@ export const useAcompanhamentoManager = () => {
     selectedConsulta,
     avaliacaoData,
     loadingAvaliacao,
+    isConsultaModalOpen,
+    consultaToEdit,
     handleOpenAvaliacaoModal,
     handleCloseAvaliacaoModal,
     handleSubmitAvaliacao,
@@ -246,5 +304,13 @@ export const useAcompanhamentoManager = () => {
     handleCriarDieta,
     handleEditarDieta,
     handleExcluirDieta,
+    handleDeleteConsulta,
+    handleEditConsulta,
+    handleCloseConsultaModal,
+    handleSubmitConsulta,
+    isEditAnimalModalOpen,
+    handleOpenEditAnimalModal,
+    handleCloseEditAnimalModal,
+    handleSubmitEditAnimal,
   };
 };

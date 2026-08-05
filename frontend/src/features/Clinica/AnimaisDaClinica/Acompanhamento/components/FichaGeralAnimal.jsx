@@ -1,26 +1,12 @@
 import React from "react";
-import { Card, Typography, Row, Col, Divider } from "antd";
-import { ManOutlined, WomanOutlined } from "@ant-design/icons";
+import { Card, Typography, Row, Col, Button, Collapse, Space } from "antd";
+import { ManOutlined, WomanOutlined, ProfileOutlined, EditOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
-// Ícones PNG transformados em máscara CSS para herdar as cores do Tailwind
-import PetIconSrc from "../../../../../assets/animal/pet-14-svgrepo-com.png";
-import WeightIconSrc from "../../../../../assets/animal/pet-weight-weigh-a-pet-small-pet-svgrepo-com.png";
-import FoodIconSrc from "../../../../../assets/animal/dog-food-pet-svgrepo-com.png";
-
 const { Title, Text } = Typography;
+const { Panel } = Collapse;
 
-const CustomIconMask = ({ src, className = "w-4 h-4" }) => (
-  <div
-    className={`${className} bg-current inline-block`}
-    style={{
-      WebkitMask: `url(${src}) center/contain no-repeat`,
-      mask: `url(${src}) center/contain no-repeat`,
-    }}
-  />
-);
-
-const FichaGeralAnimal = ({ animal, avaliacaoRecente, dietaRecente }) => {
+const FichaGeralAnimal = ({ animal, avaliacaoRecente, dietaRecente, onOpenDieta, onEditAnimal }) => {
   if (!animal) return null;
 
   const nomeRaca = animal.raca?.nome || "SRD";
@@ -28,131 +14,100 @@ const FichaGeralAnimal = ({ animal, avaliacaoRecente, dietaRecente }) => {
     ? dayjs(avaliacaoRecente.dataConsulta).format("DD/MM/YYYY")
     : "Sem registros";
 
-  // Alguns dados da dieta podem vir de relatórios anteriores, então pegamos a data vinculada à dieta, se existir.
-  const dataDieta = dietaRecente?.dataCalculo // Supondo que tenha data, senão usa a do relatório
-    ? dayjs(dietaRecente.dataCalculo).format("DD/MM/YYYY")
-    : dataAvaliacao;
-
   return (
     <Card
-      className="shadow-sm mb-6 border-cinza-desativado"
-      bodyStyle={{ padding: "24px" }}
+      className="shadow-sm border-cinza-desativado"
+      bodyStyle={{ padding: "16px 24px" }}
     >
-      <Title
-        level={3}
-        className="text-verde-escuro mt-0 mb-6 border-b pb-2 border-gray-100"
-      >
-        Ficha Geral - {animal.nome}
-      </Title>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+        <Title
+          level={3}
+          className="text-verde-escuro m-0"
+        >
+          Ficha Geral - {animal.nome}
+        </Title>
+        <Space wrap>
+          <Button
+            icon={<EditOutlined />}
+            onClick={() => onEditAnimal(animal)}
+          >
+            
+          </Button>
+          {dietaRecente && (
+            <Button
+              type="primary"
+              icon={<ProfileOutlined />}
+              onClick={() => onOpenDieta(dietaRecente)}
+            >
+              Ver plano nutricional atual
+            </Button>
+          )}
+        </Space>
+      </div>
 
-      <Row gutter={[32, 24]}>
-        {/* Coluna 1: Dados Estáticos do Animal */}
-        <Col xs={24} md={8} className="md:border-r border-gray-100">
-          <div className="flex items-center gap-2 mb-3 text-verde-medio">
-            <CustomIconMask src={PetIconSrc} className="w-5 h-5" />
-            <Text className="text-verde-escuro font-semibold text-lg uppercase tracking-wide">
-              Características
-            </Text>
-          </div>
-          <div className="flex flex-col gap-2">
-            <Text className="text-cinza-escuro">
-              <strong>Espécie:</strong>{" "}
-              {animal.especie === "Cao" ? "Cão" : "Gato"}
-            </Text>
-            <Text className="text-cinza-escuro">
-              <strong>Raça:</strong> {nomeRaca}
-            </Text>
-            <Text className="text-cinza-escuro flex items-center gap-1">
-              <strong>Sexo:</strong> {animal.sexo}
-              {animal.sexo === "Macho" ? (
-                <ManOutlined className="text-blue-500" />
-              ) : (
-                <WomanOutlined className="text-pink-500" />
-              )}
-            </Text>
-            <Text className="text-cinza-escuro">
-              <strong>Idade:</strong> {animal.idade} anos
-            </Text>
-            <Text className="text-cinza-escuro">
-              <strong>Fase da Vida:</strong> {animal.faseVida || "Não definida"}
-            </Text>
-          </div>
-        </Col>
-
-        {/* Coluna 2: Dados Clínicos (Variáveis da Avaliação) */}
-        <Col xs={24} md={8} className="md:border-r border-gray-100">
-          <div className="flex items-center gap-2 mb-3 text-verde-medio">
-            <CustomIconMask src={WeightIconSrc} className="w-5 h-5" />
-            <Text className="text-verde-escuro font-semibold text-lg uppercase tracking-wide">
-              Avaliação Física
-            </Text>
-          </div>
-          <Text className="block text-xs text-gray-400 mb-3">
-            Última avaliação: {dataAvaliacao}
-          </Text>
-
-          <div className="flex flex-col gap-2">
-            <Text className="text-cinza-escuro">
-              <strong>Peso Atual:</strong>{" "}
-              {avaliacaoRecente?.peso
-                ? `${avaliacaoRecente.peso} kg`
-                : "Não avaliado"}
-            </Text>
-            <Text className="text-cinza-escuro">
-              <strong>Escore Corporal (ECC):</strong>{" "}
-              {avaliacaoRecente?.condicaoCorporal || "Não avaliado"}
-            </Text>
-            <Text className="text-cinza-escuro">
-              <strong>Grau de Atividade:</strong>{" "}
-              {avaliacaoRecente?.grauAtividade || "Não avaliado"}
-            </Text>
-          </div>
-        </Col>
-
-        {/* Coluna 3: Dados Nutricionais (Variáveis da Dieta) */}
-        <Col xs={24} md={8}>
-          <div className="flex items-center gap-2 mb-3 text-verde-medio">
-            <CustomIconMask src={FoodIconSrc} className="w-5 h-5" />
-            <Text className="text-verde-escuro font-semibold text-lg uppercase tracking-wide">
-              Plano Nutricional
-            </Text>
-          </div>
-          {dietaRecente ? (
-            <>
-              <Text className="block text-xs text-gray-400 mb-3">
-                Cálculo realizado em: {dataDieta}
-              </Text>
+      <Collapse ghost defaultActiveKey={['1']}>
+        <Panel header={<Text strong className="text-gray-500">Detalhes do Paciente</Text>} key="1">
+          <Row gutter={[32, 16]}>
+            {/* Informações Básicas */}
+            <Col xs={24} md={12}>
               <div className="flex flex-col gap-2">
-                <Text className="text-cinza-escuro">
-                  <strong>Ração Base:</strong>{" "}
-                  {dietaRecente.racaoUtilizada || "Não informada"}
+                <Text>
+                  <strong className="text-verde-escuro">Espécie:</strong>{" "}
+                  <span className="text-gray-900">{animal.especie === "Cao" ? "Cão" : "Gato"}</span>
                 </Text>
-                <Text className="text-cinza-escuro">
-                  <strong>Tipo de Dieta:</strong>{" "}
-                  {dietaRecente.tipoDieta || "Não informado"}
+                <Text>
+                  <strong className="text-verde-escuro">Raça:</strong>{" "}
+                  <span className="text-gray-900">{nomeRaca}</span>
                 </Text>
-                <Text className="text-cinza-escuro">
-                  <strong>Necessidade (NEM):</strong>{" "}
-                  {dietaRecente.necessidadeEnergeticaKcal
-                    ? `${dietaRecente.necessidadeEnergeticaKcal.toFixed(2)} kcal/dia`
-                    : "N/A"}
+                <Text className="flex items-center gap-1">
+                  <strong className="text-verde-escuro">Sexo:</strong>{" "}
+                  <span className="text-gray-900">{animal.sexo}</span>
+                  {animal.sexo === "Macho" ? (
+                    <ManOutlined className="text-blue-500" />
+                  ) : (
+                    <WomanOutlined className="text-pink-500" />
+                  )}
                 </Text>
-                <Text className="text-cinza-escuro">
-                  <strong>Quantidade Diária:</strong>{" "}
-                  {dietaRecente.quantidadeAlimentoGramas
-                    ? `${dietaRecente.quantidadeAlimentoGramas.toFixed(2)} g`
-                    : "N/A"}
+                <Text>
+                  <strong className="text-verde-escuro">Idade:</strong>{" "}
+                  <span className="text-gray-900">{animal.idadeFormatada}</span>
+                </Text>
+                <Text>
+                  <strong className="text-verde-escuro">Fase da Vida:</strong>{" "}
+                  <span className="text-gray-900">{animal.faseVidaAtualLabel || "Não definida"}</span>
                 </Text>
               </div>
-            </>
-          ) : (
-            <div className="h-full flex flex-col justify-center text-gray-400 text-sm mt-4">
-              Nenhuma dieta foi calculada ou vinculada recentemente para este
-              animal.
-            </div>
-          )}
-        </Col>
-      </Row>
+            </Col>
+
+            {/* Informações Clínicas Mais Recentes */}
+            <Col xs={24} md={12}>
+              <div className="flex flex-col gap-2">
+                <Text className="block text-xs text-gray-400 mb-1">
+                  Última avaliação: {dataAvaliacao}
+                </Text>
+                <Text>
+                  <strong className="text-verde-escuro">Peso Atual:</strong>{" "}
+                  <span className="text-gray-900">
+                    {avaliacaoRecente?.peso ? `${avaliacaoRecente.peso} kg` : "Não avaliado"}
+                  </span>
+                </Text>
+                <Text>
+                  <strong className="text-verde-escuro">Escore Corporal (ECC):</strong>{" "}
+                  <span className="text-gray-900">
+                    {animal.condicaoCorporalAtualLabel || "Não avaliado"}
+                  </span>
+                </Text>
+                <Text>
+                  <strong className="text-verde-escuro">Grau de Atividade:</strong>{" "}
+                  <span className="text-gray-900">
+                    {avaliacaoRecente?.grauAtividade || "Não avaliado"}
+                  </span>
+                </Text>
+              </div>
+            </Col>
+          </Row>
+        </Panel>
+      </Collapse>
     </Card>
   );
 };

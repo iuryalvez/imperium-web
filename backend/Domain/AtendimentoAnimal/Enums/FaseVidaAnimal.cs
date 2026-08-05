@@ -7,10 +7,10 @@ namespace backend.Domain.AtendimentoAnimal.Enums
         [Display(Name = "Desconhecida")]
         Desconhecida,
 
-        [Display(Name = "Filhote (Em aleitamento / Crescimento inicial)")]
+        [Display(Name = "Filhote")]
         Filhote,
 
-        [Display(Name = "Jovem (Crescimento tardio / Maturidade sexual)")]
+        [Display(Name = "Jovem")]
         Jovem,
 
         [Display(Name = "Adulto")]

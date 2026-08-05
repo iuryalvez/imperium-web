@@ -47,10 +47,10 @@ export const useConsultasManager = () => {
 
     try {
       if (editingConsulta) {
-        await consultasDaClinicaAPI.editar(editingConsulta.id, formValues);
+        await consultasDaClinicaAPI.editar(editingConsulta.id, payload);
         message.success("Consulta atualizada com sucesso!");
       } else {
-        await consultasDaClinicaAPI.cadastrar(formValues);
+        await consultasDaClinicaAPI.cadastrar(payload);
         message.success("Consulta agendada com sucesso!");
       }
       handleCloseModal();

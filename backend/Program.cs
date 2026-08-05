@@ -71,7 +71,6 @@ internal class Program
         // ========================================================================
 
         #region Injeção de Dependência
-        // Explicação: Aqui você está registrando suas classes no contêiner de Injeção de Dependência (DI).
         // builder.Services.AddScoped<Interface, Implementacao>();
         // "Scoped" significa que uma nova instância da classe será criada para cada requisição HTTP.
         // Isso garante que os dados de um usuário não se misturem com os de outro durante a mesma requisição.
@@ -232,7 +231,6 @@ internal class Program
                 },
 
                 // Este evento é disparado APÓS o token ter sido validado com sucesso pelas regras acima.
-                // Aqui você implementa lógicas de negócio adicionais, como renovação de token.
                 OnTokenValidated = async context =>
                 {
                     try

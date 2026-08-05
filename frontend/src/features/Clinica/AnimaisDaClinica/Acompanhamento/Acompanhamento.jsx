@@ -4,12 +4,14 @@ import { Link } from "react-router-dom";
 import { FormOutlined, EditOutlined, ProfileOutlined, FileTextOutlined, DeleteOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useAcompanhamentoManager } from "./useAcompanhamentoManager";
-import TabelaConsultasAvaliacoesDietas from "./components/TabelaConsultasAvaliacoesDietas";
+import ListaConsultasCards from "./components/ListaConsultasCards";
 import FormularioDieta from "./components/FormularioDieta";
 import DetalhesDieta from "./components/DetalhesDieta";
 import FichaGeralAnimal from "./components/FichaGeralAnimal";
 import ModalPadrao from "../../../../components/modal/ModalPadrao";
 import FormularioAvaliacao from "../../ConsultasDaClinica/components/FormularioAvaliacao";
+import FormularioConsulta from "../../ConsultasDaClinica/components/FormularioConsulta";
+import FormEdicaoAnimal from "../components/FormularioEdicaoAnimaisDaClinica/FormEdicaoAnimais";
 
 const Acompanhamento = () => {
   const {
@@ -40,6 +42,16 @@ const Acompanhamento = () => {
     handleCriarDieta,
     handleEditarDieta,
     handleExcluirDieta,
+    handleDeleteConsulta,
+    handleEditConsulta,
+    handleCloseConsultaModal,
+    handleSubmitConsulta,
+    isConsultaModalOpen,
+    consultaToEdit,
+    isEditAnimalModalOpen,
+    handleOpenEditAnimalModal,
+    handleCloseEditAnimalModal,
+    handleSubmitEditAnimal,
   } = useAcompanhamentoManager();
 
   if (loading) {
@@ -61,45 +73,75 @@ const Acompanhamento = () => {
     );
   }
 
-  // Ordena os relatórios pela data para extrair o mais recente de forma segura
-  const avaliacoesOrdenados = [
-    ...(historico.acompanhamento?.avaliacoes || []),
-  ].sort((a, b) => new Date(b.dataConsulta) - new Date(a.dataConsulta));
+  // Extrai a avaliação e a dieta mais recentes a partir do histórico de consultas
+  const consultas = historico.consultas || [];
+  const avaliacaoMaisRecente = consultas.find((c) => c.avaliacao)?.avaliacao;
+  const dietaMaisRecente = consultas.find((c) => c.avaliacao?.dieta)?.avaliacao.dieta;
 
-  const avaliacaoMaisRecente = avaliacoesOrdenados[0];
-  const dietaMaisRecente = avaliacoesOrdenados.find((rel) => rel.dieta)?.dieta;
-
-  const tabItems = [
-    {
-      key: "1",
-      label: "Ficha Geral",
-      children: (
-        <FichaGeralAnimal
-          animal={historico}
-          avaliacaoRecente={avaliacaoMaisRecente}
-          dietaRecente={dietaMaisRecente}
-        />
-      ),
-    },
-    {
-      key: "2",
-      label: "Consultas",
-      children: (
-        <TabelaConsultasAvaliacoesDietas
-          avaliacoes={historico.acompanhamento.avaliacoes}
+  return (
+    <div className="mt-4 flex flex-col gap-6">
+      <FichaGeralAnimal
+        animal={historico}
+        avaliacaoRecente={avaliacaoMaisRecente}
+        dietaRecente={dietaMaisRecente}
+        onOpenDieta={handleOpenModalVisualizarDieta}
+        onEditAnimal={handleOpenEditAnimalModal}
+      />
+      
+      <div>
+        <h2 className="text-xl font-semibold text-verde-escuro mb-4">
+          Consultas e Acompanhamento
+        </h2>
+        <ListaConsultasCards
+          consultas={consultas}
+          onEditConsulta={handleEditConsulta}
+          onDeleteConsulta={handleDeleteConsulta}
           onOpenAvaliacao={handleOpenAvaliacaoModal}
+          onDeleteAvaliacao={handleDeleteAvaliacao}
           onOpenModalCriarDieta={handleOpenModalCriarDieta}
           onOpenModalVisualizarDieta={handleOpenModalVisualizarDieta}
           onOpenModalEditarDieta={handleOpenModalEditarDieta}
           onExcluirDieta={handleExcluirDieta}
         />
-      ),
-    },
-  ];
+      </div>
 
-  return (
-    <div>
-      <Tabs defaultActiveKey="1" items={tabItems} className="mt-4" />
+      {/* Modal de Edição da Consulta */}
+      <Modal
+        title="Editar Consulta"
+        open={isConsultaModalOpen}
+        onCancel={handleCloseConsultaModal}
+        footer={null}
+        destroyOnClose
+      >
+        <FormularioConsulta
+          initialValues={{ dataConsulta: consultaToEdit?.dataConsulta, animalId: historico?.id, tutorId: consultaToEdit?.tutorId }}
+          onFinish={handleSubmitConsulta}
+        />
+      </Modal>
+
+      {/* Modal de Edição do Animal */}
+      <ModalPadrao
+        modo="edicao"
+        open={isEditAnimalModalOpen}
+        onCancel={handleCloseEditAnimalModal}
+        title="Editar Animal"
+        icon={<EditOutlined />}
+        formId="form-edicao-animal-clinica"
+        isSubmitting={isSubmitting}
+      >
+        {historico && isEditAnimalModalOpen && (
+          <FormEdicaoAnimal
+            initialValues={{
+              ...historico,
+              especie: historico.especie === "Cao" ? 1 : 2,
+              sexo: historico.sexo === "Macho" ? 1 : 2,
+              racaId: historico.raca?.id,
+              tutorIds: historico.tutores?.map((t) => t.id) || [],
+            }}
+            onFinish={handleSubmitEditAnimal}
+          />
+        )}
+      </ModalPadrao>
 
       {/* Modal de Avaliação da Consulta */}
       <Modal
