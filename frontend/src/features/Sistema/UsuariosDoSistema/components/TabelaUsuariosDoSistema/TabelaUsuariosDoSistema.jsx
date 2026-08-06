@@ -21,6 +21,10 @@ import colunas from "./colunas";
 
 const TabelaUsuariosDoSistema = ({
   data,
+  total,
+  page,
+  pageSize,
+  onTableChange,
   onEdit,
   onToggleStatus,
   onViewDetails,
@@ -140,7 +144,13 @@ const TabelaUsuariosDoSistema = ({
         dataSource={data}
         columns={colunasVisiveis}
         rowKey={(record) => record.compositeKey || record.id}
-        pagination={{ pageSize: 10, showSizeChanger: true }}
+        pagination={{
+          current: page,
+          pageSize: pageSize,
+          total: total,
+          showSizeChanger: true,
+        }}
+        onChange={onTableChange}
         scroll={{ x: "max-content" }}
       />
     </div>

@@ -1,4 +1,5 @@
 using backend.Domain.AtendimentoAnimal.Entities;
+using backend.Domain.Utils.Pagination;
 
 namespace backend.Domain.AtendimentoAnimal.Interface
 {
@@ -6,7 +7,7 @@ namespace backend.Domain.AtendimentoAnimal.Interface
     {
         Task<Animal?> GetByIdAsync(int animalId);
         Task<Animal?> GetByIdAndClinicIdWithDetailsAsync(int animalId, int clinicaId);
-        Task<IEnumerable<Animal>> GetAllByClinicaIdWithDetailsAsync(int clinicaId);
+        Task<PagedResponse<Animal>> GetAllByClinicaIdWithDetailsAsync(int clinicaId, int page, int pageSize, string? searchNome);
         Task<AnimalClinica?> GetVinculoAnimalClinicaAsync(int animalId, int clinicaId);
         Task<bool> IsAnimalInClinicAsync(int animalId, int clinicaId);
         Task<bool> AllAnimalsExistInClinicAsync(List<int> animalIds, int clinicaId);

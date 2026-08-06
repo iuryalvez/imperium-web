@@ -32,11 +32,11 @@ namespace backend.Domain.Usuarios
 
         [HttpGet("sistema/usuarios")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> ListarUsuariosSistema()
+        public async Task<IActionResult> ListarUsuariosSistema([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchNome = null)
         {
             _logger.LogInformation("Recebida requisição para listar usuários do sistema.");
             var usuarioAtualId = User.GetClaimValue<int>(ClaimTypes.NameIdentifier);
-            var result = await _usuarioService.ListarUsuariosSistemaAsync(usuarioAtualId);
+            var result = await _usuarioService.ListarUsuariosSistemaAsync(usuarioAtualId, page, pageSize, searchNome);
 
             return Ok(result);
         }
@@ -87,13 +87,13 @@ namespace backend.Domain.Usuarios
 
         [HttpGet("clinica/usuarios")]
         [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> ListarUsuariosClinica()
+        public async Task<IActionResult> ListarUsuariosClinica([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchNome = null)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             _logger.LogInformation("Recebida requisição para listar usuários da clínica ID: {ClinicaId}", clinicaId);
             var userId = User.GetClaimValue<string>(ClaimTypes.NameIdentifier);
 
-            var usuarios = await _usuarioService.GetUsuariosByClinicIdAsync(clinicaId, userId);
+            var usuarios = await _usuarioService.GetUsuariosByClinicIdAsync(clinicaId, userId, page, pageSize, searchNome);
 
             return Ok(usuarios);
         }

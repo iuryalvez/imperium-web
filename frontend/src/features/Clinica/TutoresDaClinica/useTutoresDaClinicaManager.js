@@ -5,6 +5,10 @@ import { sanitizeToNumbers, sanitizePayload } from "../../../utils/sanitizers.js
 
 export const useTutoresDaClinicaManager = () => {
   const [tutores, setTutores] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   const [loading, setLoading] = useState(true);
   const [loadingRowKey, setLoadingRowKey] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,19 +20,29 @@ export const useTutoresDaClinicaManager = () => {
   const fetchTutores = useCallback(async () => {
     setLoading(true);
     try {
-      const dados = await tutoresDaClinicaAPI.listar();
-      setTutores(dados);
+      const params = { page, pageSize };
+      const response = await tutoresDaClinicaAPI.listar(params);
+      setTutores(response.data || []);
+      setTotal(response.totalCount || 0);
     } catch (error) {
       message.error(error.message || "Erro ao carregar tutores.");
       setTutores([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page, pageSize]);
+
+  // Remover useEffect de reset para searchNome, handleApplyFilters lida com isso
 
   useEffect(() => {
     fetchTutores();
   }, [fetchTutores]);
+
+  const handleTableChange = (pagination) => {
+    setPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
 
   const handleOpenModalCadastro = () => {
     setEditingTutor(null);
@@ -99,6 +113,9 @@ export const useTutoresDaClinicaManager = () => {
 
   return {
     tutores,
+    total,
+    page,
+    pageSize,
     loading,
     loadingRowKey,
     isModalOpen,
@@ -106,6 +123,7 @@ export const useTutoresDaClinicaManager = () => {
     isSubmitting,
     editingTutor,
     viewingTutor,
+    handleTableChange,
     handleOpenModalCadastro,
     handleCloseModal,
     handleCloseModalDetalhes,

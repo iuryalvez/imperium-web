@@ -17,6 +17,9 @@ import ModalPadrao from "../../../components/modal/ModalPadrao.jsx";
 const TutoresDaClinica = () => {
   const {
     tutores,
+    total,
+    page,
+    pageSize,
     loading,
     loadingRowKey,
     isModalOpen,
@@ -24,6 +27,7 @@ const TutoresDaClinica = () => {
     isSubmitting,
     editingTutor,
     viewingTutor,
+    handleTableChange,
     handleOpenModalCadastro,
     handleCloseModal,
     handleCloseModalDetalhes,
@@ -52,6 +56,10 @@ const TutoresDaClinica = () => {
 
       <TabelaTutoresDaClinica
         tutores={tutores}
+        total={total}
+        page={page}
+        pageSize={pageSize}
+        onTableChange={handleTableChange}
         onEdit={handleEditarTutor}
         onDelete={handleDeletarTutor}
         onViewDetails={handleOpenModalDetalhes}

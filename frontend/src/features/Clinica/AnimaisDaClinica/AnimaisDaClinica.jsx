@@ -14,20 +14,21 @@ import GerenciadorDeRacas from "./components/GerenciadorDeRacas/GerenciadorDeRac
 import TabelaAnimais from "./components/TabelaAnimaisDaClinica/TabelaAnimaisDaClinica";
 import FormDetalhesAnimal from "./components/FormularioDetalhesAnimaisDaClinica/FormDetalhesAnimais";
 import ModalPadrao from "../../../components/modal/ModalPadrao";
-
 const AnimaisDaClinica = () => {
   const {
     animais,
+    total,
+    page,
+    pageSize,
     loading,
     loadingRowKey,
-    // searchTerm,
     isSubmitting,
     isModalAnimalOpen,
     isModalRacasOpen,
     isModalDetalhesOpen,
     editingAnimal,
     viewingAnimal,
-    // handleSearch,
+    handleTableChange,
     handleOpenModal,
     handleCloseModal,
     handleOpenModalRacas,
@@ -63,6 +64,10 @@ const AnimaisDaClinica = () => {
 
       <TabelaAnimais
         data={animais}
+        total={total}
+        page={page}
+        pageSize={pageSize}
+        onTableChange={handleTableChange}
         onEdit={handleOpenModal}
         onDelete={handleDelete}
         onNavigateToAcompanhamento={handleNavigateToAcompanhamento}

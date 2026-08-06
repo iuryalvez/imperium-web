@@ -17,7 +17,6 @@ const FichaGeralAnimal = ({ animal, avaliacaoRecente, dietaRecente, onOpenDieta,
   return (
     <Card
       className="shadow-sm border-cinza-desativado"
-      bodyStyle={{ padding: "16px 24px" }}
     >
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
         <Title
@@ -72,19 +71,12 @@ const FichaGeralAnimal = ({ animal, avaliacaoRecente, dietaRecente, onOpenDieta,
                   <strong className="text-verde-escuro">Idade:</strong>{" "}
                   <span className="text-gray-900">{animal.idadeFormatada}</span>
                 </Text>
-                <Text>
-                  <strong className="text-verde-escuro">Fase da Vida:</strong>{" "}
-                  <span className="text-gray-900">{animal.faseVidaAtualLabel || "Não definida"}</span>
-                </Text>
               </div>
             </Col>
 
             {/* Informações Clínicas Mais Recentes */}
             <Col xs={24} md={12}>
               <div className="flex flex-col gap-2">
-                <Text className="block text-xs text-gray-400 mb-1">
-                  Última avaliação: {dataAvaliacao}
-                </Text>
                 <Text>
                   <strong className="text-verde-escuro">Peso Atual:</strong>{" "}
                   <span className="text-gray-900">
@@ -102,6 +94,10 @@ const FichaGeralAnimal = ({ animal, avaliacaoRecente, dietaRecente, onOpenDieta,
                   <span className="text-gray-900">
                     {avaliacaoRecente?.grauAtividade || "Não avaliado"}
                   </span>
+                </Text>
+                <Text>
+                  <strong className="text-verde-escuro">Fase da Vida:</strong>{" "}
+                  <span className="text-gray-900">{animal.faseVidaAtualLabel || "Não definida"}</span>
                 </Text>
               </div>
             </Col>

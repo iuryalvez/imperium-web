@@ -7,6 +7,9 @@ import { usuariosDaClinicaAPI } from "../../../api/clinica/usuariosDaClinicaAPI.
  */
 export const useUsuariosDaClinicaManager = () => {
   const [usuarios, setUsuarios] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(true);
   const [loadingRowKey, setLoadingRowKey] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,19 +21,27 @@ export const useUsuariosDaClinicaManager = () => {
   const fetchUsuarios = useCallback(async () => {
     setLoading(true);
     try {
-      const dadosUsuarios = await usuariosDaClinicaAPI.listar();
-      setUsuarios(dadosUsuarios);
+      const params = { page, pageSize };
+      const response = await usuariosDaClinicaAPI.listar(params);
+      setUsuarios(response.data || []);
+      setTotal(response.totalCount || 0);
     } catch (error) {
       message.error(error.message);
       setUsuarios([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page, pageSize]);
 
   useEffect(() => {
     fetchUsuarios();
   }, [fetchUsuarios]);
+
+  const handleTableChange = (pagination) => {
+    setPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
 
   const handleOpenModalCadastro = () => {
     setEditingUser(null);
@@ -104,6 +115,9 @@ export const useUsuariosDaClinicaManager = () => {
   // Retorna tudo que o componente de UI precisa para funcionar
   return {
     usuarios,
+    total,
+    page,
+    pageSize,
     loading,
     loadingRowKey,
     isModalOpen,
@@ -111,6 +125,7 @@ export const useUsuariosDaClinicaManager = () => {
     isSubmitting,
     editingUser,
     viewingUser,
+    handleTableChange,
     handleOpenModalCadastro,
     handleCloseModal,
     handleCloseModalDetalhes,

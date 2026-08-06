@@ -7,7 +7,7 @@ namespace backend.Domain.AtendimentoAnimal.Interface
     {
         // --- Métodos de Leitura (para Controllers, retornam DTOs) ---
         Task<ServiceResult> ObterPorIdAsync(int animalId);
-        Task<ServiceResult> GetAllDtosByClinicIdAsync(int clinicaId);
+        Task<ServiceResult> GetAllDtosByClinicIdAsync(int clinicaId, int page, int pageSize, string? searchNome);
         Task<ServiceResult> GetDtoDetailsByIdAsync(int animalId, int clinicaId);
         Task<ServiceResult> ObterHistoricoCompletoAnimalAsync(int animalId, int clinicaId);
 

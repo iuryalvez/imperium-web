@@ -23,9 +23,9 @@ namespace backend.Domain.GestaoClinica
 
         [HttpGet("sistema/clinicas")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchNome = null)
         {
-            var clinicas = await _clinicaService.GetAllAsync();
+            var clinicas = await _clinicaService.GetAllAsync(page, pageSize, searchNome);
             return Ok(clinicas);
         }
 

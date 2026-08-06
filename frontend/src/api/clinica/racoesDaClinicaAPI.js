@@ -2,18 +2,13 @@ import api from "../index"; // Configuração do axios
 import endpoints from "../../services/Endpoints"; // Endpoints
 
 export const racoesDaClinicaAPI = {
-  listar: async (especie) => {
-    // Starts with the base URL for listing breeds
-    let url = endpoints.clinica.racao.listar;
-
-    // If a species is provided, add it as a query parameter
-    if (especie) {
-      url += `?especie=${especie}`;
-    }
-
+  listar: async (especie, params = {}) => {
     try {
-      const response = await api.get(url);
-      return response.data.data;
+      if (especie) {
+        params.especie = especie;
+      }
+      const response = await api.get(endpoints.clinica.racao.listar, { params });
+      return response.data;
     } catch (error) {
       console.error("Erro as listar as rações:", error);
       throw error; // Re-lança o erro para ser tratado pelo componente que chamou

@@ -1,6 +1,7 @@
 using backend.Domain.GestaoClinica.DTOs;
 using backend.Domain.GestaoClinica.Entities;
 using backend.Domain.GestaoClinica.Interface;
+using backend.Domain.Utils.Pagination;
 using backend.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -62,8 +63,22 @@ namespace backend.Domain.GestaoClinica.Services
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<Clinica>> GetAllAsync() =>
-            await _context.Clinicas.AsNoTracking().ToListAsync();
+        public async Task<PagedResponse<Clinica>> GetAllAsync(int page, int pageSize, string? searchNome)
+        {
+            var query = _context.Clinicas.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchNome))
+            {
+                query = query.Where(c => 
+                    (c.NomeClinica != null && c.NomeClinica.ToLower().Contains(searchNome.ToLower())) ||
+                    (c.NomeFantasia != null && c.NomeFantasia.ToLower().Contains(searchNome.ToLower()))
+                );
+            }
+
+            query = query.OrderBy(c => c.NomeClinica);
+
+            return await query.AsNoTracking().ToPagedResponseAsync(page, pageSize);
+        }
 
         public async Task<bool> CnpjExistsForAnotherClinicAsync(string cnpj, int excludeClinicaId)
         {

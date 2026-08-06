@@ -6,7 +6,7 @@ namespace backend.Domain.SaudeAnimal.Interfaces
     public interface IRacaoService
     {
         // --- Métodos de Leitura (para Controllers) ---
-        Task<ServiceResult> ObterTodosDtosPorClinicaIdEEspecieAsync(int clinicaId, EspecieAnimal? especie);
+        Task<ServiceResult> ObterTodosDtosPorClinicaIdEEspecieAsync(int clinicaId, EspecieAnimal? especie, int page, int pageSize, string? searchNome);
         Task<ServiceResult> ObterDtoPorIdAsync(int racaoId, int clinicaId);
 
         // --- Método de Leitura (para outros Serviços) ---

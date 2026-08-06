@@ -9,18 +9,22 @@ import {
 import { useRacoesManager } from "./useRacoesManager";
 import FormCadastroEdicaoRacaoClinica from "./components/FormularioCadastroEdicaoRacao/FormCadastroEdicaoRacaoClinica";
 import TabelaRacoesDaClinica from "./components/TabelaRacoesDaClinica/TabelaRacoesDaClinica";
+import ModalDetalhesCalculosRacao from "./components/ModalDetalhesCalculosRacao/ModalDetalhesCalculosRacao";
 import ModalPadrao from "../../../components/modal/ModalPadrao";
-import ModalDetalhesCalculoRacao from "./components/ModalDetalhesCalculosRacao/ModalDetalhesCalculosRacao";
 
 const RacoesDaClinica = () => {
   const {
     racoes,
+    total,
+    page,
+    pageSize,
     loading,
     isModalOpen,
     editingRacao,
     isViewModalOpen,
     viewingRacao,
     isSubmitting,
+    handleTableChange,
     handleOpenModal,
     handleCloseModal,
     handleOpenViewModal,
@@ -48,6 +52,10 @@ const RacoesDaClinica = () => {
 
       <TabelaRacoesDaClinica
         racoes={racoes}
+        total={total}
+        page={page}
+        pageSize={pageSize}
+        onTableChange={handleTableChange}
         onEdit={handleOpenModal}
         onDelete={handleDelete}
         onView={handleOpenViewModal}
@@ -95,7 +103,7 @@ const RacoesDaClinica = () => {
           },
         }}
       >
-        <ModalDetalhesCalculoRacao racao={viewingRacao} />
+        <ModalDetalhesCalculosRacao racao={viewingRacao} />
       </Modal>
     </div>
   );
