@@ -3,7 +3,6 @@ using backend.Domain.AtendimentoAnimal.DTOs.Consulta;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interface;
 using backend.Domain.Usuarios.Interfaces;
-using backend.Domain.Utils.Pagination;
 
 namespace backend.Domain.AtendimentoAnimal.Services
 {
@@ -94,11 +93,10 @@ namespace backend.Domain.AtendimentoAnimal.Services
         /// <summary>
         /// Busca todas as consultas de uma clínica.
         /// </summary>
-        public async Task<PagedResponse<GetConsultaDto>> ObterTodasPorClinicaIdAsync(int clinicaId, int page, int pageSize, string? searchNome, DateTime? searchDataInicio, DateTime? searchDataFim)
+        public async Task<IEnumerable<GetConsultaDto>> ObterTodasPorClinicaIdAsync(int clinicaId)
         {
-            var pagedConsultas = await _consultaRepository.GetAllByClinicIdAsync(clinicaId, page, pageSize, searchNome, searchDataInicio, searchDataFim);
-            var dtos = _mapper.Map<IEnumerable<GetConsultaDto>>(pagedConsultas.Data);
-            return new PagedResponse<GetConsultaDto>(dtos, pagedConsultas.TotalCount, pagedConsultas.PageNumber, pagedConsultas.PageSize);
+            var consultas = await _consultaRepository.GetAllByClinicIdAsync(clinicaId);
+            return _mapper.Map<IEnumerable<GetConsultaDto>>(consultas);
         }
 
         /// <summary>

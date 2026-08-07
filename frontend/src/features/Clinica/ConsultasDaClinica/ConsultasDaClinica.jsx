@@ -2,19 +2,16 @@ import React from "react";
 import { Button, Skeleton } from "antd";
 import { PlusOutlined, EditOutlined, FormOutlined } from "@ant-design/icons";
 import { useConsultasManager } from "./useConsultasManager";
-import TabelaConsultas from "./components/TabelaConsultas/TabelaConsultas";
+import TabelaConsultas from "./components/TabelaConsultas";
 import FormularioConsulta from "./components/FormularioConsulta";
 import ModalPadrao from "../../../components/modal/ModalPadrao";
+
 const ConsultasDaClinica = () => {
   const {
     consultas,
-    total,
-    page,
-    pageSize,
     loading,
     isModalOpen,
     editingConsulta,
-    handleTableChange,
     handleOpenModal,
     handleCloseModal,
     handleSubmit,
@@ -43,10 +40,6 @@ const ConsultasDaClinica = () => {
 
       <TabelaConsultas
         consultas={consultas}
-        total={total}
-        page={page}
-        pageSize={pageSize}
-        onTableChange={handleTableChange}
         onEdit={handleOpenModal}
         onDelete={handleDelete}
         onIrParaAcompanhamento={handleIrParaAcompanhamento}

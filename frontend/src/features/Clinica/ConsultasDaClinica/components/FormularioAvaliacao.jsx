@@ -15,7 +15,7 @@ import {
   Space,
 } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
-import { racoesDaClinicaAPI } from "../../../../../api/clinica/racoesDaClinicaAPI";
+import { racoesDaClinicaAPI } from "../../../../api/clinica/racoesDaClinicaAPI";
 import {
   opcoesCondicaoCorporal,
   opcoesGrauAtividade,

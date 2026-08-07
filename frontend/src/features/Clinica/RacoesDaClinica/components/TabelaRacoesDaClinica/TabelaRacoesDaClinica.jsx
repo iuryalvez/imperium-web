@@ -18,19 +18,14 @@ import colunas from "./colunas";
 
 const TabelaRacoesDaClinica = ({
   racoes,
-  total,
-  page,
-  pageSize,
-  onTableChange,
   onEdit,
   onDelete,
   onView,
   loading,
 }) => {
-  const [visibleColumns, setVisibleColumns] = useState([
-    "nome",
-    "especie",
-  ]);
+  const [visibleColumns, setVisibleColumns] = useState(
+    colunas.map((c) => c.key),
+  );
 
   const handleColumnVisibilityChange = (key) => {
     setVisibleColumns((prev) =>
@@ -110,13 +105,7 @@ const TabelaRacoesDaClinica = ({
         dataSource={racoes}
         columns={colunasVisiveis}
         rowKey="id"
-        pagination={{
-          current: page,
-          pageSize: pageSize,
-          total: total,
-          showSizeChanger: true,
-        }}
-        onChange={onTableChange}
+        pagination={{ pageSize: 10, showSizeChanger: true }}
         scroll={{ x: "max-content" }}
         loading={loading}
       />

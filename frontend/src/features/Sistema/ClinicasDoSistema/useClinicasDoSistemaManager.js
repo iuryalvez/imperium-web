@@ -9,9 +9,6 @@ import {
 
 export const useClinicasDoSistemaManager = () => {
   const [clinicas, setClinicas] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -30,29 +27,18 @@ export const useClinicasDoSistemaManager = () => {
   const fetchClinicas = useCallback(async () => {
     setLoading(true);
     try {
-      const params = { page, pageSize };
-      const response = await clinicasAPI.listar(params);
-      setClinicas(response.data || []);
-      setTotal(response.totalCount || 0);
+      const dados = await clinicasAPI.listar();
+      setClinicas(dados);
     } catch (error) {
       message.error(error.message || "Erro ao carregar clínicas.");
-      setClinicas([]);
-      setTotal(0);
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize]);
-
-  // Remover useEffect de reset para searchNome, handleApplyFilters lida com isso
+  }, []);
 
   useEffect(() => {
     fetchClinicas();
   }, [fetchClinicas]);
-
-  const handleTableChange = (pagination) => {
-    setPage(pagination.current);
-    setPageSize(pagination.pageSize);
-  };
 
   const handleOpenModalCadastro = () => {
     setEditingClinica(null);
@@ -131,9 +117,6 @@ export const useClinicasDoSistemaManager = () => {
 
   return {
     clinicas,
-    total,
-    page,
-    pageSize,
     loading,
     isSubmitting,
     isModalOpen,
@@ -142,7 +125,6 @@ export const useClinicasDoSistemaManager = () => {
     editingClinica,
     viewingClinica,
     accessingClinica,
-    handleTableChange,
     handleOpenModalCadastro,
     handleEditarClinica,
     handleOpenModalDetalhes,

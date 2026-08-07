@@ -4,7 +4,6 @@ using backend.Domain.Usuarios.DTOs.PerfilPessoal;
 using backend.Domain.Usuarios.Entities;
 using backend.Domain.Usuarios.Interfaces;
 using backend.Infra.Data;
-using backend.Domain.Utils.Pagination;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Domain.Usuarios.Services
@@ -27,7 +26,7 @@ namespace backend.Domain.Usuarios.Services
             _context = context;
         }
 
-        public async Task<ServiceResult> ListarUsuariosSistemaAsync(int currentUserId, int page, int pageSize, string? searchNome)
+        public async Task<ServiceResult> ListarUsuariosSistemaAsync(int currentUserId)
         {
             try
             {
@@ -41,21 +40,12 @@ namespace backend.Domain.Usuarios.Services
                 var usuariosAdministradores = _mapper.Map<List<GetUsuariosSistemaDto>>(adminsNaoVinculados);
 
                 var resultadoFinal = usuariosComuns.Concat(usuariosAdministradores);
-                
-                if (!string.IsNullOrWhiteSpace(searchNome))
-                {
-                    resultadoFinal = resultadoFinal.Where(u => u.Nome != null && u.Nome.ToLower().Contains(searchNome.ToLower()));
-                }
-
-                resultadoFinal = resultadoFinal.OrderBy(u => u.Nome);
-
-                var pagedResult = resultadoFinal.ToPagedResponse(page, pageSize);
 
                 return new ServiceResult
                 {
                     Succeeded = true,
                     Message = "Busca de usuários realizada com sucesso.",
-                    Data = pagedResult
+                    Data = resultadoFinal
                 };
             }
             catch (Exception ex)
@@ -65,23 +55,14 @@ namespace backend.Domain.Usuarios.Services
             }
         }
 
-        public async Task<PagedResponse<GetUsuariosClinicaDto>> GetUsuariosByClinicIdAsync(int clinicaId, string currentUserId, int page, int pageSize, string? searchNome)
+        public async Task<IEnumerable<GetUsuariosClinicaDto>> GetUsuariosByClinicIdAsync(int clinicaId, string currentUserId)
         {
             var vinculos = await _usuarioRepository.GetVinculosByClinicIdAsync(clinicaId);
 
             var vinculosFiltrados = vinculos
                 .Where(upc => upc.UsuarioId.ToString() != currentUserId);
-                
-            var dtos = _mapper.Map<IEnumerable<GetUsuariosClinicaDto>>(vinculosFiltrados);
-            
-            if (!string.IsNullOrWhiteSpace(searchNome))
-            {
-                dtos = dtos.Where(u => u.Nome != null && u.Nome.ToLower().Contains(searchNome.ToLower()));
-            }
 
-            dtos = dtos.OrderBy(u => u.Nome);
-
-            return dtos.ToPagedResponse(page, pageSize);
+            return _mapper.Map<IEnumerable<GetUsuariosClinicaDto>>(vinculosFiltrados);
         }
 
         public async Task<ServiceResult> CadastrarUsuarioSistemaAsync(CadastrarUsuarioSistemaDto dto)

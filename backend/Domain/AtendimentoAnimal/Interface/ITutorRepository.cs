@@ -1,5 +1,4 @@
 using backend.Domain.AtendimentoAnimal.Entities;
-using backend.Domain.Utils.Pagination;
 
 namespace backend.Domain.AtendimentoAnimal.Interface
 {
@@ -12,7 +11,7 @@ namespace backend.Domain.AtendimentoAnimal.Interface
         void RemoveAnimalLinks(IEnumerable<TutorAnimal> links);
 
         Task<bool> AllTutorsExistInClinicAsync(List<int> tutoresIds, int clinicaId);
-        Task<PagedResponse<Tutor>> GetAllByClinicIdWithIncludesAsync(int clinicaId, int page, int pageSize, string? searchNome);
+        Task<IEnumerable<Tutor>> GetAllByClinicIdWithIncludesAsync(int clinicaId);
         Task<bool> IsTutorLinkedToClinicAsync(int tutorId, int clinicaId);
         Task<TutorClinica?> GetClinicLinkAsync(int tutorId, int clinicaId);
         Task UpdateClinicLinkAsync(TutorClinica link);

@@ -2,9 +2,9 @@ import api from "../index";
 import endpoints from "../../services/Endpoints";
 
 export const usuariosDoSistemaAPI = {
-  async listar(params = {}) {
+  async listar() {
     try {
-      const response = await api.get(endpoints.sistema.usuario.listar, { params });
+      const response = await api.get(endpoints.sistema.usuario.listar);
       return response.data.data;
     } catch (error) {
       console.error("Erro ao buscar usuários:", error);

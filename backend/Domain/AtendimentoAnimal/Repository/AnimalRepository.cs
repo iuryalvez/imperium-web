@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interface;
-using backend.Domain.Utils.Pagination;
 
 namespace backend.Infra.Data.Repositories
 {
@@ -31,23 +30,14 @@ namespace backend.Infra.Data.Repositories
                 .FirstOrDefaultAsync(a => a.Id == animalId);
         }
 
-        public async Task<PagedResponse<Animal>> GetAllByClinicaIdWithDetailsAsync(int clinicaId, int page, int pageSize, string? searchNome)
+        public async Task<IEnumerable<Animal>> GetAllByClinicaIdWithDetailsAsync(int clinicaId)
         {
-            var query = _context.Animais
+            return await _context.Animais
                 .Include(a => a.TutoresAnimais!).ThenInclude(ta => ta.Tutor)
                 .Include(a => a.Acompanhamento) // Incluindo o Acompanhamento Individualizado
                 .Include(a => a.Raca) // Incluindo a Raça
-                .Where(a => a.AnimaisClinicas!.Any(ac => ac.ClinicaId == clinicaId));
-
-            if (!string.IsNullOrWhiteSpace(searchNome))
-            {
-                query = query.Where(a => a.Nome != null && a.Nome.ToLower().Contains(searchNome.ToLower()));
-            }
-
-            // Order by Nome default
-            query = query.OrderBy(a => a.Nome);
-
-            return await query.ToPagedResponseAsync(page, pageSize);
+                .Where(a => a.AnimaisClinicas!.Any(ac => ac.ClinicaId == clinicaId))
+                .ToListAsync();
         }
 
         public async Task<bool> IsAnimalInClinicAsync(int animalId, int clinicaId)

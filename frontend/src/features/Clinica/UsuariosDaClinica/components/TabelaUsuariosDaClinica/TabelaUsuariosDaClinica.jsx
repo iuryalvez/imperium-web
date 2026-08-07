@@ -21,10 +21,6 @@ import colunas from './colunas';
 
 const TabelaUsuariosDaClinica = ({
   usuarios,
-  total,
-  page,
-  pageSize,
-  onTableChange,
   onEdit,
   onToggleStatus,
   onViewDetails,
@@ -143,13 +139,7 @@ const TabelaUsuariosDaClinica = ({
         dataSource={usuarios}
         columns={colunasVisiveis}
         rowKey={(record) => record.compositeKey || record.id}
-        pagination={{
-          current: page,
-          pageSize: pageSize,
-          total: total,
-          showSizeChanger: true,
-        }}
-        onChange={onTableChange}
+        pagination={{ pageSize: 10, showSizeChanger: true }}
         scroll={{ x: "max-content" }}
       />
     </div>

@@ -6,7 +6,6 @@ using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.GestaoClinica.DTOs;
 using backend.Domain.Usuarios.Interfaces;
 using AutoMapper;
-using backend.Domain.Utils.Pagination;
 
 namespace backend.Domain.GestaoClinica.Services
 {
@@ -25,11 +24,10 @@ namespace backend.Domain.GestaoClinica.Services
             _mapper = mapper;
         }
 
-        public async Task<PagedResponse<GetClinicaDto>> GetAllAsync(int page, int pageSize, string? searchNome)
+        public async Task<IEnumerable<GetClinicaDto>> GetAllAsync()
         {
-            var pagedClinicas = await _clinicaRepository.GetAllAsync(page, pageSize, searchNome);
-            var dtos = _mapper.Map<IEnumerable<GetClinicaDto>>(pagedClinicas.Data);
-            return new PagedResponse<GetClinicaDto>(dtos, pagedClinicas.TotalCount, pagedClinicas.PageNumber, pagedClinicas.PageSize);
+            var clinicas = await _clinicaRepository.GetAllAsync();
+            return _mapper.Map<IEnumerable<GetClinicaDto>>(clinicas);
         }
 
         public async Task<GetClinicaDto?> GetByIdAsync(int clinicaId)

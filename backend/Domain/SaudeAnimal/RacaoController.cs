@@ -30,14 +30,14 @@ namespace backend.Domain.SaudeAnimal
 
         [HttpGet]
         [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> GetAllRacoes([FromQuery] EspecieAnimal? especie, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchNome = null)
+        public async Task<IActionResult> GetAllRacoes([FromQuery] EspecieAnimal? especie) // Recebe o parâmetro
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId == 0) return Forbid();
 
             // Passa o parâmetro para o serviço
-            var racoes = await _racaoService.ObterTodosDtosPorClinicaIdEEspecieAsync(clinicaId, especie, page, pageSize, searchNome);
-            return Ok(racoes.Data);
+            var racoes = await _racaoService.ObterTodosDtosPorClinicaIdEEspecieAsync(clinicaId, especie);
+            return Ok(racoes);
         }
 
         [HttpPost("cadastrar")]

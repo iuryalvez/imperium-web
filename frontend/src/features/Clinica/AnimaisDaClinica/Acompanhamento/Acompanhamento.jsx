@@ -9,7 +9,7 @@ import FormularioDieta from "./components/FormularioDieta";
 import DetalhesDieta from "./components/DetalhesDieta";
 import FichaGeralAnimal from "./components/FichaGeralAnimal";
 import ModalPadrao from "../../../../components/modal/ModalPadrao";
-import FormularioAvaliacao from "../../ConsultasDaClinica/components/FormularioAvaliacao/FormularioAvaliacao";
+import FormularioAvaliacao from "../../ConsultasDaClinica/components/FormularioAvaliacao";
 import FormularioConsulta from "../../ConsultasDaClinica/components/FormularioConsulta";
 import FormEdicaoAnimal from "../components/FormularioEdicaoAnimaisDaClinica/FormEdicaoAnimais";
 

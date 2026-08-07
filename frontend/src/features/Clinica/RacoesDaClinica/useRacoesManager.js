@@ -4,9 +4,6 @@ import { racoesDaClinicaAPI } from "../../../api/clinica/racoesDaClinicaAPI";
 
 export const useRacoesManager = () => {
   const [racoes, setRacoes] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,29 +16,18 @@ export const useRacoesManager = () => {
   const fetchRacoes = useCallback(async () => {
     setLoading(true);
     try {
-      const params = { page, pageSize };
-      const response = await racoesDaClinicaAPI.listar(null, params); // espécie = null por enquanto
-      setRacoes(response.data || []);
-      setTotal(response.totalCount || 0);
+      const dadosRacoes = await racoesDaClinicaAPI.listar();
+      setRacoes(dadosRacoes);
     } catch (error) {
       message.error("Erro ao carregar rações.");
-      setRacoes([]);
-      setTotal(0);
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize]);
-
-  // Remover useEffect de reset para searchNome, handleApplyFilters lida com isso
+  }, []);
 
   useEffect(() => {
     fetchRacoes();
   }, [fetchRacoes]);
-
-  const handleTableChange = (pagination) => {
-    setPage(pagination.current);
-    setPageSize(pagination.pageSize);
-  };
 
   const handleOpenModal = (racao = null) => {
     setEditingRacao(racao);
@@ -94,16 +80,12 @@ export const useRacoesManager = () => {
 
   return {
     racoes,
-    total,
-    page,
-    pageSize,
     loading,
     isModalOpen,
     editingRacao,
     isViewModalOpen,
     viewingRacao,
     isSubmitting,
-    handleTableChange,
     handleOpenModal,
     handleCloseModal,
     handleOpenViewModal,

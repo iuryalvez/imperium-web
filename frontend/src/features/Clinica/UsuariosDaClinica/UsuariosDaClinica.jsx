@@ -17,9 +17,6 @@ import ModalPadrao from "../../../components/modal/ModalPadrao.jsx";
 const UsuariosDaClinica = () => {
   const {
     usuarios,
-    total,
-    page,
-    pageSize,
     loading,
     loadingRowKey,
     isModalOpen,
@@ -27,7 +24,6 @@ const UsuariosDaClinica = () => {
     isSubmitting,
     editingUser,
     viewingUser,
-    handleTableChange,
     handleOpenModalCadastro,
     handleCloseModal,
     handleCloseModalDetalhes,
@@ -58,10 +54,6 @@ const UsuariosDaClinica = () => {
 
       <TabelaUsuariosDaClinica
         usuarios={usuarios}
-        total={total}
-        page={page}
-        pageSize={pageSize}
-        onTableChange={handleTableChange}
         onEdit={handleEditarUsuario}
         onToggleStatus={handleToggleStatus}
         onViewDetails={handleOpenModalDetalhes}

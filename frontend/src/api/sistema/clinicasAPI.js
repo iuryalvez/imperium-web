@@ -2,9 +2,9 @@ import api from '../index';  // configuração do axios
 import endpoints from '../../services/Endpoints'; // endpoints
 
 export const clinicasAPI = {
-    listar: async (params = {}) => {
+    listar: async () => {
         try {
-            const response = await api.get(endpoints.sistema.clinica.listar, { params });
+            const response = await api.get(endpoints.sistema.clinica.listar);
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar clínicas:', error);

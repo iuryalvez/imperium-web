@@ -3,7 +3,6 @@ using backend.Domain.Usuarios.Interfaces;
 using backend.Domain.SaudeAnimal.Entities;
 using backend.Domain.SaudeAnimal.Interfaces;
 using backend.Domain.AtendimentoAnimal.Enums;
-using backend.Domain.Utils.Pagination;
 
 namespace backend.Domain.SaudeAnimal.Services;
 
@@ -99,18 +98,16 @@ public class RacaoService : IRacaoService
     /// <param name="clinicaId">O ID da clínica.</param>
     /// <param name="especie">A espécie do animal para filtrar os resultados (opcional).</param>
     /// <returns>Um ServiceResult contendo a lista de DTOs das rações.</returns>
-    public async Task<ServiceResult> ObterTodosDtosPorClinicaIdEEspecieAsync(int clinicaId, EspecieAnimal? especie, int page, int pageSize, string? searchNome)
+    public async Task<ServiceResult> ObterTodosDtosPorClinicaIdEEspecieAsync(int clinicaId, EspecieAnimal? especie)
     {
         _logger.LogInformation("Buscando todos os DTOs de ração para a clínica ID {ClinicaId}. Filtro de espécie: {Especie}", clinicaId, especie?.ToString() ?? "Nenhum");
         try
         {
-            var pagedRacoes = await _racaoRepository.GetAllByClinicIdAndEspecieAsync(clinicaId, especie, page, pageSize, searchNome);
-            var dtos = _mapper.Map<IEnumerable<GetRacoesDto>>(pagedRacoes.Data);
-            
-            var pagedResult = new PagedResponse<GetRacoesDto>(dtos, pagedRacoes.TotalCount, pagedRacoes.PageNumber, pagedRacoes.PageSize);
+            var racoes = await _racaoRepository.GetAllByClinicIdAndEspecieAsync(clinicaId, especie);
+            var dtos = _mapper.Map<IEnumerable<GetRacoesDto>>(racoes);
             
             _logger.LogInformation("Busca de rações para a clínica ID {ClinicaId} concluída com sucesso.", clinicaId);
-            return new ServiceResult { Succeeded = true, Data = pagedResult };
+            return new ServiceResult { Succeeded = true, Data = dtos };
         }
         catch (Exception ex)
         {

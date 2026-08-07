@@ -1,7 +1,6 @@
 using backend.Domain.AtendimentoAnimal.Enums;
 using backend.Domain.SaudeAnimal.Entities;
 using backend.Domain.SaudeAnimal.Interfaces;
-using backend.Domain.Utils.Pagination;
 using backend.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +11,7 @@ namespace backend.Domain.SaudeAnimal.Repository
         private readonly AppDbContext _context;
         public RacaoRepository(AppDbContext context) { _context = context; }
 
-        public async Task<PagedResponse<Racao>> GetAllByClinicIdAndEspecieAsync(int clinicaId, EspecieAnimal? especie, int page, int pageSize, string? searchNome)
+        public async Task<IEnumerable<Racao>> GetAllByClinicIdAndEspecieAsync(int clinicaId, EspecieAnimal? especie)
         {
             var query = _context.Racoes.AsNoTracking().Where(r => r.ClinicaId == clinicaId);
 
@@ -21,14 +20,7 @@ namespace backend.Domain.SaudeAnimal.Repository
                 query = query.Where(r => r.Especie == especie.Value);
             }
 
-            if (!string.IsNullOrWhiteSpace(searchNome))
-            {
-                query = query.Where(r => r.Nome != null && r.Nome.ToLower().Contains(searchNome.ToLower()));
-            }
-
-            query = query.OrderBy(r => r.Nome);
-
-            return await query.ToPagedResponseAsync(page, pageSize);
+            return await query.ToListAsync();
         }
 
         public async Task<Racao?> GetByIdAndClinicaIdAsync(int racaoId, int clinicaId)

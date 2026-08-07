@@ -20,9 +20,6 @@ import ModalPadrao from "../../../components/modal/ModalPadrao.jsx";
 const ClinicasDoSistema = () => {
   const {
     clinicas,
-    total,
-    page,
-    pageSize,
     loading,
     isSubmitting,
     isModalOpen,
@@ -31,7 +28,6 @@ const ClinicasDoSistema = () => {
     editingClinica,
     viewingClinica,
     accessingClinica,
-    handleTableChange,
     handleOpenModalCadastro,
     handleEditarClinica,
     handleOpenModalDetalhes,
@@ -67,10 +63,6 @@ const ClinicasDoSistema = () => {
 
       <TabelaClinicasDoSistema
         clinicas={clinicas}
-        total={total}
-        page={page}
-        pageSize={pageSize}
-        onTableChange={handleTableChange}
         onEdit={handleEditarClinica}
         onViewDetails={handleOpenModalDetalhes}
         onAccess={handleOpenModalAcesso}

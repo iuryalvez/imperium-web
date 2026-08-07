@@ -19,16 +19,14 @@ import colunas from "./colunas";
 
 const TabelaAnimais = ({
   data,
-  total,
-  page,
-  pageSize,
-  onTableChange,
   onEdit,
   onDelete,
   onViewDetails,
   onNavigateToAcompanhamento,
   loadingRowKey,
 }) => {
+  // ESTADO INTERNO para controlar as colunas visíveis.
+  // Inicializa com todas as colunas visíveis, como pedido.
   const [visibleColumns, setVisibleColumns] = useState([
     "nome",
     "especie",
@@ -140,13 +138,7 @@ const TabelaAnimais = ({
         dataSource={data}
         columns={colunasVisiveis}
         rowKey="id"
-        pagination={{
-          current: page,
-          pageSize: pageSize,
-          total: total,
-          showSizeChanger: true,
-        }}
-        onChange={onTableChange}
+        pagination={{ pageSize: 10, showSizeChanger: true }}
         scroll={{ x: "max-content" }}
       />
     </div>

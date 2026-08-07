@@ -5,7 +5,6 @@ using backend.Domain.AtendimentoAnimal.Interface;
 using backend.Domain.Usuarios.Interfaces;
 using backend.Infra.Data;
 using Microsoft.EntityFrameworkCore;
-using backend.Domain.Utils.Pagination;
 
 namespace backend.Domain.AtendimentoAnimal.Services
 {
@@ -64,12 +63,12 @@ namespace backend.Domain.AtendimentoAnimal.Services
         /// </summary>
         /// <param name="clinicaId">O ID da clínica.</param>
         /// <returns>Uma coleção de entidades 'Tutor'.</returns>
-        public async Task<PagedResponse<Tutor>> ObterTodosPorClinicaIdAsync(int clinicaId, int page, int pageSize, string? searchNome)
+        public async Task<IEnumerable<Tutor>> ObterTodosPorClinicaIdAsync(int clinicaId)
         {
             _logger.LogInformation("Buscando todas as entidades Tutor para a clínica ID {ClinicaId}.", clinicaId);
             try
             {
-                return await _tutorRepository.GetAllByClinicIdWithIncludesAsync(clinicaId, page, pageSize, searchNome);
+                return await _tutorRepository.GetAllByClinicIdWithIncludesAsync(clinicaId);
             }
             catch (Exception ex)
             {
@@ -100,15 +99,15 @@ namespace backend.Domain.AtendimentoAnimal.Services
         /// </summary>
         /// <param name="clinicaId">O ID da clínica.</param>
         /// <returns>Uma coleção de DTOs 'GetTutoresClinicaDto'.</returns>
-        public async Task<PagedResponse<GetTutoresClinicaDto>> ObterTodosDtosPeloClinicaIdAsync(int clinicaId, int page, int pageSize, string? searchNome)
+        public async Task<IEnumerable<GetTutoresClinicaDto>> ObterTodosDtosPeloClinicaIdAsync(int clinicaId)
         {
-            _logger.LogInformation("Buscando todos os DTOs de Tutor para a clínica ID {ClinicaId}.", clinicaId);
+            _logger.LogInformation("Buscando todos os DTOs de Tutores para a clínica ID {ClinicaId}.", clinicaId);
 
-            // 1. Obtém as entidades usando o método de serviço (agora com paginação)
-            var pagedTutores = await ObterTodosPorClinicaIdAsync(clinicaId, page, pageSize, searchNome);
-            
-            var dtos = _mapper.Map<IEnumerable<GetTutoresClinicaDto>>(pagedTutores.Data);
-            return new PagedResponse<GetTutoresClinicaDto>(dtos, pagedTutores.TotalCount, pagedTutores.PageNumber, pagedTutores.PageSize);
+            // 1. Chama o método de serviço intermediário para obter as entidades
+            var tutores = await ObterTodosPorClinicaIdAsync(clinicaId);
+
+            // 2. Mapeia a coleção de entidades para uma coleção de DTOs.
+            return _mapper.Map<IEnumerable<GetTutoresClinicaDto>>(tutores);
         }
 
         /// <summary>

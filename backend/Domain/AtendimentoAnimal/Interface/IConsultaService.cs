@@ -1,6 +1,5 @@
 using backend.Domain.AtendimentoAnimal.DTOs.Consulta;
 using backend.Domain.Usuarios.Interfaces;
-using backend.Domain.Utils.Pagination;
 
 namespace backend.Domain.AtendimentoAnimal.Interface
 {
@@ -11,7 +10,7 @@ namespace backend.Domain.AtendimentoAnimal.Interface
         Task<ServiceResult> CreateAsync(UpsertConsultaDto dto, int clinicaId, int usuarioId);
         Task<ServiceResult> UpdateAsync(int consultaId, UpsertConsultaDto dto, int clinicaId);
         Task<ServiceResult> DeleteAsync(int consultaId, int clinicaId);
-        Task<PagedResponse<GetConsultaDto>> ObterTodasPorClinicaIdAsync(int clinicaId, int page, int pageSize, string? searchNome, DateTime? searchDataInicio, DateTime? searchDataFim);
+        Task<IEnumerable<GetConsultaDto>> ObterTodasPorClinicaIdAsync(int clinicaId);
         Task<DetalhesConsultaDto?> ObterDetalhesPorIdEClinicaIdAsync(int consultaId, int clinicaId);
     }
 }

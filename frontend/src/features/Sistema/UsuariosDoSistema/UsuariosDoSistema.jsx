@@ -18,9 +18,6 @@ import ModalPadrao from "../../../components/modal/ModalPadrao.jsx";
 const UsuariosDoSistema = () => {
   const {
     usuarios,
-    total,
-    page,
-    pageSize,
     loading,
     loadingRowKey,
     isModalVisible,
@@ -28,7 +25,6 @@ const UsuariosDoSistema = () => {
     isSubmitting,
     editingUser,
     viewingUser,
-    handleTableChange,
     handleAbrirModalCadastro,
     handleModalCancel,
     handleDetailsModalCancel,
@@ -66,10 +62,6 @@ const UsuariosDoSistema = () => {
 
       <TabelaUsuariosDoSistema
         data={usuarios}
-        total={total}
-        page={page}
-        pageSize={pageSize}
-        onTableChange={handleTableChange}
         onEdit={handleEditarUsuario}
         onToggleStatus={handleToggleStatus}
         onViewDetails={handleVerDetalhes}

@@ -6,10 +6,6 @@ import { consultasDaClinicaAPI } from "../../../api/clinica/consultasDaClinicaAP
 export const useConsultasManager = () => {
   const navigate = useNavigate();
   const [consultas, setConsultas] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  // Filtros removidos a pedido do usuário
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingConsulta, setEditingConsulta] = useState(null);
@@ -17,29 +13,18 @@ export const useConsultasManager = () => {
   const fetchConsultas = useCallback(async () => {
     setLoading(true);
     try {
-      const params = { page, pageSize };
-      const response = await consultasDaClinicaAPI.listar(params);
-      setConsultas(response.data || []);
-      setTotal(response.totalCount || 0);
+      const data = await consultasDaClinicaAPI.listar();
+      setConsultas(data);
     } catch (error) {
       message.error("Erro ao carregar consultas.");
-      setConsultas([]);
-      setTotal(0);
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize]);
+  }, []);
 
   useEffect(() => {
     fetchConsultas();
   }, [fetchConsultas]);
-
-  const handleTableChange = (pagination) => {
-    setPage(pagination.current);
-    setPageSize(pagination.pageSize);
-  };
-
-
 
   const handleOpenModal = (consulta = null) => {
     setEditingConsulta(consulta);
@@ -94,13 +79,9 @@ export const useConsultasManager = () => {
 
   return {
     consultas,
-    total,
-    page,
-    pageSize,
     loading,
     isModalOpen,
     editingConsulta,
-    handleTableChange,
     handleOpenModal,
     handleCloseModal,
     handleSubmit,

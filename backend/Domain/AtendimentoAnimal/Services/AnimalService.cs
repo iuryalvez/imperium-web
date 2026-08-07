@@ -5,7 +5,6 @@ using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interface;
 using backend.Domain.Usuarios.Interfaces;
 using backend.Infra.Data;
-using backend.Domain.Utils.Pagination;
 using Microsoft.EntityFrameworkCore;
 
 /// <summary>
@@ -80,15 +79,13 @@ public class AnimalService : IAnimalService
     /// </summary>
     /// <param name="clinicaId">ID da clínica.</param>
     /// <returns>ServiceResult contendo a lista de animais.</returns>
-    public async Task<ServiceResult> GetAllDtosByClinicIdAsync(int clinicaId, int page, int pageSize, string? searchNome)
+    public async Task<ServiceResult> GetAllDtosByClinicIdAsync(int clinicaId)
     {
-        _logger.LogInformation("Listando animais da clínica {ClinicaId} (página {Page}).", clinicaId, page);
-        var pagedAnimais = await _animalRepository.GetAllByClinicaIdWithDetailsAsync(clinicaId, page, pageSize, searchNome);
-        
-        var dtos = _mapper.Map<IEnumerable<GetAnimaisClinicaDto>>(pagedAnimais.Data);
-        var pagedDtos = new PagedResponse<GetAnimaisClinicaDto>(dtos, pagedAnimais.TotalCount, pagedAnimais.PageNumber, pagedAnimais.PageSize);
-        
-        return new ServiceResult { Succeeded = true, Data = pagedDtos };
+        _logger.LogInformation("Listando todos os animais da clínica {ClinicaId}.", clinicaId);
+        var animais = await _animalRepository.GetAllByClinicaIdWithDetailsAsync(clinicaId);
+        var dtos = _mapper.Map<IEnumerable<GetAnimaisClinicaDto>>(animais);
+        _logger.LogInformation("Encontrados {Count} animais para a clínica {ClinicaId}.", dtos.Count(), clinicaId);
+        return new ServiceResult { Succeeded = true, Data = dtos };
     }
 
     /// <summary>

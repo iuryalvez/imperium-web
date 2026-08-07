@@ -19,10 +19,10 @@ namespace backend.Domain.AtendimentoAnimal
 
         [HttpGet]
         [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchNome = null)
+        public async Task<IActionResult> GetAll()
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            var tutores = await _tutorService.ObterTodosDtosPeloClinicaIdAsync(clinicaId, page, pageSize, searchNome);
+            var tutores = await _tutorService.ObterTodosDtosPeloClinicaIdAsync(clinicaId);
             return Ok(tutores);
         }
 

@@ -1,18 +1,16 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { animaisDaClinicaAPI } from "../../../api/clinica/animaisDaClinicaAPI";
 import { message } from "antd";
 
 export const useAnimaisDaClinicaManager = () => {
   const [animais, setAnimais] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(true);
   const [loadingRowKey] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Busca foi removida temporariamente a pedido do usuário
+  // Busca
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Estados para o modal de ANIMAL (Cadastro/Edição)
   const [isModalAnimalOpen, setIsModalAnimalOpen] = useState(false);
@@ -29,28 +27,32 @@ export const useAnimaisDaClinicaManager = () => {
   const fetchAnimais = useCallback(async () => {
     setLoading(true);
     try {
-      const params = { page, pageSize };
-      const response = await animaisDaClinicaAPI.listar(params);
-      setAnimais(response.data || []);
-      setTotal(response.totalCount || 0);
+      const dadosAnimais = await animaisDaClinicaAPI.listar();
+      setAnimais(dadosAnimais);
     } catch (error) {
       message.error(error.message);
       setAnimais([]);
-      setTotal(0);
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize]);
+  }, []);
 
-  // useEffect que resetava a página foi removido porque o handleApplyFilters já faz isso
-  
   useEffect(() => {
     fetchAnimais();
   }, [fetchAnimais]);
 
-  const handleTableChange = (pagination) => {
-    setPage(pagination.current);
-    setPageSize(pagination.pageSize);
+  // Usamos useMemo para que a filtragem só seja recalculada quando a lista mestra ou o termo de busca mudarem.
+  const animaisFiltrados = useMemo(() => {
+    if (!searchTerm) {
+      return animais; // Se a busca estiver vazia, retorna todos os animais
+    }
+    return animais.filter((animal) =>
+      animal.nome.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [animais, searchTerm]);
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
   };
 
   // Handlers para o modal de ANIMAL (Cadastro/Edição)
@@ -120,19 +122,17 @@ export const useAnimaisDaClinicaManager = () => {
   };
 
   return {
-    animais,
-    total,
-    page,
-    pageSize,
+    animais: animaisFiltrados,
     loading,
     loadingRowKey,
+    searchTerm,
     isSubmitting,
     isModalAnimalOpen,
     isModalRacasOpen,
     isModalDetalhesOpen,
     editingAnimal,
     viewingAnimal,
-    handleTableChange,
+    handleSearch,
     handleOpenModal,
     handleCloseModal,
     handleOpenModalRacas,

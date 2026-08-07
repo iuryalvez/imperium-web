@@ -33,12 +33,12 @@ namespace backend.Domain.AtendimentoAnimal
 
         [HttpGet("animais")]
         [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> GetByClinicaId([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchNome = null)
+        public async Task<IActionResult> GetByClinicaId()
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId == 0) return BadRequest("ID da clínica não encontrado.");
 
-            var result = await _animalService.GetAllDtosByClinicIdAsync(clinicaId, page, pageSize, searchNome);
+            var result = await _animalService.GetAllDtosByClinicIdAsync(clinicaId);
 
             if (result.Succeeded)
                 return Ok(result.Data);

@@ -17,10 +17,10 @@ namespace backend.Domain.AtendimentoAnimal
 
         [HttpGet]
         [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> GetAllByClinicaId([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null, [FromQuery] DateTime? dataInicio = null, [FromQuery] DateTime? dataFim = null)
+        public async Task<IActionResult> GetAllByClinicaId()
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            var consultas = await _consultaService.ObterTodasPorClinicaIdAsync(clinicaId, page, pageSize, search, dataInicio, dataFim);
+            var consultas = await _consultaService.ObterTodasPorClinicaIdAsync(clinicaId);
             return Ok(consultas);
         }
 

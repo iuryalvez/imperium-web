@@ -18,10 +18,6 @@ import colunas from "./colunas";
 
 const TabelaConsultas = ({
   consultas,
-  total,
-  page,
-  pageSize,
-  onTableChange,
   onEdit,
   onDelete,
   onIrParaAcompanhamento,
@@ -45,7 +41,6 @@ const TabelaConsultas = ({
     () => ({
       title: "Ações",
       key: "acoes",
-      fixed: "right",
       render: (_, consulta) => (
         <Space size="small">
           <Tooltip title="Editar Agendamento">
@@ -68,7 +63,7 @@ const TabelaConsultas = ({
             </Popconfirm>
           </Tooltip>
 
-          <Tooltip title="Ver Acompanhamento">
+          <Tooltip title="Ver Acompanhamento (Ficha/Avaliação/Dieta)">
             <Button
               type="primary"
               size="small"
@@ -125,13 +120,6 @@ const TabelaConsultas = ({
         columns={colunasVisiveis}
         rowKey="id"
         loading={loading}
-        pagination={{
-          current: page,
-          pageSize: pageSize,
-          total: total,
-          showSizeChanger: true,
-        }}
-        onChange={onTableChange}
         scroll={{ x: "max-content" }}
       />
     </div>

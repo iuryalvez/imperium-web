@@ -1,6 +1,5 @@
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interface;
-using backend.Domain.Utils.Pagination;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Infra.Data.Repositories
@@ -30,24 +29,17 @@ namespace backend.Infra.Data.Repositories
                 .FirstOrDefaultAsync(t => t.Id == tutorId);
         }
 
-        public async Task<PagedResponse<Tutor>> GetAllByClinicIdWithIncludesAsync(int clinicaId, int page, int pageSize, string? searchNome)
+        public async Task<IEnumerable<Tutor>> GetAllByClinicIdWithIncludesAsync(int clinicaId)
         {
-            var query = _context.Tutores
+            return await _context.Tutores
                 // Inclui a tabela de junção Tutor-Animal
                 .Include(t => t.TutoresAnimais)
                     // A partir da junção, inclui a entidade Animal
                     .ThenInclude(ta => ta.Animal)
                 // Filtra apenas os tutores que têm um vínculo com a clínica especificada
-                .Where(t => t.TutoresClinicas.Any(tc => tc.ClinicaId == clinicaId));
-
-            if (!string.IsNullOrWhiteSpace(searchNome))
-            {
-                query = query.Where(t => t.Nome != null && t.Nome.ToLower().Contains(searchNome.ToLower()));
-            }
-
-            query = query.OrderBy(t => t.Nome);
-
-            return await query.AsNoTracking().ToPagedResponseAsync(page, pageSize);
+                .Where(t => t.TutoresClinicas.Any(tc => tc.ClinicaId == clinicaId))
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task<bool> AllTutorsExistInClinicAsync(List<int> tutoresIds, int clinicaId)

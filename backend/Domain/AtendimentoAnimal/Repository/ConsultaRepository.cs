@@ -1,7 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interface;
 using backend.Infra.Data;
-using backend.Domain.Utils.Pagination;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Domain.AtendimentoAnimal.Repository
@@ -43,31 +46,12 @@ namespace backend.Domain.AtendimentoAnimal.Repository
                 .FirstOrDefaultAsync(c => c.Id == consultaId);
         }
 
-        public async Task<PagedResponse<Consulta>> GetAllByClinicIdAsync(int clinicaId, int page, int pageSize, string? searchNome, DateTime? searchDataInicio, DateTime? searchDataFim)
+        public async Task<IEnumerable<Consulta>> GetAllByClinicIdAsync(int clinicaId)
         {
-            var query = GetBaseQuery().Where(c => c.ClinicaId == clinicaId);
-
-            if (!string.IsNullOrWhiteSpace(searchNome))
-            {
-                query = query.Where(c => 
-                    (c.Animal != null && c.Animal.Nome != null && c.Animal.Nome.ToLower().Contains(searchNome.ToLower())) ||
-                    (c.Tutor != null && c.Tutor.Nome != null && c.Tutor.Nome.ToLower().Contains(searchNome.ToLower()))
-                );
-            }
-
-            if (searchDataInicio.HasValue)
-            {
-                query = query.Where(c => c.DataConsulta.Date >= searchDataInicio.Value.Date);
-            }
-
-            if (searchDataFim.HasValue)
-            {
-                query = query.Where(c => c.DataConsulta.Date <= searchDataFim.Value.Date);
-            }
-
-            query = query.OrderByDescending(c => c.DataConsulta);
-
-            return await query.AsNoTracking().ToPagedResponseAsync(page, pageSize);
+            return await GetBaseQuery()
+                .Where(c => c.ClinicaId == clinicaId)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task<Consulta?> GetByIdAndClinicIdAsync(int consultaId, int clinicaId)

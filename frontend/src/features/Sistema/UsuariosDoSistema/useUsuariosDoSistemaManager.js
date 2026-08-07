@@ -7,9 +7,6 @@ import { usuariosDoSistemaAPI } from "../../../api/sistema/usuariosDoSistemaAPI.
  */
 export const useUsuariosDoSistemaManager = () => {
   const [usuarios, setUsuarios] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(true);
   const [loadingRowKey, setLoadingRowKey] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -21,29 +18,19 @@ export const useUsuariosDoSistemaManager = () => {
   const buscarDados = useCallback(async () => {
     setLoading(true);
     try {
-      const params = { page, pageSize };
-      const response = await usuariosDoSistemaAPI.listar(params);
-      setUsuarios(response.data || []);
-      setTotal(response.totalCount || 0);
+      const dados = await usuariosDoSistemaAPI.listar();
+      setUsuarios(dados);
     } catch (error) {
       message.error(error.message);
       setUsuarios([]);
-      setTotal(0);
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize]);
-
-  // Remover useEffect de reset para searchNome, handleApplyFilters lida com isso
+  }, []);
 
   useEffect(() => {
     buscarDados();
   }, [buscarDados]);
-
-  const handleTableChange = (pagination) => {
-    setPage(pagination.current);
-    setPageSize(pagination.pageSize);
-  };
 
   const handleAbrirModalCadastro = () => {
     setEditingUser(null);
@@ -118,9 +105,6 @@ export const useUsuariosDoSistemaManager = () => {
   // Retorna tudo que o componente de UI precisa para funcionar
   return {
     usuarios,
-    total,
-    page,
-    pageSize,
     loading,
     loadingRowKey,
     isModalVisible,
@@ -128,7 +112,6 @@ export const useUsuariosDoSistemaManager = () => {
     isSubmitting,
     editingUser,
     viewingUser,
-    handleTableChange,
     handleAbrirModalCadastro,
     handleModalCancel,
     handleDetailsModalCancel,
