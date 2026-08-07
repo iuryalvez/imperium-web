@@ -54,10 +54,20 @@ namespace backend.Domain.AtendimentoAnimal
     {
         public int Id { get; set; }
 
-        // Dados do relatório
+        // Dados da avaliação
         public double Peso { get; set; }
-        public string? CondicaoCorporal { get; set; }
-        public string? GrauAtividade { get; set; }
+        public double? PesoIdeal { get; set; }
+        public int CondicaoCorporal { get; set; }
+        public int GrauAtividade { get; set; }
+        public int Idade { get; set; }
+        public int RacaoId { get; set; }
+        public string? NomeRacao { get; set; }
+        public string? DescricaoDieta { get; set; }
+        public int TipoDieta { get; set; }
+        public bool IsGestante { get; set; }
+        public int IsLactanteNumeroFilhotes { get; set; }
+        public int SemanaLactacao { get; set; }
+        public int SemanaGestacao { get; set; }
 
         public DietaResumidaDto Dieta { get; set; }
     }

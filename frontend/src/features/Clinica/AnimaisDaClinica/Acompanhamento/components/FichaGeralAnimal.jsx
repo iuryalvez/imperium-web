@@ -1,15 +1,26 @@
 import React from "react";
 import { Card, Typography, Row, Col, Button, Collapse, Space } from "antd";
-import { ManOutlined, WomanOutlined, ProfileOutlined, EditOutlined } from "@ant-design/icons";
+import {
+  ManOutlined,
+  WomanOutlined,
+  ProfileOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
 import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
 
-const FichaGeralAnimal = ({ animal, avaliacaoRecente, dietaRecente, onOpenDieta, onEditAnimal }) => {
-  if (!animal) return null;
+const FichaGeralAnimal = ({
+  data,
+  avaliacaoRecente,
+  dietaRecente,
+  onOpenDieta,
+  onEditAnimal,
+}) => {
+  if (!data) return null;
 
-  const nomeRaca = animal.raca?.nome || "SRD";
+  const nomeRaca = data.raca?.nome || "SRD";
   const dataAvaliacao = avaliacaoRecente?.dataConsulta
     ? dayjs(avaliacaoRecente.dataConsulta).format("DD/MM/YYYY")
     : "Sem registros";
@@ -20,19 +31,14 @@ const FichaGeralAnimal = ({ animal, avaliacaoRecente, dietaRecente, onOpenDieta,
       bodyStyle={{ padding: "16px 24px" }}
     >
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-        <Title
-          level={3}
-          className="text-verde-escuro m-0"
-        >
-          Ficha Geral - {animal.nome}
+        <Title level={3} className="text-verde-escuro m-0">
+          Ficha Geral - {data.nome}
         </Title>
         <Space wrap>
           <Button
             icon={<EditOutlined />}
-            onClick={() => onEditAnimal(animal)}
-          >
-            
-          </Button>
+            onClick={() => onEditAnimal(data)}
+          ></Button>
           {dietaRecente && (
             <Button
               type="primary"
@@ -45,36 +51,38 @@ const FichaGeralAnimal = ({ animal, avaliacaoRecente, dietaRecente, onOpenDieta,
         </Space>
       </div>
 
-      <Collapse ghost defaultActiveKey={['1']}>
-        <Panel header={<Text strong className="text-gray-500">Detalhes do Paciente</Text>} key="1">
+      <Collapse ghost defaultActiveKey={["1"]}>
+        <Panel
+          header={
+            <Text strong className="text-gray-500">
+              Detalhes do Paciente
+            </Text>
+          }
+          key="1"
+        >
           <Row gutter={[32, 16]}>
             {/* Informações Básicas */}
             <Col xs={24} md={12}>
               <div className="flex flex-col gap-2">
                 <Text>
                   <strong className="text-verde-escuro">Espécie:</strong>{" "}
-                  <span className="text-gray-900">{animal.especie === "Cao" ? "Cão" : "Gato"}</span>
+                  <span className="text-gray-900">
+                    {data.especie === "Cao" ? "Cão" : "Gato"}
+                  </span>
                 </Text>
                 <Text>
                   <strong className="text-verde-escuro">Raça:</strong>{" "}
                   <span className="text-gray-900">{nomeRaca}</span>
                 </Text>
-                <Text className="flex items-center gap-1">
-                  <strong className="text-verde-escuro">Sexo:</strong>{" "}
-                  <span className="text-gray-900">{animal.sexo}</span>
-                  {animal.sexo === "Macho" ? (
-                    <ManOutlined className="text-blue-500" />
-                  ) : (
-                    <WomanOutlined className="text-pink-500" />
-                  )}
-                </Text>
                 <Text>
                   <strong className="text-verde-escuro">Idade:</strong>{" "}
-                  <span className="text-gray-900">{animal.idadeFormatada}</span>
+                  <span className="text-gray-900">{data.idadeFormatada}</span>
                 </Text>
                 <Text>
                   <strong className="text-verde-escuro">Fase da Vida:</strong>{" "}
-                  <span className="text-gray-900">{animal.faseVidaAtualLabel || "Não definida"}</span>
+                  <span className="text-gray-900">
+                    {data.faseVidaAtualLabel || "Não definida"}
+                  </span>
                 </Text>
               </div>
             </Col>
@@ -82,27 +90,41 @@ const FichaGeralAnimal = ({ animal, avaliacaoRecente, dietaRecente, onOpenDieta,
             {/* Informações Clínicas Mais Recentes */}
             <Col xs={24} md={12}>
               <div className="flex flex-col gap-2">
-                <Text className="block text-xs text-gray-400 mb-1">
-                  Última avaliação: {dataAvaliacao}
+                <Text className="flex items-center gap-1">
+                  <strong className="text-verde-escuro">Sexo:</strong>{" "}
+                  <span className="text-gray-900">{data.sexo}</span>
+                  {data.sexo === "Macho" ? (
+                    <ManOutlined className="text-blue-500" />
+                  ) : (
+                    <WomanOutlined className="text-pink-500" />
+                  )}
                 </Text>
                 <Text>
                   <strong className="text-verde-escuro">Peso Atual:</strong>{" "}
                   <span className="text-gray-900">
-                    {avaliacaoRecente?.peso ? `${avaliacaoRecente.peso} kg` : "Não avaliado"}
+                    {avaliacaoRecente?.peso
+                      ? `${avaliacaoRecente.peso} kg`
+                      : "Não avaliado"}
                   </span>
                 </Text>
                 <Text>
-                  <strong className="text-verde-escuro">Escore Corporal (ECC):</strong>{" "}
+                  <strong className="text-verde-escuro">
+                    Escore Corporal (ECC):
+                  </strong>{" "}
                   <span className="text-gray-900">
-                    {animal.condicaoCorporalAtualLabel || "Não avaliado"}
+                    {data.condicaoCorporalAtualLabel || "Não avaliado"}
                   </span>
                 </Text>
-                <Text>
-                  <strong className="text-verde-escuro">Grau de Atividade:</strong>{" "}
-                  <span className="text-gray-900">
-                    {avaliacaoRecente?.grauAtividade || "Não avaliado"}
-                  </span>
-                </Text>
+                {data.especieAnimal === 1 && (
+                  <Text>
+                    <strong className="text-verde-escuro">
+                      Grau de Atividade:
+                    </strong>{" "}
+                    <span className="text-gray-900">
+                      {avaliacaoRecente?.grauAtividade || "Não avaliado"}
+                    </span>
+                  </Text>
+                )}
               </div>
             </Col>
           </Row>

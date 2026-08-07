@@ -86,31 +86,16 @@ export const useAcompanhamentoManager = () => {
   }, [acompanhamentoId, fetchHistorico]);
 
   // --- LÓGICA DE AVALIAÇÕES ---
-  const handleOpenAvaliacaoModal = useCallback(async (consulta) => {
+  const handleOpenAvaliacaoModal = useCallback((consulta) => {
     setSelectedConsulta(consulta);
     setIsAvaliacaoModalOpen(true);
-    setLoadingAvaliacao(true);
+    setLoadingAvaliacao(false); // Mantém o estado para não quebrar outros lugares
     
-    // Na tabela detalhada (antiga ListaAvaliacoes), a 'consulta' pode ser na verdade um objeto avaliacao
-    // com um id da avaliação. Mas a API espera o ID da consulta original (consultaId) ou já retorna a avaliação?
-    // Atualmente, as listagens em 'avaliacoes' são as próprias avaliações. 
-    // Como combinamos com o usuário que listaríamos "todas as consultas" (ainda a implementar no back),
-    // vamos assumir que 'consulta' terá consultaId e avaliacaoPreenchida ou usaremos consulta.id
-    const consultaId = consulta.consultaId || consulta.id; // Fallback temporário
-    
-    // Se estivermos abrindo de uma avaliação existente, já temos os dados no objeto,
-    // mas por garantia, buscaremos da API
-    try {
-      // Como na Listagem atual a prop é avaliacao.id (que é o id da avaliação) e precisamos do ID da consulta,
-      // usaremos o endpoint se for uma consulta que já possui avaliação.
-      const response = await avaliacoesDaClinicaAPI.getByConsultaId(consultaId);
-      setAvaliacaoData(response.data);
-    } catch (error) {
-      // Se não encontrar, ou for nova, setamos null
-      // Vamos injetar os dados da avaliação existente se houver
-      setAvaliacaoData(consulta.condicaoCorporal ? consulta : null);
-    } finally {
-      setLoadingAvaliacao(false);
+    // Agora puxamos as informações da avaliação diretamente do histórico do paciente
+    if (consulta.avaliacao) {
+      setAvaliacaoData(consulta.avaliacao);
+    } else {
+      setAvaliacaoData(null);
     }
   }, []);
 
@@ -152,7 +137,7 @@ export const useAcompanhamentoManager = () => {
     setAvaliacaoSelecionado(null);
   };
 
-  const handleOpenModalCriarDieta = async (avaliacao) => {
+  const handleOpenModalCriarDieta = (avaliacao) => {
     setIsModalCriarDietaOpen(true);
     setAvaliacaoSelecionado(avaliacao);
   };
@@ -167,14 +152,16 @@ export const useAcompanhamentoManager = () => {
     setDietaParaVisualizar(null);
   };
 
-  const handleOpenModalEditarDieta = (dieta) => {
+  const handleOpenModalEditarDieta = (dieta, avaliacao) => {
     setDietaParaEditar(dieta);
+    setAvaliacaoSelecionado(avaliacao);
     setIsModalEditarDietaOpen(true);
   };
 
   const handleCloseModalEditarDieta = () => {
     setIsModalEditarDietaOpen(false);
     setDietaParaEditar(null);
+    setAvaliacaoSelecionado(null);
   };
 
   const handleCriarDieta = async (values) => {

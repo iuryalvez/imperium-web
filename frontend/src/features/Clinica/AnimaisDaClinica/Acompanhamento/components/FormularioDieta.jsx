@@ -29,12 +29,15 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
   const [form] = Form.useForm();
   const tipoDietaSelecionado = useWatch("tipoDieta", form);
 
+  console.log("[FormularioDieta] initialValues: ", initialValues);
+
   useEffect(() => {
     if (initialValues) {
       form.setFieldsValue({
         racaoId: initialValues.racaoId,
         tipoDieta: initialValues.tipoDieta,
         pesoAtual: initialValues.peso,
+        pesoIdeal: initialValues.pesoIdeal,
         numeroFilhotes: initialValues.isLactanteNumeroFilhotes,
         semanaLactacao: initialValues.semanaLactacao,
       });
@@ -71,6 +74,13 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
       layout="vertical"
       onFinish={onFinish}
     >
+      <Alert
+        className="mb-4"
+        type="info"
+        showIcon
+        message="Dados vinculados da Avaliação Clínica"
+        description="Os dados foram preenchidos automaticamente com base na avaliação registrada nesta consulta."
+      />
       <Row gutter={16}>
         <Col span={12}>
           <Form.Item
@@ -92,7 +102,10 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
             label="Tipo da Dieta"
             rules={[{ required: true }]}
           >
-            <Select options={opcoesTipoDieta} placeholder="Selecione o tipo da dieta" />
+            <Select
+              options={opcoesTipoDieta}
+              placeholder="Selecione o tipo da dieta"
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -107,11 +120,20 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
           Condição Corporal (ECC) Registrada:
         </span>
         <Tag
-          color={initialValues?.condicaoCorporal === 5 ? "green" : "orange"}
+          color={
+            initialValues?.condicaoCorporal === "Ideal" ||
+            initialValues?.condicaoCorporal === 5 ||
+            initialValues?.condicaoCorporal
+              ?.toString()
+              ?.toLowerCase()
+              ?.includes("ideal")
+              ? "green"
+              : "orange"
+          }
           className="m-0 font-bold"
         >
           {initialValues?.condicaoCorporal
-            ? `${initialValues.condicaoCorporal} / 9`
+            ? `${initialValues.condicaoCorporal}`
             : "N/A"}
         </Tag>
         <span className="text-xs text-gray-400 ml-2">

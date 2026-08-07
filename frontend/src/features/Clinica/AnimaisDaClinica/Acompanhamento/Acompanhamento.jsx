@@ -54,6 +54,8 @@ const Acompanhamento = () => {
     handleSubmitEditAnimal,
   } = useAcompanhamentoManager();
 
+  console.log('[Acompanhamento] historico: ', historico);
+
   if (loading) {
     return <Skeleton active paragraph={{ rows: 8 }} />;
   }
@@ -81,7 +83,7 @@ const Acompanhamento = () => {
   return (
     <div className="mt-4 flex flex-col gap-6">
       <FichaGeralAnimal
-        animal={historico}
+        data={historico}
         avaliacaoRecente={avaliacaoMaisRecente}
         dietaRecente={dietaMaisRecente}
         onOpenDieta={handleOpenModalVisualizarDieta}
@@ -191,7 +193,7 @@ const Acompanhamento = () => {
             <Skeleton active />
           ) : (
             <FormularioAvaliacao
-              consulta={selectedConsulta || { especieAnimal: historico?.especie, sexoAnimal: historico?.sexo }}
+              data={ { ...selectedConsulta, especieAnimal: historico?.especie, sexoAnimal: historico?.sexo } }
               initialValues={avaliacaoData}
               onFinish={handleSubmitAvaliacao}
             />
@@ -204,7 +206,7 @@ const Acompanhamento = () => {
         modo="criacao"
         open={isModalCriarDietaOpen}
         onCancel={handleCloseModalCriarDieta}
-        title={`Dieta - Paciente: ${historico?.nome || "Desconhecido"} (${dayjs(avaliacaoSelecionado?.dataConsulta).format("DD/MM/YYYY")})`}
+        title={`Dieta - Paciente: ${historico?.nome || "Desconhecido"}`}
         icon={<FormOutlined />}
         formId="form-dieta-animal"
         isSubmitting={isSubmitting}
@@ -212,6 +214,7 @@ const Acompanhamento = () => {
       >
         {avaliacaoSelecionado && (
           <FormularioDieta
+            initialValues={avaliacaoSelecionado}
             onFinish={handleCriarDieta}
             avaliacaoId={avaliacaoSelecionado.id}
             racoes={racoes}
@@ -224,17 +227,17 @@ const Acompanhamento = () => {
         modo="edicao"
         open={isModalEditarDietaOpen}
         onCancel={handleCloseModalEditarDieta}
-        title={`Editar Dieta - Paciente: ${historico?.nome || "Desconhecido"} (${dayjs(dietaParaEditar?.dataConsulta).format("DD/MM/YYYY")})`}
+        title={`Editar Dieta - Paciente: ${historico?.nome || "Desconhecido"}`}
         icon={<EditOutlined />}
         formId="form-dieta-animal"
         isSubmitting={isSubmitting}
         width="min(700px, 95vw)"
       >
-        {dietaParaEditar && (
+        {dietaParaEditar && avaliacaoSelecionado && (
           <FormularioDieta
             onFinish={handleEditarDieta}
-            initialValues={dietaParaEditar}
-            avaliacaoId={dietaParaEditar.avaliacaoId}
+            initialValues={{ ...avaliacaoSelecionado, ...dietaParaEditar }}
+            avaliacaoId={dietaParaEditar.avaliacaoId || avaliacaoSelecionado.id}
             racoes={racoes}
           />
         )}

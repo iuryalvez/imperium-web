@@ -3,7 +3,6 @@ import { Card, Button, Space, Typography, Empty, Popconfirm } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
-  FileTextOutlined,
   CalculatorOutlined,
   ProfileOutlined,
 } from "@ant-design/icons";
@@ -129,7 +128,7 @@ const ListaConsultasCards = ({
                         <Button
                           size="small"
                           icon={<EditOutlined />}
-                          onClick={() => onOpenModalEditarDieta(consulta.avaliacao.dieta)}
+                          onClick={() => onOpenModalEditarDieta(consulta.avaliacao.dieta, consulta.avaliacao)}
                         >
                           Editar Cálculo
                         </Button>

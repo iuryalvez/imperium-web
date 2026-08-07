@@ -45,20 +45,23 @@ const LabelComInfo = ({ label, tituloPopover, conteudoPopover }) => (
   </Space>
 );
 
-const FormularioAvaliacao = ({ consulta, initialValues, onFinish }) => {
+const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
   const [form] = Form.useForm();
   const [racoes, setRacoes] = useState([]);
   const [loadingRacoes, setLoadingRacoes] = useState(true);
+
+  console.log('[FormularioAvaliacao] initialValues', initialValues);
+  console.log('[FormularioAvaliacao] data', data);
 
   const isGestante = Form.useWatch("isGestante", form);
   const isLactante = Form.useWatch("isLactante", form);
 
   const isFemea =
-    consulta?.sexoAnimal === 2 ||
-    String(consulta?.sexoAnimal).toLowerCase() === "femea";
+    data?.sexoAnimal === 2 ||
+    String(data?.sexoAnimal).toLowerCase() === "femea";
   const isGato =
-    consulta?.especieAnimal === 2 ||
-    String(consulta?.especieAnimal).toLowerCase() === "gato";
+    data?.especieAnimal === 2 ||
+    String(data?.especieAnimal).toLowerCase() === "gato";
 
   useEffect(() => {
     if (isGato) {
@@ -67,16 +70,16 @@ const FormularioAvaliacao = ({ consulta, initialValues, onFinish }) => {
   }, [isGato, form]);
 
   useEffect(() => {
-    if (consulta?.especieAnimal) {
+    if (data?.especieAnimal) {
       racoesDaClinicaAPI
-        .listar(consulta.especieAnimal)
+        .listar(data.especieAnimal)
         .then((data) =>
           setRacoes(data.map((r) => ({ label: r.nome, value: r.id }))),
         )
         .catch(() => message.error("Erro ao carregar lista de rações."))
         .finally(() => setLoadingRacoes(false));
     }
-  }, [consulta]);
+  }, [data]);
 
   useEffect(() => {
     if (initialValues) {

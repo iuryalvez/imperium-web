@@ -43,8 +43,10 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
                 .ForMember(dest => dest.Avaliacao, opt => opt.MapFrom(src => src.Avaliacao));
 
             CreateMap<Avaliacao, AvaliacaoDetalhadoDto>()
-                .ForMember(dest => dest.CondicaoCorporal, opt => opt.MapFrom(src => src.CondicaoCorporal.ToString()))
-                .ForMember(dest => dest.GrauAtividade, opt => opt.MapFrom(src => src.GrauAtividade.ToString()))
+                .ForMember(dest => dest.CondicaoCorporal, opt => opt.MapFrom(src => (int)src.CondicaoCorporal))
+                .ForMember(dest => dest.GrauAtividade, opt => opt.MapFrom(src => (int)src.GrauAtividade))
+                .ForMember(dest => dest.TipoDieta, opt => opt.MapFrom(src => (int)src.TipoDieta))
+                .ForMember(dest => dest.NomeRacao, opt => opt.MapFrom(src => src.Racao != null ? src.Racao.Nome : null))
                 // O AutoMapper usará o mapeamento de 'Dieta' para 'DietaResumidaDto'
                 .ForMember(dest => dest.Dieta, opt => opt.MapFrom(src => src.Dieta));
             
