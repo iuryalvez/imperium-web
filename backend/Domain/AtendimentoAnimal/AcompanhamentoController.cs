@@ -19,6 +19,27 @@ public class AcompanhamentoController : ControllerBase
     }
 
     /// <summary>
+    /// Retorna os perfis metabólicos disponíveis
+    /// </summary>
+    [HttpGet("perfis-metabolicos")]
+    [AllowAnonymous] // ou [Authorize] dependendo se precisa de auth para buscar os enums
+    public IActionResult GetPerfisMetabolicos()
+    {
+        var perfis = Enum.GetValues(typeof(backend.Domain.SaudeAnimal.Enums.PerfilMetabolico))
+            .Cast<backend.Domain.SaudeAnimal.Enums.PerfilMetabolico>()
+            .Select(p => new
+            {
+                Value = (int)p,
+                Label = p.GetType().GetMember(p.ToString())[0]
+                         .GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.DisplayAttribute), false)
+                         .Cast<System.ComponentModel.DataAnnotations.DisplayAttribute>()
+                         .FirstOrDefault()?.Name ?? p.ToString()
+            });
+
+        return Ok(perfis);
+    }
+
+    /// <summary>
     /// Obtém o histórico completo de um animal a partir do ID do acompanhamento.
     /// </summary>
     [HttpGet("{acompanhamentoId}/historico-completo")]

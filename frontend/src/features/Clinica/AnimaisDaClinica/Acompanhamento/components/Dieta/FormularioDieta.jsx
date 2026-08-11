@@ -40,6 +40,8 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
         pesoIdeal: initialValues.pesoIdeal,
         numeroFilhotes: initialValues.isLactanteNumeroFilhotes,
         semanaLactacao: initialValues.semanaLactacao,
+        perfilMetabolico: initialValues.perfilMetabolico,
+        multiplicadorEnergeticoCustom: initialValues.multiplicadorEnergeticoCustom,
       });
     }
   }, [initialValues, form]);

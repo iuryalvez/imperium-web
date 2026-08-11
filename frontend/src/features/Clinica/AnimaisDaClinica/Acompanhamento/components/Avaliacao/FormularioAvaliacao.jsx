@@ -15,7 +15,7 @@ import {
   Space,
 } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
-import { racoesDaClinicaAPI } from "../../../../api/clinica/racoesDaClinicaAPI";
+import { racoesDaClinicaAPI } from "../../../../../../api/clinica/racoesDaClinicaAPI";
 import {
   opcoesCondicaoCorporal,
   opcoesGrauAtividade,
@@ -66,6 +66,8 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
   useEffect(() => {
     if (isGato) {
       form.setFieldsValue({ grauAtividade: undefined });
+    } else {
+      form.setFieldsValue({ condicaoCorporal: undefined });
     }
   }, [isGato, form]);
 
@@ -330,23 +332,21 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
         </Col>
       </Row>
 
-      <Form.Item
-        name="condicaoCorporal"
-        label={
-          <LabelComInfo
-            label="Condição Corporal (1-9)"
-            tituloPopover={
-              isGato
-                ? "Escore de Condição Corporal Felino (Laflamme, 1997)"
-                : "Escore de Condição Corporal Canino (Laflamme, 1997)"
+      {isGato && (
+          <Form.Item
+            name="condicaoCorporal"
+            label={
+              <LabelComInfo
+                label="Condição Corporal (1-9)"
+                tituloPopover="Escore de Condição Corporal Felino (Laflamme, 1997)"
+                conteudoPopover={conteudoECC}
+              />
             }
-            conteudoPopover={conteudoECC}
-          />
-        }
-        rules={[{ required: true, message: "Defina o escore corporal" }]}
-      >
-        <Slider min={1} max={9} marks={opcoesCondicaoCorporal} />
-      </Form.Item>
+            rules={[{ required: true, message: "Defina o escore corporal" }]}
+          >
+            <Slider min={1} max={9} marks={opcoesCondicaoCorporal} />
+          </Form.Item>
+      )}
 
       <Form.Item name="descricaoDieta" label="Descrição Adicional da Dieta">
         <Input.TextArea

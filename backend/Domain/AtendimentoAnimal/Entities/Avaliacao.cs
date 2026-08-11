@@ -21,8 +21,8 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         public int Idade { get; set; }
         public double Peso { get; set; }
         public double? PesoIdeal { get; set; }
-        public CondicaoCorporal CondicaoCorporal { get; set; }
-        public GrauAtividade GrauAtividade { get; set; } // 0-inativo, 1-moderado, 2-ativo
+        public CondicaoCorporal? CondicaoCorporal { get; set; }
+        public GrauAtividade? GrauAtividade { get; set; } // 0-inativo, 1-moderado, 2-ativo
         public bool IsGestante { get; set; }
         public int IsLactanteNumeroFilhotes { get; set; }
         public int SemanaLactacao { get; set; }

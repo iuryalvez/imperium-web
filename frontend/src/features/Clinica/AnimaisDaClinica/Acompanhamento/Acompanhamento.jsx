@@ -2,14 +2,13 @@ import React from "react";
 import { Skeleton, Result, Button, Tabs, Modal, Space, Popconfirm } from "antd";
 import { Link } from "react-router-dom";
 import { FormOutlined, EditOutlined, ProfileOutlined, FileTextOutlined, DeleteOutlined } from "@ant-design/icons";
-import dayjs from "dayjs";
 import { useAcompanhamentoManager } from "./useAcompanhamentoManager";
 import ListaConsultasCards from "./components/ListaConsultasCards";
-import FormularioDieta from "./components/FormularioDieta";
-import DetalhesDieta from "./components/DetalhesDieta";
+import FormularioDieta from "./components/Dieta/FormularioDieta";
+import DetalhesDieta from "./components/Dieta/DetalhesDieta";
 import FichaGeralAnimal from "./components/FichaGeralAnimal";
 import ModalPadrao from "../../../../components/modal/ModalPadrao";
-import FormularioAvaliacao from "../../ConsultasDaClinica/components/FormularioAvaliacao";
+import FormularioAvaliacao from "./components/Avaliacao/FormularioAvaliacao";
 import FormularioConsulta from "../../ConsultasDaClinica/components/FormularioConsulta";
 import FormEdicaoAnimal from "../components/FormularioEdicaoAnimaisDaClinica/FormEdicaoAnimais";
 
@@ -79,6 +78,12 @@ const Acompanhamento = () => {
   const consultas = historico.consultas || [];
   const avaliacaoMaisRecente = consultas.find((c) => c.avaliacao)?.avaliacao;
   const dietaMaisRecente = consultas.find((c) => c.avaliacao?.dieta)?.avaliacao.dieta;
+
+  const isGato = historico?.especie?.toLowerCase() === "gato";
+  const isFemea = historico?.sexo?.toLowerCase() === "fêmea" || historico?.sexo?.toLowerCase() === "femea";
+
+  const especieInt = isGato ? 2 : 1;
+  const sexoInt = isFemea ? 2 : 1;
 
   return (
     <div className="mt-4 flex flex-col gap-6">
@@ -193,7 +198,7 @@ const Acompanhamento = () => {
             <Skeleton active />
           ) : (
             <FormularioAvaliacao
-              data={ { ...selectedConsulta, especieAnimal: historico?.especie, sexoAnimal: historico?.sexo } }
+              data={ { ...selectedConsulta, especieAnimal: especieInt, sexoAnimal: sexoInt } }
               initialValues={avaliacaoData}
               onFinish={handleSubmitAvaliacao}
             />
@@ -214,10 +219,11 @@ const Acompanhamento = () => {
       >
         {avaliacaoSelecionado && (
           <FormularioDieta
-            initialValues={avaliacaoSelecionado}
+            initialValues={{ ...avaliacaoSelecionado, especieAnimal: especieInt }}
             onFinish={handleCriarDieta}
             avaliacaoId={avaliacaoSelecionado.id}
             racoes={racoes}
+            dadosRaca={historico?.raca}
           />
         )}
       </ModalPadrao>
@@ -236,9 +242,10 @@ const Acompanhamento = () => {
         {dietaParaEditar && avaliacaoSelecionado && (
           <FormularioDieta
             onFinish={handleEditarDieta}
-            initialValues={{ ...avaliacaoSelecionado, ...dietaParaEditar }}
+            initialValues={{ ...avaliacaoSelecionado, ...dietaParaEditar, especieAnimal: especieInt }}
             avaliacaoId={dietaParaEditar.avaliacaoId || avaliacaoSelecionado.id}
             racoes={racoes}
+            dadosRaca={historico?.raca}
           />
         )}
       </ModalPadrao>

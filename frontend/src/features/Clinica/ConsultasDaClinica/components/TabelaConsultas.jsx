@@ -63,7 +63,7 @@ const TabelaConsultas = ({
             </Popconfirm>
           </Tooltip>
 
-          <Tooltip title="Ver Acompanhamento (Ficha/Avaliação/Dieta)">
+          <Tooltip title="Ver Acompanhamento">
             <Button
               type="primary"
               size="small"
@@ -119,6 +119,7 @@ const TabelaConsultas = ({
         dataSource={consultas}
         columns={colunasVisiveis}
         rowKey="id"
+        pagination={{ pageSize: 10, showSizeChanger: true }}
         loading={loading}
         scroll={{ x: "max-content" }}
       />

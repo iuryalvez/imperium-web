@@ -8,11 +8,19 @@ import {
   Row,
   Col,
   Divider,
+  Select,
 } from "antd";
 
 const opcoesEspecie = [
   { label: "Cão", value: 1 },
   { label: "Gato", value: 2 },
+];
+
+const opcoesCategoriaMetabolica = [
+  { label: "Padrão", value: 0 },
+  { label: "Terrier", value: 1 },
+  { label: "Dogue Alemão", value: 2 },
+  { label: "Terra Nova", value: 3 },
 ];
 
 const FormCadastroRaca = ({ onFinish, onCancel, isSubmitting }) => {
@@ -38,6 +46,22 @@ const FormCadastroRaca = ({ onFinish, onCancel, isSubmitting }) => {
               options={opcoesEspecie}
               optionType="button"
               buttonStyle="solid"
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+
+      <Row gutter={24}>
+        <Col xs={24}>
+          <Form.Item
+            name="categoriaMetabolica"
+            label="Categoria Metabólica (Apenas para cães)"
+            tooltip="Algumas raças caninas possuem necessidades energéticas diferenciadas segundo o NRC."
+            initialValue={0}
+          >
+            <Select
+              options={opcoesCategoriaMetabolica}
+              placeholder="Selecione a categoria metabólica"
             />
           </Form.Item>
         </Col>

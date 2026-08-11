@@ -7,8 +7,11 @@ namespace backend.Domain.SaudeAnimal.Services
 {
     public static class PerfilMetabolicoResolver
     {
-        public static PerfilMetabolico Resolver(Animal animal, Dieta dieta)
+        public static PerfilMetabolico? Resolver(Animal animal, Dieta dieta)
         {
+            if (dieta.PerfilMetabolico.HasValue)
+                return dieta.PerfilMetabolico.Value;
+
             switch (dieta.TipoDieta)
             {
                 case TipoDieta.Manutencao:
@@ -31,7 +34,7 @@ namespace backend.Domain.SaudeAnimal.Services
             }
         }
 
-        private static PerfilMetabolico ResolverManutencao(Animal animal)
+        private static PerfilMetabolico? ResolverManutencao(Animal animal)
         {
             if (animal.Especie == EspecieAnimal.Gato)
             {
@@ -72,7 +75,7 @@ namespace backend.Domain.SaudeAnimal.Services
                     animal.GrauAtividade.Value == GrauAtividade.Ativo)
                     return PerfilMetabolico.CaoAdultoJovemAtivo;
 
-                return PerfilMetabolico.CaoJovemModerado; // Fallback padrão
+                return null; // Força a seleção manual se o cão não se encaixar (ex: Adulto Moderado)
             }
 
             throw new InvalidOperationException($"Espécie '{animal.Especie}' não suportada.");

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using backend.Domain.SaudeAnimal.Entities;
+using backend.Domain.SaudeAnimal.Enums;
 
 namespace backend.Domain.SaudeAnimal.DTOs.Dieta
 {
@@ -23,8 +24,10 @@ namespace backend.Domain.SaudeAnimal.DTOs.Dieta
         public double? PesoIdeal { get; set; }
         public int? DuracaoEstimada { get; set; }
 
+        public PerfilMetabolico? PerfilMetabolico { get; set; }
+
         // Customização opcional pelo usuário
-        // public double? MultiplicadorEnergeticoCustom { get; set; }
+        public double? MultiplicadorEnergeticoCustom { get; set; }
         // public double? PotenciaCustom { get; set; }
         public string? Observacoes { get; set; }
         public int? IsLactanteNumeroFilhotes { get; set; }

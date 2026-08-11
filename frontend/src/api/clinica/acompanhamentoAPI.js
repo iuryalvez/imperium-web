@@ -9,6 +9,13 @@ export const acompanhamentoAPI = {
     return response.data;
   },
 
+  getPerfisMetabolicos: async () => {
+    const response = await api.get(
+      endpoints.clinica.acompanhamento.getPerfisMetabolicos
+    );
+    return response.data;
+  },
+
   /**
    * Envia os dados para criar uma nova dieta para um relatório dentro de um acompanhamento.
    * @param {number} acompanhamentoId O ID do acompanhamento que contém o relatório.

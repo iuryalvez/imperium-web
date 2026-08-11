@@ -18,5 +18,6 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Raca
         public double? PesoMaximoReferenciaFemea { get; set; }
         public double? PesoMinimoReferenciaMacho { get; set; }
         public double? PesoMaximoReferenciaMacho { get; set; }
+        public CategoriaMetabolica? CategoriaMetabolica { get; set; }
     }
 }

@@ -57,8 +57,8 @@ namespace backend.Domain.AtendimentoAnimal
         // Dados da avaliação
         public double Peso { get; set; }
         public double? PesoIdeal { get; set; }
-        public int CondicaoCorporal { get; set; }
-        public int GrauAtividade { get; set; }
+        public int? CondicaoCorporal { get; set; }
+        public int? GrauAtividade { get; set; }
         public int Idade { get; set; }
         public int RacaoId { get; set; }
         public string? NomeRacao { get; set; }

@@ -134,7 +134,7 @@ public class RacaoService : IRacaoService
             var racao = _mapper.Map<Racao>(dto);
             racao.ClinicaId = clinicaId;
 
-            _logger.LogDebug("Executando cálculos nutricionais para a nova ração '{NomeRacao}'.", racao.Nome);
+            _logger.LogInformation("Executando cálculos nutricionais para a nova ração '{NomeRacao}'.", racao.Nome);
             CalcularEnergiaMetabolizavel(racao);
             CalcularDistribuicaoEnergetica(racao);
 
@@ -173,7 +173,7 @@ public class RacaoService : IRacaoService
             var racao = (Racao)resultadoBusca.Data;
             _mapper.Map(dto, racao);
 
-            _logger.LogDebug("Recalculando valores nutricionais para a ração ID {RacaoId} após atualização.", dto.Id);
+            _logger.LogInformation("Recalculando valores nutricionais para a ração ID {RacaoId} após atualização.", dto.Id);
             CalcularEnergiaMetabolizavel(racao);
             CalcularDistribuicaoEnergetica(racao);
 

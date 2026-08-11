@@ -10,11 +10,9 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Avaliacao
         [Required]
         public double Peso { get; set; }
 
-        [Required]
-        public CondicaoCorporal CondicaoCorporal { get; set; }
+        public CondicaoCorporal? CondicaoCorporal { get; set; }
 
-        [Required]
-        public GrauAtividade GrauAtividade { get; set; }
+        public GrauAtividade? GrauAtividade { get; set; }
 
         [Required]
         public int RacaoId { get; set; }

@@ -54,6 +54,7 @@ const endpoints = {
     acompanhamento: {
       getHistoricoCompleto: (acompanhamentoId) =>
         `${API_BASE_URL}/clinica/acompanhamentos/${acompanhamentoId}/historico-completo`,
+      getPerfisMetabolicos: `${API_BASE_URL}/clinica/acompanhamentos/perfis-metabolicos`,
       // Rota para criar uma dieta associada a um acompanhamento
       criarDieta: (acompanhamentoId) =>
         `${API_BASE_URL}/clinica/acompanhamentos/dieta`,

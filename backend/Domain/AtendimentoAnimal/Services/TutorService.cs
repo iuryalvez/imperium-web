@@ -122,11 +122,11 @@ namespace backend.Domain.AtendimentoAnimal.Services
             // Se a lista for nula ou não contiver nenhum elemento, a validação passa com sucesso.
             if (tutoresIds == null || !tutoresIds.Any())
             {
-                _logger.LogDebug("Nenhum ID de tutor fornecido para validação na clínica {ClinicaId}. Validação bem-sucedida.", clinicaId);
+                _logger.LogInformation("Nenhum ID de tutor fornecido para validação na clínica {ClinicaId}. Validação bem-sucedida.", clinicaId);
                 return new ServiceResult { Succeeded = true };
             }
 
-            _logger.LogDebug("Validando {Count} tutor(es) para a clínica {ClinicaId}.", tutoresIds.Count, clinicaId);
+            _logger.LogInformation("Validando {Count} tutor(es) para a clínica {ClinicaId}.", tutoresIds.Count, clinicaId);
 
             // 2. Chama o repositório para verificar se todos os tutores da lista existem na clínica.
             var saoTodosValidos = await _tutorRepository.AllTutorsExistInClinicAsync(tutoresIds, clinicaId);

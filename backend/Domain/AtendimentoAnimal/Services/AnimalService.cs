@@ -64,7 +64,7 @@ public class AnimalService : IAnimalService
     /// <returns>ServiceResult contendo a entidade Animal completa ou uma mensagem de erro.</returns>
     public async Task<ServiceResult> ObterPorIdEClinicaIdAsync(int animalId, int clinicaId)
     {
-        _logger.LogDebug("Buscando entidade do animal {AnimalId} para a clínica {ClinicaId}.", animalId, clinicaId);
+        _logger.LogInformation("Buscando entidade do animal {AnimalId} para a clínica {ClinicaId}.", animalId, clinicaId);
         var animal = await _animalRepository.GetByIdAndClinicaIdWithIncludesAsync(animalId, clinicaId);
         if (animal == null)
         {
@@ -146,7 +146,7 @@ public class AnimalService : IAnimalService
 
             await _animalRepository.AddAsync(animal);
             await _animalRepository.SaveChangesAsync(); // Salva para gerar o ID do animal
-            _logger.LogDebug("Animal (ID: {AnimalId}) criado no banco.", animal.Id);
+            _logger.LogInformation("Animal (ID: {AnimalId}) criado no banco.", animal.Id);
 
             await _animalRepository.AddVinculoClinicaAsync(new AnimalClinica { AnimalId = animal.Id, ClinicaId = clinicaId, IsAtivo = true });
 
@@ -312,7 +312,7 @@ public class AnimalService : IAnimalService
         var paraRemover = animal.TutoresAnimais?.Where(ta => !idsDesejados.Contains(ta.TutorId)).ToList();
         if (paraRemover?.Any() == true)
         {
-            _logger.LogDebug("Removendo {Count} vínculo(s) de tutor(es) do animal {AnimalId}.", paraRemover.Count, animal.Id);
+            _logger.LogInformation("Removendo {Count} vínculo(s) de tutor(es) do animal {AnimalId}.", paraRemover.Count, animal.Id);
             _animalRepository.RemoveTutorLinks(paraRemover);
         }
 
@@ -320,7 +320,7 @@ public class AnimalService : IAnimalService
         var paraAdicionar = idsDesejados.Except(idsAtuais).ToList();
         if (paraAdicionar.Any())
         {
-            _logger.LogDebug("Adicionando {Count} novo(s) vínculo(s) de tutor(es) ao animal {AnimalId}.", paraAdicionar.Count, animal.Id);
+            _logger.LogInformation("Adicionando {Count} novo(s) vínculo(s) de tutor(es) ao animal {AnimalId}.", paraAdicionar.Count, animal.Id);
             foreach (var tutorId in paraAdicionar)
             {
                 await _animalRepository.AddTutorLinkAsync(new TutorAnimal { AnimalId = animal.Id, TutorId = tutorId });

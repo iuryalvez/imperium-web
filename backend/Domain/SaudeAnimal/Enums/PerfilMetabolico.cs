@@ -6,34 +6,31 @@ namespace backend.Domain.SaudeAnimal.Enums
     {
         // MANUTENÇÃO
         [Display(Name = "Gato Exótico")]
-        GatoExotico,
+        GatoExotico = 1,
 
-        [Display(Name = "Gato Domestico (Magro ou Ideal - ECC ≤ 5)")]
-        GatoDomesticoMagro,
+        [Display(Name = "Gato Doméstico (Magro ou Ideal - ECC ≤ 5)")]
+        GatoDomesticoMagro = 2,
 
-        [Display(Name = "Gato Domestico (Obeso - ECC > 5)")]
-        GatoDomesticoObeso,
+        [Display(Name = "Gato Doméstico (Obeso - ECC > 5)")]
+        GatoDomesticoObeso = 3,
 
-        [Display(Name = "Cão Ativo ou de Canil (Média)")]
-        CaoAtivo,
+        [Display(Name = "Cão Ativo ou de Canil (Necessidade média)")]
+        CaoAtivo = 4,
 
         [Display(Name = "Cão Adulto Jovem e Ativo")]
-        CaoAdultoJovemAtivo,
+        CaoAdultoJovemAtivo = 5,
 
-        [Display(Name = "Cão Jovem com Atividade Moderada")]
-        CaoJovemModerado,
-
-        [Display(Name = "Cão Dogue Alemão Adulto e Ativo")]
-        CaoDogueAlemaoAdultoAtivo,
+        [Display(Name = "Cão Dogue Alemão (Great Danes) Adulto e Ativo")]
+        CaoDogueAlemaoAdultoAtivo = 6,
 
         [Display(Name = "Cão Terrier Adulto e Ativo")]
-        CaoTerrierAdultoAtivo,
+        CaoTerrierAdultoAtivo = 7,
 
-        [Display(Name = "Cão Inativo / Baixa Atividade")]
-        CaoInativo,
+        [Display(Name = "Cão Inativo")]
+        CaoInativo = 8,
 
         [Display(Name = "Cão Idoso Ativo ou Terra-Nova")]
-        CaoIdosoAtivo,
+        CaoIdosoAtivo = 9,
 
         // FUTUROS PERFIS:
         [Display(Name = "Gato em Crescimento")]

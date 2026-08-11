@@ -324,7 +324,7 @@ namespace backend.Migrations
                     b.Property<int>("AcompanhamentoId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("CondicaoCorporal")
+                    b.Property<int?>("CondicaoCorporal")
                         .HasColumnType("integer");
 
                     b.Property<int>("ConsultaId")
@@ -333,7 +333,7 @@ namespace backend.Migrations
                     b.Property<string>("DescricaoDieta")
                         .HasColumnType("text");
 
-                    b.Property<int>("GrauAtividade")
+                    b.Property<int?>("GrauAtividade")
                         .HasColumnType("integer");
 
                     b.Property<int>("Idade")
@@ -2565,6 +2565,9 @@ namespace backend.Migrations
 
                     b.Property<string>("Observacoes")
                         .HasColumnType("text");
+
+                    b.Property<int?>("PerfilMetabolico")
+                        .HasColumnType("integer");
 
                     b.Property<string>("PerfilNutricional")
                         .IsRequired()

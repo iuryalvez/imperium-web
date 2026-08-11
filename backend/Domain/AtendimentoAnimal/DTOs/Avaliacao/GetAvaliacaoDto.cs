@@ -12,8 +12,8 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Avaliacao
         public Sexo SexoAnimal { get; set; }
         public int Idade { get; set; }
         public double Peso { get; set; }
-        public int CondicaoCorporal { get; set; }
-        public GrauAtividade GrauAtividade { get; set; } 
+        public CondicaoCorporal? CondicaoCorporal { get; set; }
+        public GrauAtividade? GrauAtividade { get; set; } 
         public int RacaoId { get; set; }
         public string NomeRacao { get; set; } // Nome para exibição
         public string? DescricaoDieta { get; set; }

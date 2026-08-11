@@ -210,7 +210,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 }
                 var animal = (Animal)animalResult.Data;
 
-                _logger.LogDebug("Animal {AnimalId} obtido com sucesso.", animal.Id);
+                _logger.LogInformation("Animal {AnimalId} obtido com sucesso.", animal.Id);
 
                 var resultadoAvaliacao = await _avaliacaoService.ObterPorIdEIdAcompanhamentoAsync(dto.AvaliacaoId, acompanhamentoId, clinicaId);
                 if (!resultadoAvaliacao.Succeeded)
@@ -219,7 +219,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
                     return resultadoAvaliacao;
                 }
                 var avaliacao = (Avaliacao)resultadoAvaliacao.Data;
-                _logger.LogDebug("Avaliação {AvaliacaoId} obtida com sucesso.", avaliacao.Id);
+                _logger.LogInformation("Avaliação {AvaliacaoId} obtida com sucesso.", avaliacao.Id);
 
                 var resultadoRacao = await _racaoService.ObterPorIdEClinicaIdAsync(dto.RacaoId, clinicaId);
                 if (!resultadoRacao.Succeeded)
@@ -228,10 +228,10 @@ namespace backend.Domain.AtendimentoAnimal.Services
                     return resultadoRacao;
                 }
                 var racao = (Racao)resultadoRacao.Data;
-                _logger.LogDebug("Ração '{NomeRacao}' (ID: {RacaoId}) obtida com sucesso.", racao.Nome, racao.Id);
+                _logger.LogInformation("Ração '{NomeRacao}' (ID: {RacaoId}) obtida com sucesso.", racao.Nome, racao.Id);
 
                 _logger.LogInformation("Sincronizando entidade 'animal' em memória com dados do CreateDietaDto.");
-                _logger.LogDebug("Valores do DTO para sincronização -> PesoAtual: {PesoDto}, Nro Filhotes: {FilhotesDto}, Semana Lactação: {SemanaLactacaoDto}",
+                _logger.LogInformation("Valores do DTO para sincronização -> PesoAtual: {PesoDto}, Nro Filhotes: {FilhotesDto}, Semana Lactação: {SemanaLactacaoDto}",
                     dto.PesoAtual, dto.IsLactanteNumeroFilhotes, dto.SemanaLactacao);
 
                 animal.Peso = dto.PesoAtual ?? animal.Peso;
@@ -250,7 +250,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
                     animal.SemanaLactacao = dto.SemanaLactacao ?? animal.SemanaLactacao;
                 }
 
-                _logger.LogDebug("Animal (após atualização) pronto para cálculo. ID: {AnimalId}, Peso: {Peso}, Nro Filhotes: {NumFilhotes}, Semana Lactação: {SemanaLactacao}",
+                _logger.LogInformation("Animal (após atualização) pronto para cálculo. ID: {AnimalId}, Peso: {Peso}, Nro Filhotes: {NumFilhotes}, Semana Lactação: {SemanaLactacao}",
             animal.Id, animal.Peso, animal.IsLactanteNumeroFilhotes, animal.SemanaLactacao);
 
                 _logger.LogInformation("Delegando cálculo da dieta para o DietaService.");

@@ -65,16 +65,31 @@ namespace backend.Domain.SaudeAnimal.Services
                 }
 
                 var perfil = PerfilMetabolicoResolver.Resolver(animal, dieta);
-                var (multiplicador, potencia, descricao) = PerfilMetabolicoDados.Dados[perfil];
+                if (perfil == null)
+                {
+                    throw new InvalidOperationException("Não foi possível determinar um perfil metabólico automaticamente. Por favor, selecione um perfil metabólico no formulário.");
+                }
 
-                _logger.LogDebug("Perfil metabólico resolvido: {Perfil}. Multiplicador padrão: {Multiplicador}, Potência padrão: {Potencia}.",
+                var (multiplicador, potencia, descricao) = PerfilMetabolicoDados.Dados[perfil.Value];
+
+                // Permite o multiplicador customizado se o usuário informar (Ex: Gato Exótico varia de 55 a 260)
+                if (dieta.MultiplicadorEnergeticoCustom.HasValue)
+                {
+                    multiplicador = dieta.MultiplicadorEnergeticoCustom.Value;
+                    dieta.IsCustomizado = true;
+                }
+                else
+                {
+                    dieta.IsCustomizado = false;
+                }
+
+                _logger.LogInformation("Perfil metabólico resolvido: {Perfil}. Multiplicador final: {Multiplicador}, Potência padrão: {Potencia}.",
                     perfil, multiplicador, potencia);
 
                 // Injeta transparência para Manutenção
                 dieta.FatorK = multiplicador;
                 dieta.Expoente = potencia;
                 dieta.PerfilNutricional = descricao;
-                dieta.IsCustomizado = false;
 
                 var resultado = multiplicador * Math.Pow(animal.Peso.Value, potencia);
                 var resultadoArredondado = Math.Round(resultado, 3);
@@ -121,7 +136,7 @@ namespace backend.Domain.SaudeAnimal.Services
                     throw new InvalidOperationException("Peso adulto esperado (PCm) não pôde ser determinado para o cálculo de crescimento.");
                 }
 
-                _logger.LogDebug("Cálculo de crescimento para animal ID: {AnimalId}. Peso Atual (PCa): {PCa}, Peso Adulto (PCm): {PCm}.", animal.Id, PCa, PCm);
+                _logger.LogInformation("Cálculo de crescimento para animal ID: {AnimalId}. Peso Atual (PCa): {PCa}, Peso Adulto (PCm): {PCm}.", animal.Id, PCa, PCm);
 
                 double p = PCa / PCm;
                 double necessidadeKcal;
@@ -176,12 +191,12 @@ namespace backend.Domain.SaudeAnimal.Services
                 if (animal.Especie == EspecieAnimal.Cao)
                 {
                     resultado = (130 * pesoMetabolico) + (26 * peso);
-                    _logger.LogDebug("Fórmula de gestação para cães baseada na necessidade de manutenção.");
+                    _logger.LogInformation("Fórmula de gestação para cães baseada na necessidade de manutenção.");
                 }
                 else
                 {
                     resultado = 100 * pesoMetabolico;
-                    _logger.LogDebug("Fórmula de gestação para gatos baseada na necessidade de manutenção.");
+                    _logger.LogInformation("Fórmula de gestação para gatos baseada na necessidade de manutenção.");
                 }
 
                 // Injeta transparência para Gestação
@@ -239,7 +254,7 @@ namespace backend.Domain.SaudeAnimal.Services
 
         private double CalcularLactacaoGato(double peso, int numeroFilhotes, int semana)
         {
-            _logger.LogDebug("Executando cálculo de lactação para Gato. Peso: {Peso}, Filhotes: {NumeroFilhotes}, Semana: {Semana}.", peso, numeroFilhotes, semana);
+            _logger.LogInformation("Executando cálculo de lactação para Gato. Peso: {Peso}, Filhotes: {NumeroFilhotes}, Semana: {Semana}.", peso, numeroFilhotes, semana);
 
             var pesoMetabolico = Math.Pow(peso, 0.67);
             double manutencao = 100 * pesoMetabolico;
@@ -254,7 +269,7 @@ namespace backend.Domain.SaudeAnimal.Services
                 > 4 => 70,
             };
 
-            _logger.LogDebug("Valores para Gato: Manutenção: {Manutencao}, Fator Lactação: {FatorL}, Multiplicador Filhotes: {Multiplicador}.",
+            _logger.LogInformation("Valores para Gato: Manutenção: {Manutencao}, Fator Lactação: {FatorL}, Multiplicador Filhotes: {Multiplicador}.",
                 manutencao, fatorL, multiplicadorFilhotes);
 
             return manutencao + multiplicadorFilhotes * peso * fatorL;
@@ -262,7 +277,7 @@ namespace backend.Domain.SaudeAnimal.Services
 
         private double CalcularLactacaoCao(double peso, int numeroFilhotes, int semana)
         {
-            _logger.LogDebug("Executando cálculo de lactação para Cão. Peso: {Peso}, Filhotes: {NumeroFilhotes}, Semana: {Semana}.", peso, numeroFilhotes, semana);
+            _logger.LogInformation("Executando cálculo de lactação para Cão. Peso: {Peso}, Filhotes: {NumeroFilhotes}, Semana: {Semana}.", peso, numeroFilhotes, semana);
 
             var pesoMetabolico = Math.Pow(peso, 0.75);
             double manutencao = 145 * pesoMetabolico;
@@ -273,7 +288,7 @@ namespace backend.Domain.SaudeAnimal.Services
             int n = Math.Clamp(numeroFilhotes, 0, 4);
             int m = numeroFilhotes > 4 ? numeroFilhotes - 4 : 0;
 
-            _logger.LogDebug("Valores para Cão: Manutenção: {Manutencao}, Fator Lactação: {FatorL}, n={n}, m={m}.",
+            _logger.LogInformation("Valores para Cão: Manutenção: {Manutencao}, Fator Lactação: {FatorL}, n={n}, m={m}.",
                 manutencao, fatorL, n, m);
 
             return manutencao + (peso * ((24 * n) + (12 * m)) * fatorL);
