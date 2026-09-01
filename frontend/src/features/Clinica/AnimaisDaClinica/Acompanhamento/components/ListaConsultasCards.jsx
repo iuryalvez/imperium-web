@@ -1,5 +1,13 @@
 import React from "react";
-import { Card, Button, Space, Typography, Empty, Popconfirm } from "antd";
+import {
+  Card,
+  Button,
+  Space,
+  Typography,
+  Empty,
+  Popconfirm,
+  Tooltip,
+} from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -22,7 +30,9 @@ const ListaConsultasCards = ({
   onExcluirDieta,
 }) => {
   if (!consultas || consultas.length === 0) {
-    return <Empty description="Nenhuma consulta encontrada para este animal." />;
+    return (
+      <Empty description="Nenhuma consulta encontrada para este animal." />
+    );
   }
 
   return (
@@ -39,7 +49,8 @@ const ListaConsultasCards = ({
             title={
               <div className="flex justify-between items-center w-full">
                 <span>
-                  Consulta em {dayjs(consulta.dataConsulta).format("DD/MM/YYYY HH:mm")}
+                  Consulta em{" "}
+                  {dayjs(consulta.dataConsulta).format("DD/MM/YYYY HH:mm")}
                 </span>
                 <span className="font-normal text-sm text-gray-500">
                   Profissional: {consulta.profissionalResponsavel}
@@ -50,53 +61,113 @@ const ListaConsultasCards = ({
             <div className="flex flex-col gap-3">
               {/* Gerenciamento da Consulta */}
               <div className="flex items-center gap-2 flex-wrap">
-                <Text strong className="w-24">Consulta:</Text>
+                <Text strong className="w-24">
+                  Consulta:
+                </Text>
                 <Space>
-                  <Button
-                    size="small"
-                    icon={<EditOutlined />}
-                    onClick={() => onEditConsulta(consulta)}
+                  <Tooltip
+                    title={
+                      hasAvaliacao
+                        ? "Não é possível editar uma consulta com avaliação preenchida"
+                        : ""
+                    }
                   >
-                    Editar Consulta
-                  </Button>
-                  <Popconfirm
-                    title="Excluir Consulta"
-                    description="Tem certeza que deseja excluir esta consulta?"
-                    onConfirm={() => onDeleteConsulta(consulta.id)}
-                    okText="Sim"
-                    cancelText="Não"
+                    <div>
+                      <Button
+                        size="small"
+                        icon={<EditOutlined />}
+                        onClick={() => onEditConsulta(consulta)}
+                        disabled={hasAvaliacao}
+                      >
+                        Editar Consulta
+                      </Button>
+                    </div>
+                  </Tooltip>
+                  <Tooltip
+                    title={
+                      hasAvaliacao
+                        ? "Não é possível excluir uma consulta com avaliação preenchida"
+                        : ""
+                    }
                   >
-                    <Button size="small" danger icon={<DeleteOutlined />}>
-                      Excluir Consulta
-                    </Button>
-                  </Popconfirm>
+                    <div>
+                      <Popconfirm
+                        title="Excluir Consulta"
+                        description="Tem certeza que deseja excluir esta consulta?"
+                        onConfirm={() => onDeleteConsulta(consulta.id)}
+                        okText="Sim"
+                        cancelText="Não"
+                        disabled={hasAvaliacao}
+                      >
+                        <Button
+                          size="small"
+                          danger
+                          icon={<DeleteOutlined />}
+                          disabled={hasAvaliacao}
+                        >
+                          Excluir Consulta
+                        </Button>
+                      </Popconfirm>
+                    </div>
+                  </Tooltip>
                 </Space>
               </div>
 
               {/* Gerenciamento da Avaliação */}
               <div className="flex items-center gap-2 flex-wrap">
-                <Text strong className="w-24">Avaliação:</Text>
+                <Text strong className="w-24">
+                  Avaliação:
+                </Text>
                 <Space>
-                  <Button
-                    size="small"
-                    type={hasAvaliacao ? "default" : "primary"}
-                    icon={<EditOutlined />}
-                    onClick={() => onOpenAvaliacao(consulta)}
+                  <Tooltip
+                    title={
+                      hasDieta
+                        ? "Não é possível editar uma avaliação com dieta preenchida"
+                        : ""
+                    }
                   >
-                    {hasAvaliacao ? "Editar Avaliação" : "Preencher Avaliação"}
-                  </Button>
-                  {hasAvaliacao && (
-                    <Popconfirm
-                      title="Excluir avaliação"
-                      description="Tem certeza que deseja excluir esta avaliação?"
-                      onConfirm={() => onDeleteAvaliacao(consulta.avaliacao.id)}
-                      okText="Sim"
-                      cancelText="Não"
-                    >
-                      <Button size="small" danger icon={<DeleteOutlined />}>
-                        Excluir Avaliação
+                    <div>
+                      <Button
+                        size="small"
+                        type={hasAvaliacao ? "default" : "primary"}
+                        icon={<EditOutlined />}
+                        onClick={() => onOpenAvaliacao(consulta)}
+                        disabled={hasDieta}
+                      >
+                        {hasAvaliacao ? "Editar Avaliação" : "Preencher Avaliação"}
                       </Button>
-                    </Popconfirm>
+                    </div>
+                  </Tooltip>
+                  {hasAvaliacao && (
+                    <Tooltip
+                      title={
+                        hasDieta
+                          ? "Não é possível excluir uma avaliação com dieta preenchida"
+                          : ""
+                      }
+                    >
+                      <div>
+                        <Popconfirm
+                          title="Excluir avaliação"
+                          description="Tem certeza que deseja excluir esta avaliação?"
+                          onConfirm={() =>
+                            onDeleteAvaliacao(consulta.avaliacao.id)
+                          }
+                          okText="Sim"
+                          cancelText="Não"
+                          disabled={hasDieta}
+                        >
+                          <Button
+                            size="small"
+                            danger
+                            icon={<DeleteOutlined />}
+                            disabled={hasDieta}
+                          >
+                            Excluir Avaliação
+                          </Button>
+                        </Popconfirm>
+                      </div>
+                    </Tooltip>
                   )}
                 </Space>
               </div>
@@ -104,7 +175,9 @@ const ListaConsultasCards = ({
               {/* Gerenciamento da Dieta */}
               {hasAvaliacao && (
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Text strong className="w-24">Dieta:</Text>
+                  <Text strong className="w-24">
+                    Dieta:
+                  </Text>
                   <Space>
                     {!hasDieta ? (
                       <Button
@@ -112,7 +185,9 @@ const ListaConsultasCards = ({
                         type="primary"
                         icon={<CalculatorOutlined />}
                         className="bg-verde-escuro hover:bg-verde-medio border-none"
-                        onClick={() => onOpenModalCriarDieta(consulta.avaliacao)}
+                        onClick={() =>
+                          onOpenModalCriarDieta(consulta.avaliacao)
+                        }
                       >
                         Calcular Dieta
                       </Button>
@@ -121,21 +196,30 @@ const ListaConsultasCards = ({
                         <Button
                           size="small"
                           icon={<ProfileOutlined />}
-                          onClick={() => onOpenModalVisualizarDieta(consulta.avaliacao.dieta)}
+                          onClick={() =>
+                            onOpenModalVisualizarDieta(consulta.avaliacao.dieta)
+                          }
                         >
                           Ver Dieta
                         </Button>
                         <Button
                           size="small"
                           icon={<EditOutlined />}
-                          onClick={() => onOpenModalEditarDieta(consulta.avaliacao.dieta, consulta.avaliacao)}
+                          onClick={() =>
+                            onOpenModalEditarDieta(
+                              consulta.avaliacao.dieta,
+                              consulta.avaliacao,
+                            )
+                          }
                         >
                           Editar Cálculo
                         </Button>
                         <Popconfirm
                           title="Excluir dieta"
                           description="Tem certeza que deseja excluir esta dieta?"
-                          onConfirm={() => onExcluirDieta(consulta.avaliacao.dieta.id)}
+                          onConfirm={() =>
+                            onExcluirDieta(consulta.avaliacao.dieta.id)
+                          }
                           okText="Sim"
                           cancelText="Não"
                         >

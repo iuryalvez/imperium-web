@@ -14,6 +14,9 @@ public enum TipoDieta
         Lactacao = 3,
 
         [Display(Name = "Gestação")]
-        Gestacao = 4
+        Gestacao = 4,
+
+        [Display(Name = "Emagrecimento")]
+        Emagrecimento = 5
     }
 }

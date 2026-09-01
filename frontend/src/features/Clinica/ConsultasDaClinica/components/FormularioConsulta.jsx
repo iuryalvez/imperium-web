@@ -82,12 +82,13 @@ const FormularioConsulta = ({ initialValues, onFinish }) => {
 
       <Form.Item
         name="tutorId"
-        label="Tutor Responsável"
-        rules={[{ required: true, message: "Selecione o tutor." }]}
+        label="Tutor Responsável (Opcional)"
+        rules={[{ required: false }]}
       >
         <Select
           showSearch
-          placeholder="Selecione o tutor"
+          allowClear
+          placeholder="Selecione o tutor (Opcional)"
           options={tutores}
           loading={loading}
           optionFilterProp="label"

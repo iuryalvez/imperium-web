@@ -1,5 +1,5 @@
 import React from "react";
-import { Skeleton, Result, Button, Tabs, Modal, Space, Popconfirm } from "antd";
+import { Skeleton, Result, Button, Tabs, Modal, Space, Popconfirm, Tooltip } from "antd";
 import { Link } from "react-router-dom";
 import { FormOutlined, EditOutlined, ProfileOutlined, FileTextOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useAcompanhamentoManager } from "./useAcompanhamentoManager";
@@ -97,7 +97,7 @@ const Acompanhamento = () => {
       
       <div>
         <h2 className="text-xl font-semibold text-verde-escuro mb-4">
-          Consultas e Acompanhamento
+          Consultas
         </h2>
         <ListaConsultasCards
           consultas={consultas}
@@ -168,17 +168,22 @@ const Acompanhamento = () => {
             <Button onClick={handleCloseAvaliacaoModal}>Cancelar</Button>
 
             {avaliacaoData && (
-              <Popconfirm
-                title="Excluir relatório"
-                description="Tem certeza que deseja excluir este relatório? Esta ação não pode ser desfeita."
-                onConfirm={() => handleDeleteAvaliacao(avaliacaoData.id)}
-                okText="Sim, Excluir"
-                cancelText="Cancelar"
-              >
-                <Button icon={<DeleteOutlined />} danger>
-                  Excluir
-                </Button>
-              </Popconfirm>
+              <Tooltip title={!!avaliacaoData.dieta ? "Não é possível excluir uma avaliação com dieta preenchida" : ""}>
+                <div>
+                  <Popconfirm
+                    title="Excluir relatório"
+                    description="Tem certeza que deseja excluir este relatório? Esta ação não pode ser desfeita."
+                    onConfirm={() => handleDeleteAvaliacao(avaliacaoData.id)}
+                    okText="Sim, Excluir"
+                    cancelText="Cancelar"
+                    disabled={!!avaliacaoData.dieta}
+                  >
+                    <Button icon={<DeleteOutlined />} danger disabled={!!avaliacaoData.dieta}>
+                      Excluir
+                    </Button>
+                  </Popconfirm>
+                </div>
+              </Tooltip>
             )}
 
             <Button

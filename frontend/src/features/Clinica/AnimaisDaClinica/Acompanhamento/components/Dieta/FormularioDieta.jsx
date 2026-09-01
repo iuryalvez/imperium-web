@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Form,
   Input,
@@ -12,7 +12,9 @@ import {
 } from "antd";
 import { useWatch } from "antd/es/form/Form";
 import { InfoCircleOutlined } from "@ant-design/icons";
+import { message } from "antd";
 
+import { acompanhamentoAPI } from "../../../../../../api/clinica/acompanhamentoAPI";
 import FormManutencao from "./FormManutencao";
 import FormCrescimento from "./FormCrescimento";
 import FormLactacao from "./FormLactacao";
@@ -24,6 +26,7 @@ const opcoesTipoDieta = [
   { value: 2, label: "Crescimento" },
   { value: 3, label: "Lactação" },
   { value: 4, label: "Gestação" },
+  { value: 5, label: "Emagrecimento" },
 ];
 
 const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
@@ -34,7 +37,25 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
     initialValues?.especieAnimal === 2 ||
     String(initialValues?.especieAnimal).toLowerCase() === "gato";
 
+  const [perfisMetabolicos, setPerfisMetabolicos] = useState([]);
+  const [loadingPerfis, setLoadingPerfis] = useState(false);
+
   console.log("[FormularioDieta] initialValues: ", initialValues);
+
+  useEffect(() => {
+    const fetchPerfis = async () => {
+      setLoadingPerfis(true);
+      try {
+        const data = await acompanhamentoAPI.getPerfisMetabolicos();
+        setPerfisMetabolicos(data);
+      } catch (error) {
+        message.error("Erro ao carregar perfis metabólicos.");
+      } finally {
+        setLoadingPerfis(false);
+      }
+    };
+    fetchPerfis();
+  }, []);
 
   useEffect(() => {
     if (initialValues) {
@@ -67,12 +88,22 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
     racoes?.map((r) => ({ label: r.nome, value: r.id })) || [];
 
   const renderSpecificForm = () => {
+    const perfisFiltrados = perfisMetabolicos.filter((p) => {
+      const isPerfilGato = p.label.toLowerCase().includes("gato");
+      const especieMatch = isGato ? isPerfilGato : !isPerfilGato;
+      const dietaMatch = p.tiposDieta?.includes(tipoDietaSelecionado);
+      return especieMatch && dietaMatch;
+    });
+
     switch (tipoDietaSelecionado) {
       case 1:
+      case 5:
         return (
           <FormManutencao
             form={form}
             especie={initialValues?.especieAnimal} // 0/1 ou 'Cao'/'Gato' dependendo do seu DTO
+            perfis={perfisFiltrados}
+            loading={loadingPerfis}
           />
         );
       case 2:

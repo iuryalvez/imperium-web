@@ -1,37 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { Form, InputNumber, Row, Col, Select, message } from "antd";
-import { acompanhamentoAPI } from "../../../../../../api/clinica/acompanhamentoAPI";
+import React from "react";
+import { Form, InputNumber, Row, Col, Select } from "antd";
 import LabelComInfo from "../../../../../../components/atoms/LabelComInfo";
 
-const FormManutencao = ({ form, especie }) => {
-  const [perfis, setPerfis] = useState([]);
-  const [loading, setLoading] = useState(false);
-
+const FormManutencao = ({ form, especie, perfis, loading }) => {
   // Considera 0 ou 'Gato' para gato, dependendo de como seu backend retorna o Enum de Especie
   const isGato = especie === 2 || String(especie).toLowerCase() === "gato";
 
   const perfilSelecionado = Form.useWatch("perfilMetabolico", form);
 
-  useEffect(() => {
-    const fetchPerfis = async () => {
-      setLoading(true);
-      try {
-        const data = await acompanhamentoAPI.getPerfisMetabolicos();
-        setPerfis(data);
-      } catch (error) {
-        message.error("Erro ao carregar perfis metabólicos.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchPerfis();
-  }, []);
-
-  // Filtra os perfis baseados na espécie
-  const perfisFiltrados = perfis.filter((p) => {
-    const isPerfilGato = p.label.toLowerCase().includes("gato");
-    return isGato ? isPerfilGato : !isPerfilGato;
-  });
+  // Perfis já vêm filtrados por dieta (e espécie, dependendo de como foi feito no pai), 
+  // mas caso queira garantir ou aplicar outro filtro:
+  // No nosso caso o pai (FormularioDieta) já passou os perfisFiltrados que são adequados
+  const perfisParaExibir = perfis || [];
 
   return (
     <div className="bg-gray-50 p-4 rounded-md border border-gray-200 mb-4">
@@ -39,28 +19,6 @@ const FormManutencao = ({ form, especie }) => {
         Ajuste Específico de Manutenção
       </h4>
 
-      <Row gutter={16}>
-        <Col span={24}>
-          <Form.Item
-            name="pesoObjetivo"
-            label={
-              <LabelComInfo
-                label="Peso Alvo do Ciclo (kg)"
-                tituloPopover="Peso Alvo do Ciclo"
-                conteudoPopover="A meta de peso apenas para esta prescrição específica (ex: emagrecimento gradual). Se deixado em branco, o sistema usará o Peso Ideal cadastrado."
-              />
-            }
-          >
-            <InputNumber
-              placeholder="Ex: 17,5"
-              style={{ width: "100%" }}
-              min={0}
-              step={0.01}
-              decimalSeparator=","
-            />
-          </Form.Item>
-        </Col>
-      </Row>
 
       <Row gutter={16}>
         <Col span={24}>
@@ -77,7 +35,7 @@ const FormManutencao = ({ form, especie }) => {
             <Select
               allowClear
               loading={loading}
-              options={perfisFiltrados}
+              options={perfisParaExibir}
               placeholder="Selecione um perfil para forçar uma fórmula específica..."
             />
           </Form.Item>

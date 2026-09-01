@@ -1,5 +1,7 @@
 import React from "react";
-import { Tag } from "antd";
+import { Tag, Button, Tooltip } from "antd";
+import { LineChartOutlined } from "@ant-design/icons";
+import { Link } from "react-router-dom";
 import dayjs from "dayjs";
 
 const colunas = [
@@ -7,7 +9,7 @@ const colunas = [
     title: "Data da Consulta",
     dataIndex: "dataConsulta",
     key: "dataConsulta",
-    render: (data) => data ? dayjs(data).format("DD/MM/YYYY HH:mm") : '-',
+    render: (data) => (data ? dayjs(data).format("DD/MM/YYYY HH:mm") : "-"),
     sorter: (a, b) =>
       dayjs(a.dataConsulta).unix() - dayjs(b.dataConsulta).unix(),
   },
@@ -15,13 +17,13 @@ const colunas = [
     title: "Paciente",
     dataIndex: "nomeAnimal",
     key: "nomeAnimal",
-    sorter: (a, b) => (a.nomeAnimal || '').localeCompare(b.nomeAnimal || ''),
+    sorter: (a, b) => (a.nomeAnimal || "").localeCompare(b.nomeAnimal || ""),
   },
   {
     title: "Tutor",
     dataIndex: "nomeTutor",
     key: "nomeTutor",
-    sorter: (a, b) => (a.nomeTutor || '').localeCompare(b.nomeTutor || ''),
+    sorter: (a, b) => (a.nomeTutor || "").localeCompare(b.nomeTutor || ""),
   },
   {
     title: "Veterinário",
@@ -32,11 +34,34 @@ const colunas = [
     title: "Avaliação",
     dataIndex: "avaliacaoPreenchida",
     key: "avaliacaoPreenchida",
-    render: (preenchido) => (
-      <Tag color={preenchido ? "green" : "orange"}>
-        {preenchido ? "Preenchido" : "Pendente"}
-      </Tag>
-    ),
+    render: (preenchido, record) =>
+      preenchido ? (
+        <Tooltip title="Ir para Acompanhamento">
+          <Link to={`/clinica/animais/acompanhamento/${record.animalId}`}>
+            <Button
+              size="small"
+              type="primary"
+              icon={<LineChartOutlined />}
+              style={{ width: "110px" }}
+            >
+              Preenchido
+            </Button>
+          </Link>
+        </Tooltip>
+      ) : (
+        <Tooltip title="Ir para Acompanhamento">
+          <Link to={`/clinica/animais/acompanhamento/${record.animalId}`}>
+            <Button
+              size="small"
+              type="dashed"
+              icon={<LineChartOutlined />}
+              style={{ width: "110px" }}
+            >
+              Pendente
+            </Button>
+          </Link>
+        </Tooltip>
+      ),
     filters: [
       { text: "Preenchido", value: true },
       { text: "Pendente", value: false },

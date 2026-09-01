@@ -111,6 +111,9 @@ const DetalhesDieta = ({ dieta }) => {
     return null;
   };
 
+  const formatadorDuasCasas = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const formatadorUmaCasa = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
   const formulaFormatada = renderFormulaFormatada();
 
   return (
@@ -137,7 +140,7 @@ const DetalhesDieta = ({ dieta }) => {
           </div>
           <Statistic
             value={kcal}
-            precision={2}
+            formatter={(val) => formatadorDuasCasas.format(val)}
             suffix="kcal/dia"
             valueStyle={{ color: "var(--verde-escuro)", fontWeight: 600 }}
           />
@@ -146,7 +149,7 @@ const DetalhesDieta = ({ dieta }) => {
           <Statistic
             title="Quantidade de Alimento"
             value={gramas}
-            precision={2}
+            formatter={(val) => formatadorDuasCasas.format(val)}
             prefix={
               <ExperimentOutlined className="text-[var(--verde-medio)] mr-1" />
             }
@@ -225,15 +228,14 @@ const DetalhesDieta = ({ dieta }) => {
 
       <div className="bg-white p-3 border border-gray-100 rounded shadow-sm text-sm flex flex-col gap-1.5 text-gray-700">
         <Text>
-          • <strong>2x ao dia:</strong> {(gramas / 2).toFixed(1)}g por refeição
+          • <strong>2x ao dia:</strong> {formatadorUmaCasa.format(gramas / 2)}g por refeição
         </Text>
         <Text>
-          • <strong>3x ao dia:</strong> {(gramas / 3).toFixed(1)}g por refeição
+          • <strong>3x ao dia:</strong> {formatadorUmaCasa.format(gramas / 3)}g por refeição
         </Text>
         {gramas > 150 && (
           <Text>
-            • <strong>4x ao dia:</strong> {(gramas / 4).toFixed(1)}g por
-            refeição
+            • <strong>4x ao dia:</strong> {formatadorUmaCasa.format(gramas / 4)}g por refeição
           </Text>
         )}
       </div>

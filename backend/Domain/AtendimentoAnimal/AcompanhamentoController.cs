@@ -27,13 +27,23 @@ public class AcompanhamentoController : ControllerBase
     {
         var perfis = Enum.GetValues(typeof(backend.Domain.SaudeAnimal.Enums.PerfilMetabolico))
             .Cast<backend.Domain.SaudeAnimal.Enums.PerfilMetabolico>()
-            .Select(p => new
+            .Select(p => 
             {
-                Value = (int)p,
-                Label = p.GetType().GetMember(p.ToString())[0]
-                         .GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.DisplayAttribute), false)
-                         .Cast<System.ComponentModel.DataAnnotations.DisplayAttribute>()
-                         .FirstOrDefault()?.Name ?? p.ToString()
+                var memberInfo = p.GetType().GetMember(p.ToString())[0];
+                var displayAttribute = memberInfo.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.DisplayAttribute), false)
+                                                 .Cast<System.ComponentModel.DataAnnotations.DisplayAttribute>()
+                                                 .FirstOrDefault();
+                
+                var tipoDietaRefAttribute = memberInfo.GetCustomAttributes(typeof(backend.Domain.SaudeAnimal.Attributes.TipoDietaRefAttribute), false)
+                                                      .Cast<backend.Domain.SaudeAnimal.Attributes.TipoDietaRefAttribute>()
+                                                      .FirstOrDefault();
+
+                return new
+                {
+                    Value = (int)p,
+                    Label = displayAttribute?.Name ?? p.ToString(),
+                    TiposDieta = tipoDietaRefAttribute?.TiposDieta.Select(t => (int)t).ToArray() ?? Array.Empty<int>()
+                };
             });
 
         return Ok(perfis);
