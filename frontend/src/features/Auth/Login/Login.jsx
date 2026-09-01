@@ -11,9 +11,10 @@ import {
 } from "antd";
 import { useAuth } from "../../../services/AuthContext";
 import { Turnstile } from "@marsidev/react-turnstile";
+import logoInf from "../../../assets/INF_UFG.png"
+import logoEvz from "../../../assets/EVZ_UFG.png"
 import logoUfg from "../../../assets/UFG_logo.png";
-import logoEvz from "../../../assets/EVZ_UFG.svg";
-import logoInf from "../../../assets/INF_UFG.svg";
+import logoSps from "../../../assets/sps-logo-preto.png";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import iconLogin from "../../../assets/auth/login-svgrepo-com.png";
 
@@ -58,11 +59,25 @@ const Login = () => {
           necessidades energéticas dos animais.
         </Paragraph>
 
-        <Space size="large" className="mt-10 flex-wrap justify-center">
-          <img src={logoUfg} alt="Logo UFG" className="h-16" />
-          <img src={logoEvz} alt="Logo EVZ" className="h-16" />
-          <img src={logoInf} alt="Logo INF" className="h-16" />
-        </Space>
+        <div className="mt-20 xl:mt-auto pt-8 flex flex-col w-full border-t border-verde-escuro/10">
+          <span className="text-sm font-semibold text-verde-escuro uppercase tracking-wider mb-5 opacity-70">
+            Desenvolvido em parceria com:
+          </span>
+          <Space size={48} className="flex-wrap items-center">
+            <a href="https://ufg.br/" target="_blank" rel="noopener noreferrer">
+              <img src={logoUfg} alt="Logo UFG" className="h-16" />
+            </a>
+            <a href="https://evz.ufg.br/" target="_blank" rel="noopener noreferrer">
+              <img src={logoEvz} alt="Logo EVZ" className="h-16" />
+            </a>
+            <a href="https://inf.ufg.br/" target="_blank" rel="noopener noreferrer">
+              <img src={logoInf} alt="Logo INF" className="h-16" />
+            </a>
+            <a href="https://pecuariasustentavel.evz.ufg.br/" target="_blank" rel="noopener noreferrer">
+              <img src={logoSps} alt="Logo SPS" className="h-16" />
+            </a>
+          </Space>
+        </div>
       </Col>
 
       <Col
