@@ -51,7 +51,7 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
                 .ForMember(dest => dest.Dieta, opt => opt.MapFrom(src => src.Dieta));
             
             CreateMap<Dieta, DietaResumidaDto>()
-                .ForMember(dest => dest.TipoDieta, opt => opt.MapFrom(src => src.TipoDieta.ToString()))
+                .ForMember(dest => dest.TipoDieta, opt => opt.MapFrom(src => (int)src.TipoDieta))
                 .ForMember(dest => dest.TipoDietaLabel, opt => opt.MapFrom(src => src.TipoDieta.GetDisplayName()))
                 // Garante que não haverá erro se o valor for nulo
                 .ForMember(dest => dest.QuantidadeAlimentoGramas, opt => opt.MapFrom(src => src.QtdAlimento ?? 0))

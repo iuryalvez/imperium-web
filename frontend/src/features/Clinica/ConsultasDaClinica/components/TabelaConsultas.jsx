@@ -33,7 +33,7 @@ const TabelaConsultas = ({
 
   const handleColumnVisibilityChange = (key) => {
     setVisibleColumns((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
     );
   };
 
@@ -41,6 +41,9 @@ const TabelaConsultas = ({
     () => ({
       title: "Ações",
       key: "acoes",
+      width: 150,
+      align: "center",
+      fixed: "right",
       render: (_, consulta) => (
         <Space size="small">
           <Tooltip title="Editar Agendamento">
@@ -75,7 +78,7 @@ const TabelaConsultas = ({
         </Space>
       ),
     }),
-    [onEdit, onDelete, onIrParaAcompanhamento]
+    [onEdit, onDelete, onIrParaAcompanhamento],
   );
 
   const colunasVisiveis = useMemo(
@@ -83,7 +86,7 @@ const TabelaConsultas = ({
       ...colunas.filter((col) => visibleColumns.includes(col.key)),
       colunaAcoes,
     ],
-    [visibleColumns, colunaAcoes]
+    [visibleColumns, colunaAcoes],
   );
 
   const menuColunas = (

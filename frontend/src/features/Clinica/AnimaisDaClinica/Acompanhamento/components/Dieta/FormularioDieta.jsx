@@ -17,6 +17,7 @@ import FormManutencao from "./FormManutencao";
 import FormCrescimento from "./FormCrescimento";
 import FormLactacao from "./FormLactacao";
 import FormGestacao from "./FormGestacao";
+import LabelComInfo from "../../../../../../components/atoms/LabelComInfo";
 
 const opcoesTipoDieta = [
   { value: 1, label: "Manutenção" },
@@ -29,13 +30,29 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
   const [form] = Form.useForm();
   const tipoDietaSelecionado = useWatch("tipoDieta", form);
 
+  const isGato =
+    initialValues?.especieAnimal === 2 ||
+    String(initialValues?.especieAnimal).toLowerCase() === "gato";
+
   console.log("[FormularioDieta] initialValues: ", initialValues);
 
   useEffect(() => {
     if (initialValues) {
+      const tipoDietaMap = {
+        Manutencao: 1,
+        Crescimento: 2,
+        Lactacao: 3,
+        Gestacao: 4,
+      };
+
+      let parsedTipoDieta = initialValues.tipoDieta;
+      if (typeof parsedTipoDieta === "string") {
+        parsedTipoDieta = tipoDietaMap[parsedTipoDieta] || parsedTipoDieta;
+      }
+
       form.setFieldsValue({
         racaoId: initialValues.racaoId,
-        tipoDieta: initialValues.tipoDieta,
+        tipoDieta: parsedTipoDieta,
         pesoAtual: initialValues.peso,
         pesoIdeal: initialValues.pesoIdeal,
         numeroFilhotes: initialValues.isLactanteNumeroFilhotes,
@@ -117,31 +134,33 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
       </Divider>
 
       {/* Exibição do ECC registrado no relatório */}
-      <div className="mb-4 flex items-center bg-gray-50 border border-gray-200 p-3 rounded-md">
-        <span className="text-gray-600 mr-2 text-sm">
-          Condição Corporal (ECC) Registrada:
-        </span>
-        <Tag
-          color={
-            initialValues?.condicaoCorporal === "Ideal" ||
-            initialValues?.condicaoCorporal === 5 ||
-            initialValues?.condicaoCorporal
-              ?.toString()
-              ?.toLowerCase()
-              ?.includes("ideal")
-              ? "green"
-              : "orange"
-          }
-          className="m-0 font-bold"
-        >
-          {initialValues?.condicaoCorporal
-            ? `${initialValues.condicaoCorporal}`
-            : "N/A"}
-        </Tag>
-        <span className="text-xs text-gray-400 ml-2">
-          (Definido na avaliação clínica)
-        </span>
-      </div>
+      {isGato && (
+        <div className="mb-4 flex items-center bg-gray-50 border border-gray-200 p-3 rounded-md">
+          <span className="text-gray-600 mr-2 text-sm">
+            Condição Corporal (ECC) Registrada:
+          </span>
+          <Tag
+            color={
+              initialValues?.condicaoCorporal === "Ideal" ||
+              initialValues?.condicaoCorporal === 5 ||
+              initialValues?.condicaoCorporal
+                ?.toString()
+                ?.toLowerCase()
+                ?.includes("ideal")
+                ? "green"
+                : "orange"
+            }
+            className="m-0 font-bold"
+          >
+            {initialValues?.condicaoCorporal
+              ? `${initialValues.condicaoCorporal}`
+              : "N/A"}
+          </Tag>
+          <span className="text-xs text-gray-400 ml-2">
+            (Definido na avaliação clínica)
+          </span>
+        </div>
+      )}
 
       {dadosRaca?.nome && (dadosRaca.pesoMin || dadosRaca.pesoMax) && (
         <Alert
@@ -174,8 +193,13 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
         <Col span={12}>
           <Form.Item
             name="pesoIdeal"
-            label="Peso Referência / Ideal (kg)"
-            tooltip="Ficará salvo no cadastro do paciente e será a nova base para os cálculos energéticos, sobrescrevendo a raça."
+            label={
+              <LabelComInfo
+                label="Peso Referência / Ideal (kg)"
+                tituloPopover="Peso Referência / Ideal"
+                conteudoPopover="Ficará salvo no cadastro do paciente e será a nova base para os cálculos energéticos, sobrescrevendo a raça."
+              />
+            }
           >
             <InputNumber
               placeholder="Ex: 15,0"

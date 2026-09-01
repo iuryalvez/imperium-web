@@ -13,7 +13,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   SettingOutlined,
-  SolutionOutlined,
+  LineChartOutlined,
 } from "@ant-design/icons";
 import colunas from "./colunas";
 
@@ -68,10 +68,11 @@ const TabelaAnimais = ({
                 disabled={isCurrentRowLoading}
               />
             </Tooltip>
-            <Tooltip title="Acompanhamento">
+            <Tooltip title="Ver Acompanhamento">
               <Button
+                type="primary"
                 size="small"
-                icon={<SolutionOutlined />}
+                icon={<LineChartOutlined />}
                 onClick={() => onNavigateToAcompanhamento(record.acompanhamentoId)}
                 disabled={isCurrentRowLoading || record.acompanhamentoId == null}
               />

@@ -29,7 +29,7 @@ namespace backend.Domain.SaudeAnimal.Enums
         [Display(Name = "Cão Inativo")]
         CaoInativo = 8,
 
-        [Display(Name = "Cão Idoso Ativo ou Terra-Nova")]
+        [Display(Name = "Cão Idoso Ativo ou Terra-Nova (Newfoundlands)")]
         CaoIdosoAtivo = 9,
 
         // FUTUROS PERFIS:

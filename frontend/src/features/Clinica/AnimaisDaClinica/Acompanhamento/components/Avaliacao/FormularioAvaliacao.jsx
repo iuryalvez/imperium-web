@@ -21,29 +21,9 @@ import {
   opcoesGrauAtividade,
   opcoesTipoDieta,
 } from "./opcoesAvaliacao";
+import LabelComInfo from "../../../../../../components/atoms/LabelComInfo";
 
 const { Text } = Typography;
-
-// Componente auxiliar para renderizar a Label com ícone de Informação
-const LabelComInfo = ({ label, tituloPopover, conteudoPopover }) => (
-  <Space size={4} className="items-center">
-    <span>{label}</span>
-    <Popover
-      title={
-        <Text className="font-bold text-verde-escuro">{tituloPopover}</Text>
-      }
-      content={
-        <div className="max-w-md max-h-80 overflow-y-auto text-xs leading-relaxed text-gray-600">
-          {conteudoPopover}
-        </div>
-      }
-      trigger="click"
-      placement="right"
-    >
-      <InfoCircleOutlined className="text-verde-medio cursor-pointer hover:text-verde-escuro transition-colors" />
-    </Popover>
-  </Space>
-);
 
 const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
   const [form] = Form.useForm();

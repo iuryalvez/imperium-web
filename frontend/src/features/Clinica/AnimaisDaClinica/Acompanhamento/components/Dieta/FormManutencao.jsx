@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Form, InputNumber, Row, Col, Select, message } from "antd";
 import { acompanhamentoAPI } from "../../../../../../api/clinica/acompanhamentoAPI";
+import LabelComInfo from "../../../../../../components/atoms/LabelComInfo";
 
 const FormManutencao = ({ form, especie }) => {
   const [perfis, setPerfis] = useState([]);
@@ -42,8 +43,13 @@ const FormManutencao = ({ form, especie }) => {
         <Col span={24}>
           <Form.Item
             name="pesoObjetivo"
-            label="Peso Alvo do Ciclo (kg)"
-            tooltip="A meta de peso apenas para esta prescrição específica (ex: emagrecimento gradual). Se deixado em branco, o sistema usará o Peso Ideal cadastrado."
+            label={
+              <LabelComInfo
+                label="Peso Alvo do Ciclo (kg)"
+                tituloPopover="Peso Alvo do Ciclo"
+                conteudoPopover="A meta de peso apenas para esta prescrição específica (ex: emagrecimento gradual). Se deixado em branco, o sistema usará o Peso Ideal cadastrado."
+              />
+            }
           >
             <InputNumber
               placeholder="Ex: 17,5"
@@ -60,8 +66,13 @@ const FormManutencao = ({ form, especie }) => {
         <Col span={24}>
           <Form.Item
             name="perfilMetabolico"
-            label="Perfil Metabólico (Fórmula NRC)"
-            tooltip="Opcional. Se deixado em branco, o sistema calculará a fórmula automaticamente com base na espécie e condição corporal."
+            label={
+              <LabelComInfo
+                label="Perfil Metabólico (Fórmula NRC)"
+                tituloPopover="Perfil Metabólico"
+                conteudoPopover="Opcional. Se deixado em branco, o sistema calculará a fórmula automaticamente com base na espécie e condição corporal."
+              />
+            }
           >
             <Select
               allowClear
@@ -78,8 +89,13 @@ const FormManutencao = ({ form, especie }) => {
           <Col span={24}>
             <Form.Item
               name="multiplicadorEnergeticoCustom"
-              label="Multiplicador Energético (k) para Gato Exótico"
-              tooltip="Para gatos exóticos, o valor K pode variar de 55 a 260. Defina aqui o valor exato a ser utilizado no cálculo."
+              label={
+                <LabelComInfo
+                  label="Multiplicador Energético (k) para Gato Exótico"
+                  tituloPopover="Multiplicador Energético"
+                  conteudoPopover="Para gatos exóticos, o valor K pode variar de 55 a 260. Defina aqui o valor exato a ser utilizado no cálculo."
+                />
+              }
               rules={[
                 { required: true, message: "O multiplicador é obrigatório para este perfil." },
                 { type: 'number', min: 55, max: 260, message: "O valor deve estar entre 55 e 260" }

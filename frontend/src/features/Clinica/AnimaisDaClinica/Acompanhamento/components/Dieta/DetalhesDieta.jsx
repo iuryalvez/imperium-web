@@ -204,7 +204,7 @@ const DetalhesDieta = ({ dieta }) => {
       >
         <Descriptions.Item label="Ração Base">{racao}</Descriptions.Item>
         <Descriptions.Item label="Tipo de Dieta">
-          {dieta.tipoDieta}
+          {dieta.tipoDietaLabel}
         </Descriptions.Item>
         {dieta.pesoIdeal > 0 && (
           <Descriptions.Item label="Peso Ideal / Alvo">

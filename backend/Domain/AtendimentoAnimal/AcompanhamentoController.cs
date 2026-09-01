@@ -22,7 +22,7 @@ public class AcompanhamentoController : ControllerBase
     /// Retorna os perfis metabólicos disponíveis
     /// </summary>
     [HttpGet("perfis-metabolicos")]
-    [AllowAnonymous] // ou [Authorize] dependendo se precisa de auth para buscar os enums
+    [Authorize(Policy = "GerenciaAnimais")]
     public IActionResult GetPerfisMetabolicos()
     {
         var perfis = Enum.GetValues(typeof(backend.Domain.SaudeAnimal.Enums.PerfilMetabolico))

@@ -75,7 +75,7 @@ namespace backend.Domain.AtendimentoAnimal
     public class DietaResumidaDto
     {
         public int Id { get; set; }
-        public string? TipoDieta { get; set; }
+        public int TipoDieta { get; set; }
         public string TipoDietaLabel { get; set; } = string.Empty;
         public double QuantidadeAlimentoGramas { get; set; }
         public double NecessidadeEnergeticaKcal { get; set; }

@@ -7,6 +7,11 @@ import { consultasDaClinicaAPI } from "../../../../api/clinica/consultasDaClinic
 import { animaisDaClinicaAPI } from "../../../../api/clinica/animaisDaClinicaAPI";
 import { message } from "antd";
 
+const formatError = (error, defaultMessage) => {
+  if (error?.errors?.length) return `${error.message}: ${error.errors.join(", ")}`;
+  return error?.message || defaultMessage;
+};
+
 export const useAcompanhamentoManager = () => {
   const { acompanhamentoId } = useParams();
   const [historico, setHistorico] = useState(null);
@@ -45,12 +50,12 @@ export const useAcompanhamentoManager = () => {
 
   const handleSubmitEditAnimal = async (values) => {
     try {
-      await animaisDaClinicaAPI.atualizar(historico.id, values);
+      await animaisDaClinicaAPI.editar({ ...values, id: historico.id });
       message.success("Animal atualizado com sucesso!");
       handleCloseEditAnimalModal();
       await fetchHistorico();
     } catch (error) {
-      message.error("Erro ao atualizar o animal.");
+      message.error(formatError(error, "Erro ao atualizar o animal."));
     }
   };
 
@@ -114,7 +119,7 @@ export const useAcompanhamentoManager = () => {
       handleCloseAvaliacaoModal();
       await fetchHistorico(); // Recarrega os dados do acompanhamento
     } catch (error) {
-      message.error("Falha ao salvar a avaliação.");
+      message.error(formatError(error, "Falha ao salvar a avaliação."));
       throw error;
     }
   };
@@ -126,7 +131,7 @@ export const useAcompanhamentoManager = () => {
       handleCloseAvaliacaoModal();
       await fetchHistorico();
     } catch (error) {
-      message.error("Falha ao excluir a avaliação.");
+      message.error(formatError(error, "Falha ao excluir a avaliação."));
     }
   };
 
@@ -185,7 +190,7 @@ export const useAcompanhamentoManager = () => {
         message.error(result.message || "Falha ao criar dieta.");
       }
     } catch (error) {
-      message.error(error.message || "Ocorreu um erro inesperado.");
+      message.error(formatError(error, "Ocorreu um erro inesperado."));
     } finally {
       setIsSubmitting(false);
     }
@@ -208,7 +213,7 @@ export const useAcompanhamentoManager = () => {
         message.error(result.message || "Falha ao atualizar dieta.");
       }
     } catch (error) {
-      message.error(error.message || "Ocorreu um erro inesperado.");
+      message.error(formatError(error, "Ocorreu um erro inesperado."));
     } finally {
       setIsSubmitting(false);
     }
@@ -224,7 +229,7 @@ export const useAcompanhamentoManager = () => {
         message.error(result.message || "Falha ao excluir dieta.");
       }
     } catch (error) {
-      message.error(error.message || "Ocorreu um erro inesperado.");
+      message.error(formatError(error, "Ocorreu um erro inesperado."));
     }
   };
 
@@ -234,7 +239,7 @@ export const useAcompanhamentoManager = () => {
       message.success("Consulta excluída com sucesso!");
       await fetchHistorico();
     } catch (error) {
-      message.error("Falha ao excluir a consulta.");
+      message.error(formatError(error, "Falha ao excluir a consulta."));
     }
   };
 
@@ -257,7 +262,7 @@ export const useAcompanhamentoManager = () => {
       handleCloseConsultaModal();
       await fetchHistorico();
     } catch (error) {
-      message.error("Falha ao salvar consulta.");
+      message.error(formatError(error, "Falha ao salvar consulta."));
     }
   };
 

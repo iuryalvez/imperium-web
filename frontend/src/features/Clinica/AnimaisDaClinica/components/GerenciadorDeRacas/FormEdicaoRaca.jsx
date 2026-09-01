@@ -10,6 +10,7 @@ import {
   Divider,
   Select,
 } from "antd";
+import LabelComInfo from "../../../../../components/atoms/LabelComInfo";
 
 const opcoesEspecie = [
   { label: "Cão", value: 1 },
@@ -78,8 +79,13 @@ const FormEdicaoRaca = ({
         <Col xs={24}>
           <Form.Item
             name="categoriaMetabolica"
-            label="Categoria Metabólica (Apenas para cães)"
-            tooltip="Algumas raças caninas possuem necessidades energéticas diferenciadas segundo o NRC."
+            label={
+              <LabelComInfo
+                label="Categoria Metabólica (Apenas para cães)"
+                tituloPopover="Categoria Metabólica"
+                conteudoPopover="Algumas raças caninas possuem necessidades energéticas diferenciadas segundo o NRC."
+              />
+            }
           >
             <Select
               options={opcoesCategoriaMetabolica}

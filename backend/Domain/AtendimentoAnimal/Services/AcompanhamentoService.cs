@@ -267,6 +267,16 @@ namespace backend.Domain.AtendimentoAnimal.Services
 
                 return new ServiceResult { Succeeded = false, Message = "Erro de sistema: Inconsistência nos tipos de dados." };
             }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Operação inválida ao criar dieta para o relatório {AvaliacaoId}.", dto.AvaliacaoId);
+                return new ServiceResult { Succeeded = false, Message = ex.Message };
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, "Argumento inválido ao criar dieta para o relatório {AvaliacaoId}.", dto.AvaliacaoId);
+                return new ServiceResult { Succeeded = false, Message = ex.Message };
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro inesperado ao criar dieta para o relatório {AvaliacaoId}.", dto.AvaliacaoId);
@@ -297,6 +307,16 @@ namespace backend.Domain.AtendimentoAnimal.Services
 
                 _logger.LogInformation("Dieta {DietaId} atualizada com sucesso.", dietaId);
                 return resultadoBusca;
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Operação inválida ao atualizar a dieta {DietaId}.", dietaId);
+                return new ServiceResult { Succeeded = false, Message = ex.Message };
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, "Argumento inválido ao atualizar a dieta {DietaId}.", dietaId);
+                return new ServiceResult { Succeeded = false, Message = ex.Message };
             }
             catch (Exception ex)
             {
