@@ -8,6 +8,7 @@ import {
   Row,
   Col,
   message,
+  Checkbox
 } from "antd";
 import dayjs from "dayjs";
 import { tutoresDaClinicaAPI } from "../../../../../api/clinica/tutoresDaClinicaAPI";
@@ -32,6 +33,7 @@ const FormEdicaoAnimal = ({
   const [loading, setLoading] = useState(true); // Começa carregando
 
   const especieSelecionada = Form.useWatch("especie", form);
+  const sobTutelaClinica = Form.useWatch("sobTutelaClinica", form);
 
   // Efeito para buscar raças e tutores
   useEffect(() => {
@@ -66,17 +68,19 @@ const FormEdicaoAnimal = ({
   // Efeito para preencher o formulário com os valores iniciais
   // Roda quando os valores iniciais mudam OU quando o carregamento termina
   useEffect(() => {
-    if (initialValues && !loading && racas.length > 0 && tutores.length > 0) {
+    if (initialValues && !loading) {
+      const tutorIds = initialValues.tutorIds || [];
       form.setFieldsValue({
         ...initialValues,
         nascimento: initialValues.nascimento
           ? dayjs(initialValues.nascimento)
           : null,
         // O campo tutorIds já vem como uma lista de IDs, então não precisa de mapeamento
-        tutorIds: initialValues.tutorIds || [],
+        tutorIds: tutorIds,
+        sobTutelaClinica: tutorIds.length === 0,
       });
     }
-  }, [initialValues, loading, form, racas, tutores]);
+  }, [initialValues, loading, form]);
 
   // Filtra as opções de raça com base na espécie selecionada no formulário
   console.log("especie: ", especieSelecionada);
@@ -125,13 +129,29 @@ const FormEdicaoAnimal = ({
               optionFilterProp="label"
             />
           </Form.Item>
-          <Form.Item name="tutorIds" label="Tutor(es) Responsável(is)">
+          <Form.Item name="sobTutelaClinica" valuePropName="checked" style={{ marginBottom: 8 }}>
+            <Checkbox
+              onChange={(e) => {
+                if (e.target.checked) {
+                  form.setFieldsValue({ tutorIds: [] });
+                }
+              }}
+            >
+              Animal sob tutela da clínica
+            </Checkbox>
+          </Form.Item>
+          <Form.Item 
+            name="tutorIds" 
+            label="Tutor(es) Responsável(is)"
+            rules={[{ required: !sobTutelaClinica, message: 'Selecione um tutor ou a tutela da clínica' }]}
+          >
             <Select
               mode="multiple"
-              placeholder="Busque e selecione os tutores"
+              placeholder={sobTutelaClinica ? "Animal sem tutor físico" : "Busque e selecione os tutores"}
               loading={loading}
               options={tutores}
               optionFilterProp="label"
+              disabled={sobTutelaClinica}
             />
           </Form.Item>
         </Col>

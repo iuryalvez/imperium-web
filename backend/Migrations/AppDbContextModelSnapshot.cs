@@ -395,10 +395,10 @@ namespace backend.Migrations
                     b.Property<DateTime>("DataConsulta")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("TutorId")
+                    b.Property<int?>("TutorId")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("TutorIsCadastrado")
+                    b.Property<bool?>("TutorIsCadastrado")
                         .HasColumnType("boolean");
 
                     b.Property<int>("UsuarioId")
@@ -3036,8 +3036,7 @@ namespace backend.Migrations
                     b.HasOne("backend.Domain.AtendimentoAnimal.Entities.Tutor", "Tutor")
                         .WithMany("Consultas")
                         .HasForeignKey("TutorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("backend.Domain.Usuarios.Entities.Usuario", "Usuario")
                         .WithMany("Consultas")

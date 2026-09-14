@@ -8,7 +8,7 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Consulta
         public int AnimalId { get; set; }
         public string? NomeAnimal { get; set; }
 
-        public int TutorId { get; set; }
+        public int? TutorId { get; set; }
         public string? NomeTutor { get; set; }
         public string? CpfTutor { get; set; }
         public string? EmailTutor { get; set; }

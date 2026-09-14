@@ -26,7 +26,7 @@ const BotaoMenu = ({ texto, rota, ativo = true }) => {
       <Button
         type="primary"
         className='botao-menu'
-        disabled // A prop 'disabled' aplica o estilo de desabilitado do Ant Design
+        disabled
       >
         {texto}
       </Button>

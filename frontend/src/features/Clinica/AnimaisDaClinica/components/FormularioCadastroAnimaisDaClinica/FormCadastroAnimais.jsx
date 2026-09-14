@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Select, DatePicker, Switch, Row, Col, message } from "antd";
+import { Form, Input, Select, DatePicker, Switch, Row, Col, message, Checkbox } from "antd";
 import { tutoresDaClinicaAPI } from "../../../../../api/clinica/tutoresDaClinicaAPI";
 import { racasAPI } from "../../../../../api/sistema/racasAPI";
 
@@ -13,6 +13,7 @@ const FormCadastroAnimal = ({ onFinish }) => {
   const [loading, setLoading] = useState(false);
 
   const especieSelecionada = Form.useWatch("especie", form);
+  const sobTutelaClinica = Form.useWatch("sobTutelaClinica", form);
 
   // Efeito para buscar raças e tutores quando o componente monta
   useEffect(() => {
@@ -43,7 +44,7 @@ const FormCadastroAnimal = ({ onFinish }) => {
   }, [especieSelecionada, form]);
   
   return (
-    <Form id="form-cadastro-animal-clinica" form={form} layout="vertical" onFinish={onFinish} initialValues={{ isCastrado: false }}>
+    <Form id="form-cadastro-animal-clinica" form={form} layout="vertical" onFinish={onFinish} initialValues={{ isCastrado: false, sobTutelaClinica: false }}>
       <Row gutter={24}>
         <Col xs={24} md={12}>
           <Form.Item name="nome" label="Nome do Animal" rules={[{ required: true }]}>
@@ -62,13 +63,29 @@ const FormCadastroAnimal = ({ onFinish }) => {
               optionFilterProp="label"
             />
           </Form.Item>
-          <Form.Item name="tutorIds" label="Tutor(es) Responsável(is)">
+          <Form.Item name="sobTutelaClinica" valuePropName="checked" style={{ marginBottom: 8 }}>
+            <Checkbox
+              onChange={(e) => {
+                if (e.target.checked) {
+                  form.setFieldsValue({ tutorIds: [] });
+                }
+              }}
+            >
+              Animal sob tutela da clínica
+            </Checkbox>
+          </Form.Item>
+          <Form.Item 
+            name="tutorIds" 
+            label="Tutor(es) Responsável(is)"
+            rules={[{ required: !sobTutelaClinica, message: 'Selecione um tutor ou a tutela da clínica' }]}
+          >
             <Select
               mode="multiple"
-              placeholder="Busque e selecione os tutores"
+              placeholder={sobTutelaClinica ? "Animal sem tutor físico" : "Busque e selecione os tutores"}
               loading={loading}
               options={tutores}
               optionFilterProp="label"
+              disabled={sobTutelaClinica}
             />
           </Form.Item>
         </Col>

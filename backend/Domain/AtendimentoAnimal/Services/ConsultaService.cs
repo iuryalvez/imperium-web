@@ -113,13 +113,13 @@ namespace backend.Domain.AtendimentoAnimal.Services
             // Validações de Negócio
             if (await _animalRepository.GetByIdAndClinicaIdWithIncludesAsync(dto.AnimalId, clinicaId) == null)
                 return new ServiceResult { Succeeded = false, Message = "Animal não encontrado ou não pertence a esta clínica." };
-            if (await _tutorRepository.GetByIdAndClinicIdWithIncludesAsync(dto.TutorId, clinicaId) == null)
+            if (dto.TutorId.HasValue && await _tutorRepository.GetByIdAndClinicIdWithIncludesAsync(dto.TutorId.Value, clinicaId) == null)
                 return new ServiceResult { Succeeded = false, Message = "Tutor não encontrado ou não pertence a esta clínica." };
 
             var consulta = _mapper.Map<Consulta>(dto);
             consulta.ClinicaId = clinicaId;
             consulta.UsuarioId = usuarioId;
-            consulta.TutorIsCadastrado = true; // Já que validamos o ID
+            consulta.TutorIsCadastrado = dto.TutorId.HasValue;
 
             await _consultaRepository.AddAsync(consulta);
             await _consultaRepository.SaveChangesAsync();
@@ -137,7 +137,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
             // Validações de Negócio
             if (await _animalRepository.GetByIdAndClinicaIdWithIncludesAsync(dto.AnimalId, clinicaId) == null)
                 return new ServiceResult { Succeeded = false, Message = "Animal não encontrado ou não pertence a esta clínica." };
-            if (await _tutorRepository.GetByIdAndClinicIdWithIncludesAsync(dto.TutorId, clinicaId) == null)
+            if (dto.TutorId.HasValue && await _tutorRepository.GetByIdAndClinicIdWithIncludesAsync(dto.TutorId.Value, clinicaId) == null)
                 return new ServiceResult { Succeeded = false, Message = "Tutor não encontrado ou não pertence a esta clínica." };
 
             // Mapeia apenas os campos do DTO para a entidade existente

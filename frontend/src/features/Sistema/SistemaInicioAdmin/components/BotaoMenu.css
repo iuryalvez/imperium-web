@@ -2,13 +2,11 @@
   Define os estilos base para os botões de navegação do menu principal.
 */
 .botao-menu {
+  display: flex !important;
+  font-weight: bold !important;
+  font-size: 1.5rem !important; /* Equivalente a text-2xl do Tailwind */
   height: 80px !important;
   width: 200px !important;
-  font-size: 1.5rem !important; /* Equivalente a text-2xl do Tailwind */
-  font-weight: bold !important;
-
-  /* Bônus: Melhorias para alinhamento e quebra de linha */
-  display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   white-space: normal !important; /* Permite que o texto quebre em duas linhas se for muito longo */

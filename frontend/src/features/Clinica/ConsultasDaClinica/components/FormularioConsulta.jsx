@@ -23,6 +23,7 @@ const FormularioConsulta = ({ initialValues, onFinish }) => {
           animaisData.map((a) => ({
             label: `${a.nome} (${a.especie === 1 ? "Cão" : "Gato"})`,
             value: a.id,
+            tutorIds: a.tutorIds || [],
           })),
         );
         setTutores(tutoresData.map((t) => ({ label: t.nome, value: t.id })));
@@ -48,6 +49,16 @@ const FormularioConsulta = ({ initialValues, onFinish }) => {
       form.resetFields();
     }
   }, [initialValues, form]);
+
+  const selectedAnimalId = Form.useWatch("animalId", form);
+  const animalSelecionado = animais.find(a => a.value === selectedAnimalId);
+  const isSobTutelaClinica = animalSelecionado && animalSelecionado.tutorIds.length === 0;
+
+  useEffect(() => {
+    if (isSobTutelaClinica) {
+      form.setFieldsValue({ tutorId: null });
+    }
+  }, [isSobTutelaClinica, form]);
 
   const handleFormFinish = async (values) => {
     try {
@@ -88,10 +99,11 @@ const FormularioConsulta = ({ initialValues, onFinish }) => {
         <Select
           showSearch
           allowClear
-          placeholder="Selecione o tutor (Opcional)"
+          placeholder={isSobTutelaClinica ? "Animal sob tutela da clínica" : "Selecione o tutor (Opcional)"}
           options={tutores}
           loading={loading}
           optionFilterProp="label"
+          disabled={isSobTutelaClinica}
         />
       </Form.Item>
 

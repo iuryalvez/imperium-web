@@ -91,6 +91,6 @@ export const formatarGrauAtividade = (value) => {
         case 1: return 'Inativo';
         case 2: return 'Moderado';
         case 3: return 'Alto';
-        default: return <Typography.Text type="secondary">Não informado</Typography.Text>;
+        default: return <Typography.Text type="secondary">Sem dados de consultas</Typography.Text>;
     }
 };

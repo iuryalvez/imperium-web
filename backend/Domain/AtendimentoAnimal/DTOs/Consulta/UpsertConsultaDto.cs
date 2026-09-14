@@ -7,8 +7,7 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Consulta
         [Required]
         public int AnimalId { get; set; }
 
-        [Required]
-        public int TutorId { get; set; }
+        public int? TutorId { get; set; }
 
         [Required]
         public DateTime DataConsulta { get; set; }

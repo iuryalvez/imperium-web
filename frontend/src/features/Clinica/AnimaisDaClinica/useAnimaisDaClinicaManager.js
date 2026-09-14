@@ -81,12 +81,13 @@ export const useAnimaisDaClinicaManager = () => {
   const handleSubmit = async (values) => {
     setIsSubmitting(true);
     try {
+      const { sobTutelaClinica, ...dadosParaEnviar } = values;
       let successMessage = "";
       if (editingAnimal) {
-        await animaisDaClinicaAPI.editar({ ...editingAnimal, ...values });
+        await animaisDaClinicaAPI.editar({ ...editingAnimal, ...dadosParaEnviar });
         successMessage = "Animal atualizado com sucesso!";
       } else {
-        await animaisDaClinicaAPI.cadastrar(values);
+        await animaisDaClinicaAPI.cadastrar(dadosParaEnviar);
         successMessage = "Animal cadastrado com sucesso!";
       }
 

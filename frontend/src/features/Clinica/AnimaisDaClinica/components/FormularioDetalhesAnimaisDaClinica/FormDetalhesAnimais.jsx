@@ -1,6 +1,6 @@
 import React from "react";
 import { Descriptions, Tag, Typography, Divider } from "antd";
-import { formatarData, formatarEspecie, formatarSexo, formatarGrauAtividade } from "../../../../../utils/formatters"; // Ajuste o caminho
+import { formatarDataCadastroPerfil, formatarEspecie, formatarSexo, formatarGrauAtividade } from "../../../../../utils/formatters"; // Ajuste o caminho
 
 const { Text } = Typography;
 
@@ -10,7 +10,7 @@ const renderSimNao = (value) => (
 );
 
 const renderTutores = (tutores = []) => {
-    if (!tutores || tutores.length === 0) return <Text type="secondary">Nenhum tutor associado</Text>;
+    if (!tutores || tutores.length === 0) return <Text type="secondary">Animal sob tutela da clínica</Text>;
     return (
         <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
             {tutores.map((tutor) => <Tag key={tutor.id}>{tutor.nome}</Tag>)}
@@ -21,12 +21,13 @@ const renderTutores = (tutores = []) => {
 const FormDetalhesAnimal = ({ valores: animal }) => {
   const isFemea = animal.sexo === 2;
   const naoInformado = <Text type="secondary">Não informado</Text>;
+  const semDadosConsulta = <Text type="secondary">Sem dados de consultas</Text>;
 
   return (
     <div>
       <Descriptions title="Identificação do Animal" bordered column={2}>
         <Descriptions.Item label="Nome">{animal.nome}</Descriptions.Item>
-        <Descriptions.Item label="Data de Nascimento">{formatarData(animal.nascimento)}</Descriptions.Item>
+        <Descriptions.Item label="Data de Nascimento">{formatarDataCadastroPerfil(animal.nascimento)}</Descriptions.Item>
         <Descriptions.Item label="Espécie">{formatarEspecie(animal.especie)}</Descriptions.Item>
         <Descriptions.Item label="Raça">{animal.racaNome || naoInformado}</Descriptions.Item>
       </Descriptions>
@@ -42,9 +43,9 @@ const FormDetalhesAnimal = ({ valores: animal }) => {
       <Descriptions title="Características Físicas" bordered column={2}>
         <Descriptions.Item label="Sexo">{formatarSexo(animal.sexo)}</Descriptions.Item>
         <Descriptions.Item label="Peso">
-          {animal.peso ? `${animal.peso.toLocaleString("pt-BR")} kg` : naoInformado}
+          {animal.peso ? `${animal.peso.toLocaleString("pt-BR")} kg` : semDadosConsulta}
         </Descriptions.Item>
-        <Descriptions.Item label="Condição Corporal (1-9)">{animal.condicaoCorporal || naoInformado}</Descriptions.Item>
+        <Descriptions.Item label="Condição Corporal (1-9)">{animal.condicaoCorporal || semDadosConsulta}</Descriptions.Item>
         <Descriptions.Item label="Grau de Atividade">{formatarGrauAtividade(animal.grauAtividade)}</Descriptions.Item>
       </Descriptions>
 
@@ -56,13 +57,13 @@ const FormDetalhesAnimal = ({ valores: animal }) => {
           <>
             <Descriptions.Item label="Em Gestação?">{renderSimNao(animal.gestacao)}</Descriptions.Item>
             {animal.gestacao && (
-              <Descriptions.Item label="Semanas de Gestação">{animal.semanaGestacao || naoInformado}</Descriptions.Item>
+              <Descriptions.Item label="Semanas de Gestação">{animal.semanaGestacao || semDadosConsulta}</Descriptions.Item>
             )}
             <Descriptions.Item label="Em Lactação?">{renderSimNao(animal.lactacao > 0)}</Descriptions.Item>
             {animal.lactacao > 0 && (
               <>
                 <Descriptions.Item label="Número de Filhotes">{animal.lactacao}</Descriptions.Item>
-                <Descriptions.Item label="Semanas de Lactação">{animal.semanaLactacao || naoInformado}</Descriptions.Item>
+                <Descriptions.Item label="Semanas de Lactação">{animal.semanaLactacao || semDadosConsulta}</Descriptions.Item>
               </>
             )}
           </>
