@@ -72,15 +72,20 @@ namespace backend.Domain.SaudeAnimal.Services
 
                 var (multiplicador, potencia, descricao) = PerfilMetabolicoDados.Dados[perfil.Value];
 
-                // Permite o multiplicador customizado se o usuário informar (Ex: Gato Exótico varia de 55 a 260)
+                dieta.IsCustomizado = false;
+
+                // Permite o multiplicador customizado se o usuário informar
                 if (dieta.MultiplicadorEnergeticoCustom.HasValue)
                 {
                     multiplicador = dieta.MultiplicadorEnergeticoCustom.Value;
                     dieta.IsCustomizado = true;
                 }
-                else
+
+                // Permite a potência customizada se o usuário informar
+                if (dieta.PotenciaCustom.HasValue)
                 {
-                    dieta.IsCustomizado = false;
+                    potencia = dieta.PotenciaCustom.Value;
+                    dieta.IsCustomizado = true;
                 }
 
                 _logger.LogInformation("Perfil metabólico resolvido: {Perfil}. Multiplicador final: {Multiplicador}, Potência padrão: {Potencia}.",

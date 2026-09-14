@@ -5,6 +5,7 @@ export const themeConfig = {
     colorPrimary: colors.verde.medio,
     colorSuccess: colors.verde.realce,
     colorError: colors.vermelho.delete,
+    colorInfo: colors.verde.medio,
     colorBgLayout: colors.verde.fraco, // Fundo do Content
     
     colorText: colors.verde.escuro,
@@ -13,6 +14,10 @@ export const themeConfig = {
     fontFamily: `'Work Sans', sans-serif`,
   },
   components: {
+    Alert: {
+      colorInfoBg: colors.verde.fraco,
+      colorInfoBorder: colors.verde.claro,
+    },
     Button: {
       colorPrimaryActive: colors.verde.escuro,
       colorPrimaryHover: colors.verde.realce,

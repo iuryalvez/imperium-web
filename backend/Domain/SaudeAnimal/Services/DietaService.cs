@@ -57,6 +57,7 @@ namespace backend.Domain.SaudeAnimal.Services
             dietaExistente.RacaoId = racao.Id;
             dietaExistente.PerfilMetabolico = dto.PerfilMetabolico;
             dietaExistente.MultiplicadorEnergeticoCustom = dto.MultiplicadorEnergeticoCustom;
+            dietaExistente.PotenciaCustom = dto.PotenciaCustom;
 
             // 4. CHAMAR O CÁLCULO PASSANDO A ENTIDADE DO BANCO
             double necessidadeKcal = _calculoService.CalcularNecessidadeTotal(animal, dietaExistente);

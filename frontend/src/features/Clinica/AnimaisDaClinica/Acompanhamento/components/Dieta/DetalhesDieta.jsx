@@ -164,11 +164,13 @@ const DetalhesDieta = ({ dieta }) => {
         <div className="my-4 p-3 bg-gray-50 border border-gray-200 rounded-md">
           <div className="flex items-center gap-1 text-[var(--verde-escuro)] font-semibold mb-1 text-xs uppercase tracking-wider">
             <CalculatorOutlined />
-            <span>Metodologia Científica Aplicada</span>
+            <span>Perfil Metabólico</span>
           </div>
 
           <Text className="block text-sm text-gray-700 font-medium mb-2">
-            {dieta.perfilNutricional || "Cálculo padrão baseado na literatura"}
+            {dieta.isCustomizado 
+              ? "Fórmula Customizada" 
+              : (dieta.perfilNutricional || "Cálculo padrão baseado na literatura")}
           </Text>
 
           <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-gray-200 text-xs text-gray-600">

@@ -9,11 +9,13 @@ import {
   Alert,
   Divider,
   Tag,
+  Checkbox,
 } from "antd";
 import { useWatch } from "antd/es/form/Form";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import { message } from "antd";
 
+import { colors } from "../../../../../../theme/colors";
 import { acompanhamentoAPI } from "../../../../../../api/clinica/acompanhamentoAPI";
 import FormManutencao from "./FormManutencao";
 import FormCrescimento from "./FormCrescimento";
@@ -32,6 +34,11 @@ const opcoesTipoDieta = [
 const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
   const [form] = Form.useForm();
   const tipoDietaSelecionado = useWatch("tipoDieta", form);
+  
+  const isCustomizado = useWatch("isCustomizado", form);
+  const multiplicadorCustom = useWatch("multiplicadorEnergeticoCustom", form);
+  const potenciaCustom = useWatch("potenciaCustom", form);
+  const pesoAtualWatch = useWatch("pesoAtual", form);
 
   const isGato =
     initialValues?.especieAnimal === 2 ||
@@ -58,6 +65,12 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
   }, []);
 
   useEffect(() => {
+    if (isCustomizado) {
+      form.setFieldValue("perfilMetabolico", undefined);
+    }
+  }, [isCustomizado, form]);
+
+  useEffect(() => {
     if (initialValues) {
       const tipoDietaMap = {
         Manutencao: 1,
@@ -80,6 +93,8 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
         semanaLactacao: initialValues.semanaLactacao,
         perfilMetabolico: initialValues.perfilMetabolico,
         multiplicadorEnergeticoCustom: initialValues.multiplicadorEnergeticoCustom,
+        potenciaCustom: initialValues.potenciaCustom,
+        isCustomizado: !!(initialValues.multiplicadorEnergeticoCustom || initialValues.potenciaCustom),
       });
     }
   }, [initialValues, form]);
@@ -244,6 +259,75 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
       </Row>
 
       <div className="mt-2">{renderSpecificForm()}</div>
+
+      <Divider orientation="left" className="mt-4 mb-4 text-gray-500 text-sm">
+        Customização do Perfil Metabólico (Opcional)
+      </Divider>
+
+      <Form.Item name="isCustomizado" valuePropName="checked" className="mb-2">
+        <Checkbox>
+          Desejo personalizar o Multiplicador (K) e a Potência (P) da fórmula NRC
+        </Checkbox>
+      </Form.Item>
+
+      {isCustomizado && (
+        <div
+          className="p-3 rounded-md mb-4 text-center font-mono"
+          style={{
+            backgroundColor: colors.verde.fraco,
+            borderColor: colors.verde.claro,
+            borderWidth: 1,
+            borderStyle: "solid",
+            color: colors.verde.escuro,
+          }}
+        >
+          <strong>Fórmula que será utilizada: </strong>
+          {multiplicadorCustom || "K"} × ({pesoAtualWatch || "Peso"}kg)<sup>{potenciaCustom || "P"}</sup>
+        </div>
+      )}
+
+      {isCustomizado && (
+        <Row gutter={16}>
+          <Col xs={24} md={12}>
+            <Form.Item
+              name="multiplicadorEnergeticoCustom"
+              label={
+                <LabelComInfo
+                  label="Multiplicador Customizado (K)"
+                  tituloPopover="Fator Customizado"
+                  conteudoPopover="Personaliza o multiplicador K na fórmula. Ex: Para gatos exóticos pode variar de 55 a 260."
+                />
+              }
+            >
+              <InputNumber
+                placeholder="Ex: 130"
+                style={{ width: "100%" }}
+                step={0.5}
+                decimalSeparator=","
+              />
+            </Form.Item>
+          </Col>
+          <Col xs={24} md={12}>
+            <Form.Item
+              name="potenciaCustom"
+              label={
+                <LabelComInfo
+                  label="Potência Customizada (P)"
+                  tituloPopover="Potência Customizada"
+                  conteudoPopover="Sobrescreve a potência P da fórmula selecionada (Geralmente 0,75 para cães ou 0,67 para gatos)."
+                />
+              }
+            >
+              <InputNumber
+                placeholder="Ex: 0,75"
+                style={{ width: "100%" }}
+                step={0.01}
+                decimalSeparator=","
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+      )}
 
       <Form.Item name="observacoes" label="Observações da Dieta">
         <Input.TextArea

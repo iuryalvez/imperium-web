@@ -11,10 +11,7 @@ import {
   Divider,
   message,
   Typography,
-  Popover,
-  Space,
 } from "antd";
-import { InfoCircleOutlined } from "@ant-design/icons";
 import { racoesDaClinicaAPI } from "../../../../../../api/clinica/racoesDaClinicaAPI";
 import {
   opcoesCondicaoCorporal,
@@ -30,8 +27,8 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
   const [racoes, setRacoes] = useState([]);
   const [loadingRacoes, setLoadingRacoes] = useState(true);
 
-  console.log('[FormularioAvaliacao] initialValues', initialValues);
-  console.log('[FormularioAvaliacao] data', data);
+  console.log("[FormularioAvaliacao] initialValues", initialValues);
+  console.log("[FormularioAvaliacao] data", data);
 
   const isGestante = Form.useWatch("isGestante", form);
   const isLactante = Form.useWatch("isLactante", form);
@@ -117,6 +114,10 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
         <strong>Lactação:</strong> Fase de maior exigência metabólica; visa
         garantir a produção láctea sem esgotar as reservas corporais da mãe.
       </li>
+      <li>
+        <strong>Emagrecimento:</strong> Dieta formulada para ajudar o animal a
+        perder peso de forma saudável e sustentável (1% a 2% semanalmente).
+      </li>
     </ul>
   );
 
@@ -162,10 +163,9 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
         moderada.
       </p>
       <p>
-        <strong>8 (Obesidade Grave - 31% a 45% acima):</strong> Gordura
-        corporal acentuada. Denso depósito de gordura sobre costelas e região
-        lombar. Distensão abdominal proeminente, com significativo depósito de
-        gordura.
+        <strong>8 (Obesidade Grave - 31% a 45% acima):</strong> Gordura corporal
+        acentuada. Denso depósito de gordura sobre costelas e região lombar.
+        Distensão abdominal proeminente, com significativo depósito de gordura.
       </p>
       <p>
         <strong>9 (Obesidade Grave - acima de 46%):</strong> Gordura corporal
@@ -196,8 +196,7 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
       </p>
       <p>
         <strong>4 (Ideal):</strong> Gordura corporal mínima. Costelas não
-        visíveis, mas palpáveis. Cintura e reentrância abdominal
-        aparentes.
+        visíveis, mas palpáveis. Cintura e reentrância abdominal aparentes.
       </p>
       <p>
         <strong>5 (Ideal):</strong> Gordura corporal presente, mas não
@@ -219,8 +218,7 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
         <strong>8 (Obesidade - 31% a 45% acima):</strong> Gordura corporal
         acentuada. Densos depósitos de gordura sobre costelas, região lombar e
         base da cauda. Costelas palpáveis somente com pressão acentuada. Cintura
-        e reentrância abdominal ausentes, podendo existir distensão
-        abdominal.
+        e reentrância abdominal ausentes, podendo existir distensão abdominal.
       </p>
       <p>
         <strong>9 (Obesidade Grave - acima de 46%):</strong> Gordura corporal
@@ -313,19 +311,19 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
       </Row>
 
       {isGato && (
-          <Form.Item
-            name="condicaoCorporal"
-            label={
-              <LabelComInfo
-                label="Condição Corporal (1-9)"
-                tituloPopover="Escore de Condição Corporal Felino (Laflamme, 1997)"
-                conteudoPopover={conteudoECC}
-              />
-            }
-            rules={[{ required: true, message: "Defina o escore corporal" }]}
-          >
-            <Slider min={1} max={9} marks={opcoesCondicaoCorporal} />
-          </Form.Item>
+        <Form.Item
+          name="condicaoCorporal"
+          label={
+            <LabelComInfo
+              label="Condição Corporal (1-9)"
+              tituloPopover="Escore de Condição Corporal Felino (Laflamme, 1997)"
+              conteudoPopover={conteudoECC}
+            />
+          }
+          rules={[{ required: true, message: "Defina o escore corporal" }]}
+        >
+          <Slider min={1} max={9} marks={opcoesCondicaoCorporal} />
+        </Form.Item>
       )}
 
       <Form.Item name="descricaoDieta" label="Descrição Adicional da Dieta">

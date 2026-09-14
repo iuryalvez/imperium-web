@@ -21,4 +21,5 @@ export const opcoesTipoDieta = [
   { value: 2, label: "Crescimento" },
   { value: 3, label: "Lactação" },
   { value: 4, label: "Gestação" },
+  { value: 5, label: "Emagrecimento" },
 ];

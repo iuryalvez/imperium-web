@@ -1,3 +1,5 @@
+using backend.Domain.SaudeAnimal.Enums;
+
 namespace backend.Domain.AtendimentoAnimal
 {
     public class AnimalCompletoDto
@@ -88,6 +90,9 @@ namespace backend.Domain.AtendimentoAnimal
         public double FatorK { get; set; }
         public double Expoente { get; set; }
         public string? PerfilNutricional { get; set; }
+        public PerfilMetabolico? PerfilMetabolico { get; set; }
+        public double? MultiplicadorEnergeticoCustom { get; set; }
+        public double? PotenciaCustom { get; set; }
         public bool IsCustomizado { get; set; }
         public string FormulaExibicao => $"{FatorK} kcal x (PC em kg)^{Expoente}";
     }
