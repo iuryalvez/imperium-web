@@ -235,7 +235,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
                     dto.PesoAtual, dto.IsLactanteNumeroFilhotes, dto.SemanaLactacao);
 
                 animal.Peso = dto.PesoAtual ?? animal.Peso;
-                animal.PesoIdeal = dto.PesoObjetivo ?? animal.PesoIdeal;
+                animal.PesoIdeal = dto.PesoIdeal ?? animal.PesoIdeal;
 
                 if (dto.TipoDieta == TipoDieta.Crescimento)
                 {
@@ -251,7 +251,10 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 }
 
                 _logger.LogInformation("Animal (após atualização) pronto para cálculo. ID: {AnimalId}, Peso: {Peso}, Nro Filhotes: {NumFilhotes}, Semana Lactação: {SemanaLactacao}",
-            animal.Id, animal.Peso, animal.IsLactanteNumeroFilhotes, animal.SemanaLactacao);
+                    animal.Id, animal.Peso, animal.IsLactanteNumeroFilhotes, animal.SemanaLactacao);
+
+                // Persiste as atualizações do animal no banco de dados para refletir na ficha do paciente
+                await _animalService.UpdateEntityAsync(animal);
 
                 _logger.LogInformation("Delegando cálculo da dieta para o DietaService.");
                 var dieta = await _dietaService.CalcularOuAtualizarDietaAsync(animal, avaliacao, racao, dto);

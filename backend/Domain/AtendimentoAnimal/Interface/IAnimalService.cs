@@ -1,4 +1,5 @@
 using backend.Domain.AtendimentoAnimal.DTOs;
+using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.Usuarios.Interfaces;
 
 namespace backend.Domain.AtendimentoAnimal.Interface
@@ -17,6 +18,7 @@ namespace backend.Domain.AtendimentoAnimal.Interface
         // --- Métodos de Escrita ---
         Task<ServiceResult> CreateAsync(CadastrarAnimalClinicaDto dto, int clinicaId);
         Task<ServiceResult> UpdateAsync(EditarAnimalClinicaDto dto, int clinicaId);
+        Task<ServiceResult> UpdateEntityAsync(Animal animal);
         // Task<ServiceResult> AtualizarEstadoPeloAvaliacaoAsync(int animalId, int clinicaId, UpsertAvaliacaoDto dadosAvaliacao);
         Task<ServiceResult> DesativarVinculoAnimalAsync(int animalId, int clinicaId);
 

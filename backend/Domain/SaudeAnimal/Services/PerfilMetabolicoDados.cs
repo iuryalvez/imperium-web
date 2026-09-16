@@ -9,7 +9,6 @@ namespace backend.Domain.SaudeAnimal.Services
             new()
             {
                 // ----------------- MANUTENÇÃO -----------------
-                { PerfilMetabolico.GatoExotico, ((55 + 260) / 2.0, 0.75, "Gatos exóticos (Média NRC)") },
                 { PerfilMetabolico.GatoDomesticoMagro, (100, 0.67, "Gatos domésticos em adequada condição corporal ou magros (ECC ≤ 5)") },
                 { PerfilMetabolico.GatoDomesticoObeso, (130, 0.40, "Gatos domésticos obesos (ECC > 5)") },
                 { PerfilMetabolico.CaoAtivo, (130, 0.75, "Cães ativos ou de canil (necessidade média)") },
@@ -18,6 +17,10 @@ namespace backend.Domain.SaudeAnimal.Services
                 { PerfilMetabolico.CaoTerrierAdultoAtivo, (180, 0.75, "Cães Terriers adultos e ativos") },
                 { PerfilMetabolico.CaoIdosoAtivo, (105, 0.75, "Cães idosos ativos ou Newfoundlands") },
                 { PerfilMetabolico.CaoInativo, (95, 0.75, "Cães inativos") },
+
+                // ----------------- CRESCIMENTO -----------------
+                { PerfilMetabolico.GatoCrescimentoMedia, (100, 0.67, "Gato em Crescimento (NRC 2006)") },
+                { PerfilMetabolico.CaoCrescimentoMedia, (130, 0.75, "Cão em Crescimento (NRC 2006)") },
             };
 
         public static double CalcularNecessidade(PerfilMetabolico perfil, double peso)

@@ -102,8 +102,8 @@ const FichaGeralAnimal = ({
                 <Text>
                   <strong className="text-verde-escuro">Peso Atual:</strong>{" "}
                   <span className="text-gray-900">
-                    {avaliacaoRecente?.peso
-                      ? `${avaliacaoRecente.peso} kg`
+                    {data?.pesoAtual
+                      ? `${data.pesoAtual} kg`
                       : "Não avaliado"}
                   </span>
                 </Text>

@@ -12,6 +12,7 @@ namespace backend.Domain.AtendimentoAnimal.Interface
         Task<bool> AllAnimalsExistInClinicAsync(List<int> animalIds, int clinicaId);
         Task AddAsync(Animal animal);
         Task AddVinculoClinicaAsync(AnimalClinica vinculo);
+        Task UpdateAsync(Animal animal);
         Task<Animal?> GetByIdAndClinicaIdWithIncludesAsync(int animalId, int clinicaId);
         Task<Animal?> GetHistoricoCompletoAsync(int animalId, int clinicaId);
         void RemoveTutorLinks(IEnumerable<TutorAnimal> links);

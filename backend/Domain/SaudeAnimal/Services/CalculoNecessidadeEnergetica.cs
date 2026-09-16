@@ -65,27 +65,42 @@ namespace backend.Domain.SaudeAnimal.Services
                 }
 
                 var perfil = PerfilMetabolicoResolver.Resolver(animal, dieta);
-                if (perfil == null)
-                {
-                    throw new InvalidOperationException("Não foi possível determinar um perfil metabólico automaticamente. Por favor, selecione um perfil metabólico no formulário.");
-                }
-
-                var (multiplicador, potencia, descricao) = PerfilMetabolicoDados.Dados[perfil.Value];
+                
+                double multiplicador = 0;
+                double potencia = 0;
+                string descricao = "Perfil Customizado";
 
                 dieta.IsCustomizado = false;
 
-                // Permite o multiplicador customizado se o usuário informar
-                if (dieta.MultiplicadorEnergeticoCustom.HasValue)
+                if (dieta.MultiplicadorEnergeticoCustom.HasValue && dieta.PotenciaCustom.HasValue)
                 {
                     multiplicador = dieta.MultiplicadorEnergeticoCustom.Value;
-                    dieta.IsCustomizado = true;
-                }
-
-                // Permite a potência customizada se o usuário informar
-                if (dieta.PotenciaCustom.HasValue)
-                {
                     potencia = dieta.PotenciaCustom.Value;
                     dieta.IsCustomizado = true;
+                    if (perfil.HasValue) 
+                    {
+                        // Se tinha um perfil selecionado, tentamos pegar o nome para compor a descrição
+                        if (PerfilMetabolicoDados.Dados.TryGetValue(perfil.Value, out var dados))
+                        {
+                            descricao = $"{dados.descricao} (Customizado)";
+                        }
+                    }
+                }
+                else
+                {
+                    if (perfil == null)
+                    {
+                        throw new InvalidOperationException("Não foi possível determinar um perfil metabólico automaticamente e nenhum valor customizado completo (K e P) foi informado. Por favor, selecione um perfil metabólico ou preencha a customização.");
+                    }
+
+                    if (!PerfilMetabolicoDados.Dados.TryGetValue(perfil.Value, out var dados))
+                    {
+                        throw new InvalidOperationException($"O perfil '{perfil}' exige customização obrigatória (K e P), pois é uma faixa de variação.");
+                    }
+
+                    multiplicador = dados.multiplicador;
+                    potencia = dados.potencia;
+                    descricao = dados.descricao;
                 }
 
                 _logger.LogInformation("Perfil metabólico resolvido: {Perfil}. Multiplicador final: {Multiplicador}, Potência padrão: {Potencia}.",
@@ -128,13 +143,22 @@ namespace backend.Domain.SaudeAnimal.Services
                 double PCa = animal.Peso.Value;
                 double PCm;
 
-                if (animal.PesoMaximo.HasValue && animal.PesoMaximo > 0)
+                // Priority: 1. dieta.PesoObjetivo, 2. animal.PesoIdeal, 3. pesoMedio, 4. animal.PesoMaximo
+                if (dieta.PesoObjetivo.HasValue && dieta.PesoObjetivo > 0)
                 {
-                    PCm = animal.PesoMaximo.Value;
+                    PCm = dieta.PesoObjetivo.Value;
                 }
-                else if (animal.Raca != null && pesoMedio.HasValue)
+                else if (animal.PesoIdeal.HasValue && animal.PesoIdeal > 0)
+                {
+                    PCm = animal.PesoIdeal.Value;
+                }
+                else if (pesoMedio.HasValue && pesoMedio > 0)
                 {
                     PCm = pesoMedio.Value;
+                }
+                else if (animal.PesoMaximo.HasValue && animal.PesoMaximo > 0)
+                {
+                    PCm = animal.PesoMaximo.Value;
                 }
                 else
                 {
@@ -146,25 +170,62 @@ namespace backend.Domain.SaudeAnimal.Services
                 double p = PCa / PCm;
                 double necessidadeKcal;
 
+                var perfil = PerfilMetabolicoResolver.Resolver(animal, dieta);
+                
+                double multiplicador = 0;
+                double potencia = 0;
+                string descricao = $"Crescimento ({animal.Especie} - Customizado)";
+
+                dieta.IsCustomizado = false;
+
+                if (dieta.MultiplicadorEnergeticoCustom.HasValue && dieta.PotenciaCustom.HasValue)
+                {
+                    multiplicador = dieta.MultiplicadorEnergeticoCustom.Value;
+                    potencia = dieta.PotenciaCustom.Value;
+                    dieta.IsCustomizado = true;
+                    if (perfil.HasValue) 
+                    {
+                        if (PerfilMetabolicoDados.Dados.TryGetValue(perfil.Value, out var dados))
+                        {
+                            descricao = $"{dados.descricao} (Customizado)";
+                        }
+                    }
+                }
+                else
+                {
+                    if (perfil == null)
+                    {
+                        throw new InvalidOperationException("Não foi possível determinar um perfil metabólico para crescimento automaticamente e nenhum valor customizado completo (K e P) foi informado. Por favor, selecione um perfil ou preencha a customização.");
+                    }
+
+                    if (!PerfilMetabolicoDados.Dados.TryGetValue(perfil.Value, out var dados))
+                    {
+                        throw new InvalidOperationException($"O perfil '{perfil}' exige customização obrigatória (K e P).");
+                    }
+
+                    multiplicador = dados.multiplicador;
+                    potencia = dados.potencia;
+                    descricao = dados.descricao;
+                }
+
                 switch (animal.Especie)
                 {
                     case EspecieAnimal.Gato:
-                        var pesoMetabolicoGato = Math.Pow(PCa, 0.67);
-                        necessidadeKcal = 100 * pesoMetabolicoGato * 6.7 * (Math.Exp(-0.189 * p) - 0.66);
+                        var pesoMetabolicoGato = Math.Pow(PCa, potencia);
+                        necessidadeKcal = multiplicador * pesoMetabolicoGato * 6.7 * (Math.Exp(-0.189 * p) - 0.66);
                         break;
                     case EspecieAnimal.Cao:
-                        var pesoMetabolicoCao = Math.Pow(PCa, 0.75);
-                        necessidadeKcal = 130 * pesoMetabolicoCao * 3.2 * (Math.Exp(-0.87 * p) - 0.1);
+                        var pesoMetabolicoCao = Math.Pow(PCa, potencia);
+                        necessidadeKcal = multiplicador * pesoMetabolicoCao * 3.2 * (Math.Exp(-0.87 * p) - 0.1);
                         break;
                     default:
                         throw new InvalidOperationException($"Espécie '{animal.Especie}' não suportada para cálculo de crescimento.");
                 }
 
                 // Injeta transparência para Crescimento
-                dieta.FatorK = animal.Especie == EspecieAnimal.Cao ? 130 : 100;
-                dieta.Expoente = animal.Especie == EspecieAnimal.Cao ? 0.75 : 0.67;
-                dieta.PerfilNutricional = $"Crescimento ({animal.Especie} - NRC 2006)";
-                dieta.IsCustomizado = false;
+                dieta.FatorK = multiplicador;
+                dieta.Expoente = potencia;
+                dieta.PerfilNutricional = descricao;
 
                 var resultadoFinal = Math.Max(necessidadeKcal, 0);
                 var resultadoArredondado = Math.Round(resultadoFinal, 3);

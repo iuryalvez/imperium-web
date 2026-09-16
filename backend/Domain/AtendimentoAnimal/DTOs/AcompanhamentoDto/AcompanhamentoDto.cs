@@ -94,6 +94,5 @@ namespace backend.Domain.AtendimentoAnimal
         public double? MultiplicadorEnergeticoCustom { get; set; }
         public double? PotenciaCustom { get; set; }
         public bool IsCustomizado { get; set; }
-        public string FormulaExibicao => $"{FatorK} kcal x (PC em kg)^{Expoente}";
     }
 }

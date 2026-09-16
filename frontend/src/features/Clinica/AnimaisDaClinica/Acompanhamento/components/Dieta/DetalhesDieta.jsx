@@ -16,6 +16,7 @@ import {
   CalculatorOutlined,
   InfoCircleOutlined,
 } from "@ant-design/icons";
+import FormulaPreview from "./components/FormulaPreview";
 
 const { Text } = Typography;
 
@@ -75,7 +76,7 @@ const conteudoTodasFormulas = (
   </div>
 );
 
-const DetalhesDieta = ({ dieta }) => {
+const DetalhesDieta = ({ dieta, isGato }) => {
   if (!dieta) return null;
 
   // Fallbacks de segurança para compatibilidade entre os nomes de propriedades (DTO vs Frontend)
@@ -84,37 +85,8 @@ const DetalhesDieta = ({ dieta }) => {
   const gramas = dieta.quantidadeAlimentoGramas ?? dieta.qtdAlimento ?? 0;
   const racao = dieta.racaoUtilizada ?? dieta.nomeRacao ?? "Não informada";
 
-  // Função para renderizar a fórmula formatada com tipografia correta e expoente elevado
-  const renderFormulaFormatada = () => {
-    if (dieta.fatorK && dieta.expoente) {
-      const expoentePTBR = String(dieta.expoente).replace(".", ",");
-      return (
-        <span>
-          {dieta.fatorK} kcal × (PC em kg)<sup>{expoentePTBR}</sup>
-        </span>
-      );
-    }
-
-    if (dieta.formulaExibicao) {
-      const partes = dieta.formulaExibicao.split("^");
-      if (partes.length === 2) {
-        return (
-          <span>
-            {partes[0].replace(" x ", " × ")}
-            <sup>{partes[1]}</sup>
-          </span>
-        );
-      }
-      return dieta.formulaExibicao;
-    }
-
-    return null;
-  };
-
   const formatadorDuasCasas = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const formatadorUmaCasa = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-
-  const formulaFormatada = renderFormulaFormatada();
 
   return (
     <div>
@@ -160,34 +132,30 @@ const DetalhesDieta = ({ dieta }) => {
       </Row>
 
       {/* 2. Transparência do Cálculo (Explainable Algorithm) */}
-      {(dieta.perfilNutricional || formulaFormatada) && (
+      {dieta.perfilNutricional && (
         <div className="my-4 p-3 bg-gray-50 border border-gray-200 rounded-md">
           <div className="flex items-center gap-1 text-[var(--verde-escuro)] font-semibold mb-1 text-xs uppercase tracking-wider">
             <CalculatorOutlined />
             <span>Perfil Metabólico</span>
           </div>
 
-          <Text className="block text-sm text-gray-700 font-medium mb-2">
+          <Text className="block text-sm text-gray-700 font-medium mb-3">
             {dieta.isCustomizado 
               ? "Fórmula Customizada" 
               : (dieta.perfilNutricional || "Cálculo padrão baseado na literatura")}
           </Text>
 
-          <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-gray-200 text-xs text-gray-600">
-            {formulaFormatada && (
-              <span className="flex items-center gap-1">
-                <strong>Fórmula: </strong>
-                <Tag color="blue" className="m-0 font-mono text-xs px-2 py-0.5">
-                  {formulaFormatada}
-                </Tag>
-              </span>
-            )}
-            {dieta.pesoAtual && (
-              <span>
-                <strong>Peso Utilizado: </strong>
-                {dieta.pesoAtual} kg
-              </span>
-            )}
+          <div className="pt-2 border-t border-gray-200 mt-2">
+            <FormulaPreview
+              tipoDieta={dieta.tipoDieta}
+              isGato={isGato}
+              isCustomizado={true} // Força true para usar os valores exatos calculados no backend
+              multiplicadorCustom={dieta.fatorK}
+              potenciaCustom={dieta.expoente}
+              pesoAtual={dieta.pesoAtual}
+              pesoObjetivo={dieta.pesoObjetivo}
+              perfilMetabolicoLabel={dieta.perfilNutricional}
+            />
           </div>
         </div>
       )}

@@ -88,6 +88,13 @@ public class AnimalService : IAnimalService
         return new ServiceResult { Succeeded = true, Data = dtos };
     }
 
+    public async Task<ServiceResult> UpdateEntityAsync(Animal animal)
+    {
+        await _animalRepository.UpdateAsync(animal);
+        await _animalRepository.SaveChangesAsync();
+        return new ServiceResult { Succeeded = true, Message = "Animal atualizado com sucesso." };
+    }
+
     /// <summary>
     /// Obtém os detalhes de um animal específico em formato DTO, validando o acesso pela clínica.
     /// </summary>

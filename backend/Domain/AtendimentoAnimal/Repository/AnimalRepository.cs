@@ -118,6 +118,12 @@ namespace backend.Infra.Data.Repositories
             await _context.Animais.AddAsync(animal);
         }
 
+        public Task UpdateAsync(Animal animal)
+        {
+            _context.Animais.Update(animal);
+            return Task.CompletedTask;
+        }
+
         public async Task AddVinculoClinicaAsync(AnimalClinica vinculo)
         {
             await _context.AnimaisClinicas.AddAsync(vinculo);

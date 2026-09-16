@@ -44,13 +44,13 @@ namespace backend.Domain.SaudeAnimal.Enums
         CaoIdosoAtivo = 9,
 
         // CRESCIMENTO
-        [Display(Name = "Gato em Crescimento")]
+        [Display(Name = "Gato em Crescimento - Necessidade Média (100 × PC^0,67 × 6,7 × [e^-(0,189p)-0,66])")]
         [TipoDietaRef(TipoDieta.Crescimento)]
-        GatoCrescimento,
+        GatoCrescimentoMedia,
 
-        [Display(Name = "Cão em Crescimento")]
+        [Display(Name = "Cão em Crescimento - Necessidade Média (130 × PC^0,75 × 3,2 × [e^-(0,87p)-0,1])")]
         [TipoDietaRef(TipoDieta.Crescimento)]
-        CaoCrescimento,
+        CaoCrescimentoMedia,
 
         // LACTAÇÃO
         [Display(Name = "Gato em Lactação")]

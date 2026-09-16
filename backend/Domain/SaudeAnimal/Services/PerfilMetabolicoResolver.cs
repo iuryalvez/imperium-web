@@ -18,10 +18,9 @@ namespace backend.Domain.SaudeAnimal.Services
                     return ResolverManutencao(animal);
 
                 case TipoDieta.Crescimento:
-                    // TODO: implementar no futuro
                     return animal.Especie == EspecieAnimal.Gato
-                        ? PerfilMetabolico.GatoCrescimento
-                        : PerfilMetabolico.CaoCrescimento;
+                        ? PerfilMetabolico.GatoCrescimentoMedia
+                        : PerfilMetabolico.CaoCrescimentoMedia;
 
                 case TipoDieta.Lactacao:
                     // TODO: implementar no futuro

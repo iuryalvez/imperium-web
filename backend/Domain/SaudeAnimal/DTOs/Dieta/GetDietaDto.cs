@@ -22,9 +22,7 @@ namespace backend.Domain.SaudeAnimal.DTOs.Dieta
         public double Expoente { get; set; }
         public string PerfilNutricional { get; set; } = string.Empty;
         public PerfilMetabolico? PerfilMetabolico { get; set; }
+        public double? PotenciaCustom { get; set; }
         public bool IsCustomizado { get; set; }
-
-        // Propriedade computada para facilitar a exibição no Frontend
-        public string FormulaExibicao => $"{FatorK} kcal x (PC em kg)^{Expoente}";
     }
 }

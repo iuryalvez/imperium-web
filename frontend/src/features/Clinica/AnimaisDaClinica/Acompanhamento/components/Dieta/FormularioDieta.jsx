@@ -9,21 +9,18 @@ import {
   Alert,
   Divider,
   Tag,
-  Checkbox,
 } from "antd";
 import { useWatch } from "antd/es/form/Form";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import { message } from "antd";
 
-import { colors } from "../../../../../../theme/colors";
 import { acompanhamentoAPI } from "../../../../../../api/clinica/acompanhamentoAPI";
-import FormManutencao from "./FormManutencao";
-import FormCrescimento from "./FormCrescimento";
-import FormLactacao from "./FormLactacao";
-import FormGestacao from "./FormGestacao";
-import LabelComInfo from "../../../../../../components/atoms/LabelComInfo";
+import FormManutencao from "./components/FormManutencao";
+import FormCrescimento from "./components/FormCrescimento";
+import FormLactacao from "./components/FormLactacao";
+import FormGestacao from "./components/FormGestacao";
 
-const opcoesTipoDieta = [
+const opcoesTipoDietaBase = [
   { value: 1, label: "Manutenção" },
   { value: 2, label: "Crescimento" },
   { value: 3, label: "Lactação" },
@@ -31,14 +28,14 @@ const opcoesTipoDieta = [
   { value: 5, label: "Emagrecimento" },
 ];
 
-const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
+const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca, dadosAnimal }) => {
   const [form] = Form.useForm();
   const tipoDietaSelecionado = useWatch("tipoDieta", form);
   
   const isCustomizado = useWatch("isCustomizado", form);
-  const multiplicadorCustom = useWatch("multiplicadorEnergeticoCustom", form);
-  const potenciaCustom = useWatch("potenciaCustom", form);
-  const pesoAtualWatch = useWatch("pesoAtual", form);
+  // const multiplicadorCustom = useWatch("multiplicadorEnergeticoCustom", form);
+  // const potenciaCustom = useWatch("potenciaCustom", form);
+  // const pesoAtualWatch = useWatch("pesoAtual", form);
 
   const isGato =
     initialValues?.especieAnimal === 2 ||
@@ -64,9 +61,29 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
     fetchPerfis();
   }, []);
 
+  const perfilSelecionadoId = useWatch("perfilMetabolico", form);
+
+  useEffect(() => {
+    if (perfilSelecionadoId === 1) {
+      form.setFieldValue("isCustomizado", true);
+    }
+  }, [perfilSelecionadoId, form]);
+
   useEffect(() => {
     if (isCustomizado) {
-      form.setFieldValue("perfilMetabolico", undefined);
+      const currentPerfil = form.getFieldValue("perfilMetabolico");
+      if (currentPerfil !== 1) {
+        form.setFieldValue("perfilMetabolico", undefined);
+      }
+    } else {
+      const currentPerfil = form.getFieldValue("perfilMetabolico");
+      if (currentPerfil === 1) {
+        form.setFieldValue("perfilMetabolico", undefined);
+      }
+      form.setFieldsValue({
+        multiplicadorEnergeticoCustom: undefined,
+        potenciaCustom: undefined,
+      });
     }
   }, [isCustomizado, form]);
 
@@ -77,6 +94,7 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
         Crescimento: 2,
         Lactacao: 3,
         Gestacao: 4,
+        Emagrecimento: 5,
       };
 
       let parsedTipoDieta = initialValues.tipoDieta;
@@ -102,6 +120,38 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
   const racoesOptions =
     racoes?.map((r) => ({ label: r.nome, value: r.id })) || [];
 
+  const getFilteredOpcoesTipoDieta = () => {
+    let filtered = [...opcoesTipoDietaBase];
+
+    if (dadosAnimal) {
+      const sexo = dadosAnimal.sexo?.toLowerCase();
+      // Em C# a enum FaseVidaAnimal: Desconhecida(0), Filhote(1), Jovem(2), Adulto(3), Senior(4), Geriatrico(5)
+      // O DTO stringifica para: "Adulto", "Senior", "Filhote", etc.
+      const faseVida = dadosAnimal.faseVidaAtual?.toLowerCase() || "";
+
+      if (sexo === "macho") {
+        filtered = filtered.filter((o) => o.value !== 3 && o.value !== 4); // Remove Lactação e Gestação
+      }
+
+      if (
+        faseVida.includes("adulto") ||
+        faseVida.includes("senior") ||
+        faseVida.includes("sênior") ||
+        faseVida.includes("geriatrico") ||
+        faseVida.includes("geriátrico")
+      ) {
+        filtered = filtered.filter((o) => o.value !== 2); // Remove Crescimento
+      }
+
+      if (faseVida.includes("filhote")) {
+        filtered = filtered.filter((o) => o.value !== 1 && o.value !== 5); // Remove Manutenção e Emagrecimento
+      }
+    }
+    return filtered;
+  };
+
+  const opcoesTipoDieta = getFilteredOpcoesTipoDieta();
+
   const renderSpecificForm = () => {
     const perfisFiltrados = perfisMetabolicos.filter((p) => {
       const isPerfilGato = p.label.toLowerCase().includes("gato");
@@ -119,10 +169,18 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
             especie={initialValues?.especieAnimal} // 0/1 ou 'Cao'/'Gato' dependendo do seu DTO
             perfis={perfisFiltrados}
             loading={loadingPerfis}
+            tipoDietaSelecionado={tipoDietaSelecionado}
           />
         );
       case 2:
-        return <FormCrescimento />;
+        return (
+          <FormCrescimento
+            form={form}
+            perfis={perfisFiltrados}
+            loading={loadingPerfis}
+            especie={initialValues?.especieAnimal}
+          />
+        );
       case 3:
         return <FormLactacao />;
       case 4:
@@ -220,7 +278,7 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
       )}
 
       <Row gutter={16}>
-        <Col span={12}>
+        <Col span={24}>
           <Form.Item
             name="pesoAtual"
             label="Peso Atual (kg)"
@@ -229,28 +287,8 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
             <InputNumber
               style={{ width: "100%" }}
               placeholder="Ex: 15,0"
-              min={0}
-              step={0.01}
-              decimalSeparator=","
-            />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            name="pesoIdeal"
-            label={
-              <LabelComInfo
-                label="Peso Referência / Ideal (kg)"
-                tituloPopover="Peso Referência / Ideal"
-                conteudoPopover="Ficará salvo no cadastro do paciente e será a nova base para os cálculos energéticos, sobrescrevendo a raça."
-              />
-            }
-          >
-            <InputNumber
-              placeholder="Ex: 15,0"
-              style={{ width: "100%" }}
-              min={0}
+              min={0.01}
+              max={300}
               step={0.01}
               decimalSeparator=","
             />
@@ -259,75 +297,6 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca }) => {
       </Row>
 
       <div className="mt-2">{renderSpecificForm()}</div>
-
-      <Divider orientation="left" className="mt-4 mb-4 text-gray-500 text-sm">
-        Customização do Perfil Metabólico (Opcional)
-      </Divider>
-
-      <Form.Item name="isCustomizado" valuePropName="checked" className="mb-2">
-        <Checkbox>
-          Desejo personalizar o Multiplicador (K) e a Potência (P) da fórmula NRC
-        </Checkbox>
-      </Form.Item>
-
-      {isCustomizado && (
-        <div
-          className="p-3 rounded-md mb-4 text-center font-mono"
-          style={{
-            backgroundColor: colors.verde.fraco,
-            borderColor: colors.verde.claro,
-            borderWidth: 1,
-            borderStyle: "solid",
-            color: colors.verde.escuro,
-          }}
-        >
-          <strong>Fórmula que será utilizada: </strong>
-          {multiplicadorCustom || "K"} × ({pesoAtualWatch || "Peso"}kg)<sup>{potenciaCustom || "P"}</sup>
-        </div>
-      )}
-
-      {isCustomizado && (
-        <Row gutter={16}>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="multiplicadorEnergeticoCustom"
-              label={
-                <LabelComInfo
-                  label="Multiplicador Customizado (K)"
-                  tituloPopover="Fator Customizado"
-                  conteudoPopover="Personaliza o multiplicador K na fórmula. Ex: Para gatos exóticos pode variar de 55 a 260."
-                />
-              }
-            >
-              <InputNumber
-                placeholder="Ex: 130"
-                style={{ width: "100%" }}
-                step={0.5}
-                decimalSeparator=","
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="potenciaCustom"
-              label={
-                <LabelComInfo
-                  label="Potência Customizada (P)"
-                  tituloPopover="Potência Customizada"
-                  conteudoPopover="Sobrescreve a potência P da fórmula selecionada (Geralmente 0,75 para cães ou 0,67 para gatos)."
-                />
-              }
-            >
-              <InputNumber
-                placeholder="Ex: 0,75"
-                style={{ width: "100%" }}
-                step={0.01}
-                decimalSeparator=","
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-      )}
 
       <Form.Item name="observacoes" label="Observações da Dieta">
         <Input.TextArea

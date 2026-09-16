@@ -10,7 +10,6 @@ import {
   Col,
   Divider,
   message,
-  Typography,
 } from "antd";
 import { racoesDaClinicaAPI } from "../../../../../../api/clinica/racoesDaClinicaAPI";
 import {
@@ -19,8 +18,6 @@ import {
   opcoesTipoDieta,
 } from "./opcoesAvaliacao";
 import LabelComInfo from "../../../../../../components/atoms/LabelComInfo";
-
-const { Text } = Typography;
 
 const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
   const [form] = Form.useForm();
@@ -229,6 +226,33 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
     </div>
   );
 
+  const getFilteredOpcoesTipoDieta = () => {
+    let filtered = [...opcoesTipoDieta];
+    if (data) {
+      if (!isFemea) {
+        filtered = filtered.filter((o) => o.value !== 3 && o.value !== 4); // Remove Lactação e Gestação
+      }
+
+      const faseVida = String(data.faseVidaAtual || "").toLowerCase();
+      if (
+        faseVida.includes("adulto") ||
+        faseVida.includes("senior") ||
+        faseVida.includes("sênior") ||
+        faseVida.includes("geriatrico") ||
+        faseVida.includes("geriátrico")
+      ) {
+        filtered = filtered.filter((o) => o.value !== 2); // Remove Crescimento
+      }
+
+      if (faseVida.includes("filhote")) {
+        filtered = filtered.filter((o) => o.value !== 1 && o.value !== 5); // Remove Manutenção e Emagrecimento
+      }
+    }
+    return filtered;
+  };
+
+  const opcoesTipoDietaFiltradas = getFilteredOpcoesTipoDieta();
+
   return (
     <Form
       id="form-avaliacao-consulta-clinica"
@@ -243,7 +267,8 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
             <InputNumber
               placeholder="Ex: 9,87"
               style={{ width: "100%" }}
-              min={0}
+              min={0.01}
+              max={300}
               step={0.01}
               decimalSeparator=","
             />
@@ -303,7 +328,7 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
             ]}
           >
             <Select
-              options={opcoesTipoDieta}
+              options={opcoesTipoDietaFiltradas}
               placeholder="Selecione o tipo da dieta"
             />
           </Form.Item>
@@ -356,6 +381,7 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
                   <InputNumber
                     style={{ width: "100%" }}
                     min={1}
+                    max={20}
                     placeholder="Nº de semanas"
                   />
                 </Form.Item>
@@ -387,6 +413,7 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
                     <InputNumber
                       style={{ width: "100%" }}
                       min={1}
+                      max={30}
                       placeholder="Quantos filhotes?"
                     />
                   </Form.Item>
@@ -394,6 +421,7 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
                     <InputNumber
                       style={{ width: "100%" }}
                       min={1}
+                      max={20}
                       placeholder="Nº de semanas"
                     />
                   </Form.Item>

@@ -147,6 +147,11 @@ namespace backend.Domain.SaudeAnimal.Services
                 // Sincroniza o animal em memória se houver novas propriedades no DTO
                 animal.Peso = createDto.PesoAtual ?? animal.Peso;
                 animal.PesoIdeal = createDto.PesoIdeal ?? animal.PesoIdeal;
+                if (createDto.TipoDieta == TipoDieta.Crescimento)
+                {
+                    animal.PesoMaximo = createDto.PesoObjetivo ?? animal.PesoMaximo;
+                    animal.PesoMinimo = createDto.PesoObjetivo ?? animal.PesoMinimo;
+                }
                 if (createDto.TipoDieta == TipoDieta.Lactacao)
                 {
                     animal.IsLactanteNumeroFilhotes = createDto.IsLactanteNumeroFilhotes ?? animal.IsLactanteNumeroFilhotes;

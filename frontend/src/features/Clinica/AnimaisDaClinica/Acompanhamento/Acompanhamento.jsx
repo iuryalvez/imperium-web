@@ -1,7 +1,21 @@
 import React from "react";
-import { Skeleton, Result, Button, Tabs, Modal, Space, Popconfirm, Tooltip } from "antd";
+import {
+  Skeleton,
+  Result,
+  Button,
+  Modal,
+  Space,
+  Popconfirm,
+  Tooltip,
+} from "antd";
 import { Link } from "react-router-dom";
-import { FormOutlined, EditOutlined, ProfileOutlined, FileTextOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  FormOutlined,
+  EditOutlined,
+  ProfileOutlined,
+  FileTextOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import { useAcompanhamentoManager } from "./useAcompanhamentoManager";
 import ListaConsultasCards from "./components/ListaConsultasCards";
 import FormularioDieta from "./components/Dieta/FormularioDieta";
@@ -53,7 +67,7 @@ const Acompanhamento = () => {
     handleSubmitEditAnimal,
   } = useAcompanhamentoManager();
 
-  console.log('[Acompanhamento] historico: ', historico);
+  console.log("[Acompanhamento] historico: ", historico);
 
   if (loading) {
     return <Skeleton active paragraph={{ rows: 8 }} />;
@@ -77,10 +91,13 @@ const Acompanhamento = () => {
   // Extrai a avaliação e a dieta mais recentes a partir do histórico de consultas
   const consultas = historico.consultas || [];
   const avaliacaoMaisRecente = consultas.find((c) => c.avaliacao)?.avaliacao;
-  const dietaMaisRecente = consultas.find((c) => c.avaliacao?.dieta)?.avaliacao.dieta;
+  const dietaMaisRecente = consultas.find((c) => c.avaliacao?.dieta)?.avaliacao
+    .dieta;
 
   const isGato = historico?.especie?.toLowerCase() === "gato";
-  const isFemea = historico?.sexo?.toLowerCase() === "fêmea" || historico?.sexo?.toLowerCase() === "femea";
+  const isFemea =
+    historico?.sexo?.toLowerCase() === "fêmea" ||
+    historico?.sexo?.toLowerCase() === "femea";
 
   const especieInt = isGato ? 2 : 1;
   const sexoInt = isFemea ? 2 : 1;
@@ -94,7 +111,7 @@ const Acompanhamento = () => {
         onOpenDieta={handleOpenModalVisualizarDieta}
         onEditAnimal={handleOpenEditAnimalModal}
       />
-      
+
       <div>
         <h2 className="text-xl font-semibold text-verde-escuro mb-4">
           Consultas
@@ -121,7 +138,11 @@ const Acompanhamento = () => {
         destroyOnClose
       >
         <FormularioConsulta
-          initialValues={{ dataConsulta: consultaToEdit?.dataConsulta, animalId: historico?.id, tutorId: consultaToEdit?.tutorId }}
+          initialValues={{
+            dataConsulta: consultaToEdit?.dataConsulta,
+            animalId: historico?.id,
+            tutorId: consultaToEdit?.tutorId,
+          }}
           onFinish={handleSubmitConsulta}
         />
       </Modal>
@@ -156,7 +177,8 @@ const Acompanhamento = () => {
           <Space>
             <FileTextOutlined className="modal-title-icon" />
             <span className="text-verde-escuro m-0 text-lg">
-              Avaliação da Consulta - {selectedConsulta?.nomeAnimal || historico?.nome}
+              Avaliação da Consulta -{" "}
+              {selectedConsulta?.nomeAnimal || historico?.nome}
             </span>
           </Space>
         }
@@ -168,7 +190,13 @@ const Acompanhamento = () => {
             <Button onClick={handleCloseAvaliacaoModal}>Cancelar</Button>
 
             {avaliacaoData && (
-              <Tooltip title={!!avaliacaoData.dieta ? "Não é possível excluir uma avaliação com dieta preenchida" : ""}>
+              <Tooltip
+                title={
+                  !!avaliacaoData.dieta
+                    ? "Não é possível excluir uma avaliação com dieta preenchida"
+                    : ""
+                }
+              >
                 <div>
                   <Popconfirm
                     title="Excluir relatório"
@@ -178,7 +206,11 @@ const Acompanhamento = () => {
                     cancelText="Cancelar"
                     disabled={!!avaliacaoData.dieta}
                   >
-                    <Button icon={<DeleteOutlined />} danger disabled={!!avaliacaoData.dieta}>
+                    <Button
+                      icon={<DeleteOutlined />}
+                      danger
+                      disabled={!!avaliacaoData.dieta}
+                    >
                       Excluir
                     </Button>
                   </Popconfirm>
@@ -203,7 +235,12 @@ const Acompanhamento = () => {
             <Skeleton active />
           ) : (
             <FormularioAvaliacao
-              data={ { ...selectedConsulta, especieAnimal: especieInt, sexoAnimal: sexoInt } }
+              data={{
+                ...selectedConsulta,
+                especieAnimal: especieInt,
+                sexoAnimal: sexoInt,
+                faseVidaAtual: historico.faseVidaAtual,
+              }}
               initialValues={avaliacaoData}
               onFinish={handleSubmitAvaliacao}
             />
@@ -224,11 +261,15 @@ const Acompanhamento = () => {
       >
         {avaliacaoSelecionado && (
           <FormularioDieta
-            initialValues={{ ...avaliacaoSelecionado, especieAnimal: especieInt }}
+            initialValues={{
+              ...avaliacaoSelecionado,
+              especieAnimal: especieInt,
+            }}
             onFinish={handleCriarDieta}
             avaliacaoId={avaliacaoSelecionado.id}
             racoes={racoes}
             dadosRaca={historico?.raca}
+            dadosAnimal={historico}
           />
         )}
       </ModalPadrao>
@@ -247,10 +288,15 @@ const Acompanhamento = () => {
         {dietaParaEditar && avaliacaoSelecionado && (
           <FormularioDieta
             onFinish={handleEditarDieta}
-            initialValues={{ ...avaliacaoSelecionado, ...dietaParaEditar, especieAnimal: especieInt }}
+            initialValues={{
+              ...avaliacaoSelecionado,
+              ...dietaParaEditar,
+              especieAnimal: especieInt,
+            }}
             avaliacaoId={dietaParaEditar.avaliacaoId || avaliacaoSelecionado.id}
             racoes={racoes}
             dadosRaca={historico?.raca}
+            dadosAnimal={historico}
           />
         )}
       </ModalPadrao>
@@ -264,7 +310,7 @@ const Acompanhamento = () => {
         icon={<ProfileOutlined />}
         width="min(600px, 95vw)"
       >
-        {dietaParaVisualizar && <DetalhesDieta dieta={dietaParaVisualizar} />}
+        {dietaParaVisualizar && <DetalhesDieta dieta={dietaParaVisualizar} isGato={isGato} />}
       </ModalPadrao>
     </div>
   );
