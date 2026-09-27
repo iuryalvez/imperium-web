@@ -21,6 +21,9 @@ namespace backend.Domain.SaudeAnimal.Services
                 // ----------------- CRESCIMENTO -----------------
                 { PerfilMetabolico.GatoCrescimentoMedia, (100, 0.67, "Gato em Crescimento (NRC 2006)") },
                 { PerfilMetabolico.CaoCrescimentoMedia, (130, 0.75, "Cão em Crescimento (NRC 2006)") },
+
+                // ----------------- GESTAÇÃO -----------------
+                { PerfilMetabolico.CaoGestacaoFinal, (130, 0.75, "Cão em Gestação (Fase Final + 26 × PC)") },
             };
 
         public static double CalcularNecessidade(PerfilMetabolico perfil, double peso)

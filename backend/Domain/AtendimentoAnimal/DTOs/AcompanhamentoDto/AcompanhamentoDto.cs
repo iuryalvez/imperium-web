@@ -16,6 +16,9 @@ namespace backend.Domain.AtendimentoAnimal
         public double? PesoAtual { get; set; }
         public string CondicaoCorporalAtual { get; set; }
         public string CondicaoCorporalAtualLabel { get; set; } = string.Empty;
+        public int? IsLactanteNumeroFilhotes { get; set; }
+        public int? SemanaLactacao { get; set; }
+        public int? SemanaGestacao { get; set; }
 
         public RacaResumidaDto Raca { get; set; }
         public List<TutorResumidoDto>? Tutores { get; set; }
@@ -94,5 +97,6 @@ namespace backend.Domain.AtendimentoAnimal
         public double? MultiplicadorEnergeticoCustom { get; set; }
         public double? PotenciaCustom { get; set; }
         public bool IsCustomizado { get; set; }
+        public bool AdicionalGestacao { get; set; }
     }
 }

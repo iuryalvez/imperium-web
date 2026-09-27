@@ -36,5 +36,7 @@ namespace backend.Domain.SaudeAnimal.Entities
         public int? DuracaoEstimada { get; set; }
         public string? Observacoes { get; set; }
         public FaseVidaAnimal? FaseVida { get; set; }
+
+        public bool AdicionalGestacao { get; set; }
     }
 }

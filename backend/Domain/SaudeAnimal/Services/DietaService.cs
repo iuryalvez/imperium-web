@@ -58,6 +58,7 @@ namespace backend.Domain.SaudeAnimal.Services
             dietaExistente.PerfilMetabolico = dto.PerfilMetabolico;
             dietaExistente.MultiplicadorEnergeticoCustom = dto.MultiplicadorEnergeticoCustom;
             dietaExistente.PotenciaCustom = dto.PotenciaCustom;
+            dietaExistente.AdicionalGestacao = dto.AdicionalGestacao ?? false;
 
             // 4. CHAMAR O CÁLCULO PASSANDO A ENTIDADE DO BANCO
             double necessidadeKcal = _calculoService.CalcularNecessidadeTotal(animal, dietaExistente);
@@ -76,7 +77,6 @@ namespace backend.Domain.SaudeAnimal.Services
             dietaExistente.QtdAlimento = Math.Round(quantidadeGramas, 2);
             dietaExistente.DataCriacao = DateOnly.FromDateTime(DateTime.UtcNow);
 
-            // 7. Salvar no banco (Agora os dados de transparência estão dentro de dietaExistente!)
             await _dietaRepository.SaveChangesAsync();
             _logger.LogInformation("Dieta ID {DietaId} salva com sucesso para o animal {AnimalId}.", dietaExistente.Id, animal.Id);
 
@@ -156,6 +156,10 @@ namespace backend.Domain.SaudeAnimal.Services
                 {
                     animal.IsLactanteNumeroFilhotes = createDto.IsLactanteNumeroFilhotes ?? animal.IsLactanteNumeroFilhotes;
                     animal.SemanaLactacao = createDto.SemanaLactacao ?? animal.SemanaLactacao;
+                }
+                if (createDto.TipoDieta == TipoDieta.Gestacao)
+                {
+                    animal.SemanaGestacao = createDto.SemanaGestacao ?? animal.SemanaGestacao;
                 }
 
                 // Delega para o método principal (que agora atualiza a entidade corretamente)

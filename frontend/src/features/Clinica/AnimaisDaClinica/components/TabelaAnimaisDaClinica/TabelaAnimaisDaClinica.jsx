@@ -75,7 +75,7 @@ const TabelaAnimais = ({
                 icon={<LineChartOutlined />}
                 onClick={() => onNavigateToAcompanhamento(record.acompanhamentoId)}
                 disabled={isCurrentRowLoading || record.acompanhamentoId == null}
-              />
+              ></Button>
             </Tooltip>
             <Tooltip title="Excluir">
               <Popconfirm

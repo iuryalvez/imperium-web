@@ -249,29 +249,83 @@ namespace backend.Domain.SaudeAnimal.Services
 
             try
             {
-                var peso = animal.Peso ?? throw new InvalidOperationException("Peso não informado para cálculo de gestação.");
-                var potencia = animal.Especie == EspecieAnimal.Gato ? 0.67 : 0.75;
-                var pesoMetabolico = Math.Pow(peso, potencia);
-                double resultado;
-
-                if (animal.Especie == EspecieAnimal.Cao)
+                double necessidadeKcal;
+                
+                // Puxa o PCa (Peso Atual)
+                double PCa = animal.Peso ?? 0;
+                if (PCa <= 0)
                 {
-                    resultado = (130 * pesoMetabolico) + (26 * peso);
-                    _logger.LogInformation("Fórmula de gestação para cães baseada na necessidade de manutenção.");
+                    throw new InvalidOperationException("Peso atual não informado ou inválido para o cálculo de gestação.");
+                }
+
+                // Resolve o perfil (agora reaproveitando perfis de manutenção)
+                var perfil = PerfilMetabolicoResolver.Resolver(animal, dieta);
+                double multiplicador = 0;
+                double potencia = 0;
+                string descricao = $"Gestação ({animal.Especie} - Customizado)";
+
+                dieta.IsCustomizado = false;
+
+                if (dieta.MultiplicadorEnergeticoCustom.HasValue && dieta.PotenciaCustom.HasValue)
+                {
+                    multiplicador = dieta.MultiplicadorEnergeticoCustom.Value;
+                    potencia = dieta.PotenciaCustom.Value;
+                    dieta.IsCustomizado = true;
+                    if (perfil.HasValue) 
+                    {
+                        if (PerfilMetabolicoDados.Dados.TryGetValue(perfil.Value, out var dados))
+                        {
+                            descricao = $"{dados.descricao} (Customizado)";
+                        }
+                    }
                 }
                 else
                 {
-                    resultado = 100 * pesoMetabolico;
-                    _logger.LogInformation("Fórmula de gestação para gatos baseada na necessidade de manutenção.");
+                    if (perfil == null)
+                    {
+                        throw new InvalidOperationException("Nenhum perfil metabólico selecionado para a gestação e customização incompleta.");
+                    }
+                    if (!PerfilMetabolicoDados.Dados.TryGetValue(perfil.Value, out var dados))
+                    {
+                        throw new InvalidOperationException($"Perfil '{perfil}' sem dados numéricos padrão, exige customização.");
+                    }
+                    multiplicador = dados.multiplicador;
+                    potencia = dados.potencia;
+                    descricao = dados.descricao;
                 }
 
-                // Injeta transparência para Gestação
-                dieta.FatorK = animal.Especie == EspecieAnimal.Cao ? 130 : 100;
-                dieta.Expoente = potencia;
-                dieta.PerfilNutricional = $"Gestação ({animal.Especie} - NRC 2006)";
-                dieta.IsCustomizado = false;
+                if (animal.Especie == EspecieAnimal.Gato)
+                {
+                    // Gatas não possuem equação NRC específica (aviso será tratado no frontend).
+                    // Calcula-se como manutenção com os multiplicadores selecionados.
+                    necessidadeKcal = multiplicador * Math.Pow(PCa, potencia);
+                }
+                else if (animal.Especie == EspecieAnimal.Cao)
+                {
+                    necessidadeKcal = multiplicador * Math.Pow(PCa, potencia);
 
-                var resultadoArredondado = Math.Round(resultado, 3);
+                    // Adiciona + 26 * Peso se a flag for verdadeira (geralmente fase final)
+                    if (dieta.AdicionalGestacao)
+                    {
+                        necessidadeKcal += 26 * PCa;
+                        if (!descricao.Contains("+ 26"))
+                        {
+                            descricao += " (+ 26 × PC)";
+                        }
+                    }
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Espécie '{animal.Especie}' não suportada para cálculo de gestação.");
+                }
+
+                // Injeta transparência
+                dieta.FatorK = multiplicador;
+                dieta.Expoente = potencia;
+                dieta.PerfilNutricional = descricao;
+
+                var resultadoFinal = Math.Max(necessidadeKcal, 0);
+                var resultadoArredondado = Math.Round(resultadoFinal, 3);
                 _logger.LogInformation(
                     "Cálculo de gestação concluído para o animal ID: {AnimalId}. Resultado: {ResultadoKcal} kcal/dia.",
                     animal.Id, resultadoArredondado);

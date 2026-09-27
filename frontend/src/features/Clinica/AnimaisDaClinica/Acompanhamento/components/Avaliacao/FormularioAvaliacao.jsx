@@ -260,9 +260,8 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
       layout="vertical"
       onFinish={onFinish}
     >
-      {/* Grid Autoajustável: Evita espaços em branco */}
       <Row gutter={16}>
-        <Col xs={24} sm={12}>
+        <Col xs={24} md={12}>
           <Form.Item name="peso" label="Peso (kg)" rules={[{ required: true }]}>
             <InputNumber
               placeholder="Ex: 9,87"
@@ -276,7 +275,7 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
         </Col>
 
         {!isGato && (
-          <Col xs={24} sm={12}>
+          <Col xs={24} md={12}>
             <Form.Item
               name="grauAtividade"
               label={
@@ -295,8 +294,117 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
             </Form.Item>
           </Col>
         )}
+      </Row>
 
-        <Col xs={24} sm={12}>
+      {isFemea && (
+        <div className="bg-pink-50 p-3 rounded-md border border-pink-100 mb-4 mt-2">
+          <h4 className="text-sm font-semibold text-pink-700 mb-3">
+            Fase Reprodutiva
+          </h4>
+          <Row gutter={16}>
+            <Col xs={24} md={12}>
+              <Form.Item
+                name="isGestante"
+                label="Em Gestação?"
+                valuePropName="checked"
+                className="mb-2"
+              >
+                <Switch checkedChildren="SIM" unCheckedChildren="NÃO" />
+              </Form.Item>
+              {isGestante && (
+                <Form.Item
+                  name="semanaGestacao"
+                  label="Semanas de Gestação"
+                  rules={[{ required: true, message: "Obrigatório" }]}
+                  className="mb-0"
+                >
+                  <InputNumber
+                    style={{ width: "100%" }}
+                    min={1}
+                    max={20}
+                    placeholder="Ex: 5"
+                  />
+                </Form.Item>
+              )}
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Form.Item
+                name="isLactante"
+                label="Em Lactação?"
+                valuePropName="checked"
+                className="mb-2"
+              >
+                <Switch checkedChildren="SIM" unCheckedChildren="NÃO" />
+              </Form.Item>
+              {isLactante && (
+                <Row gutter={8}>
+                  <Col span={12}>
+                    <Form.Item
+                      name="isLactanteNumeroFilhotes"
+                      label="Nº Filhotes"
+                      rules={[
+                        { required: true, message: "Obrigatório" },
+                        {
+                          validator: (_, value) =>
+                            value > 0
+                              ? Promise.resolve()
+                              : Promise.reject(new Error("Maior que 0")),
+                        },
+                      ]}
+                      className="mb-0"
+                    >
+                      <InputNumber
+                        style={{ width: "100%" }}
+                        min={1}
+                        max={30}
+                        placeholder="Ex: 4"
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item 
+                      name="semanaLactacao" 
+                      label="Semanas"
+                      rules={[{ required: true, message: "Obrigatório" }]}
+                      className="mb-0"
+                    >
+                      <InputNumber
+                        style={{ width: "100%" }}
+                        min={1}
+                        max={20}
+                        placeholder="Ex: 3"
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              )}
+            </Col>
+          </Row>
+        </div>
+      )}
+
+      <Row gutter={16}>
+        <Col xs={24} md={12}>
+          <Form.Item
+            name="tipoDieta"
+            label={
+              <LabelComInfo
+                label="Tipo da Dieta Atual"
+                tituloPopover="Diretrizes do Tipo de Dieta"
+                conteudoPopover={conteudoTipoDieta}
+              />
+            }
+            rules={[{ required: true, message: "O tipo da dieta é obrigatório." }]}
+          >
+            <Select
+              options={opcoesTipoDietaFiltradas}
+              placeholder="Selecione o tipo da dieta"
+            />
+          </Form.Item>
+        </Col>
+
+        <Col xs={24} md={12}>
           <Form.Item
             name="racaoId"
             label="Ração Utilizada"
@@ -311,126 +419,39 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
             />
           </Form.Item>
         </Col>
+      </Row>
 
-        {/* Se for Gato, expande para 24 colunas para fechar o retângulo do grid com perfeição */}
-        <Col xs={24} sm={isGato ? 24 : 12}>
-          <Form.Item
-            name="tipoDieta"
-            label={
-              <LabelComInfo
-                label="Tipo da Dieta"
-                tituloPopover="Diretrizes do Tipo de Dieta"
-                conteudoPopover={conteudoTipoDieta}
-              />
-            }
-            rules={[
-              { required: true, message: "O tipo da dieta é obrigatório." },
-            ]}
-          >
-            <Select
-              options={opcoesTipoDietaFiltradas}
-              placeholder="Selecione o tipo da dieta"
+      <div className="bg-gray-50 p-4 rounded-md border border-gray-200 mb-4 mt-2">
+        <Row gutter={16}>
+          <Col span={24}>
+            <Form.Item
+              name="condicaoCorporal"
+              label={
+                <LabelComInfo
+                  label="Condição Corporal (ECC - 1 a 9)"
+                  tituloPopover="Escore de Condição Corporal"
+                  conteudoPopover={conteudoECC}
+                />
+              }
+              rules={[{ required: isGato, message: "Defina o escore corporal" }]}
+              className="mb-0 px-2"
+            >
+              <Slider min={1} max={9} marks={opcoesCondicaoCorporal} />
+            </Form.Item>
+          </Col>
+        </Row>
+      </div>
+
+      <Row gutter={16}>
+        <Col span={24}>
+          <Form.Item name="descricaoDieta" label="Descrição Adicional da Dieta (Opcional)">
+            <Input.TextArea
+              rows={3}
+              placeholder="Ex: Adicionar 50g de alimento úmido pela manhã ou dividir em 3 porções."
             />
           </Form.Item>
         </Col>
       </Row>
-
-      {isGato && (
-        <Form.Item
-          name="condicaoCorporal"
-          label={
-            <LabelComInfo
-              label="Condição Corporal (1-9)"
-              tituloPopover="Escore de Condição Corporal Felino (Laflamme, 1997)"
-              conteudoPopover={conteudoECC}
-            />
-          }
-          rules={[{ required: true, message: "Defina o escore corporal" }]}
-        >
-          <Slider min={1} max={9} marks={opcoesCondicaoCorporal} />
-        </Form.Item>
-      )}
-
-      <Form.Item name="descricaoDieta" label="Descrição Adicional da Dieta">
-        <Input.TextArea
-          rows={3}
-          placeholder="Ex: Adicionar 50g de alimento úmido pela manhã ou dividir em 3 porções."
-        />
-      </Form.Item>
-
-      {isFemea && (
-        <>
-          <Divider orientation="left" plain>
-            Status Reprodutivo
-          </Divider>
-          <Row gutter={16}>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                name="isGestante"
-                label="Em Gestação?"
-                valuePropName="checked"
-              >
-                <Switch checkedChildren="SIM" unCheckedChildren="NÃO" />
-              </Form.Item>
-              {isGestante && (
-                <Form.Item
-                  name="semanaGestacao"
-                  label="Semanas de Gestação"
-                  rules={[{ required: true, message: "Obrigatório" }]}
-                >
-                  <InputNumber
-                    style={{ width: "100%" }}
-                    min={1}
-                    max={20}
-                    placeholder="Nº de semanas"
-                  />
-                </Form.Item>
-              )}
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                name="isLactante"
-                label="Em Lactação?"
-                valuePropName="checked"
-              >
-                <Switch checkedChildren="SIM" unCheckedChildren="NÃO" />
-              </Form.Item>
-              {isLactante && (
-                <>
-                  <Form.Item
-                    name="isLactanteNumeroFilhotes"
-                    label="Nº de Filhotes"
-                    rules={[
-                      { required: true, message: "Obrigatório" },
-                      {
-                        validator: (_, value) =>
-                          value > 0
-                            ? Promise.resolve()
-                            : Promise.reject(new Error("Deve ser maior que 0")),
-                      },
-                    ]}
-                  >
-                    <InputNumber
-                      style={{ width: "100%" }}
-                      min={1}
-                      max={30}
-                      placeholder="Quantos filhotes?"
-                    />
-                  </Form.Item>
-                  <Form.Item name="semanaLactacao" label="Semanas de Lactação">
-                    <InputNumber
-                      style={{ width: "100%" }}
-                      min={1}
-                      max={20}
-                      placeholder="Nº de semanas"
-                    />
-                  </Form.Item>
-                </>
-              )}
-            </Col>
-          </Row>
-        </>
-      )}
     </Form>
   );
 };

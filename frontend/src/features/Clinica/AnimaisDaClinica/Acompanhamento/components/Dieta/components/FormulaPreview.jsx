@@ -10,6 +10,7 @@ const FormulaPreview = ({
   pesoAtual,
   pesoObjetivo,
   perfilMetabolicoLabel,
+  adicionalGestacao,
 }) => {
   // Parse defaults from perfilMetabolicoLabel (e.g. "Cão Inativo (95 × PC^0,75)")
   let defaultK = "K";
@@ -60,7 +61,30 @@ const FormulaPreview = ({
       );
     }
     
-    // Manutenção e Emagrecimento (1 e 5)
+    // Gestação (4)
+    if (tipoDieta === 4) {
+      if (isGato) {
+        return (
+          <>
+            {kFinal} × ({pesoFormatado}kg)<sup>{pFinal}</sup>
+          </>
+        );
+      }
+      if (adicionalGestacao) {
+        return (
+          <>
+            {kFinal} × ({pesoFormatado}kg)<sup>{pFinal}</sup> + 26 × ({pesoFormatado}kg)
+          </>
+        );
+      }
+      return (
+        <>
+          {kFinal} × ({pesoFormatado}kg)<sup>{pFinal}</sup>
+        </>
+      );
+    }
+    
+    // Manutenção e Emagrecimento (1 e 5) e outros
     return (
       <>
         {kFinal} × ({pesoFormatado}kg)<sup>{pFinal}</sup>

@@ -32,5 +32,7 @@ namespace backend.Domain.SaudeAnimal.DTOs.Dieta
         public string? Observacoes { get; set; }
         public int? IsLactanteNumeroFilhotes { get; set; }
         public int? SemanaLactacao { get; set; }
+        public int? SemanaGestacao { get; set; }
+        public bool? AdicionalGestacao { get; set; }
     }
 }

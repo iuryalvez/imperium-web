@@ -15,6 +15,7 @@ namespace backend.Domain.SaudeAnimal.Services
             switch (dieta.TipoDieta)
             {
                 case TipoDieta.Manutencao:
+                case TipoDieta.Gestacao:
                     return ResolverManutencao(animal);
 
                 case TipoDieta.Crescimento:

@@ -155,6 +155,7 @@ const DetalhesDieta = ({ dieta, isGato }) => {
               pesoAtual={dieta.pesoAtual}
               pesoObjetivo={dieta.pesoObjetivo}
               perfilMetabolicoLabel={dieta.perfilNutricional}
+              adicionalGestacao={dieta.adicionalGestacao}
             />
           </div>
         </div>

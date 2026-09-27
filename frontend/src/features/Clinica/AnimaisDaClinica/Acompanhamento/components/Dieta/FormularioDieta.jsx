@@ -109,6 +109,8 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca, dadosAnim
         pesoIdeal: initialValues.pesoIdeal,
         numeroFilhotes: initialValues.isLactanteNumeroFilhotes,
         semanaLactacao: initialValues.semanaLactacao,
+        semanaGestacao: initialValues.semanaGestacao,
+        adicionalGestacao: initialValues.adicionalGestacao,
         perfilMetabolico: initialValues.perfilMetabolico,
         multiplicadorEnergeticoCustom: initialValues.multiplicadorEnergeticoCustom,
         potenciaCustom: initialValues.potenciaCustom,
@@ -154,10 +156,16 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca, dadosAnim
 
   const renderSpecificForm = () => {
     const perfisFiltrados = perfisMetabolicos.filter((p) => {
+      const currentPerfil = form.getFieldValue("perfilMetabolico") || initialValues?.perfilMetabolico;
+      const isSelected = currentPerfil && p.value === currentPerfil;
+      
       const isPerfilGato = p.label.toLowerCase().includes("gato");
       const especieMatch = isGato ? isPerfilGato : !isPerfilGato;
-      const dietaMatch = p.tiposDieta?.includes(tipoDietaSelecionado);
-      return especieMatch && dietaMatch;
+      // Para Gestação (4), disponibiliza-se os mesmos perfis da Manutenção (1)
+      const dietaParaBuscar = tipoDietaSelecionado === 4 ? 1 : tipoDietaSelecionado;
+      const dietaMatch = p.tiposDieta?.includes(dietaParaBuscar);
+      
+      return (especieMatch && dietaMatch) || isSelected;
     });
 
     switch (tipoDietaSelecionado) {
@@ -184,7 +192,14 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca, dadosAnim
       case 3:
         return <FormLactacao />;
       case 4:
-        return <FormGestacao />;
+        return (
+          <FormGestacao
+            form={form}
+            perfis={perfisFiltrados}
+            loading={loadingPerfis}
+            especie={initialValues?.especieAnimal}
+          />
+        );
       default:
         return null;
     }

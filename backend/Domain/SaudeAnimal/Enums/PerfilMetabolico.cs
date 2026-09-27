@@ -7,7 +7,7 @@ namespace backend.Domain.SaudeAnimal.Enums
     public enum PerfilMetabolico
     {
         // MANUTENÇÃO E EMAGRECIMENTO
-        [Display(Name = "Gato Exótico (157,5 × PC^0,75)")]
+        [Display(Name = "Gato Exótico (K × PC^0,75)")]
         [TipoDietaRef(TipoDieta.Manutencao, TipoDieta.Emagrecimento)]
         GatoExotico = 1,
 
@@ -46,28 +46,24 @@ namespace backend.Domain.SaudeAnimal.Enums
         // CRESCIMENTO
         [Display(Name = "Gato em Crescimento - Necessidade Média (100 × PC^0,67 × 6,7 × [e^-(0,189p)-0,66])")]
         [TipoDietaRef(TipoDieta.Crescimento)]
-        GatoCrescimentoMedia,
+        GatoCrescimentoMedia = 10,
 
         [Display(Name = "Cão em Crescimento - Necessidade Média (130 × PC^0,75 × 3,2 × [e^-(0,87p)-0,1])")]
         [TipoDietaRef(TipoDieta.Crescimento)]
-        CaoCrescimentoMedia,
+        CaoCrescimentoMedia = 11,
 
         // LACTAÇÃO
         [Display(Name = "Gato em Lactação")]
         [TipoDietaRef(TipoDieta.Lactacao)]
-        GatoLactacao,
+        GatoLactacao = 12,
 
         [Display(Name = "Cão em Lactação")]
         [TipoDietaRef(TipoDieta.Lactacao)]
-        CaoLactacao,
+        CaoLactacao = 13,
 
         // GESTAÇÃO
-        [Display(Name = "Gato em Gestação (Sem Equação NRC - 40 a 50% Ganho)")]
+        [Display(Name = "Cão em Fase Final de Gestação - Necessidade Média (130 × PC^0,75 + 26 × PC)")]
         [TipoDietaRef(TipoDieta.Gestacao)]
-        GatoGestacao,
-
-        [Display(Name = "Cão em Gestação (4 semanas finais)")]
-        [TipoDietaRef(TipoDieta.Gestacao)]
-        CaoGestacao
+        CaoGestacaoFinal = 14
     }
 }

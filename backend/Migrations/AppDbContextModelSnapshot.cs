@@ -2533,6 +2533,9 @@ namespace backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("AdicionalGestacao")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("AvaliacaoId")
                         .HasColumnType("integer");
 

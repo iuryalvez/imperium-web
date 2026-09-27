@@ -250,6 +250,12 @@ namespace backend.Domain.AtendimentoAnimal.Services
                     animal.SemanaLactacao = dto.SemanaLactacao ?? animal.SemanaLactacao;
                 }
 
+                // Atualiza os dados de gestação se o tipo de dieta for Gestação
+                if (dto.TipoDieta == TipoDieta.Gestacao)
+                {
+                    animal.SemanaGestacao = dto.SemanaGestacao ?? animal.SemanaGestacao;
+                }
+
                 _logger.LogInformation("Animal (após atualização) pronto para cálculo. ID: {AnimalId}, Peso: {Peso}, Nro Filhotes: {NumFilhotes}, Semana Lactação: {SemanaLactacao}",
                     animal.Id, animal.Peso, animal.IsLactanteNumeroFilhotes, animal.SemanaLactacao);
 

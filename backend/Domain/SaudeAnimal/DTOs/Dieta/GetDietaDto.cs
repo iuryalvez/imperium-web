@@ -24,5 +24,6 @@ namespace backend.Domain.SaudeAnimal.DTOs.Dieta
         public PerfilMetabolico? PerfilMetabolico { get; set; }
         public double? PotenciaCustom { get; set; }
         public bool IsCustomizado { get; set; }
+        public bool AdicionalGestacao { get; set; }
     }
 }
