@@ -2,6 +2,7 @@ import React from "react";
 import { Form, Row, Col, Select, InputNumber, Alert, Collapse, List, Checkbox } from "antd";
 import LabelComInfo from "../../../../../../../components/atoms/LabelComInfo";
 import FormulaPreview from "./FormulaPreview";
+import { useEffect } from "react";
 
 const FormGestacao = ({ form, especie, perfis, loading }) => {
   const perfisParaExibir = perfis || [];
@@ -15,6 +16,13 @@ const FormGestacao = ({ form, especie, perfis, loading }) => {
 
   const perfilSelecionado = perfisParaExibir.find((p) => p.value === perfilMetabolicoId);
   const perfilMetabolicoLabel = perfilSelecionado?.label;
+
+  useEffect(() => {
+    if (!perfilMetabolicoId && (perfis?.length > 0)) {
+      if (isCao) form.setFieldValue("perfilMetabolico", 14);
+      if (isGato) form.setFieldValue("perfilMetabolico", 15);
+    }
+  }, [isCao, isGato, perfilMetabolicoId, perfis, form]);
 
   return (
     <div className="bg-gray-50 p-4 rounded-md border border-gray-200 mb-4">
@@ -75,29 +83,28 @@ const FormGestacao = ({ form, especie, perfis, loading }) => {
         </Form.Item>
       )}
 
-      {isCao && (
-        <Row gutter={16}>
-          <Col span={24}>
-            <Form.Item
-              name="perfilMetabolico"
-              label={
-                <LabelComInfo
-                  label="Perfil Metabólico"
-                  tituloPopover="Perfil Metabólico"
-                  conteudoPopover="Permite selecionar um perfil pré-cadastrado. Para gestação inicial ou gatas, use perfis de manutenção. Para cadelas em fase final, utilize o perfil de Gestação Final."
-                />
-              }
-            >
-              <Select
-                allowClear
-                loading={loading}
-                options={perfisParaExibir}
-                placeholder="Selecione um perfil metabólico ou fórmula..."
+      <Row gutter={16}>
+        <Col span={24}>
+          <Form.Item
+            name="perfilMetabolico"
+            label={
+              <LabelComInfo
+                label="Perfil Metabólico"
+                tituloPopover="Perfil Metabólico"
+                conteudoPopover="Permite selecionar um perfil pré-cadastrado. Para gestação inicial ou gatas, use perfis de manutenção. Para cadelas em fase final, utilize o perfil de Gestação Final."
               />
-            </Form.Item>
-          </Col>
-        </Row>
-      )}
+            }
+          >
+            <Select
+              allowClear={!isGato}
+              loading={loading}
+              options={perfisParaExibir}
+              placeholder="Selecione um perfil metabólico ou fórmula..."
+              disabled={isGato}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
 
       {isGato && (
         <Collapse
@@ -114,7 +121,8 @@ const FormGestacao = ({ form, especie, perfis, loading }) => {
                     dataSource={perfisParaExibir.filter(
                       (p) =>
                         p.tiposDieta?.includes(1) &&
-                        p.label.toLowerCase().includes("gato"),
+                        p.k !== null && p.p !== null &&
+                        p.especie === 2,
                     )}
                     renderItem={(item) => (
                       <List.Item>

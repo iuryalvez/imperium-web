@@ -11,6 +11,7 @@ import {
 } from "antd";
 import LabelComInfo from "../../../../../../../components/atoms/LabelComInfo";
 import FormulaPreview from "./FormulaPreview";
+import { useEffect } from "react";
 
 const FormLactacao = ({ form, especie, perfis, loading }) => {
   const perfisParaExibir = perfis || [];
@@ -31,6 +32,13 @@ const FormLactacao = ({ form, especie, perfis, loading }) => {
     (p) => p.value === perfilMetabolicoId,
   );
   const perfilMetabolicoLabel = perfilSelecionado?.label;
+
+  useEffect(() => {
+    if (!perfilMetabolicoId && (perfis?.length > 0)) {
+      if (isCao) form.setFieldValue("perfilMetabolico", 11);
+      if (isGato) form.setFieldValue("perfilMetabolico", 10);
+    }
+  }, [isCao, isGato, perfilMetabolicoId, perfis, form]);
 
   return (
     <div className="bg-gray-50 p-4 rounded-md border border-gray-200 mb-4">
@@ -98,31 +106,28 @@ const FormLactacao = ({ form, especie, perfis, loading }) => {
         </Col>
       </Row>
 
-      {isGato && (
-        <>
-          <Row gutter={16}>
-            <Col span={24}>
-              <Form.Item
-                name="perfilMetabolico"
-                label={
-                  <LabelComInfo
-                    label="Perfil Metabólico"
-                    tituloPopover="Perfil Metabólico"
-                    conteudoPopover="Permite selecionar um perfil pré-cadastrado."
-                  />
-                }
-              >
-                <Select
-                  allowClear
-                  loading={loading}
-                  options={perfisParaExibir}
-                  placeholder="Selecione um perfil metabólico ou fórmula..."
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-        </>
-      )}
+      <Row gutter={16}>
+        <Col span={24}>
+          <Form.Item
+            name="perfilMetabolico"
+            label={
+              <LabelComInfo
+                label="Perfil Metabólico"
+                tituloPopover="Perfil Metabólico"
+                conteudoPopover="Permite selecionar um perfil pré-cadastrado."
+              />
+            }
+          >
+            <Select
+              allowClear={!isCao}
+              loading={loading}
+              options={perfisParaExibir}
+              placeholder="Selecione um perfil metabólico ou fórmula..."
+              disabled={isCao}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
 
       {isCao && (
         <Collapse
@@ -139,7 +144,8 @@ const FormLactacao = ({ form, especie, perfis, loading }) => {
                     dataSource={perfisParaExibir.filter(
                       (p) =>
                         p.tiposDieta?.includes(1) &&
-                        p.label.toLowerCase().includes("cão"),
+                        p.k !== null && p.p !== null &&
+                        p.especie === 1,
                     )}
                     renderItem={(item) => (
                       <List.Item>

@@ -452,25 +452,10 @@ namespace backend.Domain.SaudeAnimal.Services
         {
             if (perfil.HasValue && PerfilMetabolicoDados.Dados.TryGetValue(perfil.Value, out var dados))
             {
-                if (dados.multiplicador.HasValue && dados.potencia.HasValue)
-                {
-                    if (Math.Abs(dados.multiplicador.Value - multiplicador) < 0.001 && Math.Abs(dados.potencia.Value - potencia) < 0.001)
-                    {
-                        descricao = dados.descricao;
-                        dieta.IsCustomizado = false;
-                    }
-                    else
-                    {
-                        descricao = $"{dados.descricao} (Customizado)";
-                        dieta.IsCustomizado = true;
-                    }
-                }
-                else
-                {
-                    // Generic profile (already customized)
-                    descricao = dados.descricao;
-                    dieta.IsCustomizado = true;
-                }
+                descricao = dados.descricao;
+                dieta.IsCustomizado = !dados.multiplicador.HasValue || !dados.potencia.HasValue 
+                    || Math.Abs(dados.multiplicador.Value - multiplicador) > 0.001 
+                    || Math.Abs(dados.potencia.Value - potencia) > 0.001;
             }
             else
             {

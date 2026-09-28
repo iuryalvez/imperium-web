@@ -60,7 +60,7 @@ const FormCrescimento = ({ form, perfis, loading, especie }) => {
             name="perfilMetabolico"
             label={
               <LabelComInfo
-                label="Perfil Metabólico (Opcional)"
+                label="Perfil Metabólico"
                 tituloPopover="Perfil Metabólico de Crescimento"
                 conteudoPopover="Permite selecionar um perfil pré-cadastrado. Se deixado em branco, o sistema utilizará o cálculo genérico padrão para filhotes em crescimento."
               />

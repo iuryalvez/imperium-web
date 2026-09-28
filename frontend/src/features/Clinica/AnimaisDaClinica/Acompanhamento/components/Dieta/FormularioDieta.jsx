@@ -97,13 +97,13 @@ const FormularioDieta = ({
         ) {
           const tipo = form.getFieldValue("tipoDieta");
           const isGat = initialValues?.especieAnimal === 2 || String(initialValues?.especieAnimal).toLowerCase() === "gato";
-          const termoBusca = isGat ? "gato" : "cão";
+          const especieBuscada = isGat ? 2 : 1;
           
           const perfilGenerico = perfisMetabolicos.find(p => 
             p.tiposDieta?.includes(tipo) && 
             p.k === null && 
             p.p === null && 
-            p.label.toLowerCase().includes(termoBusca)
+            p.especie === especieBuscada
           );
 
           let novoPerfilId = perfilGenerico ? perfilGenerico.value : null;
@@ -197,7 +197,7 @@ const FormularioDieta = ({
         initialValues?.perfilMetabolico;
       const isSelected = currentPerfil && p.value === currentPerfil;
 
-      const isPerfilGato = p.label.toLowerCase().includes("gato");
+      const isPerfilGato = p.label.toLowerCase().includes("gat");
       const especieMatch = isGato ? isPerfilGato : !isPerfilGato;
       let dietaMatch = p.tiposDieta?.includes(tipoDietaSelecionado);
       

@@ -76,7 +76,7 @@ const FormManutencao = ({ form, especie, perfis, loading, tipoDietaSelecionado }
             name="perfilMetabolico"
             label={
               <LabelComInfo
-                label="Perfil Metabólico (Opcional)"
+                label="Perfil Metabólico"
                 tituloPopover="Perfil Metabólico"
                 conteudoPopover="Permite selecionar um perfil pré-cadastrado. Se deixado em branco, o sistema utilizará o cálculo genérico padrão para a espécie selecionada."
               />

@@ -47,7 +47,9 @@ public class AcompanhamentoController : ControllerBase
                     Label = displayAttribute?.Name ?? p.ToString(),
                     TiposDieta = tipoDietaRefAttribute?.TiposDieta.Select(t => (int)t).ToArray() ?? Array.Empty<int>(),
                     K = dados.multiplicador > 0 ? dados.multiplicador : (double?)null,
-                    P = dados.potencia > 0 ? dados.potencia : (double?)null
+                    P = dados.potencia > 0 ? dados.potencia : (double?)null,
+                    Especie = (int?)dados.especie,
+                    Sexo = (int?)dados.sexo
                 };
             });
 
