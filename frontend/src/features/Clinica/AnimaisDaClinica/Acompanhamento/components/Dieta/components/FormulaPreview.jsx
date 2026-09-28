@@ -4,13 +4,14 @@ import { colors } from "../../../../../../../theme/colors";
 const FormulaPreview = ({
   tipoDieta,
   isGato,
-  isCustomizado,
   multiplicadorCustom,
-  potenciaCustom,
+  potencia,
   pesoAtual,
   pesoObjetivo,
   perfilMetabolicoLabel,
-  adicionalGestacao,
+  hasAdicionalGestacaoCao,
+  numeroFilhotes,
+  semanaLactacao,
 }) => {
   // Parse defaults from perfilMetabolicoLabel (e.g. "Cão Inativo (95 × PC^0,75)")
   let defaultK = "K";
@@ -24,12 +25,12 @@ const FormulaPreview = ({
     }
   }
 
-  const kFinal = isCustomizado
-    ? (multiplicadorCustom !== undefined && multiplicadorCustom !== null ? multiplicadorCustom : "K")
+  const kFinal = (multiplicadorCustom !== undefined && multiplicadorCustom !== null) 
+    ? multiplicadorCustom 
     : defaultK;
   
-  const pFinal = isCustomizado
-    ? (potenciaCustom !== undefined && potenciaCustom !== null ? potenciaCustom : "P")
+  const pFinal = (potencia !== undefined && potencia !== null) 
+    ? potencia 
     : defaultP;
 
   const pesoFormatado = pesoAtual ? `${pesoAtual}`.replace(".", ",") : "Peso";
@@ -61,6 +62,28 @@ const FormulaPreview = ({
       );
     }
     
+    // Lactação (3)
+    if (tipoDieta === 3) {
+      const lText = "L"; // O usuário verá L e nós sabemos que varia de acordo com a semana
+      
+      if (isGato) {
+        const cte = numeroFilhotes ? (numeroFilhotes < 3 ? 18 : (numeroFilhotes > 4 ? 70 : 60)) : "C";
+        return (
+          <>
+            {kFinal} × ({pesoFormatado}kg)<sup>{pFinal}</sup> + ({cte} × {pesoFormatado}kg × {lText})
+          </>
+        );
+      }
+      
+      const nForm = (numeroFilhotes && numeroFilhotes <= 4) ? numeroFilhotes : (numeroFilhotes ? 4 : "n");
+      const mForm = (numeroFilhotes && numeroFilhotes > 4) ? (numeroFilhotes - 4) : (numeroFilhotes ? 0 : "m");
+      return (
+        <>
+          {kFinal} × ({pesoFormatado}kg)<sup>{pFinal}</sup> + ({pesoFormatado}kg × ((24 × {nForm}) + (12 × {mForm})) × {lText})
+        </>
+      );
+    }
+
     // Gestação (4)
     if (tipoDieta === 4) {
       if (isGato) {
@@ -70,7 +93,7 @@ const FormulaPreview = ({
           </>
         );
       }
-      if (adicionalGestacao) {
+      if (hasAdicionalGestacaoCao) {
         return (
           <>
             {kFinal} × ({pesoFormatado}kg)<sup>{pFinal}</sup> + 26 × ({pesoFormatado}kg)
@@ -112,6 +135,11 @@ const FormulaPreview = ({
       {tipoDieta === 2 && (
         <div className="mt-2 text-xs text-center opacity-80 font-sans">
           * <strong>{pFootnote}</strong>
+        </div>
+      )}
+      {tipoDieta === 3 && (
+        <div className="mt-2 text-xs text-center opacity-80 font-sans">
+          * <strong>L</strong> é o Fator de Lactação, que varia conforme a semana de lactação ({semanaLactacao || "X"}).
         </div>
       )}
     </div>

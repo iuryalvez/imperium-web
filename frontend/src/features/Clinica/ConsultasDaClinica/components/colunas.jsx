@@ -1,5 +1,5 @@
 import React from "react";
-import { Tag, Button, Tooltip } from "antd";
+import { Button, Tooltip } from "antd";
 import { LineChartOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import dayjs from "dayjs";

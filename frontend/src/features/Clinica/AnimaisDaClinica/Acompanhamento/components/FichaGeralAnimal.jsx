@@ -6,7 +6,6 @@ import {
   ProfileOutlined,
   EditOutlined,
 } from "@ant-design/icons";
-import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
@@ -21,9 +20,7 @@ const FichaGeralAnimal = ({
   if (!data) return null;
 
   const nomeRaca = data.raca?.nome || "SRD";
-  const dataAvaliacao = avaliacaoRecente?.dataConsulta
-    ? dayjs(avaliacaoRecente.dataConsulta).format("DD/MM/YYYY")
-    : "Sem registros";
+
 
   return (
     <Card
@@ -92,7 +89,7 @@ const FichaGeralAnimal = ({
               <div className="flex flex-col gap-2">
                 <Text className="flex items-center gap-1">
                   <strong className="text-verde-escuro">Sexo:</strong>{" "}
-                  <span className="text-gray-900">{data.sexo}</span>
+                  <span className="text-gray-900">{data.sexo === "Femea" ? "Fêmea" : data.sexo}</span>
                   {data.sexo === "Macho" ? (
                     <ManOutlined className="text-blue-500" />
                   ) : (

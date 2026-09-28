@@ -1,13 +1,15 @@
 using backend.Domain.AtendimentoAnimal.Enums;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.SaudeAnimal.Entities;
+using backend.Domain.SaudeAnimal.Enums;
+using System.Text.Json;
 
 namespace backend.Domain.SaudeAnimal.Services
 {
     public interface ICalculoNecessidadeEnergetica
     {
         double CalcularGestacao(Animal animal, Dieta dieta);
-        double CalcularLactacao(Animal animal, int numeroFilhotes, int semanaLactacao, Dieta dieta);
+        double CalcularLactacao(Animal animal, Dieta dieta);
         double CalcularManutencao(Animal animal, Dieta dieta);
         double CalcularNecessidadeTotal(Animal animal, Dieta dieta);
     }
@@ -33,7 +35,7 @@ namespace backend.Domain.SaudeAnimal.Services
                 {
                     TipoDieta.Manutencao => CalcularManutencao(animal, dieta),
                     TipoDieta.Crescimento => CalcularCrescimento(animal, dieta) ?? 0,
-                    TipoDieta.Lactacao => CalcularLactacao(animal, animal.IsLactanteNumeroFilhotes ?? 0, animal.SemanaLactacao ?? 1, dieta),
+                    TipoDieta.Lactacao => CalcularLactacao(animal, dieta),
                     TipoDieta.Gestacao => CalcularGestacao(animal, dieta),
                     _ => throw new InvalidOperationException($"Tipo de dieta '{dieta.TipoDieta}' não implementado.")
                 };
@@ -68,40 +70,19 @@ namespace backend.Domain.SaudeAnimal.Services
                 
                 double multiplicador = 0;
                 double potencia = 0;
-                string descricao = "Perfil Customizado";
+                string descricao = $"Manutenção ({animal.Especie} - Customizado)";
 
                 dieta.IsCustomizado = false;
 
-                if (dieta.MultiplicadorEnergeticoCustom.HasValue && dieta.PotenciaCustom.HasValue)
+                if (!dieta.MultiplicadorEnergetico.HasValue || !dieta.Potencia.HasValue)
                 {
-                    multiplicador = dieta.MultiplicadorEnergeticoCustom.Value;
-                    potencia = dieta.PotenciaCustom.Value;
-                    dieta.IsCustomizado = true;
-                    if (perfil.HasValue) 
-                    {
-                        // Se tinha um perfil selecionado, tentamos pegar o nome para compor a descrição
-                        if (PerfilMetabolicoDados.Dados.TryGetValue(perfil.Value, out var dados))
-                        {
-                            descricao = $"{dados.descricao} (Customizado)";
-                        }
-                    }
+                    throw new InvalidOperationException("O Multiplicador (K) e a Potência (P) são obrigatórios para o cálculo.");
                 }
-                else
-                {
-                    if (perfil == null)
-                    {
-                        throw new InvalidOperationException("Não foi possível determinar um perfil metabólico automaticamente e nenhum valor customizado completo (K e P) foi informado. Por favor, selecione um perfil metabólico ou preencha a customização.");
-                    }
 
-                    if (!PerfilMetabolicoDados.Dados.TryGetValue(perfil.Value, out var dados))
-                    {
-                        throw new InvalidOperationException($"O perfil '{perfil}' exige customização obrigatória (K e P), pois é uma faixa de variação.");
-                    }
+                multiplicador = dieta.MultiplicadorEnergetico.Value;
+                potencia = dieta.Potencia.Value;
 
-                    multiplicador = dados.multiplicador;
-                    potencia = dados.potencia;
-                    descricao = dados.descricao;
-                }
+                ValidarCustomizacaoPerfil(dieta, perfil, multiplicador, potencia, ref descricao);
 
                 _logger.LogInformation("Perfil metabólico resolvido: {Perfil}. Multiplicador final: {Multiplicador}, Potência padrão: {Potencia}.",
                     perfil, multiplicador, potencia);
@@ -178,35 +159,15 @@ namespace backend.Domain.SaudeAnimal.Services
 
                 dieta.IsCustomizado = false;
 
-                if (dieta.MultiplicadorEnergeticoCustom.HasValue && dieta.PotenciaCustom.HasValue)
+                if (!dieta.MultiplicadorEnergetico.HasValue || !dieta.Potencia.HasValue)
                 {
-                    multiplicador = dieta.MultiplicadorEnergeticoCustom.Value;
-                    potencia = dieta.PotenciaCustom.Value;
-                    dieta.IsCustomizado = true;
-                    if (perfil.HasValue) 
-                    {
-                        if (PerfilMetabolicoDados.Dados.TryGetValue(perfil.Value, out var dados))
-                        {
-                            descricao = $"{dados.descricao} (Customizado)";
-                        }
-                    }
+                    throw new InvalidOperationException("O Multiplicador (K) e a Potência (P) são obrigatórios para o cálculo.");
                 }
-                else
-                {
-                    if (perfil == null)
-                    {
-                        throw new InvalidOperationException("Não foi possível determinar um perfil metabólico para crescimento automaticamente e nenhum valor customizado completo (K e P) foi informado. Por favor, selecione um perfil ou preencha a customização.");
-                    }
 
-                    if (!PerfilMetabolicoDados.Dados.TryGetValue(perfil.Value, out var dados))
-                    {
-                        throw new InvalidOperationException($"O perfil '{perfil}' exige customização obrigatória (K e P).");
-                    }
+                multiplicador = dieta.MultiplicadorEnergetico.Value;
+                potencia = dieta.Potencia.Value;
 
-                    multiplicador = dados.multiplicador;
-                    potencia = dados.potencia;
-                    descricao = dados.descricao;
-                }
+                ValidarCustomizacaoPerfil(dieta, perfil, multiplicador, potencia, ref descricao);
 
                 switch (animal.Especie)
                 {
@@ -266,33 +227,15 @@ namespace backend.Domain.SaudeAnimal.Services
 
                 dieta.IsCustomizado = false;
 
-                if (dieta.MultiplicadorEnergeticoCustom.HasValue && dieta.PotenciaCustom.HasValue)
+                if (!dieta.MultiplicadorEnergetico.HasValue || !dieta.Potencia.HasValue)
                 {
-                    multiplicador = dieta.MultiplicadorEnergeticoCustom.Value;
-                    potencia = dieta.PotenciaCustom.Value;
-                    dieta.IsCustomizado = true;
-                    if (perfil.HasValue) 
-                    {
-                        if (PerfilMetabolicoDados.Dados.TryGetValue(perfil.Value, out var dados))
-                        {
-                            descricao = $"{dados.descricao} (Customizado)";
-                        }
-                    }
+                    throw new InvalidOperationException("O Multiplicador (K) e a Potência (P) são obrigatórios para o cálculo.");
                 }
-                else
-                {
-                    if (perfil == null)
-                    {
-                        throw new InvalidOperationException("Nenhum perfil metabólico selecionado para a gestação e customização incompleta.");
-                    }
-                    if (!PerfilMetabolicoDados.Dados.TryGetValue(perfil.Value, out var dados))
-                    {
-                        throw new InvalidOperationException($"Perfil '{perfil}' sem dados numéricos padrão, exige customização.");
-                    }
-                    multiplicador = dados.multiplicador;
-                    potencia = dados.potencia;
-                    descricao = dados.descricao;
-                }
+
+                multiplicador = dieta.MultiplicadorEnergetico.Value;
+                potencia = dieta.Potencia.Value;
+
+                ValidarCustomizacaoPerfil(dieta, perfil, multiplicador, potencia, ref descricao);
 
                 if (animal.Especie == EspecieAnimal.Gato)
                 {
@@ -304,13 +247,13 @@ namespace backend.Domain.SaudeAnimal.Services
                 {
                     necessidadeKcal = multiplicador * Math.Pow(PCa, potencia);
 
-                    // Adiciona + 26 * Peso se a flag for verdadeira (geralmente fase final)
-                    if (dieta.AdicionalGestacao)
+                    // Adiciona + 26 * Peso se a flag for verdadeira (terço final de gestação, 1 a 4 filhotes)
+                    if (dieta.HasAdicionalGestacaoCao)
                     {
-                        necessidadeKcal += 26 * PCa;
-                        if (!descricao.Contains("+ 26"))
+                        necessidadeKcal += 26.0 * PCa;
+                        if (!descricao.Contains("+ 26 × PC"))
                         {
-                            descricao += " (+ 26 × PC)";
+                            descricao += $" + 26 × PC";
                         }
                     }
                 }
@@ -338,8 +281,11 @@ namespace backend.Domain.SaudeAnimal.Services
             }
         }
 
-        public double CalcularLactacao(Animal animal, int numeroFilhotes, int semanaLactacao, Dieta dieta)
+        public double CalcularLactacao(Animal animal, Dieta dieta)
         {
+            int numeroFilhotes = dieta.NumeroFilhotes ?? throw new InvalidOperationException("Número de filhotes não informado na dieta para cálculo de lactação.");
+            int semanaLactacao = dieta.SemanaLactacao ?? throw new InvalidOperationException("Semana de lactação não informada na dieta para cálculo de lactação.");
+
             _logger.LogInformation(
                 "Iniciando cálculo de lactação para o animal ID: {AnimalId}, com {NumeroFilhotes} filhote(s) na {SemanaLactacao}ª semana.",
                 animal.Id, numeroFilhotes, semanaLactacao);
@@ -349,15 +295,19 @@ namespace backend.Domain.SaudeAnimal.Services
                 if (semanaLactacao < 1) throw new ArgumentException("Semana de lactação inválida.");
                 var peso = animal.Peso ?? throw new InvalidOperationException("Peso não informado para cálculo de lactação.");
 
-                double resultado = animal.Especie == EspecieAnimal.Gato
-                    ? CalcularLactacaoGato(peso, numeroFilhotes, semanaLactacao)
-                    : CalcularLactacaoCao(peso, numeroFilhotes, semanaLactacao);
-
-                // Injeta transparência para Lactação
-                dieta.FatorK = animal.Especie == EspecieAnimal.Cao ? 145 : 100;
-                dieta.Expoente = animal.Especie == EspecieAnimal.Cao ? 0.75 : 0.67;
-                dieta.PerfilNutricional = $"Lactação ({animal.Especie} - NRC 2006)";
-                dieta.IsCustomizado = false;
+                double resultado = 0;
+                
+                if (animal.Especie == EspecieAnimal.Gato)
+                {
+                    resultado = CalcularLactacaoGato(animal, peso, numeroFilhotes, semanaLactacao, dieta);
+                }
+                else
+                {
+                    resultado = CalcularLactacaoCao(animal, peso, numeroFilhotes, semanaLactacao, dieta);
+                }
+                
+                // Gerar previsões
+                dieta.PrevisoesJson = GerarPrevisoesLactacao(animal, peso, numeroFilhotes, semanaLactacao, dieta);
 
                 var resultadoArredondado = Math.Round(resultado, 3);
                 _logger.LogInformation(
@@ -372,12 +322,29 @@ namespace backend.Domain.SaudeAnimal.Services
             }
         }
 
-        private double CalcularLactacaoGato(double peso, int numeroFilhotes, int semana)
+        private double CalcularLactacaoGato(Animal animal, double peso, int numeroFilhotes, int semana, Dieta dieta)
         {
             _logger.LogInformation("Executando cálculo de lactação para Gato. Peso: {Peso}, Filhotes: {NumeroFilhotes}, Semana: {Semana}.", peso, numeroFilhotes, semana);
 
-            var pesoMetabolico = Math.Pow(peso, 0.67);
-            double manutencao = 100 * pesoMetabolico;
+            var perfil = PerfilMetabolicoResolver.Resolver(animal, dieta);
+            double multiplicador = 100;
+            double potencia = 0.67;
+            string descricao = "Gato em Lactação";
+
+            dieta.IsCustomizado = false;
+
+            if (!dieta.MultiplicadorEnergetico.HasValue || !dieta.Potencia.HasValue)
+            {
+                throw new InvalidOperationException("O Multiplicador (K) e a Potência (P) são obrigatórios para o cálculo.");
+            }
+
+            multiplicador = dieta.MultiplicadorEnergetico.Value;
+            potencia = dieta.Potencia.Value;
+
+            ValidarCustomizacaoPerfil(dieta, perfil, multiplicador, potencia, ref descricao);
+
+            var pesoMetabolico = Math.Pow(peso, potencia);
+            double manutencao = multiplicador * pesoMetabolico;
 
             double[] fatores = { 0.9, 0.9, 1.2, 1.2, 1.1, 1.0, 0.8 };
             double fatorL = fatores[Math.Clamp(semana - 1, 0, fatores.Length - 1)];
@@ -389,18 +356,32 @@ namespace backend.Domain.SaudeAnimal.Services
                 > 4 => 70,
             };
 
-            _logger.LogInformation("Valores para Gato: Manutenção: {Manutencao}, Fator Lactação: {FatorL}, Multiplicador Filhotes: {Multiplicador}.",
+            _logger.LogInformation("Valores para Gato: Manutenção: {Manutencao}, Fator Lactação: {FatorL}, Constante Filhotes: {Multiplicador}.",
                 manutencao, fatorL, multiplicadorFilhotes);
 
-            return manutencao + multiplicadorFilhotes * peso * fatorL;
+            dieta.FatorK = multiplicador;
+            dieta.Expoente = potencia;
+            dieta.PerfilNutricional = descricao;
+
+            return manutencao + (multiplicadorFilhotes * peso * fatorL);
         }
 
-        private double CalcularLactacaoCao(double peso, int numeroFilhotes, int semana)
+        private double CalcularLactacaoCao(Animal animal, double peso, int numeroFilhotes, int semana, Dieta dieta)
         {
             _logger.LogInformation("Executando cálculo de lactação para Cão. Peso: {Peso}, Filhotes: {NumeroFilhotes}, Semana: {Semana}.", peso, numeroFilhotes, semana);
 
-            var pesoMetabolico = Math.Pow(peso, 0.75);
-            double manutencao = 145 * pesoMetabolico;
+            var perfil = PerfilMetabolicoResolver.Resolver(animal, dieta);
+
+            if (!dieta.MultiplicadorEnergetico.HasValue || !dieta.Potencia.HasValue)
+            {
+                throw new InvalidOperationException("Para cães em lactação, o cálculo de manutenção deve ser obrigatoriamente personalizado pelo veterinário (informe K e P).");
+            }
+
+            double multiplicador = dieta.MultiplicadorEnergetico.Value;
+            double potencia = dieta.Potencia.Value;
+            
+            var pesoMetabolico = Math.Pow(peso, potencia);
+            double manutencao = multiplicador * pesoMetabolico;
 
             double[] fatores = { 0.75, 0.95, 1.1, 1.2 };
             double fatorL = fatores[Math.Clamp(semana - 1, 0, fatores.Length - 1)];
@@ -411,7 +392,90 @@ namespace backend.Domain.SaudeAnimal.Services
             _logger.LogInformation("Valores para Cão: Manutenção: {Manutencao}, Fator Lactação: {FatorL}, n={n}, m={m}.",
                 manutencao, fatorL, n, m);
 
+            string descricao = "Cão em Lactação (Customizado)";
+            
+            ValidarCustomizacaoPerfil(dieta, perfil, multiplicador, potencia, ref descricao);
+
+            dieta.FatorK = multiplicador;
+            dieta.Expoente = potencia;
+            dieta.PerfilNutricional = descricao;
+
             return manutencao + (peso * ((24 * n) + (12 * m)) * fatorL);
+        }
+
+        private string GerarPrevisoesLactacao(Animal animal, double peso, int numeroFilhotes, int semanaAtual, Dieta dieta)
+        {
+            var previsoes = new List<object>();
+            
+            if (animal.Especie == EspecieAnimal.Gato)
+            {
+                double multiplicador = dieta.FatorK;
+                double potencia = dieta.Expoente;
+                double manutencao = multiplicador * Math.Pow(peso, potencia);
+                double[] fatores = { 0.9, 0.9, 1.2, 1.2, 1.1, 1.0, 0.8 };
+                double constante = numeroFilhotes switch
+                {
+                    < 3 => 18,
+                    3 or 4 => 60,
+                    > 4 => 70,
+                };
+
+                for (int s = semanaAtual + 1; s <= 7; s++)
+                {
+                    double fatorL = fatores[Math.Clamp(s - 1, 0, fatores.Length - 1)];
+                    double kcal = manutencao + (constante * peso * fatorL);
+                    previsoes.Add(new { semana = s, kcal = Math.Round(kcal, 3) });
+                }
+            }
+            else if (animal.Especie == EspecieAnimal.Cao)
+            {
+                double multiplicador = dieta.FatorK;
+                double potencia = dieta.Expoente;
+                double manutencao = multiplicador * Math.Pow(peso, potencia);
+                double[] fatores = { 0.75, 0.95, 1.1, 1.2 };
+                
+                int n = Math.Clamp(numeroFilhotes, 0, 4);
+                int m = numeroFilhotes > 4 ? numeroFilhotes - 4 : 0;
+
+                for (int s = semanaAtual + 1; s <= 4; s++)
+                {
+                    double fatorL = fatores[Math.Clamp(s - 1, 0, fatores.Length - 1)];
+                    double kcal = manutencao + (peso * ((24 * n) + (12 * m)) * fatorL);
+                    previsoes.Add(new { semana = s, kcal = Math.Round(kcal, 3) });
+                }
+            }
+
+            return JsonSerializer.Serialize(previsoes);
+        }
+
+        private void ValidarCustomizacaoPerfil(Dieta dieta, PerfilMetabolico? perfil, double multiplicador, double potencia, ref string descricao)
+        {
+            if (perfil.HasValue && PerfilMetabolicoDados.Dados.TryGetValue(perfil.Value, out var dados))
+            {
+                if (dados.multiplicador.HasValue && dados.potencia.HasValue)
+                {
+                    if (Math.Abs(dados.multiplicador.Value - multiplicador) < 0.001 && Math.Abs(dados.potencia.Value - potencia) < 0.001)
+                    {
+                        descricao = dados.descricao;
+                        dieta.IsCustomizado = false;
+                    }
+                    else
+                    {
+                        descricao = $"{dados.descricao} (Customizado)";
+                        dieta.IsCustomizado = true;
+                    }
+                }
+                else
+                {
+                    // Generic profile (already customized)
+                    descricao = dados.descricao;
+                    dieta.IsCustomizado = true;
+                }
+            }
+            else
+            {
+                dieta.IsCustomizado = true;
+            }
         }
     }
 }

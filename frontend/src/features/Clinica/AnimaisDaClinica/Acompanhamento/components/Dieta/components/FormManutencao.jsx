@@ -1,13 +1,12 @@
 import React from "react";
-import { Form, Row, Col, Select, InputNumber, Checkbox } from "antd";
+import { Form, Row, Col, Select, InputNumber } from "antd";
 import LabelComInfo from "../../../../../../../components/atoms/LabelComInfo";
 import FormulaPreview from "./FormulaPreview";
 
 const FormManutencao = ({ form, especie, perfis, loading, tipoDietaSelecionado }) => {
   const perfisParaExibir = perfis || [];
-  const isCustomizado = Form.useWatch("isCustomizado", form);
-  const multiplicadorCustom = Form.useWatch("multiplicadorEnergeticoCustom", form);
-  const potenciaCustom = Form.useWatch("potenciaCustom", form);
+  const multiplicadorCustom = Form.useWatch("multiplicadorEnergetico", form);
+  const potencia = Form.useWatch("potencia", form);
   const pesoAtualWatch = Form.useWatch("pesoAtual", form);
   const perfilMetabolicoId = Form.useWatch("perfilMetabolico", form);
 
@@ -86,7 +85,6 @@ const FormManutencao = ({ form, especie, perfis, loading, tipoDietaSelecionado }
             <Select
               allowClear
               loading={loading}
-              disabled={isCustomizado}
               options={perfisParaExibir}
               placeholder="Selecione um perfil metabólico..."
             />
@@ -97,24 +95,17 @@ const FormManutencao = ({ form, especie, perfis, loading, tipoDietaSelecionado }
       <FormulaPreview
         tipoDieta={tipoDietaSelecionado || 1}
         isGato={isGato}
-        isCustomizado={isCustomizado}
+        isCustomizado={false} // Mantido prop mas não controla mais nada, FormulaPreview usa multiplicadorCustom
         multiplicadorCustom={multiplicadorCustom}
-        potenciaCustom={potenciaCustom}
+        potencia={potencia}
         pesoAtual={pesoAtualWatch}
         perfilMetabolicoLabel={perfilMetabolicoLabel}
       />
 
-      <Form.Item name="isCustomizado" valuePropName="checked" className="mb-2 mt-4">
-        <Checkbox>
-          Desejo personalizar o Multiplicador (K) e a Potência (P) da fórmula NRC
-        </Checkbox>
-      </Form.Item>
-
-      {isCustomizado && (
-        <Row gutter={16} className="mt-2">
-          <Col xs={24} md={12}>
+      <Row gutter={16} className="mt-4">
+        <Col xs={24} md={12}>
             <Form.Item
-              name="multiplicadorEnergeticoCustom"
+              name="multiplicadorEnergetico"
               label={
                 <LabelComInfo
                   label="Multiplicador Customizado (K)"
@@ -136,7 +127,7 @@ const FormManutencao = ({ form, especie, perfis, loading, tipoDietaSelecionado }
           </Col>
           <Col xs={24} md={12}>
             <Form.Item
-              name="potenciaCustom"
+              name="potencia"
               label={
                 <LabelComInfo
                   label="Potência Customizada (P)"
@@ -156,8 +147,7 @@ const FormManutencao = ({ form, especie, perfis, loading, tipoDietaSelecionado }
               />
             </Form.Item>
           </Col>
-        </Row>
-      )}
+      </Row>
     </div>
   );
 };

@@ -2533,9 +2533,6 @@ namespace backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("AdicionalGestacao")
-                        .HasColumnType("boolean");
-
                     b.Property<int>("AvaliacaoId")
                         .HasColumnType("integer");
 
@@ -2560,11 +2557,17 @@ namespace backend.Migrations
                     b.Property<double>("FatorK")
                         .HasColumnType("double precision");
 
+                    b.Property<bool>("HasAdicionalGestacaoCao")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsCustomizado")
                         .HasColumnType("boolean");
 
-                    b.Property<double?>("MultiplicadorEnergeticoCustom")
+                    b.Property<double?>("MultiplicadorEnergetico")
                         .HasColumnType("double precision");
+
+                    b.Property<int?>("NumeroFilhotes")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Observacoes")
                         .HasColumnType("text");
@@ -2585,13 +2588,22 @@ namespace backend.Migrations
                     b.Property<double?>("PesoObjetivo")
                         .HasColumnType("double precision");
 
-                    b.Property<double?>("PotenciaCustom")
+                    b.Property<double?>("Potencia")
                         .HasColumnType("double precision");
+
+                    b.Property<string>("PrevisoesJson")
+                        .HasColumnType("text");
 
                     b.Property<double?>("QtdAlimento")
                         .HasColumnType("double precision");
 
                     b.Property<int>("RacaoId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("SemanaGestacao")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("SemanaLactacao")
                         .HasColumnType("integer");
 
                     b.Property<int>("TipoDieta")

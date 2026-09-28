@@ -8,8 +8,8 @@ import {
   Select,
   Row,
   Col,
-  Divider,
   message,
+  Button,
 } from "antd";
 import { racoesDaClinicaAPI } from "../../../../../../api/clinica/racoesDaClinicaAPI";
 import {
@@ -427,11 +427,23 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
             <Form.Item
               name="condicaoCorporal"
               label={
-                <LabelComInfo
-                  label="Condição Corporal (ECC - 1 a 9)"
-                  tituloPopover="Escore de Condição Corporal"
-                  conteudoPopover={conteudoECC}
-                />
+                <div className="flex items-center justify-between w-full">
+                  <LabelComInfo
+                    label="Condição Corporal (ECC - 1 a 9)"
+                    tituloPopover="Escore de Condição Corporal"
+                    conteudoPopover={conteudoECC}
+                  />
+                  {!isGato && (
+                    <Button 
+                      type="link" 
+                      size="small" 
+                      className="text-xs p-0 m-0"
+                      onClick={() => form.setFieldsValue({ condicaoCorporal: undefined })}
+                    >
+                      Limpar
+                    </Button>
+                  )}
+                </div>
               }
               rules={[{ required: isGato, message: "Defina o escore corporal" }]}
               className="mb-0 px-2"

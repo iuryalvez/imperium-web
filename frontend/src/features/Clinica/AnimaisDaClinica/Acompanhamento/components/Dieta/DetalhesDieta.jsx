@@ -8,7 +8,6 @@ import {
   Descriptions,
   Typography,
   Divider,
-  Tag,
   Popover,
 } from "antd";
 import {
@@ -139,11 +138,14 @@ const DetalhesDieta = ({ dieta, isGato }) => {
             <span>Perfil Metabólico</span>
           </div>
 
-          <Text className="block text-sm text-gray-700 font-medium mb-3">
-            {dieta.isCustomizado 
-              ? "Fórmula Customizada" 
-              : (dieta.perfilNutricional || "Cálculo padrão baseado na literatura")}
-          </Text>
+          <div className="flex items-center gap-2 mb-3">
+            <Text className="block text-sm text-gray-700 font-medium">
+              {dieta.perfilNutricional || "Cálculo padrão baseado na literatura"}
+            </Text>
+            {/* {dieta.isCustomizado && (
+              <Tag color="orange" className="m-0">Fórmula Customizada</Tag>
+            )} */}
+          </div>
 
           <div className="pt-2 border-t border-gray-200 mt-2">
             <FormulaPreview
@@ -151,12 +153,48 @@ const DetalhesDieta = ({ dieta, isGato }) => {
               isGato={isGato}
               isCustomizado={true} // Força true para usar os valores exatos calculados no backend
               multiplicadorCustom={dieta.fatorK}
-              potenciaCustom={dieta.expoente}
+              potencia={dieta.expoente}
               pesoAtual={dieta.pesoAtual}
               pesoObjetivo={dieta.pesoObjetivo}
               perfilMetabolicoLabel={dieta.perfilNutricional}
-              adicionalGestacao={dieta.adicionalGestacao}
+              hasAdicionalGestacaoCao={dieta.hasAdicionalGestacaoCao}
+              numeroFilhotes={dieta.numeroFilhotes}
+              semanaLactacao={dieta.semanaLactacao}
+              semanaGestacao={dieta.semanaGestacao}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Previsões Json */}
+      {dieta.previsoesJson && (
+        <div className="mt-4 mb-2">
+          <Divider orientation="left" plain className="mb-2 mt-0">
+            <span className="text-xs font-semibold uppercase text-gray-500 tracking-wider">
+              Projeções Energéticas (Próximas Semanas)
+            </span>
+          </Divider>
+          <div className="bg-blue-50 border border-blue-100 rounded-md p-3 text-sm">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead>
+                <tr>
+                  <th className="px-3 py-1.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Semana</th>
+                  <th className="px-3 py-1.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Demanda Estimada (Kcal)</th>
+                  <th className="px-3 py-1.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ração (g)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {JSON.parse(dieta.previsoesJson).map((prev, idx) => (
+                  <tr key={idx}>
+                    <td className="px-3 py-1.5 whitespace-nowrap text-sm text-gray-700 font-medium">Semana {prev.semana}</td>
+                    <td className="px-3 py-1.5 whitespace-nowrap text-sm text-gray-700">{formatadorDuasCasas.format(prev.kcal)} kcal/dia</td>
+                    <td className="px-3 py-1.5 whitespace-nowrap text-sm text-gray-700">
+                      {dieta.racaoUtilizada === "Ração não informada" ? "-" : formatadorUmaCasa.format(prev.kcal / (dieta.necessidadeEnergeticaKcal / gramas))} g/dia
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

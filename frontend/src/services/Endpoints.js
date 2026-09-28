@@ -57,11 +57,11 @@ const endpoints = {
       getPerfisMetabolicos: `${API_BASE_URL}/clinica/acompanhamentos/perfis-metabolicos`,
       // Rota para criar uma dieta associada a um acompanhamento
       criarDieta: (acompanhamentoId) =>
-        `${API_BASE_URL}/clinica/acompanhamentos/dieta`,
+        `${API_BASE_URL}/clinica/dietas`,
       editarDieta: (dietaId) =>
-        `${API_BASE_URL}/clinica/acompanhamentos/dieta/${dietaId}`,
+        `${API_BASE_URL}/clinica/dietas/${dietaId}`,
       deletarDieta: (dietaId) =>
-        `${API_BASE_URL}/clinica/acompanhamentos/dieta/${dietaId}`,
+        `${API_BASE_URL}/clinica/dietas/${dietaId}`,
     },
     animal: {
       listar: `${API_BASE_URL}/clinica/animais`,

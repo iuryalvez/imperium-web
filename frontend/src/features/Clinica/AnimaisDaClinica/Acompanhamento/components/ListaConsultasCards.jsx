@@ -16,7 +16,7 @@ import {
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 const ListaConsultasCards = ({
   consultas,

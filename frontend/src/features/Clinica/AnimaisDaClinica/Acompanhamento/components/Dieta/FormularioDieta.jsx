@@ -28,18 +28,25 @@ const opcoesTipoDietaBase = [
   { value: 5, label: "Emagrecimento" },
 ];
 
-const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca, dadosAnimal }) => {
+const FormularioDieta = ({
+  onFinish,
+  initialValues,
+  racoes,
+  dadosRaca,
+  dadosAnimal,
+}) => {
   const [form] = Form.useForm();
   const tipoDietaSelecionado = useWatch("tipoDieta", form);
-  
-  const isCustomizado = useWatch("isCustomizado", form);
-  // const multiplicadorCustom = useWatch("multiplicadorEnergeticoCustom", form);
-  // const potenciaCustom = useWatch("potenciaCustom", form);
-  // const pesoAtualWatch = useWatch("pesoAtual", form);
 
   const isGato =
     initialValues?.especieAnimal === 2 ||
     String(initialValues?.especieAnimal).toLowerCase() === "gato";
+
+  const isCao =
+    initialValues?.especieAnimal === 1 ||
+    String(initialValues?.especieAnimal).toLowerCase() === "cao";
+
+  const isEditing = !!initialValues?.id;
 
   const [perfisMetabolicos, setPerfisMetabolicos] = useState([]);
   const [loadingPerfis, setLoadingPerfis] = useState(false);
@@ -62,30 +69,52 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca, dadosAnim
   }, []);
 
   const perfilSelecionadoId = useWatch("perfilMetabolico", form);
+  const multiplicadorEnergetico = useWatch("multiplicadorEnergetico", form);
+  const potencia = useWatch("potencia", form);
 
   useEffect(() => {
-    if (perfilSelecionadoId === 1) {
-      form.setFieldValue("isCustomizado", true);
+    if (perfilSelecionadoId && perfisMetabolicos.length > 0) {
+      const perfil = perfisMetabolicos.find((p) => p.value === perfilSelecionadoId);
+      if (perfil && perfil.k !== null && perfil.p !== null && perfil.k !== undefined && perfil.p !== undefined) {
+        form.setFieldsValue({
+          multiplicadorEnergetico: perfil.k,
+          potencia: perfil.p,
+        });
+      }
     }
-  }, [perfilSelecionadoId, form]);
+  }, [perfilSelecionadoId, perfisMetabolicos, form]);
 
   useEffect(() => {
-    if (isCustomizado) {
-      const currentPerfil = form.getFieldValue("perfilMetabolico");
-      if (currentPerfil !== 1) {
-        form.setFieldValue("perfilMetabolico", undefined);
+    if (perfilSelecionadoId && perfisMetabolicos.length > 0) {
+      const perfil = perfisMetabolicos.find((p) => p.value === perfilSelecionadoId);
+      
+      // Se é um perfil que tem K e P fixos no backend
+      if (perfil && perfil.k !== null && perfil.p !== null && perfil.k !== undefined && perfil.p !== undefined) {
+        // Se o usuário alterou K ou P para valores diferentes do perfil base
+        if (
+          (multiplicadorEnergetico !== undefined && Math.abs(multiplicadorEnergetico - perfil.k) > 0.001) ||
+          (potencia !== undefined && Math.abs(potencia - perfil.p) > 0.001)
+        ) {
+          const tipo = form.getFieldValue("tipoDieta");
+          const isGat = initialValues?.especieAnimal === 2 || String(initialValues?.especieAnimal).toLowerCase() === "gato";
+          const termoBusca = isGat ? "gato" : "cão";
+          
+          const perfilGenerico = perfisMetabolicos.find(p => 
+            p.tiposDieta?.includes(tipo) && 
+            p.k === null && 
+            p.p === null && 
+            p.label.toLowerCase().includes(termoBusca)
+          );
+
+          let novoPerfilId = perfilGenerico ? perfilGenerico.value : null;
+
+          if (novoPerfilId && novoPerfilId !== perfilSelecionadoId) {
+            form.setFieldValue("perfilMetabolico", novoPerfilId);
+          }
+        }
       }
-    } else {
-      const currentPerfil = form.getFieldValue("perfilMetabolico");
-      if (currentPerfil === 1) {
-        form.setFieldValue("perfilMetabolico", undefined);
-      }
-      form.setFieldsValue({
-        multiplicadorEnergeticoCustom: undefined,
-        potenciaCustom: undefined,
-      });
     }
-  }, [isCustomizado, form]);
+  }, [multiplicadorEnergetico, potencia, perfilSelecionadoId, perfisMetabolicos, form, initialValues?.especieAnimal]);
 
   useEffect(() => {
     if (initialValues) {
@@ -105,16 +134,23 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca, dadosAnim
       form.setFieldsValue({
         racaoId: initialValues.racaoId,
         tipoDieta: parsedTipoDieta,
-        pesoAtual: initialValues.peso,
+        pesoAtual: initialValues.pesoAtual || initialValues.peso,
         pesoIdeal: initialValues.pesoIdeal,
-        numeroFilhotes: initialValues.isLactanteNumeroFilhotes,
+        numeroFilhotes:
+          initialValues.numeroFilhotes ||
+          initialValues.isLactanteNumeroFilhotes,
         semanaLactacao: initialValues.semanaLactacao,
         semanaGestacao: initialValues.semanaGestacao,
-        adicionalGestacao: initialValues.adicionalGestacao,
+        hasAdicionalGestacaoCao:
+          initialValues.hasAdicionalGestacaoCao,
         perfilMetabolico: initialValues.perfilMetabolico,
-        multiplicadorEnergeticoCustom: initialValues.multiplicadorEnergeticoCustom,
-        potenciaCustom: initialValues.potenciaCustom,
-        isCustomizado: !!(initialValues.multiplicadorEnergeticoCustom || initialValues.potenciaCustom),
+        multiplicadorEnergetico:
+          initialValues.multiplicadorEnergetico,
+        potencia: initialValues.potencia,
+        isCustomizado: !!(
+          initialValues.multiplicadorEnergetico ||
+          initialValues.potencia
+        ),
       });
     }
   }, [initialValues, form]);
@@ -156,15 +192,24 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca, dadosAnim
 
   const renderSpecificForm = () => {
     const perfisFiltrados = perfisMetabolicos.filter((p) => {
-      const currentPerfil = form.getFieldValue("perfilMetabolico") || initialValues?.perfilMetabolico;
+      const currentPerfil =
+        form.getFieldValue("perfilMetabolico") ||
+        initialValues?.perfilMetabolico;
       const isSelected = currentPerfil && p.value === currentPerfil;
-      
+
       const isPerfilGato = p.label.toLowerCase().includes("gato");
       const especieMatch = isGato ? isPerfilGato : !isPerfilGato;
-      // Para Gestação (4), disponibiliza-se os mesmos perfis da Manutenção (1)
-      const dietaParaBuscar = tipoDietaSelecionado === 4 ? 1 : tipoDietaSelecionado;
-      const dietaMatch = p.tiposDieta?.includes(dietaParaBuscar);
+      let dietaMatch = p.tiposDieta?.includes(tipoDietaSelecionado);
       
+      // Para Lactação (3) de cães, também disponibilizamos Manutenção (1)
+      if (tipoDietaSelecionado === 3 && isCao) {
+        dietaMatch = dietaMatch || p.tiposDieta?.includes(1);
+      }
+      // Para Gestação (4), disponibiliza-se os mesmos perfis da Manutenção (1) além dos próprios perfis de gestação
+      if (tipoDietaSelecionado === 4) {
+        dietaMatch = dietaMatch || p.tiposDieta?.includes(1);
+      }
+
       return (especieMatch && dietaMatch) || isSelected;
     });
 
@@ -190,7 +235,14 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca, dadosAnim
           />
         );
       case 3:
-        return <FormLactacao />;
+        return (
+          <FormLactacao
+            form={form}
+            especie={initialValues?.especieAnimal}
+            perfis={perfisFiltrados}
+            loading={loadingPerfis}
+          />
+        );
       case 4:
         return (
           <FormGestacao
@@ -212,13 +264,15 @@ const FormularioDieta = ({ onFinish, initialValues, racoes, dadosRaca, dadosAnim
       layout="vertical"
       onFinish={onFinish}
     >
-      <Alert
-        className="mb-4"
-        type="info"
-        showIcon
-        message="Dados vinculados da Avaliação Clínica"
-        description="Os dados foram preenchidos automaticamente com base na avaliação registrada nesta consulta."
-      />
+      {!isEditing && (
+        <Alert
+          className="mb-4"
+          type="info"
+          showIcon
+          message="Dados vinculados da Avaliação Clínica"
+          description="Os dados foram preenchidos automaticamente com base na avaliação registrada nesta consulta."
+        />
+      )}
       <Row gutter={16}>
         <Col span={12}>
           <Form.Item

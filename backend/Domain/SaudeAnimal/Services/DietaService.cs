@@ -56,9 +56,12 @@ namespace backend.Domain.SaudeAnimal.Services
             dietaExistente.AvaliacaoId = avaliacao.Id;
             dietaExistente.RacaoId = racao.Id;
             dietaExistente.PerfilMetabolico = dto.PerfilMetabolico;
-            dietaExistente.MultiplicadorEnergeticoCustom = dto.MultiplicadorEnergeticoCustom;
-            dietaExistente.PotenciaCustom = dto.PotenciaCustom;
-            dietaExistente.AdicionalGestacao = dto.AdicionalGestacao ?? false;
+            dietaExistente.MultiplicadorEnergetico = dto.MultiplicadorEnergetico;
+            dietaExistente.Potencia = dto.Potencia;
+            dietaExistente.HasAdicionalGestacaoCao = dto.HasAdicionalGestacaoCao ?? false;
+            dietaExistente.NumeroFilhotes = dto.NumeroFilhotes;
+            dietaExistente.SemanaLactacao = dto.SemanaLactacao;
+            dietaExistente.SemanaGestacao = dto.SemanaGestacao;
 
             // 4. CHAMAR O CÁLCULO PASSANDO A ENTIDADE DO BANCO
             double necessidadeKcal = _calculoService.CalcularNecessidadeTotal(animal, dietaExistente);
@@ -154,7 +157,7 @@ namespace backend.Domain.SaudeAnimal.Services
                 }
                 if (createDto.TipoDieta == TipoDieta.Lactacao)
                 {
-                    animal.IsLactanteNumeroFilhotes = createDto.IsLactanteNumeroFilhotes ?? animal.IsLactanteNumeroFilhotes;
+                    animal.IsLactanteNumeroFilhotes = createDto.NumeroFilhotes ?? animal.IsLactanteNumeroFilhotes;
                     animal.SemanaLactacao = createDto.SemanaLactacao ?? animal.SemanaLactacao;
                 }
                 if (createDto.TipoDieta == TipoDieta.Gestacao)

@@ -1,21 +1,17 @@
 import React from "react";
-import { Form, Row, Col, Select, InputNumber, Checkbox, Alert } from "antd";
+import { Form, Row, Col, Select, InputNumber, Alert, Collapse, List, Checkbox } from "antd";
 import LabelComInfo from "../../../../../../../components/atoms/LabelComInfo";
 import FormulaPreview from "./FormulaPreview";
 
 const FormGestacao = ({ form, especie, perfis, loading }) => {
   const perfisParaExibir = perfis || [];
-  const isCustomizado = Form.useWatch("isCustomizado", form);
-  const multiplicadorCustom = Form.useWatch("multiplicadorEnergeticoCustom", form);
-  const potenciaCustom = Form.useWatch("potenciaCustom", form);
-  const pesoAtualWatch = Form.useWatch("pesoAtual", form);
-  const perfilMetabolicoId = Form.useWatch("perfilMetabolico", form);
-  const semanaGestacaoWatch = Form.useWatch("semanaGestacao", form);
-
-  const adicionalGestacaoWatch = Form.useWatch("adicionalGestacao", form);
-
   const isGato = especie === 2 || String(especie).toLowerCase() === "gato";
   const isCao = especie === 1 || String(especie).toLowerCase() === "cao";
+  const multiplicadorCustom = Form.useWatch("multiplicadorEnergetico", form);
+  const potencia = Form.useWatch("potencia", form);
+  const pesoAtualWatch = Form.useWatch("pesoAtual", form);
+  const perfilMetabolicoId = Form.useWatch("perfilMetabolico", form);
+  const hasAdicionalGestacaoCaoWatch = Form.useWatch("hasAdicionalGestacaoCao", form);
 
   const perfilSelecionado = perfisParaExibir.find((p) => p.value === perfilMetabolicoId);
   const perfilMetabolicoLabel = perfilSelecionado?.label;
@@ -28,8 +24,8 @@ const FormGestacao = ({ form, especie, perfis, loading }) => {
 
       {isGato && (
         <Alert
-          message="Recomendação NRC (2006) para Gatas"
-          description="Gatas gestantes não possuem equação NRC definida. A literatura recomenda alimentação ad libitum ou acompanhamento rigoroso para um ganho de peso constante de 40 a 50% no pré-parto. O sistema sugere calcular a dieta com base em algum perfil de manutenção, porém também é permitido que você ajuste o multiplicador conforme a necessidade."
+          message="Recomendação NRC (2006) para Gatas (Customização Obrigatória)"
+          description="Gatas gestantes não possuem equação NRC definida. A literatura recomenda alimentação ad libitum ou acompanhamento rigoroso para um ganho de peso constante de 40 a 50% no pré-parto. Portanto, o preenchimento do K e do P é obrigatório para Gestação de Gatas."
           type="warning"
           showIcon
           className="mb-4"
@@ -72,58 +68,88 @@ const FormGestacao = ({ form, especie, perfis, loading }) => {
       </Row>
 
       {isCao && (
-        <Form.Item name="adicionalGestacao" valuePropName="checked" className="mb-4">
+        <Form.Item name="hasAdicionalGestacaoCao" valuePropName="checked" className="mb-4">
           <Checkbox>
             Adicionar fator extra de Fase Final (+ 26 × Peso) ao cálculo
           </Checkbox>
         </Form.Item>
       )}
 
-      <Row gutter={16}>
-        <Col span={24}>
-          <Form.Item
-            name="perfilMetabolico"
-            label={
-              <LabelComInfo
-                label="Perfil Metabólico Base / Fórmula"
-                tituloPopover="Perfil Metabólico"
-                conteudoPopover="Permite selecionar um perfil pré-cadastrado. Para gestação inicial ou gatas, use perfis de manutenção. Para cadelas em fase final, utilize o perfil de Gestação Final."
+      {isCao && (
+        <Row gutter={16}>
+          <Col span={24}>
+            <Form.Item
+              name="perfilMetabolico"
+              label={
+                <LabelComInfo
+                  label="Perfil Metabólico"
+                  tituloPopover="Perfil Metabólico"
+                  conteudoPopover="Permite selecionar um perfil pré-cadastrado. Para gestação inicial ou gatas, use perfis de manutenção. Para cadelas em fase final, utilize o perfil de Gestação Final."
+                />
+              }
+            >
+              <Select
+                allowClear
+                loading={loading}
+                options={perfisParaExibir}
+                placeholder="Selecione um perfil metabólico ou fórmula..."
               />
-            }
-          >
-            <Select
-              allowClear
-              loading={loading}
-              disabled={isCustomizado}
-              options={perfisParaExibir}
-              placeholder="Selecione um perfil metabólico ou fórmula..."
-            />
-          </Form.Item>
-        </Col>
-      </Row>
+            </Form.Item>
+          </Col>
+        </Row>
+      )}
+
+      {isGato && (
+        <Collapse
+          size="small"
+          className="mb-4 bg-white"
+          items={[
+            {
+              key: '1',
+              label: 'Perfis Metabólicos de Manutenção Conhecidos',
+              children: (
+                <div className="max-h-60 overflow-y-auto">
+                  <List
+                    size="small"
+                    dataSource={perfisParaExibir.filter(
+                      (p) =>
+                        p.tiposDieta?.includes(1) &&
+                        p.label.toLowerCase().includes("gato"),
+                    )}
+                    renderItem={(item) => (
+                      <List.Item>
+                        <List.Item.Meta
+                          title={
+                            <span className="text-sm text-gray-700">
+                              {item.label}
+                            </span>
+                          }
+                        />
+                      </List.Item>
+                    )}
+                  />
+                </div>
+              ),
+            },
+          ]}
+        />
+      )}
 
       <FormulaPreview
         tipoDieta={4} // Gestacao
         isGato={isGato}
-        isCustomizado={isCustomizado}
+        isCustomizado={false}
         multiplicadorCustom={multiplicadorCustom}
-        potenciaCustom={potenciaCustom}
+        potencia={potencia}
         pesoAtual={pesoAtualWatch}
         perfilMetabolicoLabel={perfilMetabolicoLabel}
-        adicionalGestacao={adicionalGestacaoWatch}
+        hasAdicionalGestacaoCao={hasAdicionalGestacaoCaoWatch}
       />
 
-      <Form.Item name="isCustomizado" valuePropName="checked" className="mb-2 mt-4">
-        <Checkbox>
-          Desejo personalizar o Multiplicador (K) e a Potência (P)
-        </Checkbox>
-      </Form.Item>
-
-      {isCustomizado && (
-        <Row gutter={16} className="mt-2">
-          <Col xs={24} md={12}>
+      <Row gutter={16} className="mt-4">
+        <Col xs={24} md={12}>
             <Form.Item
-              name="multiplicadorEnergeticoCustom"
+              name="multiplicadorEnergetico"
               label={
                 <LabelComInfo
                   label="Multiplicador Customizado (K)"
@@ -145,7 +171,7 @@ const FormGestacao = ({ form, especie, perfis, loading }) => {
           </Col>
           <Col xs={24} md={12}>
             <Form.Item
-              name="potenciaCustom"
+              name="potencia"
               label={
                 <LabelComInfo
                   label="Potência Customizada (P)"
@@ -165,8 +191,7 @@ const FormGestacao = ({ form, especie, perfis, loading }) => {
               />
             </Form.Item>
           </Col>
-        </Row>
-      )}
+      </Row>
     </div>
   );
 };

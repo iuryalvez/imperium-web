@@ -232,7 +232,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
 
                 _logger.LogInformation("Sincronizando entidade 'animal' em memória com dados do CreateDietaDto.");
                 _logger.LogInformation("Valores do DTO para sincronização -> PesoAtual: {PesoDto}, Nro Filhotes: {FilhotesDto}, Semana Lactação: {SemanaLactacaoDto}",
-                    dto.PesoAtual, dto.IsLactanteNumeroFilhotes, dto.SemanaLactacao);
+                    dto.PesoAtual, dto.NumeroFilhotes, dto.SemanaLactacao);
 
                 animal.Peso = dto.PesoAtual ?? animal.Peso;
                 animal.PesoIdeal = dto.PesoIdeal ?? animal.PesoIdeal;
@@ -246,7 +246,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 // Atualiza os dados de lactação se o tipo de dieta for Lactação
                 if (dto.TipoDieta == TipoDieta.Lactacao)
                 {
-                    animal.IsLactanteNumeroFilhotes = dto.IsLactanteNumeroFilhotes ?? animal.IsLactanteNumeroFilhotes;
+                    animal.IsLactanteNumeroFilhotes = dto.NumeroFilhotes ?? animal.IsLactanteNumeroFilhotes;
                     animal.SemanaLactacao = dto.SemanaLactacao ?? animal.SemanaLactacao;
                 }
 

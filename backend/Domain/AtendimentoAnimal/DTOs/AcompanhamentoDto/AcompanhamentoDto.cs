@@ -94,9 +94,13 @@ namespace backend.Domain.AtendimentoAnimal
         public double Expoente { get; set; }
         public string? PerfilNutricional { get; set; }
         public PerfilMetabolico? PerfilMetabolico { get; set; }
-        public double? MultiplicadorEnergeticoCustom { get; set; }
-        public double? PotenciaCustom { get; set; }
+        public double? MultiplicadorEnergetico { get; set; }
+        public double? Potencia { get; set; }
         public bool IsCustomizado { get; set; }
-        public bool AdicionalGestacao { get; set; }
+        public bool HasAdicionalGestacaoCao { get; set; }
+        public int? NumeroFilhotes { get; set; }
+        public int? SemanaLactacao { get; set; }
+        public int? SemanaGestacao { get; set; }
+        public string? PrevisoesJson { get; set; }
     }
 }

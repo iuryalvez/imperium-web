@@ -24,8 +24,8 @@ namespace backend.Domain.SaudeAnimal.Entities
         public string PerfilNutricional { get; set; } = string.Empty; // Ex: "Cães ativos ou de canil (NRC, 2006)"
         public PerfilMetabolico? PerfilMetabolico { get; set; }
         public bool IsCustomizado { get; set; } = false;
-        public double? MultiplicadorEnergeticoCustom { get; set; } // exemplo: 150 kcal
-        public double? PotenciaCustom { get; set; } // exemplo: 0.8 (em vez de 0.75)
+        public double? MultiplicadorEnergetico { get; set; } // exemplo: 150 kcal
+        public double? Potencia { get; set; } // exemplo: 0.8 (em vez de 0.75)
         public double? QtdAlimento { get; set; } // calculado
         public double? EnergiaMetabolizavel { get; set; } // calculado
         public double? PesoAtual { get; set; }
@@ -36,7 +36,10 @@ namespace backend.Domain.SaudeAnimal.Entities
         public int? DuracaoEstimada { get; set; }
         public string? Observacoes { get; set; }
         public FaseVidaAnimal? FaseVida { get; set; }
-
-        public bool AdicionalGestacao { get; set; }
+        public bool HasAdicionalGestacaoCao { get; set; }
+        public int? NumeroFilhotes { get; set; }
+        public int? SemanaLactacao { get; set; }
+        public int? SemanaGestacao { get; set; }
+        public string? PrevisoesJson { get; set; }
     }
 }

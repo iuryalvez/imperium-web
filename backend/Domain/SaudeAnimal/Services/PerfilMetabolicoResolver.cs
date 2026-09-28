@@ -15,19 +15,21 @@ namespace backend.Domain.SaudeAnimal.Services
             switch (dieta.TipoDieta)
             {
                 case TipoDieta.Manutencao:
-                case TipoDieta.Gestacao:
                     return ResolverManutencao(animal);
 
                 case TipoDieta.Crescimento:
                     return animal.Especie == EspecieAnimal.Gato
-                        ? PerfilMetabolico.GatoCrescimentoMedia
-                        : PerfilMetabolico.CaoCrescimentoMedia;
+                        ? PerfilMetabolico.GatoEmCrescimentoComNecessidadeMedia
+                        : PerfilMetabolico.CaoEmCrescimentoComNecessidadeMedia;
 
                 case TipoDieta.Lactacao:
-                    // TODO: implementar no futuro
                     return animal.Especie == EspecieAnimal.Gato
-                        ? PerfilMetabolico.GatoLactacao
-                        : PerfilMetabolico.CaoLactacao;
+                        ? PerfilMetabolico.GatoEmLactacao
+                        : PerfilMetabolico.CaoEmLactacao;
+                case TipoDieta.Gestacao:
+                    return animal.Especie == EspecieAnimal.Gato
+                        ? PerfilMetabolico.GatoEmGestacao
+                        : PerfilMetabolico.CaoEmGestacao;
 
                 default:
                     throw new InvalidOperationException($"Tipo de dieta '{dieta.TipoDieta}' não suportado.");
