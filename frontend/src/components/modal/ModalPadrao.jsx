@@ -6,6 +6,7 @@ const ModalPadrao = ({
   open,
   onCancel,
   title,
+  subtitle,
   icon,
   formId,
   isSubmitting,
@@ -85,10 +86,17 @@ const ModalPadrao = ({
   return (
     <Modal
       title={
-        <Space>
-          {icon && React.cloneElement(icon, { className: "modal-title-icon" })}
-          <span className="text-verde-escuro m-0 text-lg">{title}</span>
-        </Space>
+        <div>
+          <Space>
+            {icon && React.cloneElement(icon, { className: "modal-title-icon" })}
+            <span className="text-verde-escuro m-0 text-lg">{title}</span>
+          </Space>
+          {subtitle && (
+            <div className="text-sm font-normal text-gray-500 mt-1 pl-7">
+              {subtitle}
+            </div>
+          )}
+        </div>
       }
       open={open}
       onCancel={onCancel}

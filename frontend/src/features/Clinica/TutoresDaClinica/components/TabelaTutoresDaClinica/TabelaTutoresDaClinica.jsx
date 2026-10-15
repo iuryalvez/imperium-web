@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
-import { Table, Button, Space, Tooltip, Popconfirm, Dropdown, Checkbox } from "antd";
+import { Button, Space, Tooltip, Popconfirm, Dropdown, Checkbox } from "antd";
 import { EyeOutlined, EditOutlined, DeleteOutlined, SettingOutlined } from "@ant-design/icons";
+import TabelaPadrao from "../../../../../components/table/TabelaPadrao";
 import colunas from './colunas';
 
 const TabelaTutoresDaClinica = ({ tutores, onEdit, onDelete, onViewDetails, loadingRowKey }) => {
@@ -68,7 +69,7 @@ const TabelaTutoresDaClinica = ({ tutores, onEdit, onDelete, onViewDetails, load
           <Button icon={<SettingOutlined />}>Colunas</Button>
         </Dropdown>
       </div>
-      <Table
+      <TabelaPadrao
         dataSource={tutores}
         columns={colunasVisiveis}
         rowKey="id"

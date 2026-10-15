@@ -6,7 +6,7 @@ export const themeConfig = {
     colorSuccess: colors.verde.realce,
     colorError: colors.vermelho.delete,
     colorInfo: colors.verde.medio,
-    colorBgLayout: colors.verde.fraco, // Fundo do Content
+    colorBgLayout: colors.branco, // Fundo do Content
     
     colorText: colors.verde.escuro,
 
@@ -40,13 +40,15 @@ export const themeConfig = {
       // itemSelectedColor: colors.verde.realce,
       itemSelectedBg: colors.verde.fraco,
     },
-    // Table: {
-    //   // Applies palette colors to table headers globally
-    //   headerBg: colors.cinza.background,
-    //   headerColor: colors.verde.escuro,
-    //   headerBorderRadius: 6,
-    //   borderColor: colors.cinza.desativado,
-    //   rowHoverBg: colors.cinza.background,
-    // },
+    Card: {
+      colorBgContainer: colors.branco,
+      boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+      colorBorderSecondary: "rgba(39, 143, 84, 0.3)", // Verde claro suave (borda)
+    },
+    Table: {
+      colorBgContainer: colors.branco,
+      boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+      colorBorderSecondary: "rgba(39, 143, 84, 0.15)", // Verde muito suave para as linhas internas horizontais
+    },
   },
 };

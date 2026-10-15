@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from "react";
 import {
-  Table,
   Space,
   Tooltip,
   Button,
@@ -14,6 +13,7 @@ import {
   SettingOutlined,
   CalculatorOutlined,
 } from "@ant-design/icons";
+import TabelaPadrao from "../../../../../components/table/TabelaPadrao";
 import colunas from "./colunas";
 
 const TabelaRacoesDaClinica = ({
@@ -101,7 +101,7 @@ const TabelaRacoesDaClinica = ({
           <Button icon={<SettingOutlined />}>Colunas</Button>
         </Dropdown>
       </div>
-      <Table
+      <TabelaPadrao
         dataSource={racoes}
         columns={colunasVisiveis}
         rowKey="id"

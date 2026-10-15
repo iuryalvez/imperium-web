@@ -39,4 +39,52 @@ body,
   .modal-title-icon {
     @apply text-verde-medio; /* Utiliza a cor já mapeada no seu tailwind.config.js */
   }
+
+  /* Estilos específicos para a TabelaPadrao que simula o design moderno de listas de processos */
+  .tabela-padrao .ant-table {
+    border-radius: 8px;
+    background: transparent;
+  }
+
+  /* Remoção das bordas externas no wrapper, transferindo o foco para as linhas horizontais */
+  .tabela-padrao.ant-table-wrapper {
+    border: none;
+    box-shadow: none;
+  }
+
+  /* Cabeçalho (Header) */
+  .tabela-padrao .ant-table-thead > tr > th {
+    background: linear-gradient(180deg, var(--verde-fraco), var(--branco)) !important;
+    color: var(--verde-escuro) !important;
+    font-weight: 600;
+    border-bottom: 2px solid var(--cinza-background) !important;
+    padding: 16px 24px;
+  }
+
+  /* Esconde pseudo-elementos (divisores verticais padrão do ant design) */
+  .tabela-padrao .ant-table-thead > tr > th::before {
+    display: none !important;
+  }
+
+  /* Células e Linhas do Corpo (Body) */
+  .tabela-padrao .ant-table-tbody > tr > td {
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(6, 68, 32, 0.15) !important; /* Linha sutil em verde escuro nas separações de linha */
+    color: #4b5563; /* cinza neutro */
+    font-weight: 500;
+  }
+
+  /* Cor de fundo para as linhas (zebra stripe sutil) */
+  .tabela-padrao .ant-table-tbody > tr.linha-par > td {
+    background-color: var(--branco);
+  }
+  
+  .tabela-padrao .ant-table-tbody > tr.linha-impar > td {
+    background-color: #fafafa;
+  }
+
+  /* Hover nas linhas */
+  .tabela-padrao .ant-table-tbody > tr:hover > td {
+    background-color: rgba(39, 143, 84, 0.05) !important;
+  }
 }
