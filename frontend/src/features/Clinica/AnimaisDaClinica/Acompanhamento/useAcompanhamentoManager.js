@@ -60,27 +60,29 @@ export const useAcompanhamentoManager = () => {
   };
 
   // Usamos useCallback para evitar recriações desnecessárias da função
-  const fetchHistorico = useCallback(async () => {
+  const fetchHistorico = useCallback(async ({ silent = false } = {}) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const result =
         await acompanhamentoAPI.getHistoricoCompleto(acompanhamentoId);
       if (result.succeeded) {
         setHistorico(result.data);
         // Quando o histórico carregar, buscamos as rações para a espécie do animal
-        if (result.data?.especie) {
+        if (!silent && result.data?.especie) {
           const racoesData = await racoesDaClinicaAPI.listar(
             result.data.especie === "Cao" ? 1 : 2,
           );
           setRacoes(racoesData);
         }
+        return result.data;
       } else {
         throw new Error(result.message || "Histórico não encontrado.");
       }
     } catch (err) {
       message.error(`Erro ao buscar histórico: ${err.message}`);
+      return null;
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [acompanhamentoId]);
 
@@ -233,6 +235,75 @@ export const useAcompanhamentoManager = () => {
     }
   };
 
+  const handleIniciarDieta = async (dietaId) => {
+    try {
+      const result = await acompanhamentoAPI.iniciarDieta(dietaId);
+      if (result.succeeded) {
+        message.success("Dieta iniciada com sucesso!");
+        await fetchHistorico();
+      } else {
+        message.error(result.message || "Falha ao iniciar dieta.");
+      }
+    } catch (error) {
+      message.error(formatError(error, "Ocorreu um erro inesperado."));
+    }
+  };
+
+  const handleConcluirDieta = async (dietaId) => {
+    try {
+      const result = await acompanhamentoAPI.concluirDieta(dietaId);
+      if (result.succeeded) {
+        message.success("Dieta concluída com sucesso!");
+        await fetchHistorico();
+      } else {
+        message.error(result.message || "Falha ao concluir dieta.");
+      }
+    } catch (error) {
+      message.error(formatError(error, "Ocorreu um erro inesperado."));
+    }
+  };
+
+  const atualizarDietaVisualizada = (dados, dietaId) => {
+    const dietaAtualizada = (dados?.consultas || [])
+      .map((c) => c.avaliacao?.dieta)
+      .find((d) => d?.id === dietaId);
+    if (dietaAtualizada) {
+      setDietaParaVisualizar(dietaAtualizada);
+    }
+  };
+
+  const handleRegistrarPeso = async (dietaId, dadosPeso) => {
+    try {
+      const result = await acompanhamentoAPI.registrarPesoDieta(dietaId, dadosPeso);
+      if (result.succeeded) {
+        message.success("Peso registrado com sucesso!");
+        const dados = await fetchHistorico({ silent: true });
+        atualizarDietaVisualizada(dados, dietaId);
+        return true;
+      }
+      message.error(result.message || "Falha ao registrar peso.");
+      return false;
+    } catch (error) {
+      message.error(formatError(error, "Ocorreu um erro inesperado ao registrar o peso."));
+      return false;
+    }
+  };
+
+  const handleRemoverPeso = async (dietaId, registroId) => {
+    try {
+      const result = await acompanhamentoAPI.deletarPeso(dietaId, registroId);
+      if (result.succeeded) {
+        message.success("Registro de peso removido!");
+        const dados = await fetchHistorico({ silent: true });
+        atualizarDietaVisualizada(dados, dietaId);
+      } else {
+        message.error(result.message || "Falha ao remover registro.");
+      }
+    } catch (error) {
+      message.error(formatError(error, "Ocorreu um erro inesperado ao remover o registro."));
+    }
+  };
+
   const handleDeleteConsulta = async (consultaId) => {
     try {
       await consultasDaClinicaAPI.deletar(consultaId);
@@ -296,6 +367,10 @@ export const useAcompanhamentoManager = () => {
     handleCriarDieta,
     handleEditarDieta,
     handleExcluirDieta,
+    handleIniciarDieta,
+    handleConcluirDieta,
+    handleRegistrarPeso,
+    handleRemoverPeso,
     handleDeleteConsulta,
     handleEditConsulta,
     handleCloseConsultaModal,

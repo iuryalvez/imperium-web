@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using backend.Domain.AtendimentoAnimal.Services;
 using backend.Domain.Usuarios.Interfaces;
 using backend.Domain.Auth.Extensions;
+using backend.Domain.SaudeAnimal.Interfaces;
 
 namespace backend.Domain.SaudeAnimal.Controllers
 {
@@ -13,10 +14,12 @@ namespace backend.Domain.SaudeAnimal.Controllers
     public class DietaController : ControllerBase
     {
         private readonly IAcompanhamentoService _acompanhamentoService;
+        private readonly IDietaService _dietaService;
 
-        public DietaController(IAcompanhamentoService acompanhamentoService)
+        public DietaController(IAcompanhamentoService acompanhamentoService, IDietaService dietaService)
         {
             _acompanhamentoService = acompanhamentoService;
+            _dietaService = dietaService;
         }
 
         /// <summary>
@@ -67,7 +70,47 @@ namespace backend.Domain.SaudeAnimal.Controllers
                 return Ok(result);
             }
 
-            return NotFound(result); // Ou BadRequest, dependendo do erro
+            return BadRequest(result);
+        }
+
+        [HttpPatch("{id}/iniciar")]
+        [Authorize(Policy = "GerenciaAnimais")]
+        public async Task<IActionResult> Iniciar([FromRoute] int id)
+        {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            var result = await _dietaService.IniciarAsync(id, clinicaId);
+            if (result.Succeeded) return Ok(result);
+            return BadRequest(result);
+        }
+
+        [HttpPatch("{id}/concluir")]
+        [Authorize(Policy = "GerenciaAnimais")]
+        public async Task<IActionResult> Concluir([FromRoute] int id)
+        {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            var result = await _dietaService.ConcluirAsync(id, clinicaId);
+            if (result.Succeeded) return Ok(result);
+            return BadRequest(result);
+        }
+
+        [HttpPost("{id}/registros-peso")]
+        [Authorize(Policy = "GerenciaAnimais")]
+        public async Task<IActionResult> RegistrarPeso([FromRoute] int id, [FromBody] CreateRegistroPesoDto dto)
+        {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            var result = await _dietaService.RegistrarPesoAsync(id, dto, clinicaId);
+            if (result.Succeeded) return Ok(result);
+            return BadRequest(result);
+        }
+
+        [HttpDelete("{id}/registros-peso/{registroId}")]
+        [Authorize(Policy = "GerenciaAnimais")]
+        public async Task<IActionResult> RemoverRegistroPeso([FromRoute] int id, [FromRoute] int registroId)
+        {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            var result = await _dietaService.RemoverRegistroPesoAsync(id, registroId, clinicaId);
+            if (result.Succeeded) return Ok(result);
+            return BadRequest(result);
         }
     }
 }

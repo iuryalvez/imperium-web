@@ -20,6 +20,7 @@ namespace backend.Infra.Data
         public DbSet<Clinica> Clinicas { get; set; }
         public DbSet<Consulta> Consultas { get; set; }
         public DbSet<Dieta> Dietas { get; set; }
+        public DbSet<RegistroPesoDieta> RegistrosPesoDieta { get; set; }
         public DbSet<Racao> Racoes { get; set; }
         public DbSet<Avaliacao> Avaliacoes{ get; set; }
         public DbSet<Tutor> Tutores { get; set; }
@@ -113,6 +114,21 @@ namespace backend.Infra.Data
                 .WithOne(d => d.Avaliacao)
                 .HasForeignKey<Dieta>(dp => dp.AvaliacaoId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Dieta 1:N RegistroPesoDieta (um registro por semana)
+            modelBuilder.Entity<Dieta>()
+                .HasMany(d => d.RegistrosPeso)
+                .WithOne(r => r.Dieta)
+                .HasForeignKey(r => r.DietaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RegistroPesoDieta>()
+                .HasIndex(r => new { r.DietaId, r.Semana })
+                .IsUnique();
+
+            modelBuilder.Entity<Dieta>()
+                .Property(d => d.Status)
+                .HasDefaultValue(backend.Domain.SaudeAnimal.Enums.StatusDieta.Aberta);
 
             // Animal 1:N AnimalClinica
             modelBuilder.Entity<Animal>()

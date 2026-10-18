@@ -13,6 +13,8 @@ import {
   DeleteOutlined,
   CalculatorOutlined,
   ProfileOutlined,
+  PlayCircleOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 
@@ -28,6 +30,8 @@ const ListaConsultasCards = ({
   onOpenModalVisualizarDieta,
   onOpenModalEditarDieta,
   onExcluirDieta,
+  onIniciarDieta,
+  onConcluirDieta,
 }) => {
   if (!consultas || consultas.length === 0) {
     return (
@@ -36,7 +40,7 @@ const ListaConsultasCards = ({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       {consultas.map((consulta) => {
         const hasAvaliacao = !!consulta.avaliacao;
         const hasDieta = hasAvaliacao && !!consulta.avaliacao.dieta;
@@ -46,6 +50,7 @@ const ListaConsultasCards = ({
             key={consulta.id}
             size="small"
             className="shadow-sm border-gray-200"
+            styles={{ body: { padding: "8px 12px" } }}
             title={
               <div className="flex justify-between items-center w-full">
                 <span>
@@ -58,7 +63,7 @@ const ListaConsultasCards = ({
               </div>
             }
           >
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1.5">
               {/* Gerenciamento da Consulta */}
               <div className="flex items-center gap-2 flex-wrap">
                 <Text strong className="w-24">
@@ -205,6 +210,7 @@ const ListaConsultasCards = ({
                         <Button
                           size="small"
                           icon={<EditOutlined />}
+                          disabled={consulta.avaliacao.dieta.status === 2 || consulta.avaliacao.dieta.status === 3}
                           onClick={() =>
                             onOpenModalEditarDieta(
                               consulta.avaliacao.dieta,
@@ -214,6 +220,34 @@ const ListaConsultasCards = ({
                         >
                           Editar Cálculo
                         </Button>
+
+                        {consulta.avaliacao.dieta.status === 1 && (
+                          <Popconfirm
+                            title="Iniciar Dieta"
+                            description="Deseja iniciar esta dieta? Dietas anteriores em andamento serão concluídas."
+                            onConfirm={() => onIniciarDieta(consulta.avaliacao.dieta.id)}
+                            okText="Sim"
+                            cancelText="Não"
+                          >
+                            <Button size="small" type="primary" className="bg-blue-600 hover:bg-blue-500 border-none" icon={<PlayCircleOutlined />}>
+                              Iniciar
+                            </Button>
+                          </Popconfirm>
+                        )}
+
+                        {consulta.avaliacao.dieta.status === 2 && (
+                          <Popconfirm
+                            title="Concluir Dieta"
+                            description="Deseja concluir esta dieta?"
+                            onConfirm={() => onConcluirDieta(consulta.avaliacao.dieta.id)}
+                            okText="Sim"
+                            cancelText="Não"
+                          >
+                            <Button size="small" type="primary" className="bg-green-600 hover:bg-green-500 border-none" icon={<CheckCircleOutlined />}>
+                              Concluir
+                            </Button>
+                          </Popconfirm>
+                        )}
                         <Popconfirm
                           title="Excluir dieta"
                           description="Tem certeza que deseja excluir esta dieta?"

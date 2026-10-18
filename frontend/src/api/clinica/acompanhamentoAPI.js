@@ -16,6 +16,13 @@ export const acompanhamentoAPI = {
     return response.data;
   },
 
+  getNiveisRestricao: async () => {
+    const response = await api.get(
+      endpoints.clinica.acompanhamento.getNiveisRestricao
+    );
+    return response.data;
+  },
+
   /**
    * Envia os dados para criar uma nova dieta para um relatório dentro de um acompanhamento.
    * @param {number} acompanhamentoId O ID do acompanhamento que contém o relatório.
@@ -71,6 +78,48 @@ export const acompanhamentoAPI = {
       return response.data;
     } catch (error) {
       console.error("Erro ao deletar dieta:", error);
+      throw error.response ? error.response.data : error;
+    }
+  },
+  
+  iniciarDieta: async (dietaId) => {
+    try {
+      const response = await api.patch(endpoints.clinica.acompanhamento.iniciarDieta(dietaId));
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao iniciar dieta:", error);
+      throw error.response ? error.response.data : error;
+    }
+  },
+
+  concluirDieta: async (dietaId) => {
+    try {
+      const response = await api.patch(endpoints.clinica.acompanhamento.concluirDieta(dietaId));
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao concluir dieta:", error);
+      throw error.response ? error.response.data : error;
+    }
+  },
+
+  registrarPesoDieta: async (dietaId, dadosPeso) => {
+    try {
+      const response = await api.post(endpoints.clinica.acompanhamento.registrarPeso(dietaId), dadosPeso);
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao registrar peso na dieta:", error);
+      throw error.response ? error.response.data : error;
+    }
+  },
+
+  deletarPeso: async (dietaId, registroPesoId) => {
+    try {
+      const response = await api.delete(
+        `${endpoints.clinica.acompanhamento.deletarRegistroPeso(dietaId, registroPesoId)}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao deletar registro de peso na dieta:", error);
       throw error.response ? error.response.data : error;
     }
   },

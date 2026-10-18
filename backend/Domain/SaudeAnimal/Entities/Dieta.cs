@@ -41,5 +41,15 @@ namespace backend.Domain.SaudeAnimal.Entities
         public int? SemanaLactacao { get; set; }
         public int? SemanaGestacao { get; set; }
         public string? PrevisoesJson { get; set; }
+
+        // ----------------- CICLO DE VIDA -----------------
+        public StatusDieta Status { get; set; } = StatusDieta.Aberta;
+        public DateOnly? DataInicio { get; set; }
+        public DateOnly? DataConclusao { get; set; }
+
+        // ----------------- EMAGRECIMENTO -----------------
+        // Obs.: o Peso Alvo do emagrecimento é armazenado em PesoObjetivo.
+        public NivelRestricao? NivelRestricao { get; set; }
+        public ICollection<RegistroPesoDieta> RegistrosPeso { get; set; } = new List<RegistroPesoDieta>();
     }
 }

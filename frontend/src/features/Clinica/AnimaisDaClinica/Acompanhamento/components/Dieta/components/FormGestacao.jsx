@@ -13,6 +13,7 @@ const FormGestacao = ({ form, especie, perfis, loading }) => {
   const pesoAtualWatch = Form.useWatch("pesoAtual", form);
   const perfilMetabolicoId = Form.useWatch("perfilMetabolico", form);
   const hasAdicionalGestacaoCaoWatch = Form.useWatch("hasAdicionalGestacaoCao", form);
+  const semanaGestacaoWatch = Form.useWatch("semanaGestacao", form);
 
   const perfilSelecionado = perfisParaExibir.find((p) => p.value === perfilMetabolicoId);
   const perfilMetabolicoLabel = perfilSelecionado?.label;
@@ -51,28 +52,35 @@ const FormGestacao = ({ form, especie, perfis, loading }) => {
       )}
 
       <Row gutter={16}>
-        {isCao && (
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="semanaGestacao"
-              label={
-                <LabelComInfo
-                  label="Semana de Gestação"
-                  tituloPopover="Tempo de Gestação"
-                  conteudoPopover="Semanas após o acasalamento. Após a 4ª semana, as necessidades energéticas da cadela aumentam consideravelmente."
-                />
-              }
-            >
-              <InputNumber
-                placeholder="Ex: 5"
-                style={{ width: "100%" }}
-                min={1}
-                max={9}
-                step={1}
+        <Col xs={24} md={12}>
+          <Form.Item
+            name="semanaGestacao"
+            label={
+              <LabelComInfo
+                label="Semana de Gestação"
+                tituloPopover="Tempo de Gestação"
+                conteudoPopover={
+                  isCao 
+                  ? "Semanas após o acasalamento. Após a 4ª semana, as necessidades energéticas da cadela aumentam consideravelmente."
+                  : "Semanas após o acasalamento (1 a 15). Para gatas, a EM recebe um acréscimo progressivo de 10% por semana: EM + EM × (10 × semana / 100), chegando a +150% na 15ª semana."
+                }
               />
-            </Form.Item>
-          </Col>
-        )}
+            }
+            rules={
+              isGato
+                ? [{ required: true, message: "Obrigatório para gestação de gatas" }]
+                : []
+            }
+          >
+            <InputNumber
+              placeholder="Ex: 5"
+              style={{ width: "100%" }}
+              min={1}
+              max={15}
+              step={1}
+            />
+          </Form.Item>
+        </Col>
       </Row>
 
       {isCao && (
@@ -152,6 +160,7 @@ const FormGestacao = ({ form, especie, perfis, loading }) => {
         pesoAtual={pesoAtualWatch}
         perfilMetabolicoLabel={perfilMetabolicoLabel}
         hasAdicionalGestacaoCao={hasAdicionalGestacaoCaoWatch}
+        semanaGestacao={semanaGestacaoWatch}
       />
 
       <Row gutter={16} className="mt-4">

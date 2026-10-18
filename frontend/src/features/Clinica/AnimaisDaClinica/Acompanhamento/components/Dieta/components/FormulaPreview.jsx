@@ -12,6 +12,8 @@ const FormulaPreview = ({
   hasAdicionalGestacaoCao,
   numeroFilhotes,
   semanaLactacao,
+  semanaGestacao,
+  fatorRestricao,
 }) => {
   // Parse defaults from perfilMetabolicoLabel (e.g. "Cão Inativo (95 × PC^0,75)")
   let defaultK = "K";
@@ -87,9 +89,14 @@ const FormulaPreview = ({
     // Gestação (4)
     if (tipoDieta === 4) {
       if (isGato) {
+        // EM + EM × (10 × S / 100), onde EM = K × (PC)^P
+        const sForm = semanaGestacao || "S";
         return (
           <>
-            {kFinal} × ({pesoFormatado}kg)<sup>{pFinal}</sup>
+            EM + EM × (10 × {sForm} / 100)
+            <div className="text-sm mt-1 opacity-90">
+              EM = {kFinal} × ({pesoFormatado}kg)<sup>{pFinal}</sup>
+            </div>
           </>
         );
       }
@@ -107,7 +114,20 @@ const FormulaPreview = ({
       );
     }
     
-    // Manutenção e Emagrecimento (1 e 5) e outros
+    // Emagrecimento (5)
+    if (tipoDieta === 5) {
+      const fatorTexto =
+        fatorRestricao !== undefined && fatorRestricao !== null
+          ? fatorRestricao.toString().replace(".", ",")
+          : "R";
+      return (
+        <>
+          [{kFinal} × ({pesoFormatado}kg)<sup>{pFinal}</sup>] × {fatorTexto}
+        </>
+      );
+    }
+    
+    // Manutenção e outros
     return (
       <>
         {kFinal} × ({pesoFormatado}kg)<sup>{pFinal}</sup>
@@ -140,6 +160,16 @@ const FormulaPreview = ({
       {tipoDieta === 3 && (
         <div className="mt-2 text-xs text-center opacity-80 font-sans">
           * <strong>L</strong> é o Fator de Lactação, que varia conforme a semana de lactação ({semanaLactacao || "X"}).
+        </div>
+      )}
+      {tipoDieta === 4 && isGato && (
+        <div className="mt-2 text-xs text-center opacity-80 font-sans">
+          * <strong>S</strong> = semana de gestação
+          {semanaGestacao ? (
+            <> ({semanaGestacao}) → acréscimo de <strong>{semanaGestacao * 10}%</strong> sobre a EM</>
+          ) : (
+            <> (1 a 15) → acréscimo de 10% a 150% sobre a EM</>
+          )}
         </div>
       )}
     </div>

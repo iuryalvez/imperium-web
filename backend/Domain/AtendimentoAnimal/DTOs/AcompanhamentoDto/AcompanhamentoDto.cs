@@ -1,4 +1,5 @@
 using backend.Domain.SaudeAnimal.Enums;
+using backend.Domain.SaudeAnimal.DTOs.Dieta;
 
 namespace backend.Domain.AtendimentoAnimal
 {
@@ -102,5 +103,21 @@ namespace backend.Domain.AtendimentoAnimal
         public int? SemanaLactacao { get; set; }
         public int? SemanaGestacao { get; set; }
         public string? PrevisoesJson { get; set; }
+        public int? DuracaoEstimada { get; set; }
+
+        // Ciclo de vida
+        public int Status { get; set; }
+        public string StatusLabel { get; set; } = string.Empty;
+        public DateOnly? DataInicio { get; set; }
+        public DateOnly? DataConclusao { get; set; }
+        public int? SemanaAtual { get; set; }
+
+        // Emagrecimento
+        public int? NivelRestricao { get; set; }
+        public string? NivelRestricaoLabel { get; set; }
+        public double? FatorRestricao { get; set; }
+        public double? PercentualPerdaSemanal { get; set; }
+        public double? PerdaSemanalKg { get; set; }
+        public List<GetRegistroPesoDto> RegistrosPeso { get; set; } = new();
     }
 }

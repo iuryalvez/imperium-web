@@ -17,6 +17,9 @@ namespace backend.Domain.SaudeAnimal.Interfaces
         Task<IEnumerable<GetDietaDto>> GetAllByAcompanhamentoAsync(int acompanhamentoId, int clinicaId);
         Task<ServiceResult> UpdateAsync(int dietaId, UpdateDietaDto dto, int clinicaId, Racao racao);
         Task<ServiceResult> DeleteAsync(int dietaId, int clinicaId);
-
+        Task<ServiceResult> IniciarAsync(int dietaId, int clinicaId);
+        Task<ServiceResult> ConcluirAsync(int dietaId, int clinicaId);
+        Task<ServiceResult> RegistrarPesoAsync(int dietaId, CreateRegistroPesoDto dto, int clinicaId);
+        Task<ServiceResult> RemoverRegistroPesoAsync(int dietaId, int registroId, int clinicaId);
     }
 }

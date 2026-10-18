@@ -1,6 +1,8 @@
 using AutoMapper;
+using backend.Domain.General.Extensions;
 using backend.Domain.SaudeAnimal.DTOs.Dieta;
 using backend.Domain.SaudeAnimal.Entities;
+using backend.Domain.SaudeAnimal.Services;
 
 public class DietaMappingProfile : Profile
 {
@@ -14,7 +16,16 @@ public class DietaMappingProfile : Profile
             .ForMember(
                 dest => dest.NomeRacao, // Para o campo 'NomeRacao' no DTO...
                 opt => opt.MapFrom(src => src.Racao.Nome) // ...busque o valor em src.Racao.Nome
-            );
+            )
+            .ForMember(dest => dest.StatusLabel, opt => opt.MapFrom(src => src.Status.GetDisplayName()))
+            .ForMember(dest => dest.NivelRestricaoLabel, opt => opt.MapFrom(src => src.NivelRestricao.HasValue ? src.NivelRestricao.Value.GetDisplayName() : null))
+            .ForMember(dest => dest.SemanaAtual, opt => opt.MapFrom(src => DietaPlanoHelper.CalcularSemanaAtual(src, null)))
+            .ForMember(dest => dest.FatorRestricao, opt => opt.MapFrom(src => DietaPlanoHelper.FatorRestricao(src)))
+            .ForMember(dest => dest.PercentualPerdaSemanal, opt => opt.MapFrom(src => DietaPlanoHelper.PercentualPerdaSemanal(src)))
+            .ForMember(dest => dest.PerdaSemanalKg, opt => opt.MapFrom(src => DietaPlanoHelper.PerdaSemanalKg(src)))
+            .ForMember(dest => dest.RegistrosPeso, opt => opt.MapFrom(src => src.RegistrosPeso.OrderBy(r => r.Semana)));
+
+        CreateMap<RegistroPesoDieta, GetRegistroPesoDto>();
 
         // Mapeamento para ATUALIZAR: De DTO para Entidade (para o futuro)
         // Ignora campos nulos do DTO, permitindo atualizações parciais

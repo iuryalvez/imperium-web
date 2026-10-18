@@ -182,3 +182,8 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# gemini
+walkthrough.md
+gemini.md
+GEMINI.md

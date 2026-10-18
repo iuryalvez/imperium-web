@@ -55,6 +55,10 @@ const Acompanhamento = () => {
     handleCriarDieta,
     handleEditarDieta,
     handleExcluirDieta,
+    handleIniciarDieta,
+    handleConcluirDieta,
+    handleRegistrarPeso,
+    handleRemoverPeso,
     handleDeleteConsulta,
     handleEditConsulta,
     handleCloseConsultaModal,
@@ -126,6 +130,8 @@ const Acompanhamento = () => {
           onOpenModalVisualizarDieta={handleOpenModalVisualizarDieta}
           onOpenModalEditarDieta={handleOpenModalEditarDieta}
           onExcluirDieta={handleExcluirDieta}
+          onIniciarDieta={handleIniciarDieta}
+          onConcluirDieta={handleConcluirDieta}
         />
       </div>
 
@@ -307,10 +313,23 @@ const Acompanhamento = () => {
         open={isModalVisualizarDietaOpen}
         onCancel={handleCloseModalVisualizarDieta}
         title="Detalhes da Dieta Calculada"
+        subtitle={
+          dietaParaVisualizar
+            ? `${dietaParaVisualizar.statusLabel} ${
+                dietaParaVisualizar.dataInicio
+                  ? `- Início em ${new Date(dietaParaVisualizar.dataInicio + "T00:00:00").toLocaleDateString()}` 
+                  : ""
+              }${
+                dietaParaVisualizar.dataConclusao
+                  ? `- Conclusão em ${new Date(dietaParaVisualizar.dataConclusao + "T00:00:00").toLocaleDateString()}`
+                  : ""
+              }`
+            : ""
+        }
         icon={<ProfileOutlined />}
-        width="min(600px, 95vw)"
+        width="min(860px, 95vw)"
       >
-        {dietaParaVisualizar && <DetalhesDieta dieta={dietaParaVisualizar} isGato={isGato} />}
+        {dietaParaVisualizar && <DetalhesDieta dieta={dietaParaVisualizar} isGato={isGato} onRegistrarPeso={handleRegistrarPeso} onRemoverPeso={handleRemoverPeso} />}
       </ModalPadrao>
     </div>
   );

@@ -95,6 +95,12 @@ namespace backend.Infra.Data.Repositories
                         .ThenInclude(av => av!.Dieta)
                             .ThenInclude(d => d!.Racao)
 
+                // Carrega os registros de peso semanais da dieta (emagrecimento)
+                .Include(a => a.Consultas!)
+                    .ThenInclude(c => c.Avaliacao)
+                        .ThenInclude(av => av!.Dieta)
+                            .ThenInclude(d => d!.RegistrosPeso)
+
                 // A partir de cada consulta, carrega o usuário responsável
                 .Include(a => a.Consultas)
                     .ThenInclude(c => c.Usuario)

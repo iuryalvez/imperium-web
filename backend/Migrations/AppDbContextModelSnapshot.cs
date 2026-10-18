@@ -2539,7 +2539,13 @@ namespace backend.Migrations
                     b.Property<string>("CriadoPor")
                         .HasColumnType("text");
 
+                    b.Property<DateOnly?>("DataConclusao")
+                        .HasColumnType("date");
+
                     b.Property<DateOnly>("DataCriacao")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("DataInicio")
                         .HasColumnType("date");
 
                     b.Property<int?>("DuracaoEstimada")
@@ -2565,6 +2571,9 @@ namespace backend.Migrations
 
                     b.Property<double?>("MultiplicadorEnergetico")
                         .HasColumnType("double precision");
+
+                    b.Property<int?>("NivelRestricao")
+                        .HasColumnType("integer");
 
                     b.Property<int?>("NumeroFilhotes")
                         .HasColumnType("integer");
@@ -2605,6 +2614,11 @@ namespace backend.Migrations
 
                     b.Property<int?>("SemanaLactacao")
                         .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
 
                     b.Property<int>("TipoDieta")
                         .HasColumnType("integer");
@@ -2693,6 +2707,37 @@ namespace backend.Migrations
                     b.HasIndex("ClinicaId");
 
                     b.ToTable("Racoes");
+                });
+
+            modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.RegistroPesoDieta", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateOnly>("DataRegistro")
+                        .HasColumnType("date");
+
+                    b.Property<int>("DietaId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Observacao")
+                        .HasColumnType("text");
+
+                    b.Property<double>("PesoReal")
+                        .HasColumnType("double precision");
+
+                    b.Property<int>("Semana")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DietaId", "Semana")
+                        .IsUnique();
+
+                    b.ToTable("RegistrosPesoDieta");
                 });
 
             modelBuilder.Entity("backend.Domain.Usuarios.Entities.Usuario", b =>
@@ -3146,6 +3191,17 @@ namespace backend.Migrations
                     b.Navigation("Clinica");
                 });
 
+            modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.RegistroPesoDieta", b =>
+                {
+                    b.HasOne("backend.Domain.SaudeAnimal.Entities.Dieta", "Dieta")
+                        .WithMany("RegistrosPeso")
+                        .HasForeignKey("DietaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Dieta");
+                });
+
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Acompanhamento", b =>
                 {
                     b.Navigation("Avaliacoes");
@@ -3199,6 +3255,11 @@ namespace backend.Migrations
                     b.Navigation("TutoresClinicas");
 
                     b.Navigation("UsuariosPerfisClinicas");
+                });
+
+            modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.Dieta", b =>
+                {
+                    b.Navigation("RegistrosPeso");
                 });
 
             modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.Racao", b =>

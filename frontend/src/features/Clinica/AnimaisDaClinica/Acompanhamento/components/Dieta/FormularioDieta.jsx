@@ -19,6 +19,7 @@ import FormManutencao from "./components/FormManutencao";
 import FormCrescimento from "./components/FormCrescimento";
 import FormLactacao from "./components/FormLactacao";
 import FormGestacao from "./components/FormGestacao";
+import FormEmagrecimento from "./components/FormEmagrecimento";
 
 const opcoesTipoDietaBase = [
   { value: 1, label: "Manutenção" },
@@ -49,23 +50,28 @@ const FormularioDieta = ({
   const isEditing = !!initialValues?.id;
 
   const [perfisMetabolicos, setPerfisMetabolicos] = useState([]);
+  const [niveisRestricao, setNiveisRestricao] = useState([]);
   const [loadingPerfis, setLoadingPerfis] = useState(false);
 
   console.log("[FormularioDieta] initialValues: ", initialValues);
 
   useEffect(() => {
-    const fetchPerfis = async () => {
+    const fetchPerfisENiveis = async () => {
       setLoadingPerfis(true);
       try {
-        const data = await acompanhamentoAPI.getPerfisMetabolicos();
-        setPerfisMetabolicos(data);
+        const [perfisData, niveisData] = await Promise.all([
+          acompanhamentoAPI.getPerfisMetabolicos(),
+          acompanhamentoAPI.getNiveisRestricao()
+        ]);
+        setPerfisMetabolicos(perfisData);
+        setNiveisRestricao(niveisData);
       } catch (error) {
-        message.error("Erro ao carregar perfis metabólicos.");
+        message.error("Erro ao carregar configurações da dieta.");
       } finally {
         setLoadingPerfis(false);
       }
     };
-    fetchPerfis();
+    fetchPerfisENiveis();
   }, []);
 
   const perfilSelecionadoId = useWatch("perfilMetabolico", form);
@@ -151,6 +157,8 @@ const FormularioDieta = ({
           initialValues.multiplicadorEnergetico ||
           initialValues.potencia
         ),
+        pesoObjetivo: initialValues.pesoObjetivo,
+        nivelRestricao: initialValues.nivelRestricao
       });
     }
   }, [initialValues, form]);
@@ -215,16 +223,27 @@ const FormularioDieta = ({
 
     switch (tipoDietaSelecionado) {
       case 1:
-      case 5:
         return (
           <FormManutencao
             form={form}
-            especie={initialValues?.especieAnimal} // 0/1 ou 'Cao'/'Gato' dependendo do seu DTO
+            especie={initialValues?.especieAnimal}
             perfis={perfisFiltrados}
             loading={loadingPerfis}
             tipoDietaSelecionado={tipoDietaSelecionado}
           />
         );
+      case 5:
+        return (
+          <FormEmagrecimento
+            form={form}
+            especie={initialValues?.especieAnimal}
+            perfis={perfisFiltrados}
+            loading={loadingPerfis}
+            niveisRestricao={niveisRestricao}
+            pesoAtual={form.getFieldValue("pesoAtual") || initialValues?.pesoAtual || initialValues?.peso}
+          />
+        );
+
       case 2:
         return (
           <FormCrescimento
@@ -297,6 +316,7 @@ const FormularioDieta = ({
             <Select
               options={opcoesTipoDieta}
               placeholder="Selecione o tipo da dieta"
+              disabled={initialValues?.status === 2} // 2 = EmAndamento
             />
           </Form.Item>
         </Col>

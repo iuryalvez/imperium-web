@@ -77,4 +77,33 @@ public class AcompanhamentoController : ControllerBase
     }
 
 
+    /// <summary>
+    /// Retorna os níveis de restrição disponíveis para dietas de emagrecimento
+    /// </summary>
+    [HttpGet("niveis-restricao")]
+    [Authorize(Policy = "GerenciaAnimais")]
+    public IActionResult GetNiveisRestricao()
+    {
+        var niveis = Enum.GetValues(typeof(backend.Domain.SaudeAnimal.Enums.NivelRestricao))
+            .Cast<backend.Domain.SaudeAnimal.Enums.NivelRestricao>()
+            .Select(n => 
+            {
+                var memberInfo = n.GetType().GetMember(n.ToString())[0];
+                var displayAttribute = memberInfo.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.DisplayAttribute), false)
+                                                 .Cast<System.ComponentModel.DataAnnotations.DisplayAttribute>()
+                                                 .FirstOrDefault();
+                
+                var dados = backend.Domain.SaudeAnimal.Enums.NivelRestricaoDados.Obter(n);
+
+                return new
+                {
+                    Value = (int)n,
+                    Label = displayAttribute?.Name ?? n.ToString(),
+                    Fator = dados.fator,
+                    PercentualPerdaSemanal = dados.perdaSemanal
+                };
+            });
+
+        return Ok(niveis);
+    }
 }

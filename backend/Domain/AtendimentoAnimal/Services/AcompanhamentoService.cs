@@ -177,6 +177,15 @@ namespace backend.Domain.AtendimentoAnimal.Services
 
             acompanhamento.DataFim = DateOnly.FromDateTime(DateTime.UtcNow);
             await _acompanhamentoRepository.UpdateAsync(acompanhamento);
+
+            var dietas = await _dietaService.GetAllByAcompanhamentoAsync(acompanhamentoId, clinicaId);
+            var dietaAtiva = dietas.FirstOrDefault(d => d.Status == backend.Domain.SaudeAnimal.Enums.StatusDieta.EmAndamento);
+            if (dietaAtiva != null)
+            {
+                _logger.LogInformation("Concluindo automaticamente a dieta em andamento {DietaId} do acompanhamento {AcompanhamentoId}.", dietaAtiva.Id, acompanhamentoId);
+                await _dietaService.ConcluirAsync(dietaAtiva.Id, clinicaId);
+            }
+
             await _acompanhamentoRepository.SaveChangesAsync();
 
             _logger.LogInformation("Acompanhamento {AcompanhamentoId} encerrado com sucesso.", acompanhamentoId);
@@ -254,6 +263,11 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 if (dto.TipoDieta == TipoDieta.Gestacao)
                 {
                     animal.SemanaGestacao = dto.SemanaGestacao ?? animal.SemanaGestacao;
+                }
+
+                if (dto.TipoDieta == TipoDieta.Emagrecimento)
+                {
+                    animal.PesoIdeal = dto.PesoObjetivo ?? animal.PesoIdeal;
                 }
 
                 _logger.LogInformation("Animal (após atualização) pronto para cálculo. ID: {AnimalId}, Peso: {Peso}, Nro Filhotes: {NumFilhotes}, Semana Lactação: {SemanaLactacao}",

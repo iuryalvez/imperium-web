@@ -12,6 +12,7 @@ namespace backend.Domain.SaudeAnimal.Services
         double CalcularLactacao(Animal animal, Dieta dieta);
         double CalcularManutencao(Animal animal, Dieta dieta);
         double CalcularNecessidadeTotal(Animal animal, Dieta dieta);
+        double CalcularEmagrecimento(Animal animal, Dieta dieta);
     }
 
     public class CalculoNecessidadeEnergetica : ICalculoNecessidadeEnergetica
@@ -37,6 +38,7 @@ namespace backend.Domain.SaudeAnimal.Services
                     TipoDieta.Crescimento => CalcularCrescimento(animal, dieta) ?? 0,
                     TipoDieta.Lactacao => CalcularLactacao(animal, dieta),
                     TipoDieta.Gestacao => CalcularGestacao(animal, dieta),
+                    TipoDieta.Emagrecimento => CalcularEmagrecimento(animal, dieta),
                     _ => throw new InvalidOperationException($"Tipo de dieta '{dieta.TipoDieta}' não implementado.")
                 };
 
@@ -239,9 +241,26 @@ namespace backend.Domain.SaudeAnimal.Services
 
                 if (animal.Especie == EspecieAnimal.Gato)
                 {
-                    // Gatas não possuem equação NRC específica (aviso será tratado no frontend).
-                    // Calcula-se como manutenção com os multiplicadores selecionados.
-                    necessidadeKcal = multiplicador * Math.Pow(PCa, potencia);
+                    // Gatas não possuem equação NRC específica. Regra definida:
+                    // EM_final = EM + (EM × (10 × semana) / 100) → de +10% (semana 1) até +150% (semana 15)
+                    int semanaGestacao = dieta.SemanaGestacao
+                        ?? throw new InvalidOperationException("A semana de gestação é obrigatória para o cálculo de gestação de gatas.");
+
+                    if (semanaGestacao < 1 || semanaGestacao > SemanasGestacaoGata)
+                    {
+                        throw new InvalidOperationException($"A semana de gestação da gata deve estar entre 1 e {SemanasGestacaoGata}.");
+                    }
+
+                    double emBase = multiplicador * Math.Pow(PCa, potencia);
+                    necessidadeKcal = CalcularEmGestacaoGata(emBase, semanaGestacao);
+
+                    if (!descricao.Contains("× semana"))
+                    {
+                        descricao += " + EM × (10% × semana)";
+                    }
+
+                    // Gerar previsões (do próximo até a semana 15)
+                    dieta.PrevisoesJson = GerarPrevisoesGestacaoGata(animal, PCa, semanaGestacao, dieta);
                 }
                 else if (animal.Especie == EspecieAnimal.Cao)
                 {
@@ -442,6 +461,150 @@ namespace backend.Domain.SaudeAnimal.Services
                     double fatorL = fatores[Math.Clamp(s - 1, 0, fatores.Length - 1)];
                     double kcal = manutencao + (peso * ((24 * n) + (12 * m)) * fatorL);
                     previsoes.Add(new { semana = s, kcal = Math.Round(kcal, 3) });
+                }
+            }
+
+            return JsonSerializer.Serialize(previsoes);
+        }
+
+        private const int SemanasGestacaoGata = 15;
+
+        /// <summary>
+        /// EM da gata gestante: EM + (EM × (10 × semana) / 100).
+        /// Semana 1 → +10% da EM; semana 15 → +150% da EM.
+        /// </summary>
+        private static double CalcularEmGestacaoGata(double emBase, int semana)
+        {
+            return emBase + (emBase * (10.0 * semana) / 100.0);
+        }
+
+        private string GerarPrevisoesGestacaoGata(Animal animal, double peso, int semanaAtual, Dieta dieta)
+        {
+            var previsoes = new List<object>();
+            double multiplicador = dieta.MultiplicadorEnergetico ?? dieta.FatorK;
+            double potencia = dieta.Potencia ?? dieta.Expoente;
+            double emBase = multiplicador * Math.Pow(peso, potencia);
+            
+            for (int s = semanaAtual + 1; s <= SemanasGestacaoGata; s++)
+            {
+                double kcal = CalcularEmGestacaoGata(emBase, s);
+                previsoes.Add(new { semana = s, kcal = Math.Round(kcal, 3) });
+            }
+            return JsonSerializer.Serialize(previsoes);
+        }
+
+        public double CalcularEmagrecimento(Animal animal, Dieta dieta)
+        {
+            _logger.LogInformation("Iniciando cálculo de emagrecimento para o animal ID: {AnimalId}.", animal.Id);
+
+            try
+            {
+                if (!animal.Peso.HasValue)
+                {
+                    throw new ArgumentException("O peso do animal não pode ser nulo para o cálculo de emagrecimento.");
+                }
+
+                if (!dieta.PesoObjetivo.HasValue || dieta.PesoObjetivo >= animal.Peso.Value)
+                {
+                    throw new ArgumentException("Para emagrecimento, o peso alvo (PesoObjetivo) deve ser menor que o peso atual.");
+                }
+
+                if (!dieta.NivelRestricao.HasValue)
+                {
+                    throw new ArgumentException("O nível de restrição deve ser informado para o cálculo de emagrecimento.");
+                }
+
+                var perfil = PerfilMetabolicoResolver.Resolver(animal, dieta);
+                
+                double multiplicador = 0;
+                double potencia = 0;
+                
+                var restricaoDados = NivelRestricaoDados.Obter(dieta.NivelRestricao.Value);
+                string descricao = $"Emagrecimento ({animal.Especie} - Customizado) – Restrição {dieta.NivelRestricao.Value} ({restricaoDados.fator * 100}% EM)";
+
+                dieta.IsCustomizado = false;
+
+                if (!dieta.MultiplicadorEnergetico.HasValue || !dieta.Potencia.HasValue)
+                {
+                    throw new InvalidOperationException("O Multiplicador (K) e a Potência (P) são obrigatórios para o cálculo.");
+                }
+
+                multiplicador = dieta.MultiplicadorEnergetico.Value;
+                potencia = dieta.Potencia.Value;
+
+                ValidarCustomizacaoPerfil(dieta, perfil, multiplicador, potencia, ref descricao);
+                
+                if (!descricao.Contains("Restrição"))
+                {
+                    descricao += $" – Restrição {dieta.NivelRestricao.Value} ({restricaoDados.fator * 100}% EM)";
+                }
+
+                _logger.LogInformation("Perfil metabólico resolvido para emagrecimento: {Perfil}. Multiplicador final: {Multiplicador}, Potência padrão: {Potencia}.",
+                    perfil, multiplicador, potencia);
+
+                dieta.FatorK = multiplicador;
+                dieta.Expoente = potencia;
+                dieta.PerfilNutricional = descricao;
+
+                double emBase = multiplicador * Math.Pow(animal.Peso.Value, potencia);
+                var resultado = emBase * restricaoDados.fator;
+                var resultadoArredondado = Math.Round(resultado, 3);
+
+                dieta.PrevisoesJson = GerarPrevisoesEmagrecimento(animal, dieta, restricaoDados.fator, restricaoDados.perdaSemanal);
+
+                _logger.LogInformation(
+                    "Cálculo de emagrecimento concluído para o animal ID: {AnimalId}. Resultado: {ResultadoKcal} kcal/dia.",
+                    animal.Id, resultadoArredondado);
+
+                return resultadoArredondado;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro no cálculo de emagrecimento para o animal ID: {AnimalId}.", animal.Id);
+                throw;
+            }
+        }
+
+        private string GerarPrevisoesEmagrecimento(Animal animal, Dieta dieta, double fatorRestricao, double perdaSemanalDecimal)
+        {
+            var previsoes = new List<object>();
+            double pesoAtual = animal.Peso.Value;
+            double pesoAlvo = dieta.PesoObjetivo.Value;
+            double multiplicador = dieta.FatorK;
+            double potencia = dieta.Expoente;
+
+            for (int s = 1; s <= NivelRestricaoDados.DuracaoPlanoEmagrecimentoSemanas; s++)
+            {
+                double pesoInicioS = pesoAtual * Math.Pow(1 - perdaSemanalDecimal, s - 1);
+                
+                if (pesoInicioS > pesoAlvo)
+                {
+                    double kcal = multiplicador * Math.Pow(pesoInicioS, potencia) * fatorRestricao;
+                    double pesoFimS = pesoInicioS * (1 - perdaSemanalDecimal);
+                    
+                    if (pesoFimS < pesoAlvo) 
+                    {
+                        pesoFimS = pesoAlvo;
+                    }
+
+                    previsoes.Add(new { 
+                        semana = s, 
+                        pesoInicio = Math.Round(pesoInicioS, 3), 
+                        pesoProjetado = Math.Round(pesoFimS, 3), 
+                        kcal = Math.Round(kcal, 3), 
+                        alvoAtingido = false 
+                    });
+                }
+                else
+                {
+                    double kcalManutencao = multiplicador * Math.Pow(pesoAlvo, potencia);
+                    previsoes.Add(new { 
+                        semana = s, 
+                        pesoInicio = Math.Round(pesoAlvo, 3), 
+                        pesoProjetado = Math.Round(pesoAlvo, 3), 
+                        kcal = Math.Round(kcalManutencao, 3), 
+                        alvoAtingido = true 
+                    });
                 }
             }
 

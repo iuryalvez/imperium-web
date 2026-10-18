@@ -8,9 +8,12 @@ namespace backend.Domain.SaudeAnimal.Interfaces
         Task<Dieta?> GetByAvaliacaoIdAsync(int avaliacaoId);
         Task<IEnumerable<Dieta>> GetAllByAcompanhamentoIdAsync(int acompanhamentoId);
         Task<Dieta?> FindByAvaliacaoIdAsync(int avaliacaoId);
+        Task<Dieta?> FindEmAndamentoByAcompanhamentoIdAsync(int acompanhamentoId);
         Task AddAsync(Dieta dieta);
         Task UpdateAsync(Dieta dieta);
         Task SaveChangesAsync();
         void Delete(Dieta dieta);
+        Task AddRegistroPesoAsync(RegistroPesoDieta registro);
+        void RemoveRegistroPeso(RegistroPesoDieta registro);
     }
 }

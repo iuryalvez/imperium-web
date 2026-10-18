@@ -16,6 +16,11 @@ namespace backend.Domain.SaudeAnimal.Services
             {
                 case TipoDieta.Manutencao:
                     return ResolverManutencao(animal);
+                
+                case TipoDieta.Emagrecimento:
+                    return animal.Especie == EspecieAnimal.Gato
+                        ? PerfilMetabolico.GatoEmEmagrecimento
+                        : PerfilMetabolico.CaoEmEmagrecimento;
 
                 case TipoDieta.Crescimento:
                     return animal.Especie == EspecieAnimal.Gato
@@ -26,6 +31,7 @@ namespace backend.Domain.SaudeAnimal.Services
                     return animal.Especie == EspecieAnimal.Gato
                         ? PerfilMetabolico.GataEmLactacao
                         : PerfilMetabolico.CadelaEmLactacao;
+
                 case TipoDieta.Gestacao:
                     return animal.Especie == EspecieAnimal.Gato
                         ? PerfilMetabolico.GataEmGestacao

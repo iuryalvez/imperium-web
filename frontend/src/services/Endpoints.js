@@ -55,9 +55,14 @@ const endpoints = {
       getHistoricoCompleto: (acompanhamentoId) =>
         `${API_BASE_URL}/clinica/acompanhamentos/${acompanhamentoId}/historico-completo`,
       getPerfisMetabolicos: `${API_BASE_URL}/clinica/acompanhamentos/perfis-metabolicos`,
+      getNiveisRestricao: `${API_BASE_URL}/clinica/acompanhamentos/niveis-restricao`,
       // Rota para criar uma dieta associada a um acompanhamento
       criarDieta: (acompanhamentoId) =>
         `${API_BASE_URL}/clinica/dietas`,
+      iniciarDieta: (id) => `${API_BASE_URL}/clinica/dietas/${id}/iniciar`,
+      concluirDieta: (id) => `${API_BASE_URL}/clinica/dietas/${id}/concluir`,
+      registrarPeso: (id) => `${API_BASE_URL}/clinica/dietas/${id}/registros-peso`,
+      deletarRegistroPeso: (id, registroId) => `${API_BASE_URL}/clinica/dietas/${id}/registros-peso/${registroId}`,
       editarDieta: (dietaId) =>
         `${API_BASE_URL}/clinica/dietas/${dietaId}`,
       deletarDieta: (dietaId) =>

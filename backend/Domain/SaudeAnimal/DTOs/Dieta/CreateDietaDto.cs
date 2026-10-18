@@ -35,5 +35,8 @@ namespace backend.Domain.SaudeAnimal.DTOs.Dieta
         public int? SemanaGestacao { get; set; }
         public bool? HasAdicionalGestacaoCao { get; set; }
         public string? PrevisoesJson { get; set; }
+
+        // Emagrecimento (Peso Alvo é enviado em PesoObjetivo)
+        public NivelRestricao? NivelRestricao { get; set; }
     }
 }

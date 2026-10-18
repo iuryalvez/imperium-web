@@ -2,6 +2,7 @@ using AutoMapper;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.SaudeAnimal.Entities;
 using backend.Domain.General.Extensions;
+using backend.Domain.SaudeAnimal.Services;
 
 namespace backend.Domain.AtendimentoAnimal.Mappers 
 {
@@ -58,7 +59,17 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
                 .ForMember(dest => dest.NecessidadeEnergeticaKcal, opt => opt.MapFrom(src => src.EnergiaMetabolizavel ?? 0))
                 // Busca o nome da ração aninhada na dieta
                 .ForMember(dest => dest.RacaoUtilizada, opt => opt.MapFrom(src => 
-                    src.Racao != null ? src.Racao.Nome : "Ração não informada"));
+                    src.Racao != null ? src.Racao.Nome : "Ração não informada"))
+                // Ciclo de vida e emagrecimento
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => (int)src.Status))
+                .ForMember(dest => dest.StatusLabel, opt => opt.MapFrom(src => src.Status.GetDisplayName()))
+                .ForMember(dest => dest.NivelRestricao, opt => opt.MapFrom(src => src.NivelRestricao.HasValue ? (int?)src.NivelRestricao.Value : null))
+                .ForMember(dest => dest.NivelRestricaoLabel, opt => opt.MapFrom(src => src.NivelRestricao.HasValue ? src.NivelRestricao.Value.GetDisplayName() : null))
+                .ForMember(dest => dest.SemanaAtual, opt => opt.MapFrom(src => DietaPlanoHelper.CalcularSemanaAtual(src, null)))
+                .ForMember(dest => dest.FatorRestricao, opt => opt.MapFrom(src => DietaPlanoHelper.FatorRestricao(src)))
+                .ForMember(dest => dest.PercentualPerdaSemanal, opt => opt.MapFrom(src => DietaPlanoHelper.PercentualPerdaSemanal(src)))
+                .ForMember(dest => dest.PerdaSemanalKg, opt => opt.MapFrom(src => DietaPlanoHelper.PerdaSemanalKg(src)))
+                .ForMember(dest => dest.RegistrosPeso, opt => opt.MapFrom(src => src.RegistrosPeso.OrderBy(r => r.Semana)));
         }
 
         private static string FormatIdade(DateTime nascimento)

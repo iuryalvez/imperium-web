@@ -62,6 +62,13 @@ namespace backend.Domain.SaudeAnimal.Services
             dietaExistente.NumeroFilhotes = dto.NumeroFilhotes;
             dietaExistente.SemanaLactacao = dto.SemanaLactacao;
             dietaExistente.SemanaGestacao = dto.SemanaGestacao;
+            dietaExistente.NivelRestricao = dto.NivelRestricao;
+            dietaExistente.PesoAtual = dto.PesoAtual ?? animal.Peso;
+            dietaExistente.PesoObjetivo = dto.PesoObjetivo;
+            dietaExistente.PesoIdeal = dto.PesoIdeal;
+            dietaExistente.DuracaoEstimada = dto.DuracaoEstimada;
+            dietaExistente.Observacoes = dto.Observacoes;
+            dietaExistente.FaseVida = animal.FaseVida;
 
             // 4. CHAMAR O CÁLCULO PASSANDO A ENTIDADE DO BANCO
             double necessidadeKcal = _calculoService.CalcularNecessidadeTotal(animal, dietaExistente);
@@ -69,13 +76,7 @@ namespace backend.Domain.SaudeAnimal.Services
             // 5. Calcular gramas diárias
             double quantidadeGramas = necessidadeKcal / racao.EnergiaMetabolizavel.Value;
 
-            // 6. Atualizar os demais campos vindos do DTO e do cálculo
-            dietaExistente.PesoAtual = dto.PesoAtual ?? animal.Peso;
-            dietaExistente.PesoObjetivo = dto.PesoObjetivo;
-            dietaExistente.PesoIdeal = dto.PesoIdeal;
-            dietaExistente.DuracaoEstimada = dto.DuracaoEstimada;
-            dietaExistente.Observacoes = dto.Observacoes;
-            dietaExistente.FaseVida = animal.FaseVida;
+            // 6. Atualizar os campos resultantes do cálculo
             dietaExistente.EnergiaMetabolizavel = Math.Round(necessidadeKcal, 2);
             dietaExistente.QtdAlimento = Math.Round(quantidadeGramas, 2);
             dietaExistente.DataCriacao = DateOnly.FromDateTime(DateTime.UtcNow);
@@ -143,6 +144,37 @@ namespace backend.Domain.SaudeAnimal.Services
                 var animal = dietaExistente.Avaliacao.Consulta.Animal;
                 var avaliacao = dietaExistente.Avaliacao;
 
+                if (dietaExistente.Status == backend.Domain.SaudeAnimal.Enums.StatusDieta.Concluida)
+                {
+                    return new ServiceResult { Succeeded = false, Message = "Esta dieta está concluída e é somente leitura." };
+                }
+
+                if (dietaExistente.Status == backend.Domain.SaudeAnimal.Enums.StatusDieta.EmAndamento && dto.TipoDieta != dietaExistente.TipoDieta)
+                {
+                    return new ServiceResult { Succeeded = false, Message = "Não é possível alterar o tipo de uma dieta em andamento." };
+                }
+                
+                if (dto.TipoDieta == TipoDieta.Emagrecimento)
+                {
+                    double pesoParaValidar = dto.PesoAtual ?? animal.Peso ?? 0;
+                    if (!dto.PesoObjetivo.HasValue || dto.PesoObjetivo >= pesoParaValidar)
+                    {
+                        return new ServiceResult { Succeeded = false, Message = "Para emagrecimento, o peso alvo deve ser menor que o peso atual." };
+                    }
+                    if (!dto.NivelRestricao.HasValue)
+                    {
+                        return new ServiceResult { Succeeded = false, Message = "Para emagrecimento, o nível de restrição é obrigatório." };
+                    }
+                }
+
+                if (dto.TipoDieta == TipoDieta.Gestacao && animal.Especie == backend.Domain.AtendimentoAnimal.Enums.EspecieAnimal.Gato)
+                {
+                    if (!dto.SemanaGestacao.HasValue || dto.SemanaGestacao < 1 || dto.SemanaGestacao > 15)
+                    {
+                        return new ServiceResult { Succeeded = false, Message = "Para gestação de gatas, a semana de gestação é obrigatória e deve estar entre 1 e 15." };
+                    }
+                }
+
                 // Prepara o DTO de criação para delegar ao método principal
                 var createDto = _mapper.Map<CreateDietaDto>(dto);
                 createDto.AvaliacaoId = avaliacao.Id;
@@ -163,6 +195,10 @@ namespace backend.Domain.SaudeAnimal.Services
                 if (createDto.TipoDieta == TipoDieta.Gestacao)
                 {
                     animal.SemanaGestacao = createDto.SemanaGestacao ?? animal.SemanaGestacao;
+                }
+                if (createDto.TipoDieta == TipoDieta.Emagrecimento)
+                {
+                    animal.PesoIdeal = createDto.PesoObjetivo ?? animal.PesoIdeal;
                 }
 
                 // Delega para o método principal (que agora atualiza a entidade corretamente)
@@ -199,6 +235,147 @@ namespace backend.Domain.SaudeAnimal.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir a dieta ID {DietaId}.", dietaId);
+                throw;
+            }
+        }
+
+        public async Task<ServiceResult> IniciarAsync(int dietaId, int clinicaId)
+        {
+            _logger.LogInformation("Tentando iniciar a dieta ID {DietaId} da clínica ID {ClinicaId}.", dietaId, clinicaId);
+            try
+            {
+                var dieta = await _dietaRepository.GetByIdWithIncludesAsync(dietaId);
+                if (dieta?.Avaliacao?.Consulta?.ClinicaId != clinicaId)
+                {
+                    return new ServiceResult { Succeeded = false, Message = "Dieta não encontrada ou acesso negado." };
+                }
+
+                if (dieta.Status != backend.Domain.SaudeAnimal.Enums.StatusDieta.Aberta)
+                {
+                    return new ServiceResult { Succeeded = false, Message = "Apenas dietas 'Abertas' podem ser iniciadas." };
+                }
+
+                // Conclui dieta em andamento do mesmo acompanhamento
+                int acompanhamentoId = dieta.Avaliacao!.AcompanhamentoId;
+                var dietaAtiva = await _dietaRepository.FindEmAndamentoByAcompanhamentoIdAsync(acompanhamentoId);
+                if (dietaAtiva != null)
+                {
+                    dietaAtiva.Status = backend.Domain.SaudeAnimal.Enums.StatusDieta.Concluida;
+                    dietaAtiva.DataConclusao = DateOnly.FromDateTime(DateTime.UtcNow);
+                    await _dietaRepository.UpdateAsync(dietaAtiva);
+                }
+
+                dieta.Status = backend.Domain.SaudeAnimal.Enums.StatusDieta.EmAndamento;
+                dieta.DataInicio = DateOnly.FromDateTime(DateTime.UtcNow);
+                await _dietaRepository.UpdateAsync(dieta);
+                await _dietaRepository.SaveChangesAsync();
+
+                return new ServiceResult { Succeeded = true, Message = "Dieta iniciada com sucesso." };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao iniciar a dieta ID {DietaId}.", dietaId);
+                throw;
+            }
+        }
+
+        public async Task<ServiceResult> ConcluirAsync(int dietaId, int clinicaId)
+        {
+            _logger.LogInformation("Tentando concluir a dieta ID {DietaId} da clínica ID {ClinicaId}.", dietaId, clinicaId);
+            try
+            {
+                var dieta = await _dietaRepository.GetByIdWithIncludesAsync(dietaId);
+                if (dieta?.Avaliacao?.Consulta?.ClinicaId != clinicaId)
+                {
+                    return new ServiceResult { Succeeded = false, Message = "Dieta não encontrada ou acesso negado." };
+                }
+
+                if (dieta.Status != backend.Domain.SaudeAnimal.Enums.StatusDieta.EmAndamento)
+                {
+                    return new ServiceResult { Succeeded = false, Message = "Apenas dietas 'Em Andamento' podem ser concluídas." };
+                }
+
+                dieta.Status = backend.Domain.SaudeAnimal.Enums.StatusDieta.Concluida;
+                dieta.DataConclusao = DateOnly.FromDateTime(DateTime.UtcNow);
+                await _dietaRepository.UpdateAsync(dieta);
+                await _dietaRepository.SaveChangesAsync();
+
+                return new ServiceResult { Succeeded = true, Message = "Dieta concluída com sucesso." };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao concluir a dieta ID {DietaId}.", dietaId);
+                throw;
+            }
+        }
+
+        public async Task<ServiceResult> RegistrarPesoAsync(int dietaId, CreateRegistroPesoDto dto, int clinicaId)
+        {
+            _logger.LogInformation("Tentando registrar peso para dieta ID {DietaId}.", dietaId);
+            try
+            {
+                var dieta = await _dietaRepository.GetByIdWithIncludesAsync(dietaId);
+                if (dieta?.Avaliacao?.Consulta?.ClinicaId != clinicaId)
+                {
+                    return new ServiceResult { Succeeded = false, Message = "Dieta não encontrada ou acesso negado." };
+                }
+
+                if (dieta.TipoDieta != TipoDieta.Emagrecimento)
+                {
+                    return new ServiceResult { Succeeded = false, Message = "Registro de peso periódico é permitido apenas para dietas de emagrecimento." };
+                }
+
+                if (dieta.RegistrosPeso.Any(r => r.Semana == dto.Semana))
+                {
+                    return new ServiceResult { Succeeded = false, Message = $"Já existe um registro para a semana {dto.Semana}." };
+                }
+
+                var registro = new RegistroPesoDieta
+                {
+                    DietaId = dieta.Id,
+                    Semana = dto.Semana,
+                    DataRegistro = dto.DataRegistro ?? DateOnly.FromDateTime(DateTime.UtcNow),
+                    PesoReal = dto.PesoReal,
+                    Observacao = dto.Observacao
+                };
+
+                await _dietaRepository.AddRegistroPesoAsync(registro);
+                await _dietaRepository.SaveChangesAsync();
+
+                return new ServiceResult { Succeeded = true, Message = "Peso registrado com sucesso." };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao registrar peso na dieta ID {DietaId}.", dietaId);
+                throw;
+            }
+        }
+
+        public async Task<ServiceResult> RemoverRegistroPesoAsync(int dietaId, int registroId, int clinicaId)
+        {
+            _logger.LogInformation("Tentando remover o registro {RegistroId} da dieta ID {DietaId}.", registroId, dietaId);
+            try
+            {
+                var dieta = await _dietaRepository.GetByIdWithIncludesAsync(dietaId);
+                if (dieta?.Avaliacao?.Consulta?.ClinicaId != clinicaId)
+                {
+                    return new ServiceResult { Succeeded = false, Message = "Dieta não encontrada ou acesso negado." };
+                }
+
+                var registro = dieta.RegistrosPeso.FirstOrDefault(r => r.Id == registroId);
+                if (registro == null)
+                {
+                    return new ServiceResult { Succeeded = false, Message = "Registro não encontrado." };
+                }
+
+                _dietaRepository.RemoveRegistroPeso(registro);
+                await _dietaRepository.SaveChangesAsync();
+
+                return new ServiceResult { Succeeded = true, Message = "Registro removido com sucesso." };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao remover registro {RegistroId} da dieta ID {DietaId}.", registroId, dietaId);
                 throw;
             }
         }
