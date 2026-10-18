@@ -99,8 +99,10 @@ seed:
 # 	$(COMPOSE) exec $(SERVICE_API) npm run seed
 
 update:
-	docker compose up -d --build
+	$(COMPOSE) build
+	$(COMPOSE) up -d db-imperium
 	make migrator
+	$(COMPOSE) up -d --no-build backend-imperium frontend-imperium
 	docker image prune -f
 	@echo ""
 	@echo "======================================================================"
