@@ -36,7 +36,7 @@ export
 
 # Definição de alvos fonéticos (.PHONY) para garantir que o Make execute os 
 # comandos mesmo se existirem pastas ou arquivos com os mesmos nomes no disco.
-.PHONY: help build build-frontend-no-cache up down logs ps shell seed clean clean-all set migrator deploy dev-set-dependencies dev-add-migration dev-database-update dev-up-api dev-up-frontend dev-clean
+.PHONY: help build build-frontend-no-cache up update down logs ps shell seed clean clean-all set migrator deploy dev-set-dependencies dev-add-migration dev-database-update dev-up-api dev-up-frontend dev-clean
 
 help:
 	@echo "Comandos disponíveis:"
