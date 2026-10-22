@@ -45,7 +45,7 @@ const App = () => {
     >
       {/* O componente AntApp é necessário para que message, notification, etc. peguem o tema */}
       <AntApp>
-        <Router>
+        <Router basename={process.env.PUBLIC_URL}>
           <NotificationProvider>
             <AuthProvider>
               <Routes>

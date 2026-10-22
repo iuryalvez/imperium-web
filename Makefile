@@ -17,6 +17,11 @@ endif
 # MAPEAMENTO DE VARIÁVEIS PARA RODAR EM DESENVOLVIMENTO LOCAL (NATIVE MODE)
 # ==============================================================================
 
+ENV_SUFFIX ?=
+SERVICE_DB := db-imperium$(ENV_SUFFIX)
+SERVICE_API := backend-imperium$(ENV_SUFFIX)
+SERVICE_FRONT := frontend-imperium$(ENV_SUFFIX)
+SERVICE_MIGRATOR := migrations-imperium$(ENV_SUFFIX)
 ConnectionStrings__DefaultConnection := Host=$(DB_HOST);Port=$(DB_PORT);Database=$(DB_NAME);Username=$(DB_USER);Password=$(DB_PASS)
 Jwt__Key := $(Jwt__Key)
 Jwt__Issuer := $(Jwt__Issuer)
@@ -71,14 +76,8 @@ set:
 build:
 	$(COMPOSE) build 
 
-build-frontend-no-cache:
-	$(COMPOSE) build --no-cache frontend-imperium
-
 up:
 	$(COMPOSE) up --build --detach
-
-migrator:
-	$(COMPOSE) run --rm migrations-imperium
 
 down:
 	$(COMPOSE) down
@@ -98,19 +97,18 @@ shell:
 seed:
 # 	$(COMPOSE) exec $(SERVICE_API) npm run seed
 
+build-frontend-no-cache:
+	$(COMPOSE) build --no-cache $(SERVICE_FRONT)
+
+migrator:
+	$(COMPOSE) run --rm $(SERVICE_MIGRATOR)
+
 update:
 	$(COMPOSE) build
-	$(COMPOSE) up -d db-imperium
+	$(COMPOSE) up -d $(SERVICE_DB)
 	make migrator
-	$(COMPOSE) up -d --no-build backend-imperium frontend-imperium
+	$(COMPOSE) up -d --no-build $(SERVICE_API) $(SERVICE_FRONT)
 	docker image prune -f
-	@echo ""
-	@echo "======================================================================"
-	@echo " APLICAÇÃO ATUALIZADA COM SUCESSO!"
-	@echo " Para aplicar as rotas, acesse o proxy global e reinicie o serviço:"
-	@echo " -> cd ~/https-server && make restart"
-	@echo "======================================================================"
-	@echo ""
 
 # Remove containers, redes e imagens, mas PRESERVA o banco de dados (seguro)
 clean:

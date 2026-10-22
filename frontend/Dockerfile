@@ -14,6 +14,12 @@ ENV REACT_APP_API_BASE_URL=$REACT_APP_API_BASE_URL
 ARG REACT_APP_TURNSTILE_SITE_KEY
 ENV REACT_APP_TURNSTILE_SITE_KEY=$REACT_APP_TURNSTILE_SITE_KEY
 
+# Define base path for static assets (/ in prod, /dev in homolog)
+ARG PUBLIC_URL=/
+ENV PUBLIC_URL=$PUBLIC_URL
+
+RUN npm run build
+
 RUN npm run build
 
 # Estágio 2: Serve (usando Nginx)
