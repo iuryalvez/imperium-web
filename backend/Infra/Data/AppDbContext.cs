@@ -5,6 +5,7 @@ using backend.Domain.Usuarios.Entities;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.GestaoClinica.Entities;
 using backend.Domain.SaudeAnimal.Entities;
+using backend.Domain.SaudeAnimal.Enums;
 
 namespace backend.Infra.Data
 {

@@ -1,14 +1,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using backend.Domain.Auth.Extensions;
-using backend.Domain.AtendimentoAnimal.DTOs;
-using backend.Domain.AtendimentoAnimal.Interface;
+using backend.Domain.AtendimentoAnimal.DTOs.Animal;
+using backend.Domain.AtendimentoAnimal.DTOs.Tutor;
+using backend.Domain.AtendimentoAnimal.Interfaces;
 
 // TODO: Ver possibilidade de refatorar a lógica da persistência dos dados dos tutores:
 //  -> manter o tutor cadastrado no banco e no cadastro de tutor ver se já existe um cadastro
 //     proveniente de outra clínica para aproveitar dados antigos/existentes de outras clínicas
 
-namespace backend.Domain.AtendimentoAnimal
+namespace backend.Domain.AtendimentoAnimal.Controllers
 {
     [ApiController]
     [Route("api/clinica/tutores")]

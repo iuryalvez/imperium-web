@@ -1,5 +1,8 @@
-using backend.Domain.Usuarios.DTOs;
+using backend.Domain.Usuarios.DTOs.Usuario;
+using backend.Domain.Usuarios.DTOs.Vinculo;
 using backend.Domain.Usuarios.DTOs.PerfilPessoal;
+using backend.Domain.Utils;
+using backend.Domain.Usuarios.DTOs.UsuarioStatus;
 
 namespace backend.Domain.Usuarios.Interfaces
 {

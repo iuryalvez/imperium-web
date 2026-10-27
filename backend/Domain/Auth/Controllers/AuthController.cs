@@ -1,5 +1,6 @@
 using backend.Domain.Auth.DTOs;
-using backend.Domain.Usuarios.DTOs;
+using backend.Domain.Usuarios.DTOs.Usuario;
+using backend.Domain.Usuarios.DTOs.Vinculo;
 using backend.Domain.Auth.Interfaces;
 using backend.Domain.Auth.Extensions;
 
@@ -9,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using System.Text.Json;
 
-namespace backend.Domain.Auth
+namespace backend.Domain.Auth.Controllers
 {
     [ApiController]
     [Route("api/auth")]

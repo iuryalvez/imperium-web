@@ -1,10 +1,12 @@
 using backend.Infra.Data;
 using backend.Domain.GestaoClinica.Entities;
-using backend.Domain.GestaoClinica.Interface;
+using backend.Domain.GestaoClinica.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.GestaoClinica.DTOs;
+using backend.Domain.GestaoClinica.DTOs.Dashboard;
 using backend.Domain.Usuarios.Interfaces;
+using backend.Domain.Utils;
 using AutoMapper;
 
 namespace backend.Domain.GestaoClinica.Services

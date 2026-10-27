@@ -1,4 +1,4 @@
-namespace backend.Domain.Usuarios.DTOs
+namespace backend.Domain.Usuarios.DTOs.Vinculo
 {
     public class GetVinculoAdminDto
     {

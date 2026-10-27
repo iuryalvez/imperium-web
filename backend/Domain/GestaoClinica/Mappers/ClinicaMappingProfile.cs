@@ -1,5 +1,6 @@
 using AutoMapper;
 using backend.Domain.GestaoClinica.DTOs;
+using backend.Domain.GestaoClinica.DTOs.Dashboard;
 using backend.Domain.GestaoClinica.Entities;
 
 namespace backend.Domain.GestaoClinica.Mappers

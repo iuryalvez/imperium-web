@@ -2,7 +2,7 @@ using AutoMapper;
 using backend.Domain.AtendimentoAnimal.DTOs.Raca;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Enums;
-using backend.Domain.AtendimentoAnimal.Interface;
+using backend.Domain.AtendimentoAnimal.Interfaces;
 
 namespace backend.Domain.AtendimentoAnimal.Services
 {

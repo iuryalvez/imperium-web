@@ -2,7 +2,10 @@ using AutoMapper;
 using backend.Domain.General.Extensions;
 using backend.Domain.SaudeAnimal.DTOs.Dieta;
 using backend.Domain.SaudeAnimal.Entities;
+using backend.Domain.SaudeAnimal.Enums;
 using backend.Domain.SaudeAnimal.Services;
+
+namespace backend.Domain.SaudeAnimal.Mappers;
 
 public class DietaMappingProfile : Profile
 {

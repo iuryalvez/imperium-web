@@ -1,6 +1,8 @@
 using backend.Domain.Auth.DTOs;
-using backend.Domain.Usuarios.DTOs;
+using backend.Domain.Usuarios.DTOs.Usuario;
+using backend.Domain.Usuarios.DTOs.Vinculo;
 using backend.Domain.Usuarios.Interfaces;
+using backend.Domain.Utils;
 
 namespace backend.Domain.Auth.Interfaces
 {

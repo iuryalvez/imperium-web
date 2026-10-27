@@ -1,8 +1,10 @@
 using backend.Infra.Data;
 using backend.Domain.Auth.Interfaces;
 using backend.Domain.Auth.DTOs;
-using backend.Domain.Usuarios.DTOs;
+using backend.Domain.Usuarios.DTOs.Usuario;
+using backend.Domain.Usuarios.DTOs.Vinculo;
 using backend.Domain.Usuarios.Interfaces;
+using backend.Domain.Utils;
 using backend.Domain.Usuarios.Entities;
 
 using Microsoft.AspNetCore.Identity;

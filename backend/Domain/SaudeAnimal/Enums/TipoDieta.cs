@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace backend.Domain.SaudeAnimal.Entities
+namespace backend.Domain.SaudeAnimal.Enums
 {
 public enum TipoDieta
     {

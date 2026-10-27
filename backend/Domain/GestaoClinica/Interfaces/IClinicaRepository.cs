@@ -1,7 +1,8 @@
 using backend.Domain.GestaoClinica.DTOs;
+using backend.Domain.GestaoClinica.DTOs.Dashboard;
 using backend.Domain.GestaoClinica.Entities;
 
-namespace backend.Domain.GestaoClinica.Interface
+namespace backend.Domain.GestaoClinica.Interfaces
 {
     public interface IClinicaRepository
     {

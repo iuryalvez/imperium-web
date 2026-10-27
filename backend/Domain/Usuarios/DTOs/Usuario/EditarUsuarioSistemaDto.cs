@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+namespace backend.Domain.Usuarios.DTOs.Usuario;
+
 public class EditarUsuarioSistemaDto
 {
     // IDs essenciais para encontrar o registro certo

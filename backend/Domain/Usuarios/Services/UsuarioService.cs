@@ -1,10 +1,13 @@
 using AutoMapper;
-using backend.Domain.Usuarios.DTOs;
+using backend.Domain.Usuarios.DTOs.Usuario;
+using backend.Domain.Usuarios.DTOs.Vinculo;
 using backend.Domain.Usuarios.DTOs.PerfilPessoal;
 using backend.Domain.Usuarios.Entities;
 using backend.Domain.Usuarios.Interfaces;
+using backend.Domain.Utils;
 using backend.Infra.Data;
 using Microsoft.EntityFrameworkCore;
+using backend.Domain.Usuarios.DTOs.UsuarioStatus;
 
 namespace backend.Domain.Usuarios.Services
 {

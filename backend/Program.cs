@@ -10,14 +10,16 @@ using Microsoft.OpenApi.Models;
 using backend.Interfaces;
 using backend.Services;
 using backend.Infra.Data;
-using backend.Infra.Data.Repositories;
+
 using backend.Domain.AtendimentoAnimal.Services;
-using backend.Domain.AtendimentoAnimal.Interface;
+using backend.Domain.AtendimentoAnimal.Interfaces;
 using backend.Domain.AtendimentoAnimal.Repository;
-using backend.Domain.GestaoClinica.Interface;
+using backend.Domain.GestaoClinica.Interfaces;
 using backend.Domain.GestaoClinica.Services;
+using backend.Domain.GestaoClinica.Repository;
 using backend.Domain.Usuarios.Entities;
 using backend.Domain.Usuarios.Interfaces;
+using backend.Domain.Utils;
 using backend.Domain.Usuarios.Services;
 using backend.Domain.SaudeAnimal.Services;
 using backend.Domain.SaudeAnimal.Interfaces;
@@ -25,6 +27,7 @@ using backend.Domain.SaudeAnimal.Repository;
 using backend.Domain.Auth.Interfaces;
 using backend.Domain.Auth.Services;
 using backend.Domain.Auth.Extensions;
+using backend.Domain.Usuarios.Repository;
 
 
 internal class Program

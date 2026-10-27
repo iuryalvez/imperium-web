@@ -1,7 +1,7 @@
 using backend.Domain.SaudeAnimal.Enums;
 using backend.Domain.SaudeAnimal.DTOs.Dieta;
 
-namespace backend.Domain.AtendimentoAnimal
+namespace backend.Domain.AtendimentoAnimal.DTOs.AcompanhamentoDto
 {
     public class AnimalCompletoDto
     {

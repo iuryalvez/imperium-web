@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using backend.Domain.AtendimentoAnimal.Enums;
 
+namespace backend.Domain.SaudeAnimal.DTOs.Racao;
+
 public class AtualizarRacaoDto
 {
     [Required]

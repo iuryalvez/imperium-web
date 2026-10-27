@@ -1,5 +1,7 @@
 using backend.Domain.AtendimentoAnimal.Enums;
 using backend.Domain.Usuarios.Interfaces;
+using backend.Domain.Utils;
+using backend.Domain.SaudeAnimal.DTOs.Racao;
 
 namespace backend.Domain.SaudeAnimal.Interfaces
 {

@@ -4,13 +4,14 @@ using Microsoft.AspNetCore.Authorization;
 
 using backend.Domain.Auth.Extensions;
 using backend.Infra.Data;
-using backend.Domain.AtendimentoAnimal.DTOs;
-using backend.Domain.GestaoClinica.Interface;
-using backend.Domain.AtendimentoAnimal.Interface;
+using backend.Domain.AtendimentoAnimal.DTOs.Animal;
+using backend.Domain.AtendimentoAnimal.DTOs.Tutor;
+using backend.Domain.GestaoClinica.Interfaces;
+using backend.Domain.AtendimentoAnimal.Interfaces;
 
 // TODO: Refatorar e usar lógica de Interface + Service (impl) + Repository se houver tempo
 
-namespace backend.Domain.AtendimentoAnimal
+namespace backend.Domain.AtendimentoAnimal.Controllers
 {
     [ApiController]
     [Route("api/clinica")]

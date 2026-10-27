@@ -1,8 +1,10 @@
-using backend.Domain.AtendimentoAnimal.DTOs;
+using backend.Domain.AtendimentoAnimal.DTOs.Animal;
+using backend.Domain.AtendimentoAnimal.DTOs.Tutor;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.Usuarios.Interfaces;
+using backend.Domain.Utils;
 
-namespace backend.Domain.AtendimentoAnimal.Interface
+namespace backend.Domain.AtendimentoAnimal.Interfaces
 {
     public interface ITutorService
     {

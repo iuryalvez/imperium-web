@@ -1,5 +1,6 @@
 using backend.Domain.AtendimentoAnimal.Enums;
 using backend.Domain.SaudeAnimal.Entities;
+using backend.Domain.SaudeAnimal.Enums;
 
 namespace backend.Domain.SaudeAnimal.Interfaces
 {

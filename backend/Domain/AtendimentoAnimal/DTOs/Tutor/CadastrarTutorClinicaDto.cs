@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace backend.Domain.AtendimentoAnimal.DTOs
+namespace backend.Domain.AtendimentoAnimal.DTOs.Tutor
 {
     public class CadastrarTutorClinicaDto
     {

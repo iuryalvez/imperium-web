@@ -1,11 +1,11 @@
 using backend.Domain.AtendimentoAnimal.DTOs.Raca;
 using backend.Domain.AtendimentoAnimal.Enums;
-using backend.Domain.AtendimentoAnimal.Interface;
+using backend.Domain.AtendimentoAnimal.Interfaces;
 using backend.Domain.Auth.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace backend.Domain.AtendimentoAnimal
+namespace backend.Domain.AtendimentoAnimal.Controllers
 {
     [ApiController]
     [Route("api/sistema/racas")]

@@ -1,6 +1,9 @@
+
+namespace backend.Domain.Usuarios.Repository;
 // Infra/Data/Repositories/UsuarioRepository.cs
 using backend.Domain.Usuarios.Entities;
 using backend.Domain.Usuarios.Interfaces;
+using backend.Domain.Utils;
 using backend.Infra.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

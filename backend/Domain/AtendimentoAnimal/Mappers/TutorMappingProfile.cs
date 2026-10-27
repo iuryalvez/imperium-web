@@ -1,5 +1,6 @@
 using AutoMapper;
-using backend.Domain.AtendimentoAnimal.DTOs;
+using backend.Domain.AtendimentoAnimal.DTOs.Animal;
+using backend.Domain.AtendimentoAnimal.DTOs.Tutor;
 using backend.Domain.AtendimentoAnimal.Entities;
 
 namespace backend.Domain.AtendimentoAnimal.Mappers

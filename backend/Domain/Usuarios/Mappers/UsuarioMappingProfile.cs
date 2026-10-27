@@ -1,5 +1,6 @@
 using AutoMapper;
-using backend.Domain.Usuarios.DTOs;
+using backend.Domain.Usuarios.DTOs.Usuario;
+using backend.Domain.Usuarios.DTOs.Vinculo;
 using backend.Domain.Usuarios.DTOs.PerfilPessoal;
 using backend.Domain.Usuarios.Entities;
 

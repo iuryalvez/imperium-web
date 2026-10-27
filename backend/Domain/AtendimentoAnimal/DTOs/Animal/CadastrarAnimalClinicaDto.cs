@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using backend.Domain.AtendimentoAnimal.Enums;
 
-namespace backend.Domain.AtendimentoAnimal.DTOs
+namespace backend.Domain.AtendimentoAnimal.DTOs.Animal
 {
     public class CadastrarAnimalClinicaDto
     {

@@ -1,10 +1,11 @@
 using backend.Domain.GestaoClinica.DTOs;
+using backend.Domain.GestaoClinica.DTOs.Dashboard;
 using backend.Domain.GestaoClinica.Entities;
-using backend.Domain.GestaoClinica.Interface;
+using backend.Domain.GestaoClinica.Interfaces;
 using backend.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace backend.Domain.GestaoClinica.Services
+namespace backend.Domain.GestaoClinica.Repository
 {
     public class ClinicaRepository : IClinicaRepository
     {

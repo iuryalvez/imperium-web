@@ -4,9 +4,10 @@ using Microsoft.AspNetCore.Authorization;
 using backend.Domain.Auth.Extensions;
 
 using backend.Domain.GestaoClinica.DTOs;
-using backend.Domain.GestaoClinica.Interface;
+using backend.Domain.GestaoClinica.DTOs.Dashboard;
+using backend.Domain.GestaoClinica.Interfaces;
 
-namespace backend.Domain.GestaoClinica
+namespace backend.Domain.GestaoClinica.Controllers
 {
     [ApiController]
     [Route("api")]

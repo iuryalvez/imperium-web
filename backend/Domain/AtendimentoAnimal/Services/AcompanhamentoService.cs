@@ -1,9 +1,11 @@
 using AutoMapper;
 using backend.Domain.AtendimentoAnimal.Entities;
-using backend.Domain.AtendimentoAnimal.Interface;
+using backend.Domain.AtendimentoAnimal.Interfaces;
 using backend.Domain.Usuarios.Interfaces;
+using backend.Domain.Utils;
 using backend.Domain.SaudeAnimal.DTOs.Dieta;
 using backend.Domain.SaudeAnimal.Entities;
+using backend.Domain.SaudeAnimal.Enums;
 using backend.Domain.SaudeAnimal.Interfaces;
 
 namespace backend.Domain.AtendimentoAnimal.Services

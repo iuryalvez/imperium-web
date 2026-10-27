@@ -1,7 +1,8 @@
 using backend.Domain.AtendimentoAnimal.DTOs.Consulta;
 using backend.Domain.Usuarios.Interfaces;
+using backend.Domain.Utils;
 
-namespace backend.Domain.AtendimentoAnimal.Interface
+namespace backend.Domain.AtendimentoAnimal.Interfaces
 {
     public interface IConsultaService
     {

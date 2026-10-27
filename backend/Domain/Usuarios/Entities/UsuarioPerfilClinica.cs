@@ -3,6 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 using backend.Domain.GestaoClinica.Entities;
 using backend.Domain.Usuarios.Entities;
 
+namespace backend.Domain.Usuarios.Entities;
+
 public class UsuarioPerfilClinica {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

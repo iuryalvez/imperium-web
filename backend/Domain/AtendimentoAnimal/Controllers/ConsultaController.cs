@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 
 using backend.Domain.Auth.Extensions;
-using backend.Domain.AtendimentoAnimal.Interface;
+using backend.Domain.AtendimentoAnimal.Interfaces;
 using backend.Domain.AtendimentoAnimal.DTOs.Consulta;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 
-namespace backend.Domain.AtendimentoAnimal
+namespace backend.Domain.AtendimentoAnimal.Controllers
 {
     [ApiController]
     [Route("api/clinica/consultas")]

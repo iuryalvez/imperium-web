@@ -1,7 +1,9 @@
+using backend.Domain.Usuarios.Entities;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.SaudeAnimal.Entities;
+using backend.Domain.SaudeAnimal.Enums;
 
 namespace backend.Domain.GestaoClinica.Entities {
     public class Clinica

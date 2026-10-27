@@ -1,7 +1,7 @@
-using backend.Domain.AtendimentoAnimal.DTOs;
+using backend.Domain.AtendimentoAnimal.DTOs.Tutor;
 using backend.Domain.AtendimentoAnimal.Enums;
 
-namespace backend.Domain.AtendimentoAnimal
+namespace backend.Domain.AtendimentoAnimal.DTOs.Animal
 {
     public class GetAnimaisClinicaDto
     {

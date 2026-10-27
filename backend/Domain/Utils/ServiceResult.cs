@@ -1,4 +1,4 @@
-namespace backend.Domain.Usuarios.Interfaces
+namespace backend.Domain.Utils
 {
     // Classe auxiliar para o resultado do serviço
     public class ServiceResult

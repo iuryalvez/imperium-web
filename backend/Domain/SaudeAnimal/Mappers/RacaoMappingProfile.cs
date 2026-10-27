@@ -1,5 +1,7 @@
 using AutoMapper;
 using backend.Domain.SaudeAnimal.Entities;
+using backend.Domain.SaudeAnimal.Enums;
+using backend.Domain.SaudeAnimal.DTOs.Racao;
 
 namespace backend.Domain.SaudeAnimal.Mappers
 {

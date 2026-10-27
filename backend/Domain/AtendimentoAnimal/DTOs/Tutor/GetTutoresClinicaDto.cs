@@ -1,4 +1,5 @@
-namespace backend.Domain.AtendimentoAnimal.DTOs
+using backend.Domain.AtendimentoAnimal.DTOs.Animal;
+namespace backend.Domain.AtendimentoAnimal.DTOs.Tutor
 {
     public class GetTutoresClinicaDto
     {

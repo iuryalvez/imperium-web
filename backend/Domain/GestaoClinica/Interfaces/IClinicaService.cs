@@ -1,9 +1,11 @@
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.GestaoClinica.DTOs;
+using backend.Domain.GestaoClinica.DTOs.Dashboard;
 using backend.Domain.GestaoClinica.Entities;
 using backend.Domain.Usuarios.Interfaces;
+using backend.Domain.Utils;
 
-namespace backend.Domain.GestaoClinica.Interface
+namespace backend.Domain.GestaoClinica.Interfaces
 {
     public interface IClinicaService
     {

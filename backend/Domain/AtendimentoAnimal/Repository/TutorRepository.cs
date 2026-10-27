@@ -1,8 +1,9 @@
 using backend.Domain.AtendimentoAnimal.Entities;
-using backend.Domain.AtendimentoAnimal.Interface;
+using backend.Domain.AtendimentoAnimal.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using backend.Infra.Data;
 
-namespace backend.Infra.Data.Repositories
+namespace backend.Domain.AtendimentoAnimal.Repository
 {
     public class TutorRepository : ITutorRepository
     {

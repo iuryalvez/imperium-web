@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using backend.Domain.AtendimentoAnimal.Entities;
-using backend.Domain.AtendimentoAnimal.Interface;
+using backend.Domain.AtendimentoAnimal.Interfaces;
 using backend.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 

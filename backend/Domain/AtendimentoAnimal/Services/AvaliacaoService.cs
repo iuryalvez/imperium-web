@@ -2,8 +2,9 @@ using System.Security.Claims;
 using AutoMapper;
 using backend.Domain.AtendimentoAnimal.DTOs.Avaliacao;
 using backend.Domain.AtendimentoAnimal.Entities;
-using backend.Domain.AtendimentoAnimal.Interface;
+using backend.Domain.AtendimentoAnimal.Interfaces;
 using backend.Domain.Usuarios.Interfaces;
+using backend.Domain.Utils;
 using backend.Infra.Data;
 
 namespace backend.Domain.AtendimentoAnimal.Services

@@ -1,6 +1,6 @@
 using backend.Domain.AtendimentoAnimal.Entities;
 
-namespace backend.Domain.AtendimentoAnimal.Interface
+namespace backend.Domain.AtendimentoAnimal.Interfaces
 {
     public interface ITutorRepository
     {

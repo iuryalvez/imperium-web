@@ -1,4 +1,4 @@
-namespace backend.Domain.AtendimentoAnimal.DTOs
+namespace backend.Domain.AtendimentoAnimal.DTOs.Tutor
 {
     // Novo DTO para representar o tutor de forma simplificada
     public class TutorInfoSimplesDto

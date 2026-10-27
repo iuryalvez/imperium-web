@@ -5,11 +5,14 @@ using Microsoft.EntityFrameworkCore;
 using backend.Domain.Auth.Extensions;
 using backend.Infra.Data;
 using System.Security.Claims;
-using backend.Domain.Usuarios.DTOs;
+using backend.Domain.Usuarios.DTOs.Usuario;
+using backend.Domain.Usuarios.DTOs.Vinculo;
 using backend.Domain.Usuarios.Interfaces;
+using backend.Domain.Utils;
 using backend.Domain.Usuarios.DTOs.PerfilPessoal;
+using backend.Domain.Usuarios.DTOs.UsuarioStatus;
 
-namespace backend.Domain.Usuarios
+namespace backend.Domain.Usuarios.Controllers
 {
     [ApiController]
     [Route("api")]

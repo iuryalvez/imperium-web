@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using backend.Domain.Auth.Extensions;
 using backend.Domain.SaudeAnimal.Interfaces;
 using backend.Domain.AtendimentoAnimal.Enums;
+using backend.Domain.SaudeAnimal.DTOs.Racao;
 
-namespace backend.Domain.SaudeAnimal
+namespace backend.Domain.SaudeAnimal.Controllers
 {
     [ApiController]
     [Route("api/clinica/racoes")]

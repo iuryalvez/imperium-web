@@ -1,3 +1,5 @@
+
+namespace backend.Domain.SaudeAnimal.DTOs.Racao;
 /// <summary>
 /// DTO para representar os dados detalhados de uma ração, incluindo sua composição garantida, 
 /// valores energéticos calculados e a distribuição dessa energia.

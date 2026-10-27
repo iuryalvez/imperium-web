@@ -1,8 +1,9 @@
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.Usuarios.Interfaces;
+using backend.Domain.Utils;
 using backend.Domain.SaudeAnimal.DTOs.Dieta;
 
-namespace backend.Domain.AtendimentoAnimal.Services
+namespace backend.Domain.AtendimentoAnimal.Interfaces
 {
     public interface IAcompanhamentoService
     {

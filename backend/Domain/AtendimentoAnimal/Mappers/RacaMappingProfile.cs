@@ -2,7 +2,7 @@ using AutoMapper;
 using backend.Domain.AtendimentoAnimal.DTOs.Raca;
 using backend.Domain.AtendimentoAnimal.Entities;
 
-namespace backend.Domain.AtendimentoAnimal.Mappings
+namespace backend.Domain.AtendimentoAnimal.Mappers
 {
     public class RacaMappingProfile : Profile
     {

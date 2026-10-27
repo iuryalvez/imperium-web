@@ -1,13 +1,14 @@
 using backend.Domain.AtendimentoAnimal.DTOs.Avaliacao;
-using backend.Domain.AtendimentoAnimal.Interface;
+using backend.Domain.AtendimentoAnimal.Interfaces;
 using backend.Domain.Usuarios.Interfaces;
+using backend.Domain.Utils;
 using backend.Domain.Auth.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using backend.Domain.SaudeAnimal.DTOs.Dieta;
 using backend.Domain.AtendimentoAnimal.Services;
 
-namespace backend.Domain.AtendimentoAnimal
+namespace backend.Domain.AtendimentoAnimal.Controllers
 {
     [ApiController]
     [Route("api/clinica")]

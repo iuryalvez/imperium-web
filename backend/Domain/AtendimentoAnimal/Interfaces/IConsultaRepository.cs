@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using backend.Domain.AtendimentoAnimal.Entities;
 
-namespace backend.Domain.AtendimentoAnimal.Interface
+namespace backend.Domain.AtendimentoAnimal.Interfaces
 {
     public interface IConsultaRepository
     {

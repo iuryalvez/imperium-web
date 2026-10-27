@@ -1,7 +1,7 @@
 using backend.Domain.AtendimentoAnimal.DTOs.Raca;
 using backend.Domain.AtendimentoAnimal.Enums;
 
-namespace backend.Domain.AtendimentoAnimal.Interface
+namespace backend.Domain.AtendimentoAnimal.Interfaces
 {
     public interface IRacaService
     {

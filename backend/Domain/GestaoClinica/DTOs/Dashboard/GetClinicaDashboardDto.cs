@@ -1,4 +1,4 @@
-namespace backend.Domain.GestaoClinica.DTOs
+namespace backend.Domain.GestaoClinica.DTOs.Dashboard
 {
     public class GetClinicaDashboardDto
     {

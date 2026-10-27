@@ -1,8 +1,10 @@
 using AutoMapper;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.SaudeAnimal.Entities;
+using backend.Domain.SaudeAnimal.Enums;
 using backend.Domain.General.Extensions;
 using backend.Domain.SaudeAnimal.Services;
+using backend.Domain.AtendimentoAnimal.DTOs.AcompanhamentoDto;
 
 namespace backend.Domain.AtendimentoAnimal.Mappers 
 {

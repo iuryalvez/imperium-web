@@ -1,11 +1,15 @@
 using AutoMapper;
-using backend.Domain.AtendimentoAnimal;
-using backend.Domain.AtendimentoAnimal.DTOs;
+using backend.Domain.AtendimentoAnimal.DTOs.AcompanhamentoDto;
+using backend.Domain.AtendimentoAnimal.DTOs.Animal;
+using backend.Domain.AtendimentoAnimal.DTOs.Tutor;
 using backend.Domain.AtendimentoAnimal.Entities;
-using backend.Domain.AtendimentoAnimal.Interface;
+using backend.Domain.AtendimentoAnimal.Interfaces;
 using backend.Domain.Usuarios.Interfaces;
+using backend.Domain.Utils;
 using backend.Infra.Data;
 using Microsoft.EntityFrameworkCore;
+
+namespace backend.Domain.AtendimentoAnimal.Services;
 
 /// <summary>
 /// Serviço responsável por gerenciar as regras de negócio relacionadas a animais.
