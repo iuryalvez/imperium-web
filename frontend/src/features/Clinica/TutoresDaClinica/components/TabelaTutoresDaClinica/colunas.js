@@ -1,3 +1,4 @@
+import { Tag } from "antd";
 import { formatarCPF, formatarTelefone } from "../../../../../utils/formatters";
 
 const colunas = [
@@ -29,6 +30,18 @@ const colunas = [
     dataIndex: "endereco",
     key: "endereco",
     render: (text) => text || "-",
+  },
+  {
+    title: "Status",
+    dataIndex: "isAtivo",
+    key: "isAtivo",
+    filters: [
+      { text: "Ativo", value: true },
+      { text: "Inativo", value: false },
+    ],
+    onFilter: (value, record) => record.isAtivo === value,
+    render: (isAtivo) =>
+      isAtivo ? <Tag color="green">Ativo</Tag> : <Tag color="red">Inativo</Tag>,
   },
 ];
 

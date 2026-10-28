@@ -5,7 +5,7 @@ const colunas = [
       title: "Nome",
       dataIndex: "nome",
       key: "nome",
-      sorter: (a, b) => a.nome.localeCompare(b.nome),
+      sorter: true, // ordenação feita no servidor
       // Rações do sistema são compartilhadas entre as clínicas
       render: (nome, record) => (
         <>
@@ -20,62 +20,89 @@ const colunas = [
       render: (especie) => (
         <Tag color={especie === "Cao" ? "blue" : "green"}>{especie}</Tag>
       ),
-      filters: [ { text: "Cão", value: "Cao" }, { text: "Gato", value: "Gato" } ],
-      onFilter: (value, record) => record.especie.indexOf(value) === 0,
+      // Filtro aplicado no servidor (ver traduzirFiltrosRacao)
+      filters: [ { text: "Cão", value: 1 }, { text: "Gato", value: 2 } ],
+      filterMultiple: false,
     },
     {
       title: "Unidade",
       dataIndex: "isPorcentagem",
       key: "isPorcentagem",
-      filters: [
-        { text: 'Porcentagem (%)', value: true },
-        { text: 'Gramas (g/kg)', value: false },
-      ],
-      onFilter: (value, record) => record.isPorcentagem === value,
       render: (isPorcentagem) => isPorcentagem ? <Tag>%</Tag> : <Tag>g/kg</Tag>,
     },
     {
       title: "Umidade",
       dataIndex: "umidade",
       key: "umidade",
-      sorter: (a, b) => a.umidade - b.umidade,
       render: (value, record) => `${value.toLocaleString("pt-BR")}${record.isPorcentagem ? '%' : ''}`,
     },
     {
       title: "Proteína Bruta",
       dataIndex: "proteinaBruta",
       key: "proteinaBruta",
-      sorter: (a, b) => a.proteinaBruta - b.proteinaBruta,
       render: (value, record) => `${value.toLocaleString("pt-BR")}${record.isPorcentagem ? '%' : ''}`,
     },
     {
       title: "Extrato Etéreo",
       dataIndex: "extratoEtereo",
       key: "extratoEtereo",
-      sorter: (a, b) => a.extratoEtereo - b.extratoEtereo,
       render: (value, record) => `${value.toLocaleString("pt-BR")}${record.isPorcentagem ? '%' : ''}`,
     },
     {
       title: "Matéria Mineral",
       dataIndex: "materiaMineral",
       key: "materiaMineral",
-      sorter: (a, b) => a.materiaMineral - b.materiaMineral,
       render: (value, record) => `${value.toLocaleString("pt-BR")}${record.isPorcentagem ? '%' : ''}`,
     },
     {
       title: "Fibra Bruta",
       dataIndex: "fibraBruta",
       key: "fibraBruta",
-      sorter: (a, b) => a.fibraBruta - b.fibraBruta,
       render: (value, record) => `${value.toLocaleString("pt-BR")}${record.isPorcentagem ? '%' : ''}`,
+    },
+    {
+      title: "Status",
+      dataIndex: "isAtivo",
+      key: "isAtivo",
+      // Filtro aplicado no servidor (ver traduzirFiltrosRacao)
+      filters: [
+        { text: "Ativa", value: true },
+        { text: "Inativa", value: false },
+      ],
+      filterMultiple: false,
+      render: (isAtivo, record) => (
+        <>
+          {isAtivo ? <Tag color="green">Ativa</Tag> : <Tag color="red">Inativa</Tag>}
+          {record.isOculta && <Tag>Oculta</Tag>}
+        </>
+      ),
+    },
+    {
+      title: "Cadastro",
+      dataIndex: "dataCadastro",
+      key: "dataCadastro",
+      sorter: true, // ordenação feita no servidor (padrão: mais recentes primeiro)
+      render: (data) => (data ? new Date(data).toLocaleDateString("pt-BR") : "-"),
     },
     {
       title: "Matéria Seca",
       dataIndex: "materiaSeca",
       key: "materiaSeca",
-      sorter: (a, b) => a.materiaSeca - b.materiaSeca,
       render: (value) => `${value.toLocaleString("pt-BR")}%`,
     },
 ];
+
+/** Coluna extra da visão do admin para as rações próprias das clínicas ("cópias"). */
+export const colunaClinica = {
+  title: "Clínica",
+  dataIndex: "nomeClinica",
+  key: "nomeClinica",
+};
+
+/** Converte os filtros de coluna da Table em filtros do servidor (RacaoFiltro). */
+export const traduzirFiltrosRacao = (filtros) => ({
+  especie: filtros.especie?.[0],
+  ativo: filtros.isAtivo?.[0],
+});
 
 export default colunas;

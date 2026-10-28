@@ -384,8 +384,17 @@ namespace backend.Migrations
                     b.Property<int?>("ClinicaId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime>("DataCadastro")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DataDesativacao")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("Especie")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("IsAtivo")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Nome")
                         .IsRequired()
@@ -423,7 +432,9 @@ namespace backend.Migrations
                         {
                             Id = 1,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Airedale Terrier",
                             PesoMaximoReferenciaFemea = 19.0,
                             PesoMaximoReferenciaMacho = 30.0,
@@ -436,7 +447,9 @@ namespace backend.Migrations
                         {
                             Id = 2,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Akita Inu",
                             PesoMaximoReferenciaFemea = 34.0,
                             PesoMaximoReferenciaMacho = 46.0,
@@ -449,7 +462,9 @@ namespace backend.Migrations
                         {
                             Id = 3,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Alaskan Malamute",
                             PesoMaximoReferenciaFemea = 34.0,
                             PesoMaximoReferenciaMacho = 57.0,
@@ -462,7 +477,9 @@ namespace backend.Migrations
                         {
                             Id = 4,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Basenji",
                             PesoMaximoReferenciaFemea = 10.0,
                             PesoMaximoReferenciaMacho = 11.0,
@@ -475,7 +492,9 @@ namespace backend.Migrations
                         {
                             Id = 5,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Basset Hound",
                             PesoMaximoReferenciaFemea = 18.0,
                             PesoMaximoReferenciaMacho = 27.0,
@@ -488,7 +507,9 @@ namespace backend.Migrations
                         {
                             Id = 6,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Beagle",
                             PesoMaximoReferenciaFemea = 12.0,
                             PesoMaximoReferenciaMacho = 14.0,
@@ -501,7 +522,9 @@ namespace backend.Migrations
                         {
                             Id = 7,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Bearded Collie",
                             PesoMaximoReferenciaFemea = 18.0,
                             PesoMaximoReferenciaMacho = 27.0,
@@ -514,7 +537,9 @@ namespace backend.Migrations
                         {
                             Id = 8,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Beauceron",
                             PesoMaximoReferenciaFemea = 30.0,
                             PesoMaximoReferenciaMacho = 38.0,
@@ -527,7 +552,9 @@ namespace backend.Migrations
                         {
                             Id = 9,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Bichon Frisé",
                             PesoMaximoReferenciaFemea = 4.5,
                             PesoMaximoReferenciaMacho = 5.5,
@@ -540,7 +567,9 @@ namespace backend.Migrations
                         {
                             Id = 10,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Bichon Maltês",
                             PesoMaximoReferenciaFemea = 1.7999999523162842,
                             PesoMaximoReferenciaMacho = 2.7000000476837158,
@@ -553,7 +582,9 @@ namespace backend.Migrations
                         {
                             Id = 11,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Bloodhound",
                             PesoMaximoReferenciaFemea = 45.5,
                             PesoMaximoReferenciaMacho = 50.0,
@@ -566,7 +597,9 @@ namespace backend.Migrations
                         {
                             Id = 12,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Bobtail",
                             PesoMaximoReferenciaFemea = 25.0,
                             PesoMaximoReferenciaMacho = 30.0,
@@ -579,7 +612,9 @@ namespace backend.Migrations
                         {
                             Id = 13,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Boiadeiro de Berna",
                             PesoMaximoReferenciaFemea = 40.0,
                             PesoMaximoReferenciaMacho = 50.0,
@@ -592,7 +627,9 @@ namespace backend.Migrations
                         {
                             Id = 14,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Boiadeiro de Flandres",
                             PesoMaximoReferenciaFemea = 35.0,
                             PesoMaximoReferenciaMacho = 40.0,
@@ -605,7 +642,9 @@ namespace backend.Migrations
                         {
                             Id = 15,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Border Collie",
                             PesoMaximoReferenciaFemea = 13.5,
                             PesoMaximoReferenciaMacho = 20.5,
@@ -618,7 +657,9 @@ namespace backend.Migrations
                         {
                             Id = 16,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Border Terrier",
                             PesoMaximoReferenciaFemea = 6.4000000953674316,
                             PesoMaximoReferenciaMacho = 6.8000001907348633,
@@ -631,7 +672,9 @@ namespace backend.Migrations
                         {
                             Id = 17,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Boston Terrier",
                             PesoMaximoReferenciaFemea = 9.0,
                             PesoMaximoReferenciaMacho = 9.0,
@@ -644,7 +687,9 @@ namespace backend.Migrations
                         {
                             Id = 18,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Boxer",
                             PesoMaximoReferenciaFemea = 24.0,
                             PesoMaximoReferenciaMacho = 32.0,
@@ -657,7 +702,9 @@ namespace backend.Migrations
                         {
                             Id = 19,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Braco Francês",
                             PesoMaximoReferenciaFemea = 22.700000762939453,
                             PesoMaximoReferenciaMacho = 27.0,
@@ -670,7 +717,9 @@ namespace backend.Migrations
                         {
                             Id = 20,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Braco Húngaro / Vizsla",
                             PesoMaximoReferenciaFemea = 20.0,
                             PesoMaximoReferenciaMacho = 30.0,
@@ -683,7 +732,9 @@ namespace backend.Migrations
                         {
                             Id = 21,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Braco de Saint Germain",
                             PesoMaximoReferenciaFemea = 18.0,
                             PesoMaximoReferenciaMacho = 26.0,
@@ -696,7 +747,9 @@ namespace backend.Migrations
                         {
                             Id = 22,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Bull Terrier",
                             PesoMaximoReferenciaFemea = 23.5,
                             PesoMaximoReferenciaMacho = 28.0,
@@ -709,7 +762,9 @@ namespace backend.Migrations
                         {
                             Id = 23,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Bull Terrier Miniatura",
                             PesoMaximoReferenciaFemea = 4.5,
                             PesoMaximoReferenciaMacho = 18.0,
@@ -722,7 +777,9 @@ namespace backend.Migrations
                         {
                             Id = 24,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Bulldog",
                             PesoMaximoReferenciaFemea = 23.0,
                             PesoMaximoReferenciaMacho = 25.0,
@@ -735,7 +792,9 @@ namespace backend.Migrations
                         {
                             Id = 25,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Bulldog Francês",
                             PesoMaximoReferenciaFemea = 8.0,
                             PesoMaximoReferenciaMacho = 13.0,
@@ -748,7 +807,9 @@ namespace backend.Migrations
                         {
                             Id = 26,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Bullmastiff",
                             PesoMaximoReferenciaFemea = 54.0,
                             PesoMaximoReferenciaMacho = 65.0,
@@ -761,7 +822,9 @@ namespace backend.Migrations
                         {
                             Id = 27,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Cairn Terrier",
                             PesoMaximoReferenciaFemea = 6.0,
                             PesoMaximoReferenciaMacho = 7.5,
@@ -774,7 +837,9 @@ namespace backend.Migrations
                         {
                             Id = 28,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Pug",
                             PesoMaximoReferenciaFemea = 6.5,
                             PesoMaximoReferenciaMacho = 8.0,
@@ -787,7 +852,9 @@ namespace backend.Migrations
                         {
                             Id = 29,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Cavalier King Charles Spaniel",
                             PesoMaximoReferenciaFemea = 5.0,
                             PesoMaximoReferenciaMacho = 8.0,
@@ -800,7 +867,9 @@ namespace backend.Migrations
                         {
                             Id = 30,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Chesapeake Bay Retriever",
                             PesoMaximoReferenciaFemea = 32.0,
                             PesoMaximoReferenciaMacho = 36.0,
@@ -813,7 +882,9 @@ namespace backend.Migrations
                         {
                             Id = 31,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Chihuahua",
                             PesoMaximoReferenciaFemea = 2.7000000476837158,
                             PesoMaximoReferenciaMacho = 2.7000000476837158,
@@ -826,7 +897,9 @@ namespace backend.Migrations
                         {
                             Id = 32,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Chow Chow",
                             PesoMaximoReferenciaFemea = 20.0,
                             PesoMaximoReferenciaMacho = 30.0,
@@ -839,7 +912,9 @@ namespace backend.Migrations
                         {
                             Id = 33,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Clumber Spaniel",
                             PesoMaximoReferenciaFemea = 32.0,
                             PesoMaximoReferenciaMacho = 38.0,
@@ -852,7 +927,9 @@ namespace backend.Migrations
                         {
                             Id = 34,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Cocker Spaniel Americano",
                             PesoMaximoReferenciaFemea = 11.0,
                             PesoMaximoReferenciaMacho = 12.5,
@@ -865,7 +942,9 @@ namespace backend.Migrations
                         {
                             Id = 35,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Cocker Spaniel Inglês",
                             PesoMaximoReferenciaFemea = 14.5,
                             PesoMaximoReferenciaMacho = 15.5,
@@ -878,7 +957,9 @@ namespace backend.Migrations
                         {
                             Id = 36,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Collie",
                             PesoMaximoReferenciaFemea = 30.0,
                             PesoMaximoReferenciaMacho = 34.0,
@@ -891,7 +972,9 @@ namespace backend.Migrations
                         {
                             Id = 37,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Coton de Tulear",
                             PesoMaximoReferenciaFemea = 5.0,
                             PesoMaximoReferenciaMacho = 6.8000001907348633,
@@ -904,7 +987,9 @@ namespace backend.Migrations
                         {
                             Id = 38,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Cão da Montanha dos Pirineus",
                             PesoMaximoReferenciaFemea = 45.0,
                             PesoMaximoReferenciaMacho = 55.0,
@@ -917,7 +1002,9 @@ namespace backend.Migrations
                         {
                             Id = 39,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Cão de Água Americano",
                             PesoMaximoReferenciaFemea = 18.0,
                             PesoMaximoReferenciaMacho = 20.5,
@@ -930,7 +1017,9 @@ namespace backend.Migrations
                         {
                             Id = 40,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Cão de Água Português",
                             PesoMaximoReferenciaFemea = 23.0,
                             PesoMaximoReferenciaMacho = 27.0,
@@ -943,7 +1032,9 @@ namespace backend.Migrations
                         {
                             Id = 41,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Dachshund Miniatura",
                             PesoMaximoReferenciaFemea = 4.5,
                             PesoMaximoReferenciaMacho = 4.5,
@@ -956,7 +1047,9 @@ namespace backend.Migrations
                         {
                             Id = 42,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Dandie Dinmont Terrier",
                             PesoMaximoReferenciaFemea = 8.0,
                             PesoMaximoReferenciaMacho = 11.0,
@@ -969,7 +1062,9 @@ namespace backend.Migrations
                         {
                             Id = 43,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Doberman",
                             PesoMaximoReferenciaFemea = 29.0,
                             PesoMaximoReferenciaMacho = 39.0,
@@ -982,7 +1077,9 @@ namespace backend.Migrations
                         {
                             Id = 44,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Dogue de Bordeuax",
                             PesoMaximoReferenciaFemea = 54.0,
                             PesoMaximoReferenciaMacho = 65.0,
@@ -995,7 +1092,9 @@ namespace backend.Migrations
                         {
                             Id = 45,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Dogue de Bordeaux (grande)",
                             PesoMaximoReferenciaFemea = 60.0,
                             PesoMaximoReferenciaMacho = 65.0,
@@ -1008,7 +1107,9 @@ namespace backend.Migrations
                         {
                             Id = 46,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Dogue de Bordeaux (médio)",
                             PesoMaximoReferenciaFemea = 40.0,
                             PesoMaximoReferenciaMacho = 45.0,
@@ -1021,7 +1122,9 @@ namespace backend.Migrations
                         {
                             Id = 47,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Dálmata",
                             PesoMaximoReferenciaFemea = 22.700000762939453,
                             PesoMaximoReferenciaMacho = 27.0,
@@ -1034,7 +1137,9 @@ namespace backend.Migrations
                         {
                             Id = 48,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Epagneul Breton",
                             PesoMaximoReferenciaFemea = 13.5,
                             PesoMaximoReferenciaMacho = 18.0,
@@ -1047,7 +1152,9 @@ namespace backend.Migrations
                         {
                             Id = 49,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Fila Brasileiro",
                             PesoMaximoReferenciaFemea = 40.5,
                             PesoMaximoReferenciaMacho = 45.0,
@@ -1060,7 +1167,9 @@ namespace backend.Migrations
                         {
                             Id = 50,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Fox Terrier",
                             PesoMaximoReferenciaFemea = 7.6999998092651367,
                             PesoMaximoReferenciaMacho = 8.1999998092651367,
@@ -1073,7 +1182,9 @@ namespace backend.Migrations
                         {
                             Id = 51,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Foxhound Inglês",
                             PesoMaximoReferenciaFemea = 29.5,
                             PesoMaximoReferenciaMacho = 32.0,
@@ -1086,7 +1197,9 @@ namespace backend.Migrations
                         {
                             Id = 52,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Galgo Afegão",
                             PesoMaximoReferenciaFemea = 23.0,
                             PesoMaximoReferenciaMacho = 27.0,
@@ -1099,7 +1212,9 @@ namespace backend.Migrations
                         {
                             Id = 53,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Galgo Espanhol",
                             PesoMaximoReferenciaFemea = 27.0,
                             PesoMaximoReferenciaMacho = 27.0,
@@ -1112,7 +1227,9 @@ namespace backend.Migrations
                         {
                             Id = 54,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Galgo Inglês",
                             PesoMaximoReferenciaFemea = 29.5,
                             PesoMaximoReferenciaMacho = 32.0,
@@ -1125,7 +1242,9 @@ namespace backend.Migrations
                         {
                             Id = 55,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Galgo Russo (Borzoi)",
                             PesoMaximoReferenciaFemea = 40.0,
                             PesoMaximoReferenciaMacho = 48.0,
@@ -1138,7 +1257,9 @@ namespace backend.Migrations
                         {
                             Id = 56,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Golden Retriever",
                             PesoMaximoReferenciaFemea = 29.5,
                             PesoMaximoReferenciaMacho = 34.0,
@@ -1151,7 +1272,9 @@ namespace backend.Migrations
                         {
                             Id = 57,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Gordon Setter",
                             PesoMaximoReferenciaFemea = 32.0,
                             PesoMaximoReferenciaMacho = 36.0,
@@ -1164,7 +1287,9 @@ namespace backend.Migrations
                         {
                             Id = 58,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Dogue Alemão (Grande Dinamarquês)",
                             PesoMaximoReferenciaFemea = 55.0,
                             PesoMaximoReferenciaMacho = 80.0,
@@ -1177,7 +1302,9 @@ namespace backend.Migrations
                         {
                             Id = 59,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Griffon Vendeen",
                             PesoMaximoReferenciaFemea = 11.5,
                             PesoMaximoReferenciaMacho = 16.0,
@@ -1190,7 +1317,9 @@ namespace backend.Migrations
                         {
                             Id = 60,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Griffon de Bruxelas",
                             PesoMaximoReferenciaFemea = 2.2000000476837158,
                             PesoMaximoReferenciaMacho = 5.5,
@@ -1203,7 +1332,9 @@ namespace backend.Migrations
                         {
                             Id = 61,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Griffon de Pêlo Duro",
                             PesoMaximoReferenciaFemea = 23.0,
                             PesoMaximoReferenciaMacho = 27.0,
@@ -1216,7 +1347,9 @@ namespace backend.Migrations
                         {
                             Id = 62,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Husky Siberiano",
                             PesoMaximoReferenciaFemea = 22.5,
                             PesoMaximoReferenciaMacho = 27.0,
@@ -1229,7 +1362,9 @@ namespace backend.Migrations
                         {
                             Id = 63,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Komondor",
                             PesoMaximoReferenciaFemea = 50.0,
                             PesoMaximoReferenciaMacho = 68.0,
@@ -1242,7 +1377,9 @@ namespace backend.Migrations
                         {
                             Id = 64,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Kuvasz",
                             PesoMaximoReferenciaFemea = 41.0,
                             PesoMaximoReferenciaMacho = 52.0,
@@ -1255,7 +1392,9 @@ namespace backend.Migrations
                         {
                             Id = 65,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Labrador Retriever",
                             PesoMaximoReferenciaFemea = 32.0,
                             PesoMaximoReferenciaMacho = 36.0,
@@ -1268,7 +1407,9 @@ namespace backend.Migrations
                         {
                             Id = 66,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Leonberger",
                             PesoMaximoReferenciaFemea = 36.299999237060547,
                             PesoMaximoReferenciaMacho = 68.0,
@@ -1281,7 +1422,9 @@ namespace backend.Migrations
                         {
                             Id = 67,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Lhasa Apso",
                             PesoMaximoReferenciaFemea = 6.4000000953674316,
                             PesoMaximoReferenciaMacho = 8.0,
@@ -1294,7 +1437,9 @@ namespace backend.Migrations
                         {
                             Id = 68,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Lulu da Pomerânia (Spitz anão)",
                             PesoMaximoReferenciaFemea = 1.5,
                             PesoMaximoReferenciaMacho = 3.2000000476837158,
@@ -1307,7 +1452,9 @@ namespace backend.Migrations
                         {
                             Id = 69,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Mastim Espanhol",
                             PesoMaximoReferenciaFemea = 50.0,
                             PesoMaximoReferenciaMacho = 60.0,
@@ -1320,7 +1467,9 @@ namespace backend.Migrations
                         {
                             Id = 70,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Mastim Inglês",
                             PesoMaximoReferenciaFemea = 75.0,
                             PesoMaximoReferenciaMacho = 90.0,
@@ -1333,7 +1482,9 @@ namespace backend.Migrations
                         {
                             Id = 71,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Mastim Napolitano",
                             PesoMaximoReferenciaFemea = 50.0,
                             PesoMaximoReferenciaMacho = 70.0,
@@ -1346,7 +1497,9 @@ namespace backend.Migrations
                         {
                             Id = 72,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Mastim dos Pirineus",
                             PesoMaximoReferenciaFemea = 55.0,
                             PesoMaximoReferenciaMacho = 70.0,
@@ -1359,7 +1512,9 @@ namespace backend.Migrations
                         {
                             Id = 73,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Pastor Alemão",
                             PesoMaximoReferenciaFemea = 32.0,
                             PesoMaximoReferenciaMacho = 43.0,
@@ -1372,7 +1527,9 @@ namespace backend.Migrations
                         {
                             Id = 74,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Pastor Belga",
                             PesoMaximoReferenciaFemea = 28.0,
                             PesoMaximoReferenciaMacho = 30.0,
@@ -1385,7 +1542,9 @@ namespace backend.Migrations
                         {
                             Id = 75,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Pastor Catalão",
                             PesoMaximoReferenciaFemea = 30.0,
                             PesoMaximoReferenciaMacho = 40.0,
@@ -1398,7 +1557,9 @@ namespace backend.Migrations
                         {
                             Id = 76,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Pastor de Bergamasco",
                             PesoMaximoReferenciaFemea = 32.0,
                             PesoMaximoReferenciaMacho = 38.0,
@@ -1411,7 +1572,9 @@ namespace backend.Migrations
                         {
                             Id = 77,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Pastor de Brie",
                             PesoMaximoReferenciaFemea = 34.0,
                             PesoMaximoReferenciaMacho = 34.0,
@@ -1424,7 +1587,9 @@ namespace backend.Migrations
                         {
                             Id = 78,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Pequinês",
                             PesoMaximoReferenciaFemea = 4.0,
                             PesoMaximoReferenciaMacho = 6.5,
@@ -1437,7 +1602,9 @@ namespace backend.Migrations
                         {
                             Id = 79,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Perdigueiro Alemão",
                             PesoMaximoReferenciaFemea = 20.0,
                             PesoMaximoReferenciaMacho = 30.0,
@@ -1450,7 +1617,9 @@ namespace backend.Migrations
                         {
                             Id = 80,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Pinscher",
                             PesoMaximoReferenciaFemea = 4.0,
                             PesoMaximoReferenciaMacho = 5.0,
@@ -1463,7 +1632,9 @@ namespace backend.Migrations
                         {
                             Id = 81,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Pinscher Miniatura",
                             PesoMaximoReferenciaFemea = 4.5,
                             PesoMaximoReferenciaMacho = 4.5,
@@ -1476,7 +1647,9 @@ namespace backend.Migrations
                         {
                             Id = 82,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Podengo Ibérico",
                             PesoMaximoReferenciaFemea = 20.5,
                             PesoMaximoReferenciaMacho = 23.0,
@@ -1489,7 +1662,9 @@ namespace backend.Migrations
                         {
                             Id = 83,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Pointer",
                             PesoMaximoReferenciaFemea = 29.5,
                             PesoMaximoReferenciaMacho = 32.0,
@@ -1502,7 +1677,9 @@ namespace backend.Migrations
                         {
                             Id = 84,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Pointer Alemão (Braco Alemão)",
                             PesoMaximoReferenciaFemea = 27.0,
                             PesoMaximoReferenciaMacho = 32.0,
@@ -1515,7 +1692,9 @@ namespace backend.Migrations
                         {
                             Id = 85,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Poodle Miniatura",
                             PesoMaximoReferenciaFemea = 5.0,
                             PesoMaximoReferenciaMacho = 5.0,
@@ -1528,7 +1707,9 @@ namespace backend.Migrations
                         {
                             Id = 86,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Puli",
                             PesoMaximoReferenciaFemea = 14.0,
                             PesoMaximoReferenciaMacho = 15.0,
@@ -1541,7 +1722,9 @@ namespace backend.Migrations
                         {
                             Id = 87,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Rafeiro Alentejano",
                             PesoMaximoReferenciaFemea = 45.0,
                             PesoMaximoReferenciaMacho = 45.0,
@@ -1554,7 +1737,9 @@ namespace backend.Migrations
                         {
                             Id = 88,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Flat-Coated Retriever",
                             PesoMaximoReferenciaFemea = 34.0,
                             PesoMaximoReferenciaMacho = 36.0,
@@ -1567,7 +1752,9 @@ namespace backend.Migrations
                         {
                             Id = 89,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Rottweiler",
                             PesoMaximoReferenciaFemea = 40.0,
                             PesoMaximoReferenciaMacho = 50.0,
@@ -1580,7 +1767,9 @@ namespace backend.Migrations
                         {
                             Id = 90,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Saluki",
                             PesoMaximoReferenciaFemea = 13.0,
                             PesoMaximoReferenciaMacho = 30.0,
@@ -1593,7 +1782,9 @@ namespace backend.Migrations
                         {
                             Id = 91,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Samoieda",
                             PesoMaximoReferenciaFemea = 25.0,
                             PesoMaximoReferenciaMacho = 30.0,
@@ -1606,7 +1797,9 @@ namespace backend.Migrations
                         {
                             Id = 92,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Schnauzer Gigante",
                             PesoMaximoReferenciaFemea = 30.0,
                             PesoMaximoReferenciaMacho = 35.0,
@@ -1619,7 +1812,9 @@ namespace backend.Migrations
                         {
                             Id = 93,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Schnauzer Miniatura",
                             PesoMaximoReferenciaFemea = 5.5,
                             PesoMaximoReferenciaMacho = 7.0,
@@ -1632,7 +1827,9 @@ namespace backend.Migrations
                         {
                             Id = 94,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Schnauzer Médio",
                             PesoMaximoReferenciaFemea = 15.0,
                             PesoMaximoReferenciaMacho = 18.0,
@@ -1645,7 +1842,9 @@ namespace backend.Migrations
                         {
                             Id = 95,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Scottish Terrier",
                             PesoMaximoReferenciaFemea = 9.5,
                             PesoMaximoReferenciaMacho = 10.0,
@@ -1658,7 +1857,9 @@ namespace backend.Migrations
                         {
                             Id = 96,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Setter Inglês",
                             PesoMaximoReferenciaFemea = 18.0,
                             PesoMaximoReferenciaMacho = 25.0,
@@ -1671,7 +1872,9 @@ namespace backend.Migrations
                         {
                             Id = 97,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Setter Irlandês",
                             PesoMaximoReferenciaFemea = 27.200000762939453,
                             PesoMaximoReferenciaMacho = 31.700000762939453,
@@ -1684,7 +1887,9 @@ namespace backend.Migrations
                         {
                             Id = 98,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Shar-Pei",
                             PesoMaximoReferenciaFemea = 18.0,
                             PesoMaximoReferenciaMacho = 25.0,
@@ -1697,7 +1902,9 @@ namespace backend.Migrations
                         {
                             Id = 99,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Shih Tzu",
                             PesoMaximoReferenciaFemea = 4.0,
                             PesoMaximoReferenciaMacho = 8.0,
@@ -1710,7 +1917,9 @@ namespace backend.Migrations
                         {
                             Id = 100,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Silky Terrier Australiano",
                             PesoMaximoReferenciaFemea = 3.5999999046325684,
                             PesoMaximoReferenciaMacho = 4.5,
@@ -1723,7 +1932,9 @@ namespace backend.Migrations
                         {
                             Id = 101,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Skye Terrier",
                             PesoMaximoReferenciaFemea = 11.5,
                             PesoMaximoReferenciaMacho = 11.5,
@@ -1736,7 +1947,9 @@ namespace backend.Migrations
                         {
                             Id = 102,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Spitz Alemão",
                             PesoMaximoReferenciaFemea = 11.300000190734863,
                             PesoMaximoReferenciaMacho = 11.300000190734863,
@@ -1749,7 +1962,9 @@ namespace backend.Migrations
                         {
                             Id = 103,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Spitz Finlandês",
                             PesoMaximoReferenciaFemea = 11.300000190734863,
                             PesoMaximoReferenciaMacho = 16.0,
@@ -1762,7 +1977,9 @@ namespace backend.Migrations
                         {
                             Id = 104,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Springer Spaniel Galês",
                             PesoMaximoReferenciaFemea = 16.0,
                             PesoMaximoReferenciaMacho = 20.0,
@@ -1775,7 +1992,9 @@ namespace backend.Migrations
                         {
                             Id = 105,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Springer Spaniel Inglês",
                             PesoMaximoReferenciaFemea = 18.0,
                             PesoMaximoReferenciaMacho = 22.5,
@@ -1788,7 +2007,9 @@ namespace backend.Migrations
                         {
                             Id = 106,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Staffordshire Bull Terrier",
                             PesoMaximoReferenciaFemea = 15.0,
                             PesoMaximoReferenciaMacho = 17.0,
@@ -1801,7 +2022,9 @@ namespace backend.Migrations
                         {
                             Id = 107,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Sussex Spaniel",
                             PesoMaximoReferenciaFemea = 16.0,
                             PesoMaximoReferenciaMacho = 18.0,
@@ -1814,7 +2037,9 @@ namespace backend.Migrations
                         {
                             Id = 108,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "São Bernardo",
                             PesoMaximoReferenciaFemea = 50.0,
                             PesoMaximoReferenciaMacho = 90.0,
@@ -1827,7 +2052,9 @@ namespace backend.Migrations
                         {
                             Id = 109,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Terra-nova",
                             PesoMaximoReferenciaFemea = 55.0,
                             PesoMaximoReferenciaMacho = 69.0,
@@ -1840,7 +2067,9 @@ namespace backend.Migrations
                         {
                             Id = 110,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Terrier Australiano",
                             PesoMaximoReferenciaFemea = 6.5,
                             PesoMaximoReferenciaMacho = 6.5,
@@ -1853,7 +2082,9 @@ namespace backend.Migrations
                         {
                             Id = 111,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Terrier Galês",
                             PesoMaximoReferenciaFemea = 9.0,
                             PesoMaximoReferenciaMacho = 9.5,
@@ -1866,7 +2097,9 @@ namespace backend.Migrations
                         {
                             Id = 112,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Terrier Irlandês",
                             PesoMaximoReferenciaFemea = 11.0,
                             PesoMaximoReferenciaMacho = 12.0,
@@ -1879,7 +2112,9 @@ namespace backend.Migrations
                         {
                             Id = 113,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Toy Spaniel Inglês",
                             PesoMaximoReferenciaFemea = 3.5,
                             PesoMaximoReferenciaMacho = 6.5,
@@ -1892,7 +2127,9 @@ namespace backend.Migrations
                         {
                             Id = 114,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Welsh Corgi Cardigan",
                             PesoMaximoReferenciaFemea = 15.5,
                             PesoMaximoReferenciaMacho = 15.5,
@@ -1905,7 +2142,9 @@ namespace backend.Migrations
                         {
                             Id = 115,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "West Highland White Terrier",
                             PesoMaximoReferenciaFemea = 7.0,
                             PesoMaximoReferenciaMacho = 10.0,
@@ -1918,7 +2157,9 @@ namespace backend.Migrations
                         {
                             Id = 116,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Whippet",
                             PesoMaximoReferenciaFemea = 13.0,
                             PesoMaximoReferenciaMacho = 13.0,
@@ -1931,7 +2172,9 @@ namespace backend.Migrations
                         {
                             Id = 117,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Yorkshire Terrier",
                             PesoMaximoReferenciaFemea = 3.5,
                             PesoMaximoReferenciaMacho = 3.5,
@@ -1944,7 +2187,9 @@ namespace backend.Migrations
                         {
                             Id = 118,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "Sem Raça Definida (SRD)",
                             Referencia = ""
                         },
@@ -1952,7 +2197,9 @@ namespace backend.Migrations
                         {
                             Id = 119,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Abissínio",
                             Referencia = ""
                         },
@@ -1960,7 +2207,9 @@ namespace backend.Migrations
                         {
                             Id = 120,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Bobtail Americano",
                             Referencia = ""
                         },
@@ -1968,7 +2217,9 @@ namespace backend.Migrations
                         {
                             Id = 121,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Curl Americano",
                             Referencia = ""
                         },
@@ -1976,7 +2227,9 @@ namespace backend.Migrations
                         {
                             Id = 122,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "American Shorthair",
                             Referencia = ""
                         },
@@ -1984,7 +2237,9 @@ namespace backend.Migrations
                         {
                             Id = 123,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "American Wirehair",
                             Referencia = ""
                         },
@@ -1992,7 +2247,9 @@ namespace backend.Migrations
                         {
                             Id = 124,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Balinês",
                             Referencia = ""
                         },
@@ -2000,7 +2257,9 @@ namespace backend.Migrations
                         {
                             Id = 125,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Bengal (Gato-de-Bengala)",
                             Referencia = ""
                         },
@@ -2008,7 +2267,9 @@ namespace backend.Migrations
                         {
                             Id = 126,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Birmanês (Sagrado da Birmânia)",
                             Referencia = ""
                         },
@@ -2016,7 +2277,9 @@ namespace backend.Migrations
                         {
                             Id = 127,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Bombay (Bombaim)",
                             Referencia = ""
                         },
@@ -2024,7 +2287,9 @@ namespace backend.Migrations
                         {
                             Id = 128,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "British Shorthair",
                             Referencia = ""
                         },
@@ -2032,7 +2297,9 @@ namespace backend.Migrations
                         {
                             Id = 129,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Burmese",
                             Referencia = ""
                         },
@@ -2040,7 +2307,9 @@ namespace backend.Migrations
                         {
                             Id = 130,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Chartreux",
                             Referencia = ""
                         },
@@ -2048,7 +2317,9 @@ namespace backend.Migrations
                         {
                             Id = 131,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Cornish Rex",
                             Referencia = ""
                         },
@@ -2056,7 +2327,9 @@ namespace backend.Migrations
                         {
                             Id = 132,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Devon Rex",
                             Referencia = ""
                         },
@@ -2064,7 +2337,9 @@ namespace backend.Migrations
                         {
                             Id = 133,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Mau Egípcio",
                             Referencia = ""
                         },
@@ -2072,7 +2347,9 @@ namespace backend.Migrations
                         {
                             Id = 134,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Exótico",
                             Referencia = ""
                         },
@@ -2080,7 +2357,9 @@ namespace backend.Migrations
                         {
                             Id = 135,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Havana Brown (Oriental Havana)",
                             Referencia = ""
                         },
@@ -2088,7 +2367,9 @@ namespace backend.Migrations
                         {
                             Id = 136,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Himalaio",
                             Referencia = ""
                         },
@@ -2096,7 +2377,9 @@ namespace backend.Migrations
                         {
                             Id = 137,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Bobtail Japonês",
                             Referencia = ""
                         },
@@ -2104,7 +2387,9 @@ namespace backend.Migrations
                         {
                             Id = 138,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Korat",
                             Referencia = ""
                         },
@@ -2112,7 +2397,9 @@ namespace backend.Migrations
                         {
                             Id = 139,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "LaPerm",
                             Referencia = ""
                         },
@@ -2120,7 +2407,9 @@ namespace backend.Migrations
                         {
                             Id = 140,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Maine Coon",
                             Referencia = ""
                         },
@@ -2128,7 +2417,9 @@ namespace backend.Migrations
                         {
                             Id = 141,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Manx (Manês)",
                             Referencia = ""
                         },
@@ -2136,7 +2427,9 @@ namespace backend.Migrations
                         {
                             Id = 142,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Norueguês da Floresta",
                             Referencia = ""
                         },
@@ -2144,7 +2437,9 @@ namespace backend.Migrations
                         {
                             Id = 143,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Ocicat",
                             Referencia = ""
                         },
@@ -2152,7 +2447,9 @@ namespace backend.Migrations
                         {
                             Id = 144,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Oriental Shorthair",
                             Referencia = ""
                         },
@@ -2160,7 +2457,9 @@ namespace backend.Migrations
                         {
                             Id = 145,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Persa",
                             Referencia = ""
                         },
@@ -2168,7 +2467,9 @@ namespace backend.Migrations
                         {
                             Id = 146,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Ragamuffin",
                             Referencia = ""
                         },
@@ -2176,7 +2477,9 @@ namespace backend.Migrations
                         {
                             Id = 147,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Ragdoll",
                             Referencia = ""
                         },
@@ -2184,7 +2487,9 @@ namespace backend.Migrations
                         {
                             Id = 148,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Azul Russo",
                             Referencia = ""
                         },
@@ -2192,7 +2497,9 @@ namespace backend.Migrations
                         {
                             Id = 149,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Scottish Fold",
                             Referencia = ""
                         },
@@ -2200,7 +2507,9 @@ namespace backend.Migrations
                         {
                             Id = 150,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Selkirk Rex",
                             Referencia = ""
                         },
@@ -2208,7 +2517,9 @@ namespace backend.Migrations
                         {
                             Id = 151,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Sem Raça Definida (SRD)",
                             Referencia = ""
                         },
@@ -2216,7 +2527,9 @@ namespace backend.Migrations
                         {
                             Id = 152,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Siamês",
                             Referencia = ""
                         },
@@ -2224,7 +2537,9 @@ namespace backend.Migrations
                         {
                             Id = 153,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Siberiano",
                             Referencia = ""
                         },
@@ -2232,7 +2547,9 @@ namespace backend.Migrations
                         {
                             Id = 154,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Singapura",
                             Referencia = ""
                         },
@@ -2240,7 +2557,9 @@ namespace backend.Migrations
                         {
                             Id = 155,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Somali",
                             Referencia = ""
                         },
@@ -2248,7 +2567,9 @@ namespace backend.Migrations
                         {
                             Id = 156,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Sphynx",
                             Referencia = ""
                         },
@@ -2256,7 +2577,9 @@ namespace backend.Migrations
                         {
                             Id = 157,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Tonquinês",
                             Referencia = ""
                         },
@@ -2264,7 +2587,9 @@ namespace backend.Migrations
                         {
                             Id = 158,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Angorá (Turkish Angora)",
                             Referencia = ""
                         },
@@ -2272,7 +2597,9 @@ namespace backend.Migrations
                         {
                             Id = 159,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 2,
+                            IsAtivo = true,
                             Nome = "Turkish Van",
                             Referencia = ""
                         },
@@ -2280,11 +2607,40 @@ namespace backend.Migrations
                         {
                             Id = 160,
                             CategoriaMetabolica = 0,
+                            DataCadastro = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Especie = 1,
+                            IsAtivo = true,
                             Nome = "American Pit Bull Terrier",
                             Porte = 2,
                             Referencia = ""
                         });
+                });
+
+            modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.RacaOcultaClinica", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClinicaId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("DataOcultacao")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("RacaId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RacaId");
+
+                    b.HasIndex("ClinicaId", "RacaId")
+                        .IsUnique();
+
+                    b.ToTable("RacasOcultasClinicas");
                 });
 
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Tutor", b =>
@@ -2580,6 +2936,12 @@ namespace backend.Migrations
                     b.Property<double?>("CoeficienteDigestibilidadeEnergia")
                         .HasColumnType("double precision");
 
+                    b.Property<DateTime>("DataCadastro")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DataDesativacao")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<double?>("EnergiaBruta")
                         .HasColumnType("double precision");
 
@@ -2616,6 +2978,9 @@ namespace backend.Migrations
                     b.Property<double?>("FibraDieteticaTotal")
                         .HasColumnType("double precision");
 
+                    b.Property<bool>("IsAtivo")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsPorcentagem")
                         .HasColumnType("boolean");
 
@@ -2640,6 +3005,33 @@ namespace backend.Migrations
                     b.HasIndex("ClinicaId");
 
                     b.ToTable("Racoes");
+                });
+
+            modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.RacaoOcultaClinica", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClinicaId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("DataOcultacao")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("RacaoId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RacaoId");
+
+                    b.HasIndex("ClinicaId", "RacaoId")
+                        .IsUnique();
+
+                    b.ToTable("RacoesOcultasClinicas");
                 });
 
             modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.RegistroPesoDieta", b =>
@@ -3052,6 +3444,25 @@ namespace backend.Migrations
                     b.Navigation("Clinica");
                 });
 
+            modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.RacaOcultaClinica", b =>
+                {
+                    b.HasOne("backend.Domain.GestaoClinica.Entities.Clinica", "Clinica")
+                        .WithMany()
+                        .HasForeignKey("ClinicaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend.Domain.AtendimentoAnimal.Entities.Raca", "Raca")
+                        .WithMany("OcultaEmClinicas")
+                        .HasForeignKey("RacaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Clinica");
+
+                    b.Navigation("Raca");
+                });
+
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Tutor", b =>
                 {
                     b.HasOne("backend.Domain.GestaoClinica.Entities.Clinica", "Clinica")
@@ -3093,7 +3504,7 @@ namespace backend.Migrations
                     b.HasOne("backend.Domain.SaudeAnimal.Entities.Racao", "Racao")
                         .WithMany("Dietas")
                         .HasForeignKey("RacaoId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Avaliacao");
@@ -3109,6 +3520,25 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Clinica");
+                });
+
+            modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.RacaoOcultaClinica", b =>
+                {
+                    b.HasOne("backend.Domain.GestaoClinica.Entities.Clinica", "Clinica")
+                        .WithMany()
+                        .HasForeignKey("ClinicaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend.Domain.SaudeAnimal.Entities.Racao", "Racao")
+                        .WithMany("OcultaEmClinicas")
+                        .HasForeignKey("RacaoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Clinica");
+
+                    b.Navigation("Racao");
                 });
 
             modelBuilder.Entity("backend.Domain.SaudeAnimal.Entities.RegistroPesoDieta", b =>
@@ -3168,6 +3598,8 @@ namespace backend.Migrations
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Raca", b =>
                 {
                     b.Navigation("Animais");
+
+                    b.Navigation("OcultaEmClinicas");
                 });
 
             modelBuilder.Entity("backend.Domain.AtendimentoAnimal.Entities.Tutor", b =>
@@ -3202,6 +3634,8 @@ namespace backend.Migrations
                     b.Navigation("Avaliacoes");
 
                     b.Navigation("Dietas");
+
+                    b.Navigation("OcultaEmClinicas");
                 });
 
             modelBuilder.Entity("backend.Domain.Usuarios.Entities.Usuario", b =>

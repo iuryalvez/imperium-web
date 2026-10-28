@@ -286,6 +286,10 @@ namespace backend.Domain.Usuarios.Services
                 if (vinculo?.Usuario == null)
                     return new ServiceResult { Succeeded = false, Message = "Vínculo do usuário não encontrado." };
 
+                // Rotas de clínica informam a clínica do token: o vínculo precisa pertencer a ela
+                if (dto.ClinicaId.HasValue && vinculo.ClinicaId != dto.ClinicaId.Value)
+                    return new ServiceResult { Succeeded = false, Message = "Vínculo do usuário não encontrado nesta clínica." };
+
                 if (dto.Activate)
                 {
                     // ATIVAR O VÍNCULO

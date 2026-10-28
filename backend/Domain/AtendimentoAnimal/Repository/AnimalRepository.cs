@@ -38,6 +38,7 @@ namespace backend.Domain.AtendimentoAnimal.Repository
                 .Include(a => a.Acompanhamento) // Incluindo o Acompanhamento Individualizado
                 .Include(a => a.Raca) // Incluindo a Raça
                 .Where(a => a.ClinicaId == clinicaId)
+                .OrderByDescending(a => a.DataCadastro).ThenByDescending(a => a.Id) // mais recentes primeiro
                 .ToListAsync();
         }
 
@@ -70,6 +71,16 @@ namespace backend.Domain.AtendimentoAnimal.Repository
 
             // A validação passa se a contagem for igual ao número de IDs únicos que recebemos.
             return validAnimalsCount == animalIds.Distinct().Count();
+        }
+
+        public async Task<bool> AllAnimalsActiveAsync(List<int> animalIds, int clinicaId)
+        {
+            if (animalIds == null || !animalIds.Any()) return true;
+
+            var ativos = await _context.Animais
+                .AsNoTracking()
+                .CountAsync(a => a.ClinicaId == clinicaId && a.IsAtivo && animalIds.Contains(a.Id));
+            return ativos == animalIds.Distinct().Count();
         }
 
         public void RemoveTutorLinks(IEnumerable<TutorAnimal> links)

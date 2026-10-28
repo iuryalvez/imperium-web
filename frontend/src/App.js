@@ -17,6 +17,8 @@ import SistemaInicioAdmin from "./features/Sistema/SistemaInicioAdmin/SistemaIni
 import SistemaInicioUsuario from "./features/Sistema/SistemaInicioUsuario/SistemaInicioUsuario.jsx";
 import ClinicasDoSistema from "./features/Sistema/ClinicasDoSistema/ClinicasDoSistema.jsx";
 import UsuariosDoSistema from "./features/Sistema/UsuariosDoSistema/UsuariosDoSistema.jsx";
+import RacasDoSistema from "./features/Sistema/RacasDoSistema/RacasDoSistema";
+import RacoesDoSistema from "./features/Sistema/RacoesDoSistema/RacoesDoSistema";
 import PerfilPessoal from "./features/Sistema/PerfilPessoal/PerfilPessoal.jsx";
 
 import ClinicaInicio from "./features/Clinica/ClinicaInicioHome/index.jsx";
@@ -85,6 +87,14 @@ const App = () => {
                     <Route
                       path="/sistema/usuarios"
                       element={<UsuariosDoSistema />}
+                    />
+                    <Route
+                      path="/sistema/racas"
+                      element={<RacasDoSistema />}
+                    />
+                    <Route
+                      path="/sistema/racoes"
+                      element={<RacoesDoSistema />}
                     />
                   </Route>
                 </Route>

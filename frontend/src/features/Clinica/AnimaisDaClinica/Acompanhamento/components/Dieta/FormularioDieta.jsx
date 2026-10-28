@@ -15,6 +15,8 @@ import { InfoCircleOutlined } from "@ant-design/icons";
 import { message } from "antd";
 
 import { acompanhamentoAPI } from "../../../../../../api/clinica/acompanhamentoAPI";
+import { racoesDaClinicaAPI } from "../../../../../../api/clinica/racoesDaClinicaAPI";
+import SelectBuscaRemota from "../../../../../../components/atoms/SelectBuscaRemota";
 import FormManutencao from "./components/FormManutencao";
 import FormCrescimento from "./components/FormCrescimento";
 import FormLactacao from "./components/FormLactacao";
@@ -32,7 +34,6 @@ const opcoesTipoDietaBase = [
 const FormularioDieta = ({
   onFinish,
   initialValues,
-  racoes,
   dadosRaca,
   dadosAnimal,
 }) => {
@@ -163,8 +164,12 @@ const FormularioDieta = ({
     }
   }, [initialValues, form]);
 
-  const racoesOptions =
-    racoes?.map((r) => ({ label: r.nome, value: r.id })) || [];
+  // Rações do sistema + da clínica (sem as ocultas), filtradas pela espécie do animal; inativas aparecem desabilitadas
+  const especieRacao = isGato ? 2 : isCao ? 1 : undefined;
+  const buscarRacoes = (busca) => racoesDaClinicaAPI.opcoes(busca, especieRacao);
+  const racaoAtual = initialValues?.racaoId
+    ? [{ id: initialValues.racaoId, nome: initialValues.nomeRacao || `Ração #${initialValues.racaoId}` }]
+    : [];
 
   const getFilteredOpcoesTipoDieta = () => {
     let filtered = [...opcoesTipoDietaBase];
@@ -299,11 +304,11 @@ const FormularioDieta = ({
             label="Ração Base"
             rules={[{ required: true }]}
           >
-            <Select
+            <SelectBuscaRemota
               placeholder="Selecione a ração"
-              showSearch
-              optionFilterProp="label"
-              options={racoesOptions}
+              buscarOpcoes={buscarRacoes}
+              opcoesAtuais={racaoAtual}
+              dependencias={[especieRacao]}
             />
           </Form.Item>
         </Col>

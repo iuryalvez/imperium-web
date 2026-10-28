@@ -27,13 +27,16 @@ const FormularioEdicaoTutorDaClinica = ({
       .listar()
       .then((data) => {
         setAnimaisDaClinica(
+          // Animais inativos aparecem desabilitados, exceto os que já estão vinculados ao tutor
           data.map((a) => ({
-            label: `${a.nome} (${a.especie === 1 ? "Cão" : "Gato"})`,
+            label: `${a.nome} (${a.especie === 1 ? "Cão" : "Gato"})${a.isAtivo === false ? " (inativo)" : ""}`,
             value: a.id,
+            disabled: a.isAtivo === false && !(initialValues?.animais || []).some((v) => v.id === a.id),
           })),
         );
       })
       .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

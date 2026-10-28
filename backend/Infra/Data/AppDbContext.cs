@@ -29,6 +29,8 @@ namespace backend.Infra.Data
         public DbSet<UsuarioPerfilClinica> UsuariosPerfisClinicas { get; set; }
         public DbSet<TutorAnimal> TutoresAnimais { get; set; }
         public DbSet<Raca> Racas { get; set; }
+        public DbSet<RacaOcultaClinica> RacasOcultasClinicas { get; set; }
+        public DbSet<RacaoOcultaClinica> RacoesOcultasClinicas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -196,11 +198,41 @@ namespace backend.Infra.Data
                 .HasForeignKey<Avaliacao>(r => r.ConsultaId)
                 .OnDelete(DeleteBehavior.Cascade); // Correct: a report is meaningless without its consultation.
 
-            // Racao 1:N Dieta
+            // Racao 1:N Dieta (Restrict: excluir uma ração não pode apagar as dietas que a usam)
             modelBuilder.Entity<Racao>()
                 .HasMany(r => r.Dietas)
                 .WithOne(dp => dp.Racao)
                 .HasForeignKey(dp => dp.RacaoId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Raça do sistema oculta por clínica (N:N Raca x Clinica)
+            modelBuilder.Entity<RacaOcultaClinica>()
+                .HasIndex(r => new { r.ClinicaId, r.RacaId })
+                .IsUnique();
+            modelBuilder.Entity<RacaOcultaClinica>()
+                .HasOne(r => r.Raca)
+                .WithMany(r => r.OcultaEmClinicas)
+                .HasForeignKey(r => r.RacaId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<RacaOcultaClinica>()
+                .HasOne(r => r.Clinica)
+                .WithMany()
+                .HasForeignKey(r => r.ClinicaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Ração do sistema oculta por clínica (N:N Racao x Clinica)
+            modelBuilder.Entity<RacaoOcultaClinica>()
+                .HasIndex(r => new { r.ClinicaId, r.RacaoId })
+                .IsUnique();
+            modelBuilder.Entity<RacaoOcultaClinica>()
+                .HasOne(r => r.Racao)
+                .WithMany(r => r.OcultaEmClinicas)
+                .HasForeignKey(r => r.RacaoId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<RacaoOcultaClinica>()
+                .HasOne(r => r.Clinica)
+                .WithMany()
+                .HasForeignKey(r => r.ClinicaId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Racao 1:N Avaliacao

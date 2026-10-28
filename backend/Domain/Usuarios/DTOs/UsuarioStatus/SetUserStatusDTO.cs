@@ -15,4 +15,7 @@ public class SetUserStatusDto
     // Define a ação a ser tomada: true para ativar, false para inativar
     [Required]
     public bool Activate { get; set; }
+
+    // Clínica do token (rotas de clínica). Nulo nas rotas do Sistema (admin).
+    public int? ClinicaId { get; set; }
 }

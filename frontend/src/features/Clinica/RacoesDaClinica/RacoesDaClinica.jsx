@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Modal, Skeleton, Space } from "antd";
+import { Button, Input, Modal, Select, Space } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -27,11 +27,14 @@ const RacoesDaClinica = () => {
     handleCloseViewModal,
     handleSubmit,
     handleDelete,
+    paginacao,
+    loadingRowKey,
+    setBusca,
+    setFiltros,
+    handleTableChange,
+    handleToggleStatus,
+    handleToggleOculta,
   } = useRacoesManager();
-
-  if (loading) {
-    return <Skeleton active />;
-  }
 
   return (
     <div>
@@ -46,12 +49,44 @@ const RacoesDaClinica = () => {
         </Button>
       </div>
 
+      {/* Busca e origem filtram no servidor; espécie e status ficam nos filtros das colunas */}
+      <Space wrap className="mb-4">
+        <Input.Search
+          placeholder="Buscar por nome..."
+          onChange={(e) => setBusca(e.target.value)}
+          allowClear
+          style={{ width: 260 }}
+        />
+        <Select
+          defaultValue={null}
+          style={{ width: 190 }}
+          onChange={(value) =>
+            setFiltros({
+              origem: value === "ocultas" ? undefined : value,
+              oculta: value === "ocultas" ? true : undefined,
+            })
+          }
+          options={[
+            { value: null, label: "Todas as Origens" },
+            { value: "sistema", label: "Apenas do Sistema" },
+            { value: "clinica", label: "Apenas da Clínica" },
+            { value: "ocultas", label: "Ocultas pela Clínica" },
+          ]}
+        />
+      </Space>
+
       <TabelaRacoesDaClinica
         racoes={racoes}
+        loading={loading}
+        paginacao={paginacao}
+        onChange={handleTableChange}
+        modo="clinica"
         onEdit={handleOpenModal}
         onDelete={handleDelete}
         onView={handleOpenViewModal}
-        loading={loading}
+        onToggleStatus={handleToggleStatus}
+        onToggleOculta={handleToggleOculta}
+        loadingRowKey={loadingRowKey}
       />
 
       <ModalPadrao

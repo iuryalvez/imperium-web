@@ -188,12 +188,16 @@ namespace backend.Domain.Usuarios.Controllers
         [Authorize(Policy = "GerenciaClinica")]
         public async Task<IActionResult> SetClinicUserStatus(int upcId, [FromBody] SetActivationPayload payload)
         {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId <= 0) return Forbid();
+
             _logger.LogInformation("Recebida requisição para alterar status do Vínculo/Usuário ID: {Id}", upcId);
             var dto = new SetUserStatusDto
             {
                 Id = upcId,
                 IsAdmin = false, // Informa ao serviço que NÃO é um admin
-                Activate = payload.Activate
+                Activate = payload.Activate,
+                ClinicaId = clinicaId // O vínculo precisa ser da clínica do token
             };
 
             var result = await _usuarioService.SetUserActivationStatusAsync(dto);

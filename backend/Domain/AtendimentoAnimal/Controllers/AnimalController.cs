@@ -86,28 +86,16 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
             return Ok(result);
         }
 
-        [HttpPut("animais/{animalId}/desativar-vinculo")]
+        [HttpPut("animais/{animalId}/status")]
         [Authorize(Policy = "GerenciaAnimais")]
-        public async Task<IActionResult> DeactivateLink(int animalId)
+        public async Task<IActionResult> SetStatus(int animalId, [FromQuery] bool ativo)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            if (clinicaId == 0)
-            {
-                return BadRequest(new { Message = "ID da clínica não encontrado." });
-            }
+            if (clinicaId <= 0) return Forbid();
 
-            var result = await _animalService.DesativarVinculoAnimalAsync(animalId, clinicaId);
-
-            if (!result.Succeeded)
-            {
-                // O serviço já logou o erro, aqui apenas retornamos a resposta apropriada.
-                if (result.Message.Contains("não encontrado"))
-                    return NotFound(new { Message = result.Message });
-
-                return StatusCode(500, new { Message = result.Message });
-            }
-
-            return Ok(new { Message = result.Message });
+            var result = await _animalService.SetStatusAsync(animalId, clinicaId, ativo);
+            if (!result.Succeeded) return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpDelete("animais/{animalId}")] // Rota ajustada para clareza

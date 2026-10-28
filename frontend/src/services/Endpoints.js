@@ -40,12 +40,25 @@ const endpoints = {
         editar: `${API_BASE_URL}/sistema/perfil`,
       },
     },
+    // Catálogo de raças do sistema (admin). As cópias são as raças próprias das clínicas.
     raca: {
       listar: `${API_BASE_URL}/sistema/racas`,
-      cadastrar: `${API_BASE_URL}/sistema/racas`,
+      copias: `${API_BASE_URL}/sistema/racas/copias`,
+      cadastrar: `${API_BASE_URL}/sistema/racas/cadastrar`,
       detalhes: (racaId) => `${API_BASE_URL}/sistema/racas/${racaId}`,
       editar: `${API_BASE_URL}/sistema/racas/editar`,
       deletar: (racaId) => `${API_BASE_URL}/sistema/racas/${racaId}`,
+      setStatus: (racaId) => `${API_BASE_URL}/sistema/racas/${racaId}/status`,
+    },
+    // Catálogo de rações do sistema (admin). As cópias são as rações próprias das clínicas.
+    racao: {
+      listar: `${API_BASE_URL}/sistema/racoes`,
+      copias: `${API_BASE_URL}/sistema/racoes/copias`,
+      cadastrar: `${API_BASE_URL}/sistema/racoes/cadastrar`,
+      detalhes: (racaoId) => `${API_BASE_URL}/sistema/racoes/${racaoId}`,
+      editar: `${API_BASE_URL}/sistema/racoes/editar`,
+      deletar: (racaoId) => `${API_BASE_URL}/sistema/racoes/${racaoId}`,
+      setStatus: (racaoId) => `${API_BASE_URL}/sistema/racoes/${racaoId}/status`,
     },
   },
   clinica: {
@@ -74,13 +87,25 @@ const endpoints = {
       // detalhes: (animalId) => `${API_BASE_URL}/clinica/animais/${animalId}`,
       editar: `${API_BASE_URL}/clinica/animais/editar`,
       deletar: (animalId) => `${API_BASE_URL}/clinica/animais/${animalId}`,
+      setStatus: (animalId) => `${API_BASE_URL}/clinica/animais/${animalId}/status`,
+    },
+    // Raças vistas pela clínica: as do sistema + as próprias
+    raca: {
+      listar: `${API_BASE_URL}/clinica/racas`,
+      opcoes: `${API_BASE_URL}/clinica/racas/opcoes`,
+      cadastrar: `${API_BASE_URL}/clinica/racas/cadastrar`,
+      detalhes: (racaId) => `${API_BASE_URL}/clinica/racas/${racaId}`,
+      editar: `${API_BASE_URL}/clinica/racas/editar`,
+      deletar: (racaId) => `${API_BASE_URL}/clinica/racas/${racaId}`,
+      setStatus: (racaId) => `${API_BASE_URL}/clinica/racas/${racaId}/status`,
+      ocultar: (racaId) => `${API_BASE_URL}/clinica/racas/${racaId}/ocultar`,
     },
     consulta: {
       listar: `${API_BASE_URL}/clinica/consultas`,
       detalhes: (consultaId) =>
         `${API_BASE_URL}/clinica/consultas/${consultaId}`,
-      cadastrar: `${API_BASE_URL}/clinica/consultas`, // Rota POST
-      editar: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}`, // Rota PUT
+      cadastrar: `${API_BASE_URL}/clinica/consultas/cadastrar`,
+      editar: `${API_BASE_URL}/clinica/consultas/editar`,
       deletar: (consultaId) =>
         `${API_BASE_URL}/clinica/consultas/${consultaId}`,
     },
@@ -95,16 +120,20 @@ const endpoints = {
     racao: {
       listar: `${API_BASE_URL}/clinica/racoes`,
       cadastrar: `${API_BASE_URL}/clinica/racoes/cadastrar`,
+      opcoes: `${API_BASE_URL}/clinica/racoes/opcoes`,
       detalhes: (racaoId) => `${API_BASE_URL}/clinica/racoes/${racaoId}`,
       editar: `${API_BASE_URL}/clinica/racoes/editar`,
       deletar: (racaoId) => `${API_BASE_URL}/clinica/racoes/${racaoId}`,
+      setStatus: (racaoId) => `${API_BASE_URL}/clinica/racoes/${racaoId}/status`,
+      ocultar: (racaoId) => `${API_BASE_URL}/clinica/racoes/${racaoId}/ocultar`,
     },
     tutor: {
       listar: `${API_BASE_URL}/clinica/tutores`,
-      detalhes: (tutorId) => `${API_BASE_URL}/clinica/tutor_${tutorId}`,
+      detalhes: (tutorId) => `${API_BASE_URL}/clinica/tutores/${tutorId}`,
       cadastrar: `${API_BASE_URL}/clinica/tutores/cadastrar`,
       editar: `${API_BASE_URL}/clinica/tutores/editar`,
       deletar: (tutorId) => `${API_BASE_URL}/clinica/tutores/${tutorId}`,
+      setStatus: (tutorId) => `${API_BASE_URL}/clinica/tutores/${tutorId}/status`,
     },
     usuario: {
       listar: `${API_BASE_URL}/clinica/usuarios`,

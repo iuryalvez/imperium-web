@@ -56,6 +56,7 @@ public class UsuarioRepository : IUsuarioRepository
             .AsNoTracking()
             .Include(upc => upc.Usuario)
             .Where(upc => upc.ClinicaId == clinicaId)
+            .OrderByDescending(upc => upc.Usuario!.DataCadastro).ThenByDescending(upc => upc.Id) // mais recentes primeiro
             .ToListAsync();
     }
 

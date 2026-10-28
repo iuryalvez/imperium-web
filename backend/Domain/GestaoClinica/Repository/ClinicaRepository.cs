@@ -50,8 +50,10 @@ namespace backend.Domain.GestaoClinica.Repository
                     Estado = c.Estado,
                     Uf = c.Uf,
                     TotalUsuarios = c.UsuariosPerfisClinicas != null ? c.UsuariosPerfisClinicas.Count() : 0,
-                    TotalAnimais = c.Animais != null ? c.Animais.Count() : 0,
-                    TotalTutores = c.Tutores != null ? c.Tutores.Count() : 0,
+                    TotalAnimais = c.Animais != null ? c.Animais.Count(a => a.IsAtivo) : 0,
+                    TotalAnimaisInativos = c.Animais != null ? c.Animais.Count(a => !a.IsAtivo) : 0,
+                    TotalTutores = c.Tutores != null ? c.Tutores.Count(t => t.IsAtivo) : 0,
+                    TotalTutoresInativos = c.Tutores != null ? c.Tutores.Count(t => !t.IsAtivo) : 0,
                     TotalRacas = c.Racas != null ? c.Racas.Count() : 0,
                     TotalRacoes = c.Racoes != null ? c.Racoes.Count() : 0,
                     TotalConsultas = c.Consultas != null ? c.Consultas.Count() : 0,
@@ -64,7 +66,7 @@ namespace backend.Domain.GestaoClinica.Repository
         }
 
         public async Task<IEnumerable<Clinica>> GetAllAsync() =>
-            await _context.Clinicas.AsNoTracking().ToListAsync();
+            await _context.Clinicas.AsNoTracking().OrderByDescending(c => c.DataCadastro).ThenByDescending(c => c.Id).ToListAsync();
 
         public async Task<bool> CnpjExistsForAnotherClinicAsync(string cnpj, int excludeClinicaId)
         {

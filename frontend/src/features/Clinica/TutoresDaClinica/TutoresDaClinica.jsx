@@ -30,6 +30,7 @@ const TutoresDaClinica = () => {
     handleSubmit,
     handleEditarTutor,
     handleDeletarTutor,
+    handleToggleStatus,
     handleOpenModalDetalhes,
   } = useTutoresDaClinicaManager();
 
@@ -54,6 +55,7 @@ const TutoresDaClinica = () => {
         tutores={tutores}
         onEdit={handleEditarTutor}
         onDelete={handleDeletarTutor}
+        onToggleStatus={handleToggleStatus}
         onViewDetails={handleOpenModalDetalhes}
         loadingRowKey={loadingRowKey}
       />

@@ -15,10 +15,13 @@ import "./Sidebar.css";
 const { Text } = Typography;
 
 const Sidebar = ({ collapsed, toggleCollapse }) => {
-  const { userName, nomeClinica } = useAuth();
+  const { userName, nomeClinica, perfis, isAdmin } = useAuth();
+
+  // Perfil/dashboard e usuários da clínica: só GESTOR (ou admin simulando acesso), igual à policy GerenciaClinica do backend
+  const podeGerirClinica = isAdmin || (perfis || []).includes("GESTOR");
 
   const menuItems = [
-    {
+    podeGerirClinica && {
       key: "/clinica/editar",
       icon: (
         <img
@@ -73,7 +76,7 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
       ),
       label: <NavLink to="/clinica/consultas">Consultas</NavLink>,
     },
-    {
+    podeGerirClinica && {
       key: "/clinica/usuarios",
       icon: (
         <img
@@ -84,7 +87,7 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
       ),
       label: <NavLink to="/clinica/usuarios">Usuários</NavLink>,
     },
-  ];
+  ].filter(Boolean);
 
   return (
     <div className="sidebar-container">

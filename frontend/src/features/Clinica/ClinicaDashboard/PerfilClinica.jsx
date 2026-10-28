@@ -1,4 +1,6 @@
 import React from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../../../services/AuthContext";
 import { Card, Statistic, Button, Avatar, Divider } from "antd";
 import { EditOutlined, MedicineBoxOutlined } from "@ant-design/icons";
 
@@ -26,7 +28,11 @@ const CustomIconMask = ({ src }) => (
   />
 );
 
-const PerfilClinica = () => {
+// "120 ativos (8 inativos)": o backend envia os ativos em total* e os inativos à parte
+const formatarAtivosInativos = (ativos, inativos) =>
+  `${ativos || 0} ativos${inativos ? ` (${inativos} inativos)` : ""}`;
+
+const PerfilClinicaConteudo = () => {
   const {
     dadosClinica,
     loading,
@@ -99,14 +105,14 @@ const PerfilClinica = () => {
         <Card className="shadow-sm hover:shadow-md transition-shadow">
           <Statistic
             title="Tutores Cadastrados"
-            value={dadosClinica?.totalTutores || 0}
+            value={formatarAtivosInativos(dadosClinica?.totalTutores, dadosClinica?.totalTutoresInativos)}
             prefix={<CustomIconMask src={TutoresIcon} />}
           />
         </Card>
         <Card className="shadow-sm hover:shadow-md transition-shadow">
           <Statistic
             title="Animais"
-            value={dadosClinica?.totalAnimais || 0}
+            value={formatarAtivosInativos(dadosClinica?.totalAnimais, dadosClinica?.totalAnimaisInativos)}
             prefix={<CustomIconMask src={AnimaisIcon} />}
           />
         </Card>
@@ -145,6 +151,18 @@ const PerfilClinica = () => {
       </ModalPadrao>
     </div>
   );
+};
+
+/**
+ * Perfil e dashboard da clínica: só para GESTOR (ou admin simulando acesso).
+ * O backend também restringe (policy GerenciaClinica); aqui só evitamos mostrar a tela.
+ */
+const PerfilClinica = () => {
+  const { perfis, isAdmin } = useAuth();
+  const podeGerirClinica = isAdmin || (perfis || []).includes("GESTOR");
+
+  if (!podeGerirClinica) return <Navigate to="/clinica/inicio" replace />;
+  return <PerfilClinicaConteudo />;
 };
 
 export default PerfilClinica;

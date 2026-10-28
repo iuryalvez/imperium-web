@@ -12,7 +12,8 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import { tutoresDaClinicaAPI } from "../../../../../api/clinica/tutoresDaClinicaAPI";
-import { racasAPI } from "../../../../../api/sistema/racasAPI";
+import { racasDaClinicaAPI } from "../../../../../api/clinica/racasDaClinicaAPI";
+import SelectBuscaRemota from "../../../../../components/atoms/SelectBuscaRemota";
 
 const opcoesEspecie = [
   { value: 1, label: "Cão" },
@@ -28,7 +29,6 @@ const FormEdicaoAnimal = ({
   initialValues,
 }) => {
   const [form] = Form.useForm();
-  const [racas, setRacas] = useState([]);
   const [tutores, setTutores] = useState([]);
   const [loading, setLoading] = useState(true); // Começa carregando
 
@@ -39,30 +39,24 @@ const FormEdicaoAnimal = ({
   useEffect(() => {
     const carregarDadosDeSuporte = async () => {
       try {
-        const [tutoresData, racasData] = await Promise.all([
-          tutoresDaClinicaAPI.listar(),
-          racasAPI.listar(),
-        ]);
+        // Tutores inativos aparecem desabilitados, exceto os que já estão vinculados ao animal
+        const tutoresData = await tutoresDaClinicaAPI.listar();
+        const vinculados = initialValues?.tutorIds || [];
         setTutores(
           tutoresData.map((t) => ({
-            label: `${t.nome} (${t.cpf || "N/A"})`,
+            label: `${t.nome} (${t.cpf || "N/A"})${t.isAtivo === false ? " (inativo)" : ""}`,
             value: t.id,
-          }))
-        );
-        setRacas(
-          racasData.map((r) => ({
-            label: r.nome,
-            value: r.id,
-            especie: r.especie,
+            disabled: t.isAtivo === false && !vinculados.includes(t.id),
           }))
         );
       } catch (err) {
-        message.error("Falha ao carregar raças e tutores.");
+        message.error("Falha ao carregar os tutores.");
       } finally {
         setLoading(false); // Finaliza o carregamento após a busca
       }
     };
     carregarDadosDeSuporte();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Efeito para preencher o formulário com os valores iniciais
@@ -82,14 +76,10 @@ const FormEdicaoAnimal = ({
     }
   }, [initialValues, loading, form]);
 
-  // Filtra as opções de raça com base na espécie selecionada no formulário
-  console.log("especie: ", especieSelecionada);
-  const racasFiltradas = racas.filter(
-    (r) => r.especie === (especieSelecionada === 1 ? "Cao" : "Gato")
-  );
-
-  console.log("Form Values:", form.getFieldsValue());
-  console.log("Racas filtradas:", racasFiltradas);
+  // A raça atual sempre tem rótulo no select, mesmo inativa ou oculta
+  const racaAtual = initialValues?.racaId
+    ? [{ id: initialValues.racaId, nome: initialValues.racaNome || `Raça #${initialValues.racaId}` }]
+    : [];
 
   return (
     <Form id="form-edicao-animal-clinica" form={form} layout="vertical" onFinish={onFinish}>
@@ -116,17 +106,17 @@ const FormEdicaoAnimal = ({
             />
           </Form.Item>
           <Form.Item name="racaId" label="Raça" rules={[{ required: true }]}>
-            <Select
+            {/* Raças do sistema + da clínica (sem as ocultas) da espécie; inativas aparecem desabilitadas */}
+            <SelectBuscaRemota
               placeholder={
                 !especieSelecionada
                   ? "Primeiro, selecione a espécie"
-                  : "Selecione a raça"
+                  : "Busque e selecione a raça"
               }
               disabled={!especieSelecionada || loading}
-              loading={loading}
-              options={racasFiltradas} // Usa a lista já filtrada
-              showSearch
-              optionFilterProp="label"
+              buscarOpcoes={(busca) => racasDaClinicaAPI.opcoes(busca, especieSelecionada)}
+              opcoesAtuais={racaAtual}
+              dependencias={[especieSelecionada]}
             />
           </Form.Item>
           <Form.Item name="sobTutelaClinica" valuePropName="checked" style={{ marginBottom: 8 }}>

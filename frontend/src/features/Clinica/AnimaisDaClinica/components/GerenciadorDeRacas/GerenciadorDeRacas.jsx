@@ -16,6 +16,10 @@ import {
   EditOutlined,
   DeleteOutlined,
   GlobalOutlined,
+  EyeOutlined,
+  EyeInvisibleOutlined,
+  StopOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useRacasDaClinicaManager } from "./useRacasDaClinicaManager";
 import FormCadastroRaca from "./FormCadastroRaca";
@@ -23,20 +27,23 @@ import FormEdicaoRaca from "./FormEdicaoRaca";
 
 const GerenciadorDeRacas = () => {
   const {
+    racas,
     loading,
+    paginacao,
+    loadingItemId,
     isModalOpen,
     isSubmitting,
     editingRaca,
-    filteredRacas,
-    searchTerm,
-    mostrarRacasSistema,
-    setMostrarRacasSistema,
+    setBusca,
+    setFiltros,
+    setPagina,
+    handleFiltroStatus,
     handleOpenModal,
     handleCloseModal,
     handleSubmit,
     handleDelete,
-    handleSearch,
-    handleFilterByEspecie,
+    handleToggleStatus,
+    handleToggleOculta,
   } = useRacasDaClinicaManager();
 
   return (
@@ -53,31 +60,43 @@ const GerenciadorDeRacas = () => {
         <Space wrap>
           <Input.Search
             placeholder="Buscar por nome..."
-            value={searchTerm}
-            onChange={handleSearch}
+            onChange={(e) => setBusca(e.target.value)}
             style={{ maxWidth: 300, flex: 1 }}
             allowClear
           />
 
-          {/* Filters grouped into Select components */}
+          {/* Filtros aplicados no servidor */}
           <Select
             defaultValue={null}
-            style={{ width: 200 }}
-            onChange={(value) => handleFilterByEspecie(value)}
+            style={{ width: 170 }}
+            onChange={(value) => setFiltros({ especie: value })}
             options={[
               { value: null, label: "Todas as Espécies" },
-              { value: "Cao", label: "Cães" },
-              { value: "Gato", label: "Gatos" },
+              { value: 1, label: "Cães" },
+              { value: 2, label: "Gatos" },
             ]}
           />
 
           <Select
-            value={mostrarRacasSistema ? "todas" : "clinica"}
+            defaultValue={null}
             style={{ width: 170 }}
-            onChange={(value) => setMostrarRacasSistema(value === "todas")}
+            onChange={(value) => setFiltros({ origem: value })}
             options={[
-              { value: "todas", label: "Todas as Origens" },
+              { value: null, label: "Todas as Origens" },
+              { value: "sistema", label: "Apenas do Sistema" },
               { value: "clinica", label: "Apenas da Clínica" },
+            ]}
+          />
+
+          <Select
+            defaultValue={null}
+            style={{ width: 170 }}
+            onChange={handleFiltroStatus}
+            options={[
+              { value: null, label: "Todos os Status" },
+              { value: "ativos", label: "Ativas" },
+              { value: "inativos", label: "Inativas" },
+              { value: "ocultas", label: "Ocultas" },
             ]}
           />
         </Space>
@@ -96,15 +115,16 @@ const GerenciadorDeRacas = () => {
       <List
         loading={loading}
         grid={{ gutter: 16, column: 3, xs: 1, sm: 2, md: 3 }}
-        dataSource={filteredRacas}
+        dataSource={racas}
         pagination={{
-          pageSize: 12,
+          ...paginacao,
+          pageSizeOptions: [12, 24, 48, 96],
+          onChange: setPagina,
           align: "center",
           size: "small",
         }}
         renderItem={(raca) => {
-          const isSystemBreed =
-            raca.clinicaId === null || raca.clinicaId === undefined;
+          const isSystemBreed = raca.isSistema;
 
           return (
             <List.Item
@@ -116,6 +136,7 @@ const GerenciadorDeRacas = () => {
                 justifyContent: "space-between",
                 alignItems: "center",
                 marginBottom: 12,
+                opacity: raca.isAtivo && !raca.isOculta ? 1 : 0.6,
               }}
             >
               <List.Item.Meta
@@ -130,33 +151,65 @@ const GerenciadorDeRacas = () => {
                   </Space>
                 }
                 description={
-                  <Tag
-                    color={raca.especie === "Cao" ? "blue" : "green"}
-                    style={{ marginTop: 4 }}
-                  >
-                    {raca.especie}
-                  </Tag>
+                  <Space size={4} wrap style={{ marginTop: 4 }}>
+                    <Tag color={raca.especie === "Cao" ? "blue" : "green"}>
+                      {raca.especie}
+                    </Tag>
+                    {!raca.isAtivo && <Tag color="red">Inativa</Tag>}
+                    {raca.isOculta && <Tag>Oculta</Tag>}
+                  </Space>
                 }
               />
               <Space size="small">
-                <Tooltip title={isSystemBreed ? "Personalizar Raça" : "Editar"}>
+                <Tooltip title={isSystemBreed ? "Personalizar Raça (cria uma cópia da clínica)" : "Editar"}>
                   <Button
                     type="text"
                     icon={<EditOutlined />}
                     onClick={() => handleOpenModal(raca)}
                   />
                 </Tooltip>
-                {!isSystemBreed && (
-                  <Tooltip title="Excluir">
+                {isSystemBreed ? (
+                  <Tooltip title={raca.isOculta ? "Mostrar para esta clínica" : "Ocultar para esta clínica"}>
                     <Popconfirm
-                      title="Deseja excluir esta raça?"
-                      onConfirm={() => handleDelete(raca.id)}
+                      title={raca.isOculta ? "Voltar a mostrar esta raça?" : "Ocultar esta raça para a clínica?"}
+                      onConfirm={() => handleToggleOculta(raca)}
                       okText="Sim"
                       cancelText="Não"
                     >
-                      <Button type="text" icon={<DeleteOutlined />} danger />
+                      <Button
+                        type="text"
+                        loading={loadingItemId === raca.id}
+                        icon={raca.isOculta ? <EyeOutlined /> : <EyeInvisibleOutlined />}
+                      />
                     </Popconfirm>
                   </Tooltip>
+                ) : (
+                  <>
+                    <Tooltip title={raca.isAtivo ? "Desativar" : "Ativar"}>
+                      <Popconfirm
+                        title={`Deseja ${raca.isAtivo ? "desativar" : "ativar"} esta raça?`}
+                        onConfirm={() => handleToggleStatus(raca)}
+                        okText="Sim"
+                        cancelText="Não"
+                      >
+                        <Button
+                          type="text"
+                          loading={loadingItemId === raca.id}
+                          icon={raca.isAtivo ? <StopOutlined /> : <CheckCircleOutlined />}
+                        />
+                      </Popconfirm>
+                    </Tooltip>
+                    <Tooltip title="Excluir">
+                      <Popconfirm
+                        title="Deseja excluir esta raça?"
+                        onConfirm={() => handleDelete(raca)}
+                        okText="Sim"
+                        cancelText="Não"
+                      >
+                        <Button type="text" icon={<DeleteOutlined />} danger />
+                      </Popconfirm>
+                    </Tooltip>
+                  </>
                 )}
               </Space>
             </List.Item>

@@ -23,8 +23,11 @@ namespace backend.Domain.GestaoClinica.DTOs.Dashboard
 
         // Estatísticas para o Dashboard
         public int TotalUsuarios { get; set; }
+        // Animais e tutores: Total* conta só os ativos; os inativos vêm à parte ("120 ativos (8 inativos)")
         public int TotalAnimais { get; set; }
+        public int TotalAnimaisInativos { get; set; }
         public int TotalTutores { get; set; }
+        public int TotalTutoresInativos { get; set; }
         public int TotalRacas { get; set; }
         public int TotalRacoes { get; set; }
         public int TotalConsultas { get; set; }

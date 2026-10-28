@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { acompanhamentoAPI } from "../../../../api/clinica/acompanhamentoAPI";
-import { racoesDaClinicaAPI } from "../../../../api/clinica/racoesDaClinicaAPI";
 import { avaliacoesDaClinicaAPI } from "../../../../api/clinica/avaliacoesDaClinicaAPI";
 import { consultasDaClinicaAPI } from "../../../../api/clinica/consultasDaClinicaAPI";
 import { animaisDaClinicaAPI } from "../../../../api/clinica/animaisDaClinicaAPI";
@@ -16,7 +15,6 @@ export const useAcompanhamentoManager = () => {
   const { acompanhamentoId } = useParams();
   const [historico, setHistorico] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [racoes, setRacoes] = useState([]);
 
   // Estado para Avaliações
   const [isAvaliacaoModalOpen, setIsAvaliacaoModalOpen] = useState(false);
@@ -67,13 +65,6 @@ export const useAcompanhamentoManager = () => {
         await acompanhamentoAPI.getHistoricoCompleto(acompanhamentoId);
       if (result.succeeded) {
         setHistorico(result.data);
-        // Quando o histórico carregar, buscamos as rações para a espécie do animal
-        if (!silent && result.data?.especie) {
-          const racoesData = await racoesDaClinicaAPI.listar(
-            result.data.especie === "Cao" ? 1 : 2,
-          );
-          setRacoes(racoesData);
-        }
         return result.data;
       } else {
         throw new Error(result.message || "Histórico não encontrado.");
@@ -340,7 +331,6 @@ export const useAcompanhamentoManager = () => {
   return {
     historico,
     loading,
-    racoes,
     isModalCriarDietaOpen,
     isModalVisualizarDietaOpen,
     isModalEditarDietaOpen,

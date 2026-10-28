@@ -35,6 +35,7 @@ const AnimaisDaClinica = () => {
     handleNavigateToAcompanhamento,
     handleSubmit,
     handleDelete,
+    handleToggleStatus,
     handleOpenModalDetalhes,
     handleCloseModalDetalhes,
   } = useAnimaisDaClinicaManager();
@@ -65,6 +66,7 @@ const AnimaisDaClinica = () => {
         data={animais}
         onEdit={handleOpenModal}
         onDelete={handleDelete}
+        onToggleStatus={handleToggleStatus}
         onNavigateToAcompanhamento={handleNavigateToAcompanhamento}
         onViewDetails={handleOpenModalDetalhes}
         loadingRowKey={loadingRowKey}

@@ -15,6 +15,14 @@ public class GetRacoesDto
     /// </summary>
     public bool IsSistema { get; set; }
 
+    public int? ClinicaId { get; set; }
+    public string? NomeClinica { get; set; } // preenchido na listagem de cópias do admin
+    public bool IsAtivo { get; set; }
+
+    /// <summary>Ração do sistema oculta pela clínica que está consultando.</summary>
+    public bool IsOculta { get; set; }
+    public DateTime DataCadastro { get; set; }
+
     // --- Composição Garantida (Valores de Entrada) ---
     
     /// <summary>

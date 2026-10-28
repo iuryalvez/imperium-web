@@ -24,9 +24,11 @@ const FormularioCadastroTutorDaClinica = ({ onFinish }) => {
       .listar()
       .then((data) => {
         setAnimaisDaClinica(
+          // Animais inativos aparecem desabilitados (não podem ganhar vínculo novo)
           data.map((animal) => ({
-            label: `${animal.nome} (${animal.especie === 1 ? "Cão" : "Gato"})`,
+            label: `${animal.nome} (${animal.especie === 1 ? "Cão" : "Gato"})${animal.isAtivo === false ? " (inativo)" : ""}`,
             value: animal.id,
+            disabled: animal.isAtivo === false,
           })),
         );
       })

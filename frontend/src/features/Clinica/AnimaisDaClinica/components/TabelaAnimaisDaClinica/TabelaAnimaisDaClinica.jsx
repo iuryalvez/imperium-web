@@ -14,6 +14,8 @@ import {
   DeleteOutlined,
   SettingOutlined,
   LineChartOutlined,
+  StopOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import colunas from "./colunas";
 
@@ -21,6 +23,7 @@ const TabelaAnimais = ({
   data,
   onEdit,
   onDelete,
+  onToggleStatus,
   onViewDetails,
   onNavigateToAcompanhamento,
   loadingRowKey,
@@ -32,6 +35,7 @@ const TabelaAnimais = ({
     "especie",
     "racaNome",
     "dataCadastro",
+    "isAtivo",
   ]);
 
   const handleColumnVisibilityChange = (key) => {
@@ -77,6 +81,22 @@ const TabelaAnimais = ({
                 disabled={isCurrentRowLoading || record.acompanhamentoId == null}
               ></Button>
             </Tooltip>
+            <Tooltip title={record.isAtivo ? "Desativar" : "Ativar"}>
+              <Popconfirm
+                title={`Tem certeza que deseja ${record.isAtivo ? "desativar" : "ativar"} este animal?`}
+                onConfirm={() => onToggleStatus(record)}
+                okText="Sim"
+                cancelText="Não"
+                disabled={isCurrentRowLoading}
+              >
+                <Button
+                  size="small"
+                  icon={record.isAtivo ? <StopOutlined /> : <CheckCircleOutlined />}
+                  danger={record.isAtivo}
+                  loading={isCurrentRowLoading}
+                />
+              </Popconfirm>
+            </Tooltip>
             <Tooltip title="Excluir">
               <Popconfirm
                 title="Tem certeza que deseja excluir?"
@@ -94,7 +114,7 @@ const TabelaAnimais = ({
         );
       },
     }),
-    [onEdit, onDelete, onNavigateToAcompanhamento, onViewDetails, loadingRowKey]
+    [onEdit, onDelete, onToggleStatus, onNavigateToAcompanhamento, onViewDetails, loadingRowKey]
   );
 
   // CÁLCULO DAS COLUNAS VISÍVEIS (MEMOIZADO)

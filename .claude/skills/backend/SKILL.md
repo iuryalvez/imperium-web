@@ -47,11 +47,12 @@ Antes de criar um domínio novo, confirme se a entidade não cabe num existente 
 - Rotas sempre sob `/api` (o Nginx do `https-server` só encaminha `/api/` e `/dev/api/`):
   - Sistema (admin): `[Route("api")]` + `[HttpGet("sistema/<entidades>")]`, policy `GerenciaSistema`.
   - Clínica (tenant): `[Route("api/clinica")]` ou `[Route("api/clinica/<entidades>")]`.
-  - Verbos usados: `GET <entidades>`, `GET <entidades>/{id}`, `POST <entidades>/cadastrar`, `PUT <entidades>/editar`, `DELETE <entidades>/{id}`, `PUT <entidades>/{id}/status`.
+  - Verbos usados: `GET <entidades>` (lista paginada), `GET <entidades>/opcoes?busca=` (selects), `GET <entidades>/{id}`, `POST <entidades>/cadastrar`, `PUT <entidades>/editar` (o `Id` vai no corpo), `DELETE <entidades>/{id}`, `PUT <entidades>/{id}/status?ativo=true|false`.
+  - A mesma entidade pode ter as duas visões em controllers separados no mesmo domínio: `<Entidade>Controller` (`api/clinica/<entidades>`, policies de clínica) e `<Entidade>SistemaController` (`api/sistema/<entidades>`, `GerenciaSistema`). Nunca sirva tela de clínica por rota `sistema/` nem o contrário (ex.: `RacaController` x `RacaSistemaController`).
 - Autorização com policies de `Program.cs`: `VisualizaTudo`, `GerenciaClinica`, `GerenciaAnimais`, `GerenciaTutores`, `GerenciaConsultas`, `GerenciaSistema`, `AcessoLoginPolicy`, `AcessoLoginOuTodosUsuarios`. Nova policy → adicionar em `AddAuthorization` usando `TemPerfil(...)`.
 - **Multi-tenant:** em rotas de clínica, o `clinicaId` vem **sempre** do token: `var clinicaId = User.GetClaimValue<int>("clinicaId"); if (clinicaId <= 0) return Forbid();` e é passado ao service. Nunca aceite `clinicaId` vindo do body/query.
 - Resposta: `if (!result.Succeeded) return BadRequest(result);` / `NotFound(...)`; sucesso com `Ok(result)` / `Ok(result.Data)` / `CreatedAtAction` / `NoContent()`. Mantenha o formato que o frontend já consome naquela entidade.
-- Sem regra de negócio e sem `AppDbContext` no controller (há legado assim em `AnimalController`: não copie).
+- Sem regra de negócio e sem `AppDbContext` no controller (há legado assim em `UsuarioController`: não copie).
 
 ### Service
 - Implementa `I<Entidade>Service`; recebe repositórios, `IMapper`, `ILogger<T>` (e `AppDbContext` só para transações).
@@ -63,7 +64,8 @@ Antes de criar um domínio novo, confirme se a entidade não cabe num existente 
 ### Repository
 - Acesso a dados puro: `GetByIdAsync`, `GetAllAsync`, `GetByIdWithDetailsAsync` (com `Include`), `ExistsAsync`/`...ExistsForAnother...Async`, `AddAsync`, `Delete`, `SaveChangesAsync`.
 - Leituras com `AsNoTracking()`; dashboards/contagens projetam direto para DTO com `Select`.
-- Consultas de tenant filtram por `ClinicaId` (via tabelas de vínculo como `AnimalClinica`, `TutorClinica`, `UsuarioPerfilClinica`).
+- Consultas de tenant filtram direto por `ClinicaId` da entidade (`t.ClinicaId == clinicaId`). Usuário é a exceção: é global e chega à clínica pelo vínculo `UsuarioPerfilClinica`.
+- Listagens vêm **mais recentes primeiro** (`OrderByDescending(DataCadastro).ThenByDescending(Id)`), salvo outra ordenação pedida pelo filtro.
 
 ### DTOs
 - `Cadastrar<Entidade>Dto`, `Editar<Entidade>Dto` (Sistema admin: `Editar<Entidade>AdminDto`), `Get<Entidade>Dto`, `<Entidade>InfoSimplesDto`.
@@ -77,25 +79,49 @@ Antes de criar um domínio novo, confirme se a entidade não cabe num existente 
 
 ### Entities e Enums
 - `[Key]` + `[DatabaseGenerated(Identity)] int Id`, navegações `virtual ICollection<>?`.
-- Relação N:N por entidade de vínculo explícita (padrão `AnimalClinica`, `TutorClinica`).
+- **Entidade do tenant pertence a uma clínica**: `int ClinicaId` obrigatório + `Clinica?` (ex.: `Tutor`, `Animal`, `Consulta`). Unicidade é por clínica (ex.: índice único `(ClinicaId, Cpf)` no tutor).
+- N:N só com entidade de vínculo explícita: `UsuarioPerfilClinica`, `TutorAnimal`, `RacaOcultaClinica`, `RacaoOcultaClinica`. Não crie vínculo Entidade×Clínica para algo que pertence a uma clínica só.
+- Cadastros que podem sair de uso têm `bool IsAtivo` (padrão `true`), `DateTime? DataDesativacao` e `DateTime DataCadastro`.
 - Enums começam em 1 e podem ter `[Display(Name = "...")]` (use `GetDisplayName()`).
 
-## 3. Registrar e migrar
+## 3. Regras de dados (padrão do projeto)
+
+### Ativo/inativo e exclusão
+- Desativar é o normal; excluir só quando o registro **não está em uso** (o service confere antes e responde "... está em uso ... Desative-o."). Relacionamentos de histórico usam `DeleteBehavior.Restrict`, nunca `Cascade` que apague dados de outra entidade (ex.: `Racao → Dieta`).
+- Inativo continua aparecendo nas listagens (com tag/filtro) e no histórico, mas o **service recusa vínculo ou registro novo** com ele (ex.: consulta nova com animal inativo). Ao editar, só valide os IDs **novos**: manter o que já estava vinculado é sempre permitido.
+
+### Catálogo do sistema x itens da clínica (Raça, Ração)
+- `ClinicaId` nulo = item do sistema, compartilhado; preenchido = item próprio da clínica.
+- A clínica vê sistema + próprios, nunca os de outra clínica (`GetDisponivel...(id, clinicaId)` responde "não encontrado").
+- Clínica editando item do sistema → cria **cópia** própria com as alterações. Clínica não exclui nem desativa item do sistema; pode **ocultá-lo só para ela** (`PUT {id}/ocultar?oculta=`, tabela `<Entidade>OcultaClinica`).
+- Admin (`api/sistema/<entidades>`) mantém o catálogo (CRUD + status) e vê as cópias das clínicas em `GET sistema/<entidades>/copias`.
+- Item oculto ou inativo não pode ser escolhido em registro novo (`ValidarSelecionavelAsync` / `ObterSelecionavelAsync`).
+
+### Paginação, filtros e selects (`Domain/Utils/Paginacao/`)
+- Listas paginam no banco: o controller recebe `[FromQuery] <Entidade>Filtro` (herda `FiltroBase`: `Pagina`, `TamanhoPagina` padrão 10 e máximo 100, `Busca`, `OrdenarPor`, `Ordem` `asc|desc`) e devolve `PaginaResultado<T>` = `{ itens, total, pagina, tamanhoPagina }`.
+- No repository: filtros com `EF.Functions.ILike(..., QueryablePaginacaoExtensions.PadraoBusca(busca))`, depois `.Ordenar(filtro, mapaDeColunas, "dataCadastro", x => x.Id)` (lista branca de colunas) e `.PaginarAsync(filtro)`. O service converte com `pagina.Converter(...)` para DTO.
+- Selects usam `GET <entidades>/opcoes?busca=`: até `OpcaoDto.LimiteOpcoes` (20) itens `{ id, nome, isAtivo }`, ativos primeiro e depois por nome; inativos vêm junto (o frontend mostra desabilitado), ocultos pela clínica não vêm.
+- Situação atual: raças e rações já seguem esse contrato; as demais listas ainda devolvem array e migram para ele na próxima etapa (usuários do sistema ficam por último).
+
+## 4. Registrar e migrar
 
 1. `Program.cs`: `builder.Services.AddScoped<I<Entidade>Service, <Entidade>Service>();` e o mesmo para o repository, junto do bloco do domínio.
 2. `Infra/Data/AppDbContext.cs`: `public DbSet<<Entidade>> <Entidades> { get; set; }` e configurações em `OnModelCreating` (chaves compostas, deletes, conversões).
-3. Migration (rodar em `backend/`):
+3. Migration (sempre pelo Makefile, que carrega o `.env`; só com permissão do usuário):
    ```bash
-   dotnet ef migrations add <NomeEmPascalCaseDescritivo>
-   dotnet ef database update
+   make dev-add-migration      # pede o nome em PascalCase
+   make dev-database-update
    ```
    Revise o arquivo gerado antes de aplicar. Seeds (`HasData`) só com valores estáticos (EF 10 rejeita `DateTime.UtcNow`, `Guid.NewGuid()`, hashes com salt).
 4. `dotnet build` sem erros novos.
 
-## 4. Checklist final
+## 5. Checklist final
 - [ ] Arquivos no domínio certo, com `Controllers/` e `Interfaces/` e namespace igual à pasta.
 - [ ] Controller fino, policy correta, `clinicaId` do token.
 - [ ] Service com `ServiceResult` e mensagens em pt-BR.
+- [ ] Entidade do tenant com `ClinicaId` direto; nada de outra clínica é lido ou alterado.
+- [ ] Status por `PUT {id}/status?ativo=`; excluir bloqueado se em uso; inativo recusado em registro novo.
+- [ ] Lista nova paginada (`FiltroBase`/`PaginaResultado`), mais recentes primeiro; select por `/opcoes`.
 - [ ] DI em `Program.cs`, `DbSet` e migration revisada.
 - [ ] Rota confere com `frontend/src/services/Endpoints.js` (ver skill `frontend`).
 - [ ] Nada alterado em `bris-web` ou `https-server`; rotas novas continuam sob `/api/`.

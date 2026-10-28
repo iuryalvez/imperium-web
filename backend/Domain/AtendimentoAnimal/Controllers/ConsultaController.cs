@@ -34,7 +34,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
             return Ok(consulta);
         }
 
-        [HttpPost]
+        [HttpPost("cadastrar")]
         [Authorize(Policy = "GerenciaConsultas")]
         public async Task<IActionResult> Create([FromBody] UpsertConsultaDto dto)
         {
@@ -48,12 +48,13 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
             return CreatedAtAction(nameof(GetById), new { consultaId = consultaDto.Id }, consultaDto);
         }
 
-        [HttpPut("{consultaId}")]
+        [HttpPut("editar")]
         [Authorize(Policy = "GerenciaConsultas")]
-        public async Task<IActionResult> Update(int consultaId, [FromBody] UpsertConsultaDto dto)
+        public async Task<IActionResult> Update([FromBody] EditarConsultaDto dto)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            var result = await _consultaService.UpdateAsync(consultaId, dto, clinicaId);
+            if (clinicaId <= 0) return Forbid();
+            var result = await _consultaService.UpdateAsync(dto.Id, dto, clinicaId);
             if (!result.Succeeded) return BadRequest(result);
             return NoContent();
         }

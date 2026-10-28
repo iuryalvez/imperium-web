@@ -54,6 +54,19 @@ export const tutoresDaClinicaAPI = {
       return response.data;
     } catch (error) {
       console.error(`Erro ao deletar tutor de id: ${tutorId}`, error);
+      throw error.response ? error.response.data : error;
+    }
+  },
+  // Ativa (true) ou desativa (false) o tutor na clínica
+  setStatus: async (tutorId, ativo) => {
+    try {
+      const response = await api.put(endpoints.clinica.tutor.setStatus(tutorId), null, {
+        params: { ativo },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Erro ao alterar o status do tutor ${tutorId}:`, error);
+      throw error.response ? error.response.data : error;
     }
   },
 };

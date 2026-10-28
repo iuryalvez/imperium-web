@@ -70,7 +70,7 @@ Referências vivas para copiar: `features/Sistema/ClinicasDoSistema`, `features/
 ### Hook `use<Entidade>Manager.js`
 - `export const use<Entidade>Manager = () => { ... return { ... } }` (export nomeado).
 - Estados típicos: lista, `loading` (inicia `true`), `isSubmitting`, `loadingRowKey` (loading por linha), `isModalOpen`, `isModalDetalhesOpen`, `editing<Entidade>`, `viewing<Entidade>`.
-- `fetch<Entidades>` com `useCallback` + `useEffect`.
+- Lista: `usePaginacaoServidor` (lista paginada no servidor, ver seção 9). Telas ainda não migradas usam `fetch<Entidades>` com `useCallback` + `useEffect`.
 - Handlers com prefixo `handle`: `handleOpenModalCadastro`, `handleEditar<Entidade>`, `handleOpenModalDetalhes`, `handleCloseModal(s)`, `handleSubmit`, `handleToggleStatus`.
 - `handleSubmit(values)`: `setIsSubmitting(true)` → se `editing<Entidade>` chama `editar({ ...editing, ...payload })`, senão `cadastrar(payload)` → `message.success(...)` → fecha modal → recarrega lista → `finally setIsSubmitting(false)`.
 - Antes de enviar: `sanitizeToNumbers` em CPF/CNPJ/CEP/telefone e `sanitizePayload` em edições (o AutoMapper do backend ignora `null`, mas grava `""`, então é assim que um campo é limpo).
@@ -80,7 +80,7 @@ Referências vivas para copiar: `features/Sistema/ClinicasDoSistema`, `features/
 ### Tabela
 - `colunas.js` exporta array default com as colunas de dados (`title`, `dataIndex`, `key`, `sorter`, `render`).
 - O componente monta a coluna "Ações" com `useMemo` (botões `size="small"` com `Tooltip`; `EyeOutlined`, `EditOutlined`, toggle com `Popconfirm`), `fixed: "right"`.
-- `<Table rowKey="id" pagination={{ pageSize: 10 }} scroll={{ x: "max-content" }} />`.
+- `<Table rowKey="id" pagination={paginacao} onChange={handleTableChange} scroll={{ x: "max-content" }} />` (paginação no servidor, ver seção 9).
 - Opcional: seletor de colunas visíveis com `Dropdown` + `Checkbox` (ver `TabelaUsuariosDaClinica`).
 
 ### Formulários
@@ -98,7 +98,7 @@ Pastas atuais e o que cada uma recebe:
 
 | Pasta | O que guarda | Exemplos |
 |---|---|---|
-| `components/atoms/` | Peças pequenas de UI, um elemento visual com props simples | `LoadingSpinner.jsx`, `LabelComInfo.jsx` |
+| `components/atoms/` | Peças pequenas de UI, um elemento visual com props simples | `LoadingSpinner.jsx`, `LabelComInfo.jsx`, `SelectBuscaRemota.jsx` |
 | `components/modal/` | Modais base reutilizáveis | `ModalPadrao.jsx` |
 | `components/layout/` | Estrutura da aplicação (layouts por tipo de rota, cabeçalho, menu) | `LayoutAuthenticated.jsx`, `LayoutLogged.jsx`, `LayoutPublic.jsx`, `Header/AppHeader.jsx`, `Sidebar/Sidebar.jsx` |
 | `components/servicesComponents/` | Componentes de infraestrutura sem UI própria | `ProtectedRoute.js` |
@@ -142,7 +142,7 @@ api/
      // cadastrar, editar, deletar, setStatus...
    };
    ```
-3. Verbos em português e consistentes: `listar`, `detalhes`, `cadastrar`, `editar`, `deletar`, `setStatus`, `buscarPorNome`.
+3. Verbos em português e consistentes: `listar(filtro)`, `opcoes(busca, ...)`, `detalhes`, `cadastrar`, `editar`, `deletar`, `setStatus(id, ativo)`, `buscarPorNome`. Listas paginadas recebem o filtro e enviam como `params` (`api.get(url, { params: filtro })`); status vai na query (`api.put(url, null, { params: { ativo } })`).
 4. Sempre relance o erro (`throw error.response ? error.response.data : error`) para o Manager mostrar a mensagem; não engula erros com só um `console.error`.
 5. Nunca use `axios` direto nem monte URL na feature: tudo passa por `api/index.js` e `Endpoints.js`, assim o prefixo `/api` e os cookies funcionam igual em produção e em homologação (`/dev`).
 6. As URLs precisam bater com as rotas do controller no backend (ver skill `backend`).
@@ -169,6 +169,7 @@ Funções puras e helpers sem estado de negócio, agrupados por tipo:
 | `sanitizers.js` | Antes de enviar: `sanitizeToNumbers`, `sanitizePayload` |
 | `renderers.js` | Renderizações reaproveitáveis em tabela/detalhes: `perfisSistema`, `renderPerfis`, `renderAnimais` |
 | `useCepHandler.js` | Hook que preenche endereço pelo CEP (`handleCepSearch`, `loadingCep`) |
+| `usePaginacaoServidor.js` | Hook de lista paginada no servidor: recebe `listar(filtro)` da api, filtros iniciais e `traduzirFiltros` (filtros de coluna → filtros do servidor); devolve `dados`, `loading`, `paginacao` (props da `Table`), `setFiltros`, `setBusca` (com debounce), `handleTableChange`, `recarregar` |
 
 - Novo helper vai para o arquivo do tipo certo, com nome em português no padrão verbo + alvo (`formatarPeso`, `validarCRMV`) e JSDoc curto.
 - Enum que vem do backend como número (ex.: espécie 1 = Cão) ganha um `formatarX` aqui em vez de `if` espalhado nas telas.
@@ -182,17 +183,28 @@ Funções puras e helpers sem estado de negócio, agrupados por tipo:
 - `index.css` repete as cores como variáveis CSS (`--verde-medio`...) e define classes globais (`modal-scroll-container`, `modal-footer-actions`, `modal-title-icon`). Ao criar ou mudar uma cor, atualize `colors.js` **e** as variáveis de `index.css`, senão as duas formas de usar a cor ficam diferentes.
 - Nas telas, prefira nesta ordem: token/componente do antd → classe Tailwind do tema → `var(--cor)`. Evite `style={{ color: "#..." }}`.
 
-## 9. Registrar a tela
+## 9. Padrões de listas, status e selects
+
+- **Listas paginam no servidor** (contrato `FiltroBase`/`PaginaResultado` do backend: `{ itens, total, pagina, tamanhoPagina }`). O Manager usa `usePaginacaoServidor(api.listar, filtrosIniciais, traduzirFiltros)` e passa `paginacao` + `handleTableChange` para a `Table` (`pagination={paginacao}` e `onChange`). Tamanhos de página 10/20/50/100.
+- Nas colunas de lista paginada, `sorter: true` (ordenação no servidor, `key` igual ao nome aceito pelo backend: `nome`, `dataCadastro`...) e `filters` + `filterMultiple: false` traduzidos por uma função `traduzirFiltros<Entidade>` exportada do `colunas.js`. Não use `sorter`/`onFilter` locais em lista paginada: só agiriam na página atual. Busca por texto num `Input.Search` acima da tabela chamando `setBusca`.
+- A ordem padrão vem do backend (mais recentes primeiro); não force `defaultSortOrder` na tela.
+- **Ativo/Inativo**: coluna "Status" com `Tag` verde/vermelha e filtro; botão de ativar/desativar na coluna Ações com `Popconfirm` e ícones `StopOutlined`/`CheckCircleOutlined` (modelo: `TabelaUsuariosDaClinica`, `TabelaAnimaisDaClinica`). O Excluir continua para cadastro errado; o backend recusa se estiver em uso.
+- **Selects**: inativos aparecem **desabilitados** com o sufixo "(inativo)" (exceto o valor que o registro em edição já tem). Listas grandes usam `SelectBuscaRemota` com `buscarOpcoes={(busca) => api.opcoes(busca, ...)}` e `opcoesAtuais=[{ id, nome }]` do registro em edição.
+- **Catálogo do sistema (raças, rações)**: na clínica, item do sistema mostra tag "Sistema"; editar cria cópia da clínica; em vez de excluir/desativar, a clínica pode "Ocultar/Mostrar para esta clínica". No Sistema (admin), a tela tem o botão "Cópias das clínicas", que troca a lista para os itens próprios das clínicas (com coluna Clínica).
+- Situação atual: raças e rações já seguem o contrato paginado; as demais telas ainda carregam array e migram na próxima etapa.
+
+## 10. Registrar a tela
 
 - `App.js`: importar a página e adicionar `<Route>` no bloco de guarda certo (tabela da seção 1).
 - Clínica: adicionar item no `Sidebar.jsx` (`key` = path, `label` = `<NavLink>`).
 
-## 10. Checklist final
+## 11. Checklist final
 - [ ] Escopo certo (Sistema x Clínica) e nomes com `DoSistema` / `DaClinica`.
 - [ ] Página sem lógica; lógica toda no Manager.
 - [ ] Reaproveitou `components/`, `utils/` e `services/` antes de criar algo novo; o que é genérico foi para `components/` sem regra de negócio.
 - [ ] Endpoints + arquivo de API + rota + menu registrados.
 - [ ] Nenhum `clinicaId` enviado pelo frontend em telas de Clínica.
+- [ ] Lista nova paginada no servidor (`usePaginacaoServidor`), com status Ativo/Inativo, toggle com `Popconfirm` e selects mostrando inativos desabilitados.
 - [ ] Cores só via tema; textos em português; feedback com `message.success/error`.
 - [ ] Rodar `npm start` em `frontend/` e testar cadastro, edição, detalhes e listagem.
 

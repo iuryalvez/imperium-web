@@ -1,96 +1,38 @@
 import api from "../index"; // Configuração do axios
 import endpoints from "../../services/Endpoints"; // Endpoints
 
+const rotas = endpoints.sistema.raca;
+
+// Executa a requisição e relança o erro no formato que o Manager exibe (error.message)
+const executar = async (descricao, requisicao) => {
+  try {
+    const response = await requisicao();
+    return response.data;
+  } catch (error) {
+    console.error(`Erro ao ${descricao}:`, error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
+/**
+ * Catálogo de raças do sistema (admin). "Cópias" são as raças próprias das clínicas.
+ * As telas da clínica usam api/clinica/racasDaClinicaAPI.js.
+ */
 export const racasAPI = {
-  /**
-   * Lista todas as raças, opcionalmente filtradas por espécie.
-   * @param {number | null} [especie] - O ID da espécie (1 para Cão, 2 para Gato). Opcional.
-   * @returns {Promise<Array>} Uma lista de raças.
-   */
-  listar: async (especie) => {
-    // Starts with the base URL for listing breeds
-    let url = endpoints.sistema.raca.listar;
+  /** Raças do sistema, paginadas. filtro: { pagina, tamanhoPagina, busca, ordenarPor, ordem, ativo, especie } */
+  listar: (filtro) => executar("listar raças do sistema", () => api.get(rotas.listar, { params: filtro })),
 
-    // If a species is provided, add it as a query parameter
-    if (especie) {
-      url += `?especie=${especie}`;
-    }
+  /** Raças próprias das clínicas, paginadas (com nomeClinica). */
+  copias: (filtro) => executar("listar cópias de raças", () => api.get(rotas.copias, { params: filtro })),
 
-    try {
-      const response = await api.get(url);
-      return response.data;
-    } catch (error) {
-      console.error("Erro ao listar raças:", error);
-      throw error; // Re-lança o erro para ser tratado pelo componente que chamou
-    }
-  },
+  detalhes: (id) => executar(`obter a raça ${id}`, () => api.get(rotas.detalhes(id))),
 
-  /**
-   * Obtém os detalhes de uma única raça pelo seu ID.
-   * @param {number} id - O ID da raça.
-   * @returns {Promise<Object>} O objeto da raça.
-   */
-  detalhes: async (id) => {
-    try {
-      const response = await api.get(endpoints.sistema.raca.detalhes(id));
-      return response.data;
-    } catch (error) {
-      console.error(`Erro ao obter detalhes da raça ${id}:`, error);
-      throw error;
-    }
-  },
+  cadastrar: (dadosRaca) => executar("cadastrar raça", () => api.post(rotas.cadastrar, dadosRaca)),
 
-  /**
-   * Cria uma nova raça.
-   * @param {object} dadosRaca - Os dados para a nova raça (CriarRacaDto).
-   * @returns {Promise<Object>} O objeto da raça recém-criada.
-   */
-  cadastrar: async (dadosRaca) => {
-    try {
-      const response = await api.post(
-        endpoints.sistema.raca.cadastrar,
-        dadosRaca
-      );
-      return response.data;
-    } catch (error) {
-      // The missing braces were here
-      console.error("Erro ao cadastrar raça:", error);
-      throw error;
-    }
-  },
+  editar: (dadosRaca) => executar("editar raça", () => api.put(rotas.editar, dadosRaca)),
 
-  /**
-   * Atualiza uma raça existente.
-   * @param {number} id - O ID da raça a ser atualizada.
-   * @param {object} dadosRaca - Os dados atualizados para a raça (AtualizarRacaDto).
-   * @returns {Promise<Object>} A resposta do servidor.
-   */
-  editar: async (dadosRaca) => {
-    try {
-      const response = await api.put(endpoints.sistema.raca.editar, dadosRaca, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      return response; // PUT retorna NoContent (204), então retornamos a resposta completa
-    } catch (error) {
-      console.error(`Erro ao editar raça.`, error);
-      throw error;
-    }
-  },
+  deletar: (id) => executar(`excluir a raça ${id}`, () => api.delete(rotas.deletar(id))),
 
-  /**
-   * Deleta uma raça pelo seu ID.
-   * @param {number} id - O ID da raça a ser deletada.
-   * @returns {Promise<Object>} A resposta do servidor.
-   */
-  deletar: async (id) => {
-    try {
-      const response = await api.delete(endpoints.sistema.raca.deletar(id));
-      return response; // DELETE retorna NoContent (204), então retornamos a resposta completa
-    } catch (error) {
-      console.error(`Erro ao deletar raça ${id}:`, error);
-      throw error;
-    }
-  },
+  setStatus: (id, ativo) =>
+    executar(`alterar o status da raça ${id}`, () => api.put(rotas.setStatus(id), null, { params: { ativo } })),
 };

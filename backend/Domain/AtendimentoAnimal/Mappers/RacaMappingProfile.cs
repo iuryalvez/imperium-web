@@ -8,15 +8,19 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
     {
         public RacaMappingProfile()
         {
-            // Mapping from the 'Create' DTO to the Entity
-            CreateMap<CadastrarRacaDto, Raca>();
+            // Mapping from the 'Create' DTO to the Entity. ClinicaId, status e datas são definidos pelo service.
+            CreateMap<CadastrarRacaDto, Raca>()
+                .ForMember(dest => dest.CategoriaMetabolica, opt => opt.Condition(src => src.CategoriaMetabolica != null));
 
             // Mapping from the 'Update' DTO to the Entity
-            CreateMap<UpdateRacaDto, Raca>();
+            CreateMap<UpdateRacaDto, Raca>()
+                .ForMember(dest => dest.CategoriaMetabolica, opt => opt.Condition(src => src.CategoriaMetabolica != null));
 
             // Mapping from the Entity to the 'Read' DTO
-            // This one has a custom rule for the 'Especie' property
-            CreateMap<Raca, GetRacaDto>();
+            CreateMap<Raca, GetRacaDto>()
+                .ForMember(dest => dest.IsSistema, opt => opt.MapFrom(src => src.ClinicaId == null))
+                .ForMember(dest => dest.NomeClinica, opt => opt.MapFrom(src => src.Clinica != null ? src.Clinica.NomeClinica : null))
+                .ForMember(dest => dest.IsOculta, opt => opt.Ignore());
         }
     }
 }

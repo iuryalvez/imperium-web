@@ -13,6 +13,8 @@ const SistemaInicio = () => {
   const botoesGerais = [
       { texto: 'Clínicas', rota: '/sistema/clinicas', ativo: true },
       { texto: 'Usuários', rota: '/sistema/usuarios', ativo: true },
+      { texto: 'Raças', rota: '/sistema/racas', ativo: true },
+      { texto: 'Rações', rota: '/sistema/racoes', ativo: true },
       // { texto: 'Animais', rota: '/sistema/animais', ativo: false },
   ];
 

@@ -54,6 +54,19 @@ export const animaisDaClinicaAPI = {
       return response.data;
     } catch (error) {
       console.error(`Erro ao deletar animal de id: ${animalId}`, error);
+      throw error.response ? error.response.data : error;
+    }
+  },
+  // Ativa (true) ou desativa (false) o animal na clínica
+  setStatus: async (animalId, ativo) => {
+    try {
+      const response = await api.put(endpoints.clinica.animal.setStatus(animalId), null, {
+        params: { ativo },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Erro ao alterar o status do animal ${animalId}:`, error);
+      throw error.response ? error.response.data : error;
     }
   },
 };

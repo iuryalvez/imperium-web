@@ -111,11 +111,9 @@ namespace backend.Domain.AtendimentoAnimal.Services
 
         public async Task<ServiceResult> CreateAsync(UpsertConsultaDto dto, int clinicaId, int usuarioId)
         {
-            // Validações de Negócio
-            if (await _animalRepository.GetByIdAndClinicaIdWithIncludesAsync(dto.AnimalId, clinicaId) == null)
-                return new ServiceResult { Succeeded = false, Message = "Animal não encontrado ou não pertence a esta clínica." };
-            if (dto.TutorId.HasValue && await _tutorRepository.GetByIdAndClinicIdWithIncludesAsync(dto.TutorId.Value, clinicaId) == null)
-                return new ServiceResult { Succeeded = false, Message = "Tutor não encontrado ou não pertence a esta clínica." };
+            // Validações de Negócio: animal e tutor da clínica e ativos
+            var validacao = await ValidarAnimalETutorAsync(dto, clinicaId, null);
+            if (!validacao.Succeeded) return validacao;
 
             var consulta = _mapper.Map<Consulta>(dto);
             consulta.ClinicaId = clinicaId;
@@ -135,17 +133,38 @@ namespace backend.Domain.AtendimentoAnimal.Services
             if (consulta == null)
                 return new ServiceResult { Succeeded = false, Message = "Consulta não encontrada." };
 
-            // Validações de Negócio
-            if (await _animalRepository.GetByIdAndClinicaIdWithIncludesAsync(dto.AnimalId, clinicaId) == null)
-                return new ServiceResult { Succeeded = false, Message = "Animal não encontrado ou não pertence a esta clínica." };
-            if (dto.TutorId.HasValue && await _tutorRepository.GetByIdAndClinicIdWithIncludesAsync(dto.TutorId.Value, clinicaId) == null)
-                return new ServiceResult { Succeeded = false, Message = "Tutor não encontrado ou não pertence a esta clínica." };
+            // Validações de Negócio: trocar animal/tutor exige que o novo esteja ativo
+            var validacao = await ValidarAnimalETutorAsync(dto, clinicaId, consulta);
+            if (!validacao.Succeeded) return validacao;
 
             // Mapeia apenas os campos do DTO para a entidade existente
             _mapper.Map(dto, consulta);
 
             await _consultaRepository.SaveChangesAsync();
             return new ServiceResult { Succeeded = true, Message = "Consulta atualizada com sucesso." };
+        }
+
+        /// <summary>
+        /// Confere se animal e tutor pertencem à clínica e, quando forem novos na consulta, se estão ativos.
+        /// </summary>
+        private async Task<ServiceResult> ValidarAnimalETutorAsync(UpsertConsultaDto dto, int clinicaId, Consulta? consultaAtual)
+        {
+            var animal = await _animalRepository.GetByIdAndClinicaIdWithIncludesAsync(dto.AnimalId, clinicaId);
+            if (animal == null)
+                return new ServiceResult { Succeeded = false, Message = "Animal não encontrado ou não pertence a esta clínica." };
+            if (!animal.IsAtivo && consultaAtual?.AnimalId != dto.AnimalId)
+                return new ServiceResult { Succeeded = false, Message = "O animal selecionado está inativo." };
+
+            if (dto.TutorId.HasValue)
+            {
+                var tutor = await _tutorRepository.GetByIdAndClinicIdWithIncludesAsync(dto.TutorId.Value, clinicaId);
+                if (tutor == null)
+                    return new ServiceResult { Succeeded = false, Message = "Tutor não encontrado ou não pertence a esta clínica." };
+                if (!tutor.IsAtivo && consultaAtual?.TutorId != dto.TutorId)
+                    return new ServiceResult { Succeeded = false, Message = "O tutor selecionado está inativo." };
+            }
+
+            return new ServiceResult { Succeeded = true };
         }
 
         public async Task<ServiceResult> DeleteAsync(int consultaId, int clinicaId)

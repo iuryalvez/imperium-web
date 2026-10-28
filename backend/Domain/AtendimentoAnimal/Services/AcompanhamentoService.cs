@@ -232,7 +232,8 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 var avaliacao = (Avaliacao)resultadoAvaliacao.Data;
                 _logger.LogInformation("Avaliação {AvaliacaoId} obtida com sucesso.", avaliacao.Id);
 
-                var resultadoRacao = await _racaoService.ObterPorIdEClinicaIdAsync(dto.RacaoId, clinicaId);
+                // Dieta nova: a ração precisa estar ativa e não oculta (exceto se for a mesma já usada pela dieta da avaliação)
+                var resultadoRacao = await _racaoService.ObterSelecionavelAsync(dto.RacaoId, clinicaId, avaliacao.Dieta?.RacaoId);
                 if (!resultadoRacao.Succeeded)
                 {
                     _logger.LogWarning("Falha ao obter ração {RacaoId}. Motivo: {Motivo}", dto.RacaoId, resultadoRacao.Message);
@@ -316,7 +317,9 @@ namespace backend.Domain.AtendimentoAnimal.Services
 
             try
             {
-                var resultadoRacao = await _racaoService.ObterPorIdEClinicaIdAsync(dto.RacaoId, clinicaId);
+                // Troca de ração exige ração ativa e não oculta; manter a ração atual é sempre permitido
+                var dietaAtual = await _dietaService.GetByIdAsync(dietaId, clinicaId);
+                var resultadoRacao = await _racaoService.ObterSelecionavelAsync(dto.RacaoId, clinicaId, dietaAtual?.RacaoId);
                 if (!resultadoRacao.Succeeded)
                 {
                     return resultadoRacao;

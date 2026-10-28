@@ -7,8 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Domain.AtendimentoAnimal.Controllers
 {
+    /// <summary>
+    /// Raças vistas pela clínica (tenant): raças do sistema + raças próprias. O clinicaId vem sempre do token.
+    /// </summary>
     [ApiController]
-    [Route("api/sistema/racas")]
+    [Route("api/clinica/racas")]
     public class RacaController : ControllerBase
     {
         private readonly IRacaService _racaService;
@@ -20,50 +23,86 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
 
         [HttpGet]
         [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> GetAll([FromQuery] EspecieAnimal? especie)
+        public async Task<IActionResult> GetAll([FromQuery] RacaFiltro filtro)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId <= 0) return Forbid();
+            return Ok(await _racaService.ListarDaClinicaAsync(filtro, clinicaId));
+        }
 
-            var racas = await _racaService.ListAvailableForClinicaAndEspecieAsync(clinicaId, especie);
-
-            return Ok(racas);
+        [HttpGet("opcoes")]
+        [Authorize(Policy = "VisualizaTudo")]
+        public async Task<IActionResult> GetOpcoes([FromQuery] string? busca, [FromQuery] EspecieAnimal? especie)
+        {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId <= 0) return Forbid();
+            return Ok(await _racaService.ListarOpcoesDaClinicaAsync(clinicaId, busca, especie));
         }
 
         [HttpGet("{id}")]
         [Authorize(Policy = "VisualizaTudo")]
         public async Task<IActionResult> GetById(int id)
         {
-            var raca = await _racaService.GetByIdAsync(id);
-            if (raca == null) return NotFound();
-            return Ok(raca);
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId <= 0) return Forbid();
+            var result = await _racaService.ObterDaClinicaAsync(id, clinicaId);
+            if (!result.Succeeded) return NotFound(result);
+            return Ok(result.Data);
         }
 
-        [HttpPost]
+        [HttpPost("cadastrar")]
         [Authorize(Policy = "GerenciaAnimais")]
-        public async Task<IActionResult> Create([FromBody] CadastrarRacaDto criarRacaDto)
+        public async Task<IActionResult> Create([FromBody] CadastrarRacaDto dto)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            var racaCriada = await _racaService.CreateAsync(criarRacaDto, clinicaId);
-            return CreatedAtAction(nameof(GetById), new { id = racaCriada.Id }, racaCriada);
+            if (clinicaId <= 0) return Forbid();
+            var result = await _racaService.CadastrarDaClinicaAsync(dto, clinicaId);
+            if (!result.Succeeded) return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpPut("editar")]
         [Authorize(Policy = "GerenciaAnimais")]
-        public async Task<IActionResult> Update([FromBody] UpdateRacaDto atualizarRacaDto)
+        public async Task<IActionResult> Update([FromBody] UpdateRacaDto dto)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            var sucesso = await _racaService.CreateOrUpdateAsync(atualizarRacaDto, clinicaId);
-            if (!sucesso) return NotFound();
-            return NoContent();
+            if (clinicaId <= 0) return Forbid();
+            var result = await _racaService.EditarDaClinicaAsync(dto, clinicaId);
+            if (!result.Succeeded) return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
         [Authorize(Policy = "GerenciaAnimais")]
         public async Task<IActionResult> Delete(int id)
         {
-            var sucesso = await _racaService.DeleteAsync(id);
-            if (!sucesso) return NotFound();
-            return NoContent();
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId <= 0) return Forbid();
+            var result = await _racaService.ExcluirDaClinicaAsync(id, clinicaId);
+            if (!result.Succeeded) return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpPut("{id}/status")]
+        [Authorize(Policy = "GerenciaAnimais")]
+        public async Task<IActionResult> SetStatus(int id, [FromQuery] bool ativo)
+        {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId <= 0) return Forbid();
+            var result = await _racaService.SetStatusDaClinicaAsync(id, clinicaId, ativo);
+            if (!result.Succeeded) return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpPut("{id}/ocultar")]
+        [Authorize(Policy = "GerenciaAnimais")]
+        public async Task<IActionResult> SetOculta(int id, [FromQuery] bool oculta)
+        {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId <= 0) return Forbid();
+            var result = await _racaService.SetOcultaAsync(id, clinicaId, oculta);
+            if (!result.Succeeded) return BadRequest(result);
+            return Ok(result);
         }
     }
 }

@@ -1,70 +1,42 @@
 import api from "../index"; // Configuração do axios
 import endpoints from "../../services/Endpoints"; // Endpoints
 
+const rotas = endpoints.clinica.racao;
+
+// Executa a requisição e relança o erro no formato que o Manager exibe (error.message)
+const executar = async (descricao, requisicao) => {
+  try {
+    const response = await requisicao();
+    return response.data;
+  } catch (error) {
+    console.error(`Erro ao ${descricao}:`, error);
+    throw error.response ? error.response.data : error;
+  }
+};
+
+/**
+ * Rações vistas pela clínica: as do sistema (compartilhadas) + as próprias.
+ * Ração do sistema: editar cria uma cópia da clínica; não pode ser excluída nem desativada, só ocultada.
+ */
 export const racoesDaClinicaAPI = {
-  listar: async (especie) => {
-    // Starts with the base URL for listing breeds
-    let url = endpoints.clinica.racao.listar;
+  /** Lista paginada. filtro: { pagina, tamanhoPagina, busca, ordenarPor, ordem, ativo, especie, origem, oculta } */
+  listar: (filtro) => executar("listar as rações", () => api.get(rotas.listar, { params: filtro })),
 
-    // If a species is provided, add it as a query parameter
-    if (especie) {
-      url += `?especie=${especie}`;
-    }
+  /** Opções para selects: até 20 { id, nome, isAtivo }, sem as rações ocultas pela clínica. */
+  opcoes: (busca, especie) =>
+    executar("buscar opções de rações", () => api.get(rotas.opcoes, { params: { busca, especie } })),
 
-    try {
-      const response = await api.get(url);
-      return response.data.data;
-    } catch (error) {
-      console.error("Erro as listar as rações:", error);
-      throw error; // Re-lança o erro para ser tratado pelo componente que chamou
-    }
-  },
+  detalhes: (id) => executar(`obter detalhes da ração ${id}`, () => api.get(rotas.detalhes(id))),
 
-  detalhes: async (id) => {
-    try {
-      const response = await api.get(endpoints.clinica.racao.detalhes(id));
-      return response.data;
-    } catch (error) {
-      console.error(`Erro ao obter detalhes da ração ${id}:`, error);
-      throw error;
-    }
-  },
+  cadastrar: (dadosRacao) => executar("cadastrar a ração", () => api.post(rotas.cadastrar, dadosRacao)),
 
-  cadastrar: async (dadosRacao) => {
-    try {
-      const response = await api.post(
-        endpoints.clinica.racao.cadastrar,
-        dadosRacao
-      );
-      return response.data;
-    } catch (error) {
-      // The missing braces were here
-      console.error("Erro ao cadastrar a ração:", error);
-      throw error;
-    }
-  },
+  editar: (dadosRacao) => executar("editar a ração", () => api.put(rotas.editar, dadosRacao)),
 
-  editar: async (dadosRacao) => {
-    try {
-      const response = await api.put(endpoints.clinica.racao.editar, dadosRacao, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      return response; // PUT retorna NoContent (204), então retornamos a resposta completa
-    } catch (error) {
-      console.error(`Erro ao editar a ração.`, error);
-      throw error;
-    }
-  },
+  deletar: (id) => executar(`deletar a ração ${id}`, () => api.delete(rotas.deletar(id))),
 
-  deletar: async (id) => {
-    try {
-      const response = await api.delete(endpoints.clinica.racao.deletar(id));
-      return response; // DELETE retorna NoContent (204), então retornamos a resposta completa
-    } catch (error) {
-      console.error(`Erro ao deletar a ração ${id}:`, error);
-      throw error;
-    }
-  },
+  setStatus: (id, ativo) =>
+    executar(`alterar o status da ração ${id}`, () => api.put(rotas.setStatus(id), null, { params: { ativo } })),
+
+  ocultar: (id, oculta) =>
+    executar(`ocultar a ração ${id}`, () => api.put(rotas.ocultar(id), null, { params: { oculta } })),
 };

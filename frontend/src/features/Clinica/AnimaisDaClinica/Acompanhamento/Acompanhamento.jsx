@@ -30,7 +30,6 @@ const Acompanhamento = () => {
   const {
     historico,
     loading,
-    racoes,
     isModalCriarDietaOpen,
     isModalVisualizarDietaOpen,
     isModalEditarDietaOpen,
@@ -273,7 +272,6 @@ const Acompanhamento = () => {
             }}
             onFinish={handleCriarDieta}
             avaliacaoId={avaliacaoSelecionado.id}
-            racoes={racoes}
             dadosRaca={historico?.raca}
             dadosAnimal={historico}
           />
@@ -300,7 +298,6 @@ const Acompanhamento = () => {
               especieAnimal: especieInt,
             }}
             avaliacaoId={dietaParaEditar.avaliacaoId || avaliacaoSelecionado.id}
-            racoes={racoes}
             dadosRaca={historico?.raca}
             dadosAnimal={historico}
           />

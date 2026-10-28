@@ -19,6 +19,8 @@ public class AnimalService : IAnimalService
     private readonly IAnimalRepository _animalRepository;
     private readonly ITutorService _tutorService;
     private readonly IAcompanhamentoRepository _acompanhamentoRepository;
+    private readonly ITutorRepository _tutorRepository;
+    private readonly IRacaService _racaService;
     private readonly AppDbContext _context; // Usado exclusivamente para controle de transações.
     private readonly IMapper _mapper;
     private readonly ILogger<AnimalService> _logger;
@@ -27,6 +29,8 @@ public class AnimalService : IAnimalService
         IAnimalRepository animalRepository,
         ITutorService tutorService,
         IAcompanhamentoRepository acompanhamentoRepository,
+        ITutorRepository tutorRepository,
+        IRacaService racaService,
         IMapper mapper,
         ILogger<AnimalService> logger,
         AppDbContext context)
@@ -34,6 +38,8 @@ public class AnimalService : IAnimalService
         _animalRepository = animalRepository;
         _tutorService = tutorService;
         _acompanhamentoRepository = acompanhamentoRepository;
+        _tutorRepository = tutorRepository;
+        _racaService = racaService;
         _mapper = mapper;
         _logger = logger;
         _context = context;
@@ -148,6 +154,11 @@ public class AnimalService : IAnimalService
     public async Task<ServiceResult> CreateAsync(CadastrarAnimalClinicaDto dto, int clinicaId)
     {
         _logger.LogInformation("Iniciando cadastro de novo animal '{NomeAnimal}' para a clínica {ClinicaId}.", dto.Nome, clinicaId);
+
+        // A raça precisa estar disponível para a clínica, ativa e não oculta
+        var resultadoRaca = await _racaService.ValidarSelecionavelAsync(dto.RacaId, clinicaId);
+        if (!resultadoRaca.Succeeded) return resultadoRaca;
+
         await using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
@@ -208,6 +219,17 @@ public class AnimalService : IAnimalService
 
             var animal = (Animal)resultadoBusca.Data;
 
+            // Trocar a raça exige uma raça selecionável; manter a atual é sempre permitido
+            if (dto.RacaId.HasValue && dto.RacaId != animal.RacaId)
+            {
+                var resultadoRaca = await _racaService.ValidarSelecionavelAsync(dto.RacaId.Value, clinicaId);
+                if (!resultadoRaca.Succeeded)
+                {
+                    await transaction.RollbackAsync();
+                    return resultadoRaca;
+                }
+            }
+
             _mapper.Map(dto, animal);
             animal.DataModificado = DateTime.UtcNow;
 
@@ -237,14 +259,16 @@ public class AnimalService : IAnimalService
     }
 
     /// <summary>
-    /// Realiza um soft delete do animal na clínica (o animal pertence a uma única clínica).
+    /// Ativa ou desativa (soft delete) o animal na clínica. Animal inativo continua no histórico,
+    /// mas não pode ganhar vínculos novos nem consultas novas.
     /// </summary>
     /// <param name="animalId">ID do animal.</param>
     /// <param name="clinicaId">ID da clínica.</param>
+    /// <param name="ativo">true para ativar, false para desativar.</param>
     /// <returns>ServiceResult indicando sucesso ou falha.</returns>
-    public async Task<ServiceResult> DesativarVinculoAnimalAsync(int animalId, int clinicaId)
+    public async Task<ServiceResult> SetStatusAsync(int animalId, int clinicaId, bool ativo)
     {
-        _logger.LogInformation("Tentando desativar o animal {AnimalId} na clínica {ClinicaId}.", animalId, clinicaId);
+        _logger.LogInformation("Alterando status do animal {AnimalId} na clínica {ClinicaId} para ativo={Ativo}.", animalId, clinicaId, ativo);
         try
         {
             var animal = await _animalRepository.GetByIdAndClinicaIdWithIncludesAsync(animalId, clinicaId);
@@ -254,23 +278,16 @@ public class AnimalService : IAnimalService
                 return new ServiceResult { Succeeded = false, Message = "Animal não encontrado nesta clínica." };
             }
 
-            if (!animal.IsAtivo)
-            {
-                _logger.LogInformation("Animal {AnimalId} na clínica {ClinicaId} já se encontra inativo.", animalId, clinicaId);
-                return new ServiceResult { Succeeded = true, Message = "O animal já estava inativo." };
-            }
-
-            animal.IsAtivo = false;
-            animal.DataDesativacao = DateTime.UtcNow;
+            animal.IsAtivo = ativo;
+            animal.DataDesativacao = ativo ? null : DateTime.UtcNow;
             await _animalRepository.SaveChangesAsync();
 
-            _logger.LogInformation("Animal {AnimalId} da clínica {ClinicaId} foi desativado com sucesso.", animalId, clinicaId);
-            return new ServiceResult { Succeeded = true, Message = "Animal desativado com sucesso." };
+            return new ServiceResult { Succeeded = true, Message = ativo ? "Animal ativado com sucesso." : "Animal desativado com sucesso." };
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Erro ao desativar o animal {AnimalId} da clínica {ClinicaId}.", animalId, clinicaId);
-            return new ServiceResult { Succeeded = false, Message = "Ocorreu um erro ao desativar o animal." };
+            _logger.LogError(ex, "Erro ao alterar o status do animal {AnimalId} da clínica {ClinicaId}.", animalId, clinicaId);
+            return new ServiceResult { Succeeded = false, Message = "Ocorreu um erro ao alterar o status do animal." };
         }
     }
 
@@ -363,6 +380,13 @@ public class AnimalService : IAnimalService
         }
 
         var idsAtuais = animal.TutoresAnimais?.Select(ta => ta.TutorId).ToList() ?? new List<int>();
+
+        // Tutores inativos não podem ganhar vínculo novo (os vínculos já existentes são mantidos)
+        var idsNovos = idsDesejados.Except(idsAtuais).ToList();
+        if (!await _tutorRepository.AllTutorsActiveAsync(idsNovos, clinicaId))
+        {
+            return new ServiceResult { Succeeded = false, Message = "Um ou mais tutores selecionados estão inativos." };
+        }
 
         // Remove vínculos que não estão mais na lista de desejados
         var paraRemover = animal.TutoresAnimais?.Where(ta => !idsDesejados.Contains(ta.TutorId)).ToList();

@@ -5,6 +5,7 @@ using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interfaces;
 using backend.Domain.Usuarios.Interfaces;
 using backend.Domain.Utils;
+using backend.Domain.SaudeAnimal.Interfaces;
 using backend.Infra.Data;
 
 namespace backend.Domain.AtendimentoAnimal.Services
@@ -18,11 +19,13 @@ namespace backend.Domain.AtendimentoAnimal.Services
         private readonly AppDbContext _context; // Mantido apenas para controle de transação
         private readonly ILogger<AvaliacaoService> _logger;
         private readonly IMapper _mapper;
+        private readonly IRacaoService _racaoService;
 
         public AvaliacaoService(
             IAvaliacaoRepository avaliacaoRepository,
             IConsultaService consultaService,
             IAnimalRepository animalRepository,
+            IRacaoService racaoService,
             IMapper mapper,
             ILogger<AvaliacaoService> logger,
             AppDbContext context,
@@ -31,6 +34,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
             _avaliacaoRepository = avaliacaoRepository;
             _consultaService = consultaService;
             _animalRepository = animalRepository;
+            _racaoService = racaoService;
             _mapper = mapper;
             _logger = logger;
             _context = context;
@@ -139,7 +143,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 }
             }
 
-            if (consulta?.Animal?.Acompanhamento == null)
+            if (consulta?.Animal?.Acompanhamento == null || consulta.ClinicaId != clinicaId)
             {
                 return new ServiceResult { Succeeded = false, Message = "Consulta, animal ou acompanhamento associado não encontrado." };
             }
@@ -169,6 +173,14 @@ namespace backend.Domain.AtendimentoAnimal.Services
                         ConsultaId = consultaId,
                         AcompanhamentoId = animal.Acompanhamento.Id
                     };
+                }
+
+                // A ração precisa estar disponível para a clínica; em avaliação nova (ou troca de ração), também ativa e não oculta
+                var resultadoRacao = await _racaoService.ObterSelecionavelAsync(dto.RacaoId, clinicaId, avaliacao.Id == 0 ? null : avaliacao.RacaoId);
+                if (!resultadoRacao.Succeeded)
+                {
+                    await transaction.RollbackAsync();
+                    return resultadoRacao;
                 }
 
                 avaliacao.UsuarioResponsavelId = GetUserId();

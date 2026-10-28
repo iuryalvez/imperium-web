@@ -3,26 +3,26 @@ using backend.Domain.AtendimentoAnimal.DTOs.Raca;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Enums;
 using backend.Domain.AtendimentoAnimal.Interfaces;
+using backend.Domain.Utils;
+using backend.Domain.Utils.Paginacao;
 
 namespace backend.Domain.AtendimentoAnimal.Services
 {
-
-
     /// <summary>
-    /// Serviço responsável por manipular a lógica de negócio relacionada à entidade 'Raça'.
+    /// Regras de negócio de 'Raça'.
+    /// Raças do sistema (ClinicaId nulo) são compartilhadas: a clínica pode usá-las, ocultá-las só para si
+    /// ou editá-las (o que cria uma cópia própria). Só o admin altera, ativa/desativa ou exclui raças do sistema.
+    /// Uma clínica nunca enxerga raças de outra clínica.
     /// </summary>
     public class RacaService : IRacaService
     {
+        private const string MsgNaoEncontrada = "Raça não encontrada.";
+        private const string MsgEmUso = "Esta raça está em uso por animais e não pode ser excluída. Desative-a.";
+
         private readonly IRacaRepository _racaRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<RacaService> _logger;
 
-        /// <summary>
-        /// Inicia uma nova instância da classe <see cref="RacaService"/>.
-        /// </summary>
-        /// <param name="racaRepository">O repositório para acesso aos dados das entidades 'Raça'.</param>
-        /// <param name="mapper">A instância do AutoMapper para mapeamento de objetos.</param>
-        /// <param name="logger">O logger para registrar as operações do serviço.</param>
         public RacaService(IRacaRepository racaRepository, IMapper mapper, ILogger<RacaService> logger)
         {
             _racaRepository = racaRepository;
@@ -30,203 +30,228 @@ namespace backend.Domain.AtendimentoAnimal.Services
             _logger = logger;
         }
 
-        /// <summary>
-        /// Cria uma nova raça específica para uma clínica.
-        /// </summary>
-        /// <param name="criarRacaDto">O DTO contendo os dados para a nova raça.</param>
-        /// <param name="clinicaId">O ID da clínica à qual a raça será associada.</param>
-        /// <returns>Um DTO da raça recém-criada.</returns>
-        public async Task<GetRacaDto> CreateAsync(CadastrarRacaDto criarRacaDto, int clinicaId)
+        #region Clínica
+
+        /// <summary>Lista paginada das raças disponíveis para a clínica, marcando as do sistema que ela ocultou.</summary>
+        public async Task<PaginaResultado<GetRacaDto>> ListarDaClinicaAsync(RacaFiltro filtro, int clinicaId)
         {
-            _logger.LogInformation("Tentando criar uma nova raça '{NomeRaca}' para a clínica {ClinicaId}.", criarRacaDto.Nome, clinicaId);
+            var pagina = await _racaRepository.ListarDaClinicaAsync(filtro, clinicaId);
+            var ocultas = await _racaRepository.GetIdsOcultasAsync(clinicaId, pagina.Itens.Select(r => r.Id));
 
-            try
+            return pagina.Converter(itens => itens.Select(r =>
             {
-                var raca = _mapper.Map<Raca>(criarRacaDto);
-                raca.ClinicaId = clinicaId;
+                var dto = _mapper.Map<GetRacaDto>(r);
+                dto.IsOculta = ocultas.Contains(r.Id);
+                return dto;
+            }));
+        }
 
-                await _racaRepository.AddAsync(raca);
+        public async Task<List<OpcaoDto>> ListarOpcoesDaClinicaAsync(int clinicaId, string? busca, EspecieAnimal? especie)
+        {
+            return await _racaRepository.ListarOpcoesDaClinicaAsync(clinicaId, busca, especie);
+        }
+
+        public async Task<ServiceResult> ObterDaClinicaAsync(int id, int clinicaId)
+        {
+            var raca = await _racaRepository.GetDisponivelParaClinicaAsync(id, clinicaId);
+            if (raca == null) return Falha(MsgNaoEncontrada);
+
+            var dto = _mapper.Map<GetRacaDto>(raca);
+            dto.IsOculta = (await _racaRepository.GetOcultaAsync(id, clinicaId)) != null;
+            return new ServiceResult { Succeeded = true, Data = dto };
+        }
+
+        public async Task<ServiceResult> CadastrarDaClinicaAsync(CadastrarRacaDto dto, int clinicaId)
+        {
+            _logger.LogInformation("Criando a raça '{NomeRaca}' para a clínica {ClinicaId}.", dto.Nome, clinicaId);
+            return await CadastrarAsync(dto, clinicaId);
+        }
+
+        /// <summary>
+        /// Raça da própria clínica: atualiza. Raça do sistema: cria uma cópia da clínica com as alterações.
+        /// </summary>
+        public async Task<ServiceResult> EditarDaClinicaAsync(UpdateRacaDto dto, int clinicaId)
+        {
+            var raca = await _racaRepository.GetDisponivelParaClinicaAsync(dto.Id, clinicaId);
+            if (raca == null) return Falha(MsgNaoEncontrada);
+
+            if (raca.ClinicaId == null)
+            {
+                _logger.LogInformation("A raça {RacaId} é do sistema. Criando cópia para a clínica {ClinicaId}.", raca.Id, clinicaId);
+                var copia = _mapper.Map<Raca>(dto);
+                copia.Id = 0; // Garante que será tratada como uma nova entidade pelo ORM.
+                copia.ClinicaId = clinicaId;
+                copia.Porte = raca.Porte;
+                copia.Referencia = raca.Referencia;
+                copia.IsAtivo = true;
+                copia.DataCadastro = DateTime.UtcNow;
+
+                await _racaRepository.AddAsync(copia);
                 await _racaRepository.SaveChangesAsync();
+                return new ServiceResult
+                {
+                    Succeeded = true,
+                    Message = "Raça do sistema copiada para a clínica com as alterações.",
+                    Data = _mapper.Map<GetRacaDto>(copia)
+                };
+            }
 
-                _logger.LogInformation("Raça com ID {RacaId} criada com sucesso.", raca.Id);
-                return _mapper.Map<GetRacaDto>(raca);
-            }
-            catch (Exception ex)
+            _mapper.Map(dto, raca);
+            await _racaRepository.SaveChangesAsync();
+            return new ServiceResult { Succeeded = true, Message = "Raça atualizada com sucesso.", Data = _mapper.Map<GetRacaDto>(raca) };
+        }
+
+        public async Task<ServiceResult> ExcluirDaClinicaAsync(int id, int clinicaId)
+        {
+            var raca = await _racaRepository.GetDisponivelParaClinicaAsync(id, clinicaId);
+            if (raca == null) return Falha(MsgNaoEncontrada);
+            if (raca.ClinicaId == null)
             {
-                _logger.LogError(ex, "Ocorreu um erro ao criar a raça '{NomeRaca}' para a clínica {ClinicaId}.", criarRacaDto.Nome, clinicaId);
-                throw; // Relança a exceção para ser tratada por um handler de nível superior.
+                _logger.LogWarning("A clínica {ClinicaId} tentou excluir a raça do sistema {RacaId}.", clinicaId, id);
+                return Falha("Raças do sistema não podem ser excluídas pela clínica. Você pode ocultá-la.");
             }
+
+            return await ExcluirEntidadeAsync(raca);
+        }
+
+        public async Task<ServiceResult> SetStatusDaClinicaAsync(int id, int clinicaId, bool ativo)
+        {
+            var raca = await _racaRepository.GetDisponivelParaClinicaAsync(id, clinicaId);
+            if (raca == null) return Falha(MsgNaoEncontrada);
+            if (raca.ClinicaId == null)
+                return Falha("Raças do sistema são ativadas/desativadas pelo administrador. Você pode ocultá-la para esta clínica.");
+
+            return await AplicarStatusAsync(raca, ativo);
+        }
+
+        /// <summary>Oculta (ou volta a mostrar) uma raça do sistema só para a clínica.</summary>
+        public async Task<ServiceResult> SetOcultaAsync(int id, int clinicaId, bool oculta)
+        {
+            var raca = await _racaRepository.GetDisponivelParaClinicaAsync(id, clinicaId);
+            if (raca == null) return Falha(MsgNaoEncontrada);
+            if (raca.ClinicaId != null)
+                return Falha("Só raças do sistema podem ser ocultadas. Para raças da clínica, use desativar.");
+
+            var registro = await _racaRepository.GetOcultaAsync(id, clinicaId);
+            if (oculta && registro == null)
+            {
+                await _racaRepository.AddOcultaAsync(new RacaOcultaClinica { RacaId = id, ClinicaId = clinicaId, DataOcultacao = DateTime.UtcNow });
+            }
+            else if (!oculta && registro != null)
+            {
+                _racaRepository.RemoveOculta(registro);
+            }
+
+            await _racaRepository.SaveChangesAsync();
+            return new ServiceResult { Succeeded = true, Message = oculta ? "Raça ocultada para esta clínica." : "Raça voltou a aparecer para esta clínica." };
         }
 
         /// <summary>
-        /// Exclui uma raça pelo seu ID.
+        /// Confere se a raça pode ser escolhida pela clínica em um cadastro novo: disponível, ativa e não oculta.
         /// </summary>
-        /// <param name="id">O ID da raça a ser excluída.</param>
-        /// <returns>Verdadeiro se a exclusão foi bem-sucedida, caso contrário, falso.</returns>
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<ServiceResult> ValidarSelecionavelAsync(int racaId, int clinicaId)
         {
-            _logger.LogInformation("Tentando excluir a raça com ID {RacaId}.", id);
+            var raca = await _racaRepository.GetDisponivelParaClinicaAsync(racaId, clinicaId);
+            if (raca == null) return Falha("A raça selecionada não existe ou não pertence a esta clínica.");
+            if (!raca.IsAtivo) return Falha("A raça selecionada está inativa.");
+            if (raca.ClinicaId == null && await _racaRepository.GetOcultaAsync(racaId, clinicaId) != null)
+                return Falha("A raça selecionada está oculta para esta clínica.");
 
-            try
-            {
-                var raca = await _racaRepository.GetByIdAsync(id);
-                if (raca == null)
-                {
-                    _logger.LogWarning("Raça com ID {RacaId} não encontrada para exclusão.", id);
-                    return false;
-                }
-
-                _racaRepository.Delete(raca);
-                var result = await _racaRepository.SaveChangesAsync();
-
-                bool success = result > 0;
-                if (success)
-                {
-                    _logger.LogInformation("Raça com ID {RacaId} excluída com sucesso.", id);
-                }
-                else
-                {
-                    _logger.LogWarning("A exclusão para a raça de ID {RacaId} não afetou nenhum registro.", id);
-                }
-
-                return success;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ocorreu um erro ao excluir a raça com ID {RacaId}.", id);
-                throw;
-            }
+            return new ServiceResult { Succeeded = true };
         }
 
-        /// <summary>
-        /// Obtém uma raça específica pelo seu ID.
-        /// </summary>
-        /// <param name="id">O ID da raça.</param>
-        /// <returns>Um DTO da raça, ou nulo se não for encontrada.</returns>
-        public async Task<GetRacaDto?> GetByIdAsync(int id)
+        #endregion
+
+        #region Sistema (admin)
+
+        public async Task<PaginaResultado<GetRacaDto>> ListarSistemaAsync(RacaFiltro filtro)
         {
-            _logger.LogInformation("Buscando raça com ID {RacaId}.", id);
+            var pagina = await _racaRepository.ListarSistemaAsync(filtro);
+            return pagina.Converter(itens => _mapper.Map<IEnumerable<GetRacaDto>>(itens));
+        }
+
+        public async Task<PaginaResultado<GetRacaDto>> ListarCopiasAsync(RacaFiltro filtro)
+        {
+            var pagina = await _racaRepository.ListarCopiasAsync(filtro);
+            return pagina.Converter(itens => _mapper.Map<IEnumerable<GetRacaDto>>(itens));
+        }
+
+        public async Task<ServiceResult> ObterAsync(int id)
+        {
             var raca = await _racaRepository.GetByIdAsync(id);
-
-            if (raca == null)
-            {
-                _logger.LogWarning("Raça com ID {RacaId} não encontrada.", id);
-                return null;
-            }
-
-            return _mapper.Map<GetRacaDto>(raca);
+            if (raca == null) return Falha(MsgNaoEncontrada);
+            return new ServiceResult { Succeeded = true, Data = _mapper.Map<GetRacaDto>(raca) };
         }
 
-        /// <summary>
-        /// Lista todas as raças padrão do sistema, opcionalmente filtradas por espécie.
-        /// </summary>
-        /// <param name="especie">A espécie opcional para filtro.</param>
-        /// <returns>Uma lista de DTOs de raças do sistema.</returns>
-        public async Task<List<GetRacaDto>> GetAllSystemByEspecieAsync(EspecieAnimal? especie)
+        public async Task<ServiceResult> CadastrarSistemaAsync(CadastrarRacaDto dto)
         {
-            _logger.LogInformation("Buscando todas as raças do sistema. Filtro por espécie: {Especie}", especie?.ToString() ?? "Nenhum");
-
-            var racas = await _racaRepository.GetAllSystemAsync();
-
-            if (especie.HasValue)
-            {
-                racas = racas.Where(r => r.Especie == especie.Value).ToList();
-            }
-
-            return _mapper.Map<List<GetRacaDto>>(racas);
+            _logger.LogInformation("Admin criando a raça do sistema '{NomeRaca}'.", dto.Nome);
+            return await CadastrarAsync(dto, null);
         }
 
-        /// <summary>
-        /// Lista todas as raças de uma clínica específica, opcionalmente filtradas por espécie.
-        /// </summary>
-        /// <param name="clinicaId">O ID da clínica.</param>
-        /// <param name="especie">A espécie opcional para filtro.</param>
-        /// <returns>A list of breed DTOs for the specified clinic.</returns>
-        public async Task<List<GetRacaDto>> ListByClinicaIdAndEspecieAsync(int clinicaId, EspecieAnimal? especie)
+        /// <summary>Admin edita qualquer raça (do sistema ou cópia de clínica) diretamente, sem criar cópia.</summary>
+        public async Task<ServiceResult> EditarAsync(UpdateRacaDto dto)
         {
-            _logger.LogInformation("Buscando raças para a clínica {ClinicaId}. Filtro por espécie: {Especie}", clinicaId, especie?.ToString() ?? "Nenhum");
+            var raca = await _racaRepository.GetByIdAsync(dto.Id);
+            if (raca == null) return Falha(MsgNaoEncontrada);
 
-            var racas = await _racaRepository.ListByClinicaIdAsync(clinicaId);
-
-            if (especie.HasValue)
-            {
-                racas = racas.Where(r => r.Especie == especie.Value).ToList();
-            }
-
-            return _mapper.Map<List<GetRacaDto>>(racas);
+            _mapper.Map(dto, raca);
+            await _racaRepository.SaveChangesAsync();
+            return new ServiceResult { Succeeded = true, Message = "Raça atualizada com sucesso.", Data = _mapper.Map<GetRacaDto>(raca) };
         }
 
-        /// <summary>
-        /// Lista todas as raças disponíveis para a clínica (sistema + específicas), opcionalmente filtradas por espécie.
-        /// </summary>
-        public async Task<List<GetRacaDto>> ListAvailableForClinicaAndEspecieAsync(int clinicaId, EspecieAnimal? especie)
+        public async Task<ServiceResult> ExcluirAsync(int id)
         {
-            _logger.LogInformation("Buscando raças disponíveis (sistema + clínica) para a clínica {ClinicaId}. Filtro por espécie: {Especie}", clinicaId, especie?.ToString() ?? "Nenhum");
-
-            var racas = await _racaRepository.ListAvailableForClinicaAsync(clinicaId);
-
-            if (especie.HasValue)
-            {
-                racas = racas.Where(r => r.Especie == especie.Value).ToList();
-            }
-
-            return _mapper.Map<List<GetRacaDto>>(racas);
+            var raca = await _racaRepository.GetByIdAsync(id);
+            if (raca == null) return Falha(MsgNaoEncontrada);
+            return await ExcluirEntidadeAsync(raca);
         }
 
-        /// <summary>
-        /// Atualiza uma raça existente. Se a raça for padrão do sistema (ClinicaId nulo), 
-        /// cria uma nova cópia específica para a clínica com as alterações. 
-        /// Se a raça já for da clínica, atualiza seus dados.
-        /// </summary>
-        /// <param name="atualizarRacaDto">O DTO com os dados atualizados da raça.</param>
-        /// <param name="clinicaId">O ID da clínica que está realizando a operação.</param>
-        /// <returns>Verdadeiro se a operação (atualização ou criação de cópia) foi bem-sucedida, caso contrário, falso.</returns>
-        public async Task<bool> CreateOrUpdateAsync(UpdateRacaDto atualizarRacaDto, int clinicaId)
+        public async Task<ServiceResult> SetStatusAsync(int id, bool ativo)
         {
-            _logger.LogInformation("Tentando atualizar a raça com ID {RacaId} para a clínica {ClinicaId}.", atualizarRacaDto.Id, clinicaId);
-
-            try
-            {
-                var raca = await _racaRepository.GetByIdAsync(atualizarRacaDto.Id);
-                if (raca == null)
-                {
-                    _logger.LogWarning("Raça com ID {RacaId} não encontrada para atualização.", atualizarRacaDto.Id);
-                    return false;
-                }
-
-                // Se a raça é do sistema (sem ID de clínica), cria uma nova cópia editável para a clínica.
-                if (raca.ClinicaId == null)
-                {
-                    _logger.LogInformation("A raça {RacaId} é do sistema. Criando uma nova cópia específica para a clínica {ClinicaId}.", raca.Id, clinicaId);
-                    return await CreateClinicSpecificCopyAsync(atualizarRacaDto, clinicaId);
-                }
-
-                // Se for uma raça da própria clínica, atualiza diretamente.
-                _logger.LogInformation("A raça {RacaId} é específica da clínica. Atualizando diretamente.", raca.Id);
-                _mapper.Map(atualizarRacaDto, raca);
-                _racaRepository.Update(raca);
-                var updated = await _racaRepository.SaveChangesAsync();
-                return updated > 0;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ocorreu um erro ao atualizar a raça de ID {RacaId} para a clínica {ClinicaId}.", atualizarRacaDto.Id, clinicaId);
-                throw;
-            }
+            var raca = await _racaRepository.GetByIdAsync(id);
+            if (raca == null) return Falha(MsgNaoEncontrada);
+            return await AplicarStatusAsync(raca, ativo);
         }
 
-        /// <summary>
-        /// Cria uma nova raça específica para a clínica com base nos dados de uma raça do sistema.
-        /// </summary>
-        private async Task<bool> CreateClinicSpecificCopyAsync(UpdateRacaDto dto, int clinicaId)
+        #endregion
+
+        #region Auxiliares
+
+        private async Task<ServiceResult> CadastrarAsync(CadastrarRacaDto dto, int? clinicaId)
         {
-            var novaRaca = _mapper.Map<Raca>(dto);
-            novaRaca.Id = 0; // Garante que será tratada como uma nova entidade pelo ORM.
-            novaRaca.ClinicaId = clinicaId;
+            var raca = _mapper.Map<Raca>(dto);
+            raca.ClinicaId = clinicaId;
+            raca.IsAtivo = true;
+            raca.DataCadastro = DateTime.UtcNow;
 
-            await _racaRepository.AddAsync(novaRaca);
-            var result = await _racaRepository.SaveChangesAsync();
-            return result > 0;
+            await _racaRepository.AddAsync(raca);
+            await _racaRepository.SaveChangesAsync();
+
+            _logger.LogInformation("Raça com ID {RacaId} criada com sucesso.", raca.Id);
+            return new ServiceResult { Succeeded = true, Message = "Raça cadastrada com sucesso.", Data = _mapper.Map<GetRacaDto>(raca) };
         }
+
+        private async Task<ServiceResult> ExcluirEntidadeAsync(Raca raca)
+        {
+            if (await _racaRepository.EmUsoAsync(raca.Id)) return Falha(MsgEmUso);
+
+            _racaRepository.Delete(raca);
+            await _racaRepository.SaveChangesAsync();
+            _logger.LogInformation("Raça com ID {RacaId} excluída com sucesso.", raca.Id);
+            return new ServiceResult { Succeeded = true, Message = "Raça excluída com sucesso." };
+        }
+
+        private async Task<ServiceResult> AplicarStatusAsync(Raca raca, bool ativo)
+        {
+            raca.IsAtivo = ativo;
+            raca.DataDesativacao = ativo ? null : DateTime.UtcNow;
+            await _racaRepository.SaveChangesAsync();
+            return new ServiceResult { Succeeded = true, Message = ativo ? "Raça ativada com sucesso." : "Raça desativada com sucesso." };
+        }
+
+        private static ServiceResult Falha(string mensagem) => new() { Succeeded = false, Message = mensagem };
+
+        #endregion
     }
 }

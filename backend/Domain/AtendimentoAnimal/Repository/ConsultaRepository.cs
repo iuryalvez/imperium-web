@@ -50,6 +50,7 @@ namespace backend.Domain.AtendimentoAnimal.Repository
         {
             return await GetBaseQuery()
                 .Where(c => c.ClinicaId == clinicaId)
+                .OrderByDescending(c => c.DataConsulta).ThenByDescending(c => c.Id) // mais recentes primeiro
                 .AsNoTracking()
                 .ToListAsync();
         }

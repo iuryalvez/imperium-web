@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from "react";
 import { Table, Button, Space, Tooltip, Popconfirm, Dropdown, Checkbox } from "antd";
-import { EyeOutlined, EditOutlined, DeleteOutlined, SettingOutlined } from "@ant-design/icons";
+import { EyeOutlined, EditOutlined, DeleteOutlined, SettingOutlined, StopOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import colunas from './colunas';
 
-const TabelaTutoresDaClinica = ({ tutores, onEdit, onDelete, onViewDetails, loadingRowKey }) => {
-  const [visibleColumns, setVisibleColumns] = useState(["nome", "email", "cpf", "telefone"]);
+const TabelaTutoresDaClinica = ({ tutores, onEdit, onDelete, onToggleStatus, onViewDetails, loadingRowKey }) => {
+  const [visibleColumns, setVisibleColumns] = useState(["nome", "email", "cpf", "telefone", "isAtivo"]);
 
   const handleColumnVisibilityChange = (key) => {
     setVisibleColumns((prev) =>
@@ -28,6 +28,22 @@ const TabelaTutoresDaClinica = ({ tutores, onEdit, onDelete, onViewDetails, load
           <Tooltip title="Editar">
             <Button size="small" icon={<EditOutlined />} onClick={() => onEdit(record)} disabled={isCurrentRowLoading} />
           </Tooltip>
+          <Tooltip title={record.isAtivo ? "Desativar" : "Ativar"}>
+            <Popconfirm
+              title={`Tem certeza que deseja ${record.isAtivo ? "desativar" : "ativar"} este tutor?`}
+              onConfirm={() => onToggleStatus(record)}
+              okText="Sim"
+              cancelText="Não"
+              disabled={isCurrentRowLoading}
+            >
+              <Button
+                size="small"
+                icon={record.isAtivo ? <StopOutlined /> : <CheckCircleOutlined />}
+                danger={record.isAtivo}
+                loading={isCurrentRowLoading}
+              />
+            </Popconfirm>
+          </Tooltip>
           <Tooltip title="Remover">
             <Popconfirm
               title="Tem certeza que deseja remover este tutor?"
@@ -42,7 +58,7 @@ const TabelaTutoresDaClinica = ({ tutores, onEdit, onDelete, onViewDetails, load
         </Space>
       );
     },
-  }), [onEdit, onDelete, onViewDetails, loadingRowKey]);
+  }), [onEdit, onDelete, onToggleStatus, onViewDetails, loadingRowKey]);
 
   const colunasVisiveis = useMemo(() => [
     ...colunas.filter((col) => visibleColumns.includes(col.key)),

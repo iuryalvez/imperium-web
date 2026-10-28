@@ -87,6 +87,21 @@ export const useTutoresDaClinicaManager = () => {
     }
   };
 
+  // Ativa/desativa o tutor. Inativo continua no histórico, mas não entra em vínculos nem consultas novas.
+  const handleToggleStatus = async (tutor) => {
+    setLoadingRowKey(tutor.id);
+    try {
+      const novoStatus = !tutor.isAtivo;
+      await tutoresDaClinicaAPI.setStatus(tutor.id, novoStatus);
+      message.success(`Tutor ${novoStatus ? "ativado" : "desativado"} com sucesso!`);
+      await fetchTutores();
+    } catch (error) {
+      message.error(error.message || "Erro ao alterar o status do tutor.");
+    } finally {
+      setLoadingRowKey(null);
+    }
+  };
+
   const handleOpenModalDetalhes = (tutor) => {
     setViewingTutor(tutor);
     setIsOpenModalDetalhes(true);
@@ -112,6 +127,7 @@ export const useTutoresDaClinicaManager = () => {
     handleSubmit,
     handleEditarTutor,
     handleDeletarTutor,
+    handleToggleStatus,
     handleOpenModalDetalhes,
   };
 };

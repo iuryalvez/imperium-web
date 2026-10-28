@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Form, Input, Select, DatePicker, Switch, Row, Col, message, Checkbox } from "antd";
 import { tutoresDaClinicaAPI } from "../../../../../api/clinica/tutoresDaClinicaAPI";
-import { racasAPI } from "../../../../../api/sistema/racasAPI";
+import { racasDaClinicaAPI } from "../../../../../api/clinica/racasDaClinicaAPI";
+import SelectBuscaRemota from "../../../../../components/atoms/SelectBuscaRemota";
 
 const opcoesEspecie = [{ value: 1, label: "Cão" }, { value: 2, label: "Gato" }];
 const opcoesSexo = [{ value: 1, label: "Macho" }, { value: 2, label: "Fêmea" }];
 
 const FormCadastroAnimal = ({ onFinish }) => {
   const [form] = Form.useForm();
-  const [racas, setRacas] = useState([]);
   const [tutores, setTutores] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -20,14 +20,13 @@ const FormCadastroAnimal = ({ onFinish }) => {
     const carregarDadosDeSuporte = async () => {
       setLoading(true);
       try {
-        // Busca tutores e todas as raças em paralelo
-        const [tutoresData, racasData] = await Promise.all([
-          tutoresDaClinicaAPI.listar(),
-          racasAPI.listar(), // Supondo um método que busca todas as raças
-        ]);
-        
-        setTutores(tutoresData.map(t => ({ label: `${t.nome} (${t.cpf || 'N/A'})`, value: t.id })));
-        setRacas(racasData.map(r => ({ label: r.nome, value: r.id, especie: r.especie })));
+        // Tutores inativos aparecem desabilitados (não podem ganhar vínculo novo)
+        const tutoresData = await tutoresDaClinicaAPI.listar();
+        setTutores(tutoresData.map(t => ({
+          label: `${t.nome} (${t.cpf || 'N/A'})${t.isAtivo === false ? ' (inativo)' : ''}`,
+          value: t.id,
+          disabled: t.isAtivo === false,
+        })));
 
       } catch (err) {
         message.error("Falha ao carregar dados de suporte (raças/tutores).");
@@ -54,13 +53,12 @@ const FormCadastroAnimal = ({ onFinish }) => {
             <Select options={opcoesEspecie} placeholder="Selecione a espécie" />
           </Form.Item>
           <Form.Item name="racaId" label="Raça" rules={[{ required: true }]}>
-            <Select
-              placeholder={!especieSelecionada ? "Primeiro, selecione a espécie" : "Selecione a raça"}
+            {/* Raças do sistema + da clínica (sem as ocultas) da espécie escolhida; inativas aparecem desabilitadas */}
+            <SelectBuscaRemota
+              placeholder={!especieSelecionada ? "Primeiro, selecione a espécie" : "Busque e selecione a raça"}
               disabled={!especieSelecionada}
-              loading={loading}
-              options={racas.filter(r => r.especie === (especieSelecionada === 1 ? 'Cao' : 'Gato'))}
-              showSearch
-              optionFilterProp="label"
+              buscarOpcoes={(busca) => racasDaClinicaAPI.opcoes(busca, especieSelecionada)}
+              dependencias={[especieSelecionada]}
             />
           </Form.Item>
           <Form.Item name="sobTutelaClinica" valuePropName="checked" style={{ marginBottom: 8 }}>

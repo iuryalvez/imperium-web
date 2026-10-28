@@ -1,60 +1,36 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState } from "react";
 import { message } from "antd";
-import { racasAPI } from "../../../../../api/sistema/racasAPI";
+import { racasDaClinicaAPI } from "../../../../../api/clinica/racasDaClinicaAPI";
+import { usePaginacaoServidor } from "../../../../../utils/usePaginacaoServidor";
 
+/**
+ * Raças vistas pela clínica (sistema + próprias), paginadas no servidor.
+ * Raça do sistema: editar cria uma cópia da clínica; pode ser ocultada só para a clínica.
+ * Raça própria: pode ser editada, ativada/desativada e excluída (se não estiver em uso).
+ */
 export const useRacasDaClinicaManager = () => {
-  const [allRacas, setAllRacas] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const lista = usePaginacaoServidor(racasDaClinicaAPI.listar, { tamanhoPagina: 12 });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingRaca, setEditingRaca] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filtroEspecie, setFiltroEspecie] = useState(null);
+  const [loadingItemId, setLoadingItemId] = useState(null);
 
-  const [mostrarRacasSistema, setMostrarRacasSistema] = useState(true);
-
-  const fetchRacas = useCallback(async () => {
-    setLoading(true);
+  const executarAcao = async (raca, acao) => {
+    setLoadingItemId(raca.id);
     try {
-      const data = await racasAPI.listar();
-      setAllRacas(data);
+      const resultado = await acao();
+      message.success(resultado?.message || "Operação realizada com sucesso!");
+      await lista.recarregar();
     } catch (error) {
-      message.error("Erro ao carregar lista de raças.");
+      message.error(error.message || "Erro ao executar a operação.");
     } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchRacas();
-  }, [fetchRacas]);
-
-  const filteredRacas = useMemo(() => {
-    return allRacas.filter((raca) => {
-      const matchWithEspecie = !filtroEspecie || raca.especie === filtroEspecie;
-      const matchWithSearch =
-        !searchTerm ||
-        raca.nome.toLowerCase().includes(searchTerm.toLowerCase());
-
-      // Filters out system breeds if the toggle is disabled
-      // System breeds are identified by the absence of a clinicaId
-      const isSystemBreed =
-        raca.clinicaId === null || raca.clinicaId === undefined;
-      const matchWithSistema = mostrarRacasSistema || !isSystemBreed;
-
-      return matchWithEspecie && matchWithSearch && matchWithSistema;
-    });
-  }, [allRacas, filtroEspecie, searchTerm, mostrarRacasSistema]);
-
-  const handleDelete = async (id) => {
-    try {
-      await racasAPI.deletar(id);
-      message.success("Raça excluída com sucesso!");
-      await fetchRacas();
-    } catch (error) {
-      message.error(error.message || "Erro ao excluir raça.");
+      setLoadingItemId(null);
     }
   };
+
+  const handleDelete = (raca) => executarAcao(raca, () => racasDaClinicaAPI.deletar(raca.id));
+  const handleToggleStatus = (raca) => executarAcao(raca, () => racasDaClinicaAPI.setStatus(raca.id, !raca.isAtivo));
+  const handleToggleOculta = (raca) => executarAcao(raca, () => racasDaClinicaAPI.ocultar(raca.id, !raca.isOculta));
 
   const handleOpenModal = (raca = null) => {
     setEditingRaca(raca);
@@ -66,31 +42,27 @@ export const useRacasDaClinicaManager = () => {
     setEditingRaca(null);
   };
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-    setFiltroEspecie(null);
-  };
-
-  const handleFilterByEspecie = (especie) => {
-    setSearchTerm("");
-    setFiltroEspecie(especie);
+  // "status" do filtro: ativos, inativos (próprias) ou ocultas (do sistema)
+  const handleFiltroStatus = (status) => {
+    lista.setFiltros({
+      ativo: status === "ativos" ? true : status === "inativos" ? false : undefined,
+      oculta: status === "ocultas" ? true : status === "visiveis" ? false : undefined,
+    });
   };
 
   const handleSubmit = async (values) => {
     setIsSubmitting(true);
     try {
-      let successMessage = "";
+      let resultado;
       if (editingRaca) {
-        await racasAPI.editar({ ...editingRaca, ...values });
-        successMessage = "Raça atualizada com sucesso!";
+        resultado = await racasDaClinicaAPI.editar({ ...editingRaca, ...values });
       } else {
-        await racasAPI.cadastrar(values);
-        successMessage = "Raça cadastrada com sucesso!";
+        resultado = await racasDaClinicaAPI.cadastrar(values);
       }
 
-      message.success(successMessage);
+      message.success(resultado?.message || "Raça salva com sucesso!");
       handleCloseModal();
-      await fetchRacas();
+      await lista.recarregar();
     } catch (error) {
       message.error(error.message || "Falha ao salvar a raça.");
     } finally {
@@ -99,19 +71,23 @@ export const useRacasDaClinicaManager = () => {
   };
 
   return {
-    loading,
+    racas: lista.dados,
+    loading: lista.loading,
+    paginacao: lista.paginacao,
+    filtros: lista.filtros,
+    loadingItemId,
     isModalOpen,
     isSubmitting,
     editingRaca,
-    filteredRacas,
-    searchTerm,
-    mostrarRacasSistema,
-    setMostrarRacasSistema,
+    setBusca: lista.setBusca,
+    setFiltros: lista.setFiltros,
+    setPagina: (pagina, tamanhoPagina) => lista.handleTableChange({ current: pagina, pageSize: tamanhoPagina }, {}, {}),
+    handleFiltroStatus,
     handleOpenModal,
     handleCloseModal,
     handleSubmit,
     handleDelete,
-    handleSearch,
-    handleFilterByEspecie,
+    handleToggleStatus,
+    handleToggleOculta,
   };
 };

@@ -19,14 +19,23 @@ const FormularioConsulta = ({ initialValues, onFinish }) => {
           animaisDaClinicaAPI.listar(),
           tutoresDaClinicaAPI.listar(),
         ]);
+        // Inativos aparecem desabilitados, exceto o que já está na consulta em edição
+        const sufixoInativo = (item) => (item.isAtivo === false ? " (inativo)" : "");
         setAnimais(
           animaisData.map((a) => ({
-            label: `${a.nome} (${a.especie === 1 ? "Cão" : "Gato"})`,
+            label: `${a.nome} (${a.especie === 1 ? "Cão" : "Gato"})${sufixoInativo(a)}`,
             value: a.id,
             tutorIds: a.tutorIds || [],
+            disabled: a.isAtivo === false && a.id !== initialValues?.animalId,
           })),
         );
-        setTutores(tutoresData.map((t) => ({ label: t.nome, value: t.id })));
+        setTutores(
+          tutoresData.map((t) => ({
+            label: `${t.nome}${sufixoInativo(t)}`,
+            value: t.id,
+            disabled: t.isAtivo === false && t.id !== initialValues?.tutorId,
+          })),
+        );
       } catch (error) {
         message.error("Erro ao carregar animais e tutores.");
       } finally {
@@ -34,6 +43,7 @@ const FormularioConsulta = ({ initialValues, onFinish }) => {
       }
     };
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Popula o formulário para edição

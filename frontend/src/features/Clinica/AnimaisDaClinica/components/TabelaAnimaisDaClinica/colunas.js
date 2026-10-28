@@ -60,6 +60,18 @@ const colunas = [
       sorter: (a, b) => dayjs(a.dataCadastro).unix() - dayjs(b.dataCadastro).unix(),
       render: (data) => data ? dayjs(data).format("DD/MM/YYYY") : '-',
     },
+  {
+    title: "Status",
+    dataIndex: "isAtivo",
+    key: "isAtivo",
+    filters: [
+      { text: "Ativo", value: true },
+      { text: "Inativo", value: false },
+    ],
+    onFilter: (value, record) => record.isAtivo === value,
+    render: (isAtivo) =>
+      isAtivo ? <Tag color="green">Ativo</Tag> : <Tag color="red">Inativo</Tag>,
+  },
 ];
 
 export default colunas;

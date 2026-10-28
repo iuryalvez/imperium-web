@@ -174,6 +174,11 @@ namespace backend.Domain.AtendimentoAnimal.Services
                         await transaction.RollbackAsync();
                         return new ServiceResult { Succeeded = false, Message = "Um ou mais animais selecionados não são válidos ou não pertencem à clínica." };
                     }
+                    if (!await _animalRepository.AllAnimalsActiveAsync(dto.AnimalIds, clinicaId))
+                    {
+                        await transaction.RollbackAsync();
+                        return new ServiceResult { Succeeded = false, Message = "Um ou mais animais selecionados estão inativos." };
+                    }
 
                     foreach (var animalId in dto.AnimalIds)
                     {
@@ -236,6 +241,13 @@ namespace backend.Domain.AtendimentoAnimal.Services
 
                     var idsAnimaisAtuais = tutor.TutoresAnimais.Select(ta => ta.AnimalId).ToList();
                     var idsAnimaisDesejados = dto.AnimalIds;
+
+                    // Animais inativos não podem ganhar vínculo novo (os vínculos já existentes são mantidos)
+                    if (!await _animalRepository.AllAnimalsActiveAsync(idsAnimaisDesejados.Except(idsAnimaisAtuais).ToList(), clinicaId))
+                    {
+                        await transaction.RollbackAsync();
+                        return new ServiceResult { Succeeded = false, Message = "Um ou mais animais selecionados estão inativos." };
+                    }
 
                     // 2b. Remove vínculos
                     var vinculosParaRemover = tutor.TutoresAnimais.Where(ta => !idsAnimaisDesejados.Contains(ta.AnimalId)).ToList();

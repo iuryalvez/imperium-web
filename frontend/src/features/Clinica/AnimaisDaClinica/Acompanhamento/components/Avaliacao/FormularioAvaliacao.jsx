@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   Form,
   Input,
@@ -8,10 +8,10 @@ import {
   Select,
   Row,
   Col,
-  message,
   Button,
 } from "antd";
 import { racoesDaClinicaAPI } from "../../../../../../api/clinica/racoesDaClinicaAPI";
+import SelectBuscaRemota from "../../../../../../components/atoms/SelectBuscaRemota";
 import {
   opcoesCondicaoCorporal,
   opcoesGrauAtividade,
@@ -21,8 +21,6 @@ import LabelComInfo from "../../../../../../components/atoms/LabelComInfo";
 
 const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
   const [form] = Form.useForm();
-  const [racoes, setRacoes] = useState([]);
-  const [loadingRacoes, setLoadingRacoes] = useState(true);
 
   console.log("[FormularioAvaliacao] initialValues", initialValues);
   console.log("[FormularioAvaliacao] data", data);
@@ -45,17 +43,11 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
     }
   }, [isGato, form]);
 
-  useEffect(() => {
-    if (data?.especieAnimal) {
-      racoesDaClinicaAPI
-        .listar(data.especieAnimal)
-        .then((data) =>
-          setRacoes(data.map((r) => ({ label: r.nome, value: r.id }))),
-        )
-        .catch(() => message.error("Erro ao carregar lista de rações."))
-        .finally(() => setLoadingRacoes(false));
-    }
-  }, [data]);
+  // Rações do sistema + da clínica (sem as ocultas) da espécie do animal; inativas aparecem desabilitadas
+  const buscarRacoes = (busca) => racoesDaClinicaAPI.opcoes(busca, data?.especieAnimal);
+  const racaoAtual = initialValues?.racaoId
+    ? [{ id: initialValues.racaoId, nome: initialValues.nomeRacao || `Ração #${initialValues.racaoId}` }]
+    : [];
 
   useEffect(() => {
     if (initialValues) {
@@ -410,12 +402,11 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
             label="Ração Utilizada"
             rules={[{ required: true, message: "Selecione a ração" }]}
           >
-            <Select
-              showSearch
+            <SelectBuscaRemota
               placeholder="Selecione a ração"
-              options={racoes}
-              loading={loadingRacoes}
-              optionFilterProp="label"
+              buscarOpcoes={buscarRacoes}
+              opcoesAtuais={racaoAtual}
+              dependencias={[data?.especieAnimal]}
             />
           </Form.Item>
         </Col>

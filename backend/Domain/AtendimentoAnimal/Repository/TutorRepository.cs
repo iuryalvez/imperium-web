@@ -39,8 +39,9 @@ namespace backend.Domain.AtendimentoAnimal.Repository
                 .Include(t => t.TutoresAnimais)
                     // A partir da junção, inclui a entidade Animal
                     .ThenInclude(ta => ta.Animal)
-                // Filtra apenas os tutores da clínica especificada
+                // Filtra apenas os tutores da clínica especificada, mais recentes primeiro
                 .Where(t => t.ClinicaId == clinicaId)
+                .OrderByDescending(t => t.DataCadastro).ThenByDescending(t => t.Id)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -60,6 +61,16 @@ namespace backend.Domain.AtendimentoAnimal.Repository
             // A validação é bem-sucedida se a contagem de tutores válidos for igual ao número
             // de IDs únicos que recebemos.
             return validTutorsCount == tutoresIds.Distinct().Count();
+        }
+
+        public async Task<bool> AllTutorsActiveAsync(List<int> tutoresIds, int clinicaId)
+        {
+            if (tutoresIds == null || !tutoresIds.Any()) return true;
+
+            var ativos = await _context.Tutores
+                .AsNoTracking()
+                .CountAsync(t => t.ClinicaId == clinicaId && t.IsAtivo && tutoresIds.Contains(t.Id));
+            return ativos == tutoresIds.Distinct().Count();
         }
 
         public async Task AddAsync(Tutor tutor)

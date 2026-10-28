@@ -35,8 +35,11 @@ export const consultasDaClinicaAPI = {
 
   editar: async (consultaId, dadosConsulta) => {
     try {
-      const url = endpoints.clinica.consulta.editar(consultaId);
-      const response = await api.put(url, dadosConsulta);
+      // PUT /consultas/editar: o id vai no corpo, como nas demais entidades
+      const response = await api.put(endpoints.clinica.consulta.editar, {
+        ...dadosConsulta,
+        id: consultaId,
+      });
       return response.data; // PUT retorna NoContent, mas podemos retornar o corpo da resposta se houver
     } catch (error) {
       console.error(`Erro ao editar consulta ${consultaId}:`, error);

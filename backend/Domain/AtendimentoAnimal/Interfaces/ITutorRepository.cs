@@ -11,6 +11,7 @@ namespace backend.Domain.AtendimentoAnimal.Interfaces
         void RemoveAnimalLinks(IEnumerable<TutorAnimal> links);
 
         Task<bool> AllTutorsExistInClinicAsync(List<int> tutoresIds, int clinicaId);
+        Task<bool> AllTutorsActiveAsync(List<int> tutoresIds, int clinicaId);
         Task<IEnumerable<Tutor>> GetAllByClinicIdWithIncludesAsync(int clinicaId);
         Task<Tutor?> GetByIdAndClinicIdAsync(int tutorId, int clinicaId);
         Task<bool> HasConsultasAsync(int tutorId);

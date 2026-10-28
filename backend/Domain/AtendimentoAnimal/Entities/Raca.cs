@@ -37,6 +37,13 @@ namespace backend.Domain.AtendimentoAnimal.Entities
 
         public CategoriaMetabolica CategoriaMetabolica { get; set; } = CategoriaMetabolica.Padrao;
 
+        public DateTime DataCadastro { get; set; }
+        public bool IsAtivo { get; set; } = true;
+        public DateTime? DataDesativacao { get; set; }
+
+        [JsonIgnore]
+        public ICollection<RacaOcultaClinica>? OcultaEmClinicas { get; set; } // clínicas que ocultaram esta raça do sistema
+
         [NotMapped]
         public double? PesoMedioMacho => (PesoMinimoReferenciaMacho.HasValue && PesoMaximoReferenciaMacho.HasValue)
             ? (PesoMinimoReferenciaMacho.Value + PesoMaximoReferenciaMacho.Value) / 2f

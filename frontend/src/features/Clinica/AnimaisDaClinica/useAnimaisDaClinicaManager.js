@@ -6,7 +6,7 @@ import { message } from "antd";
 export const useAnimaisDaClinicaManager = () => {
   const [animais, setAnimais] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [loadingRowKey] = useState(null);
+  const [loadingRowKey, setLoadingRowKey] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Busca
@@ -111,6 +111,21 @@ export const useAnimaisDaClinicaManager = () => {
     }
   };
 
+  // Ativa/desativa o animal. Inativo continua no histórico, mas não entra em vínculos nem consultas novas.
+  const handleToggleStatus = async (animal) => {
+    setLoadingRowKey(animal.id);
+    try {
+      const novoStatus = !animal.isAtivo;
+      await animaisDaClinicaAPI.setStatus(animal.id, novoStatus);
+      message.success(`Animal ${novoStatus ? "ativado" : "desativado"} com sucesso!`);
+      await fetchAnimais();
+    } catch (error) {
+      message.error(error.message || "Falha ao alterar o status do animal.");
+    } finally {
+      setLoadingRowKey(null);
+    }
+  };
+
   const handleOpenModalDetalhes = (animal) => {
     setViewingAnimal(animal);
     setIsModalDetalhesOpen(true);
@@ -141,6 +156,7 @@ export const useAnimaisDaClinicaManager = () => {
     handleNavigateToAcompanhamento,
     handleSubmit,
     handleDelete,
+    handleToggleStatus,
     handleOpenModalDetalhes,
     handleCloseModalDetalhes,
   };
