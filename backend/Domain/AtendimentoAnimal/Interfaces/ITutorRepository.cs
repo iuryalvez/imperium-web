@@ -4,7 +4,7 @@ namespace backend.Domain.AtendimentoAnimal.Interfaces
 {
     public interface ITutorRepository
     {
-        Task<Tutor?> FindByCpfAsync(string cpf);
+        Task<bool> CpfExistsInClinicAsync(string cpf, int clinicaId, int? excludeTutorId = null);
         Task<Tutor?> GetByIdAndClinicIdWithIncludesAsync(int tutorId, int clinicaId);
 
         Task AddAnimalLinkAsync(TutorAnimal link);
@@ -12,11 +12,8 @@ namespace backend.Domain.AtendimentoAnimal.Interfaces
 
         Task<bool> AllTutorsExistInClinicAsync(List<int> tutoresIds, int clinicaId);
         Task<IEnumerable<Tutor>> GetAllByClinicIdWithIncludesAsync(int clinicaId);
-        Task<bool> IsTutorLinkedToClinicAsync(int tutorId, int clinicaId);
-        Task<TutorClinica?> GetClinicLinkAsync(int tutorId, int clinicaId);
-        Task UpdateClinicLinkAsync(TutorClinica link);
-        Task AddClinicLinkAsync(TutorClinica link);
-        void RemoveClinicLink(TutorClinica link);
+        Task<Tutor?> GetByIdAndClinicIdAsync(int tutorId, int clinicaId);
+        Task<bool> HasConsultasAsync(int tutorId);
 
         Task AddAsync(Tutor tutor);
         void Remove(Tutor tutor);

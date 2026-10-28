@@ -6,6 +6,12 @@ const colunas = [
       dataIndex: "nome",
       key: "nome",
       sorter: (a, b) => a.nome.localeCompare(b.nome),
+      // Rações do sistema são compartilhadas entre as clínicas
+      render: (nome, record) => (
+        <>
+          {nome} {record.isSistema && <Tag color="blue">Sistema</Tag>}
+        </>
+      ),
     },
     {
       title: "Espécie",

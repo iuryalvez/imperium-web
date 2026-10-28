@@ -19,7 +19,7 @@ namespace backend.Domain.GestaoClinica.Repository
             return await _context.Clinicas
                 .Include(c => c.Racoes)              // Carrega a coleção de rações
                 .Include(c => c.Consultas)           // Carrega a coleção de consultas
-                .Include(c => c.TutoresClinicas)     // Carrega a coleção de tutores
+                .Include(c => c.Tutores)             // Carrega a coleção de tutores
                 .Include(c => c.UsuariosPerfisClinicas)
                 .FirstOrDefaultAsync(c => c.Id == clinicaId);
         }
@@ -50,15 +50,15 @@ namespace backend.Domain.GestaoClinica.Repository
                     Estado = c.Estado,
                     Uf = c.Uf,
                     TotalUsuarios = c.UsuariosPerfisClinicas != null ? c.UsuariosPerfisClinicas.Count() : 0,
-                    TotalAnimais = c.AnimaisClinicas != null ? c.AnimaisClinicas.Count() : 0,
-                    TotalTutores = c.TutoresClinicas != null ? c.TutoresClinicas.Count() : 0,
+                    TotalAnimais = c.Animais != null ? c.Animais.Count() : 0,
+                    TotalTutores = c.Tutores != null ? c.Tutores.Count() : 0,
                     TotalRacas = c.Racas != null ? c.Racas.Count() : 0,
                     TotalRacoes = c.Racoes != null ? c.Racoes.Count() : 0,
                     TotalConsultas = c.Consultas != null ? c.Consultas.Count() : 0,
                     // Counts reports by checking if the 1:1 consultation relation exists
                     TotalAvaliacoes= c.Consultas != null ? c.Consultas.Count(con => con.Avaliacao != null) : 0,
                     // Counts trackings by checking the 1:1 animal relation
-                    TotalAcompanhamentos = c.AnimaisClinicas != null ? c.AnimaisClinicas.Count(ac => ac.Animal != null && ac.Animal.Acompanhamento != null) : 0
+                    TotalAcompanhamentos = c.Animais != null ? c.Animais.Count(a => a.Acompanhamento != null) : 0
                 })
                 .FirstOrDefaultAsync();
         }

@@ -23,6 +23,7 @@ namespace backend.Domain.AtendimentoAnimal.Interfaces
         Task<ServiceResult> UpdateEntityAsync(Animal animal);
         // Task<ServiceResult> AtualizarEstadoPeloAvaliacaoAsync(int animalId, int clinicaId, UpsertAvaliacaoDto dadosAvaliacao);
         Task<ServiceResult> DesativarVinculoAnimalAsync(int animalId, int clinicaId);
+        Task<ServiceResult> DeleteAsync(int animalId, int clinicaId);
 
         // --- Método de Validação ---
         Task<bool> AnimalExisteNaClinicaAsync(int animalId, int clinicaId); // Manter este retorno bool é aceitável para validações rápidas.

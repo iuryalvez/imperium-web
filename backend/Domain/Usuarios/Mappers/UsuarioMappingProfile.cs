@@ -15,8 +15,6 @@ namespace backend.Domain.Usuarios.Mappers
 
             CreateMap<EditarUsuarioSistemaDto, Usuario>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            CreateMap<EditarUsuarioClinicaDto, Usuario>()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<Usuario, GetUsuariosSistemaDto>()
             .ForMember(dest => dest.CompositeKey, opt => opt.MapFrom(src => $"admin-{src.Id}"))

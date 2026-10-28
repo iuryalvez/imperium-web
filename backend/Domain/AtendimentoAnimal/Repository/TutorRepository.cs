@@ -14,9 +14,11 @@ namespace backend.Domain.AtendimentoAnimal.Repository
             _context = context;
         }
 
-        public async Task<Tutor?> FindByCpfAsync(string cpf)
+        public async Task<bool> CpfExistsInClinicAsync(string cpf, int clinicaId, int? excludeTutorId = null)
         {
-            return await _context.Tutores.FirstOrDefaultAsync(t => t.Cpf == cpf);
+            return await _context.Tutores
+                .AsNoTracking()
+                .AnyAsync(t => t.ClinicaId == clinicaId && t.Cpf == cpf && (excludeTutorId == null || t.Id != excludeTutorId));
         }
 
         public async Task<Tutor?> GetByIdAndClinicIdWithIncludesAsync(int tutorId, int clinicaId)
@@ -25,7 +27,7 @@ namespace backend.Domain.AtendimentoAnimal.Repository
                 // Inclui a coleção de vínculos com animais na consulta
                 .Include(t => t.TutoresAnimais)
                 // Garante que o tutor pertence à clínica especificada
-                .Where(t => t.TutoresClinicas.Any(tc => tc.ClinicaId == clinicaId))
+                .Where(t => t.ClinicaId == clinicaId)
                 // Busca o tutor específico pelo ID
                 .FirstOrDefaultAsync(t => t.Id == tutorId);
         }
@@ -37,8 +39,8 @@ namespace backend.Domain.AtendimentoAnimal.Repository
                 .Include(t => t.TutoresAnimais)
                     // A partir da junção, inclui a entidade Animal
                     .ThenInclude(ta => ta.Animal)
-                // Filtra apenas os tutores que têm um vínculo com a clínica especificada
-                .Where(t => t.TutoresClinicas.Any(tc => tc.ClinicaId == clinicaId))
+                // Filtra apenas os tutores da clínica especificada
+                .Where(t => t.ClinicaId == clinicaId)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -50,10 +52,10 @@ namespace backend.Domain.AtendimentoAnimal.Repository
                 return true; // Se não há IDs para validar, a validação passa.
             }
 
-            // Conta quantos dos IDs fornecidos existem na tabela de vínculo Tutor-Clínica
-            var validTutorsCount = await _context.TutoresClinicas
+            // Conta quantos dos IDs fornecidos pertencem à clínica
+            var validTutorsCount = await _context.Tutores
                 .AsNoTracking()
-                .CountAsync(tc => tc.ClinicaId == clinicaId && tutoresIds.Contains(tc.TutorId));
+                .CountAsync(t => t.ClinicaId == clinicaId && tutoresIds.Contains(t.Id));
 
             // A validação é bem-sucedida se a contagem de tutores válidos for igual ao número
             // de IDs únicos que recebemos.
@@ -70,33 +72,17 @@ namespace backend.Domain.AtendimentoAnimal.Repository
             _context.Tutores.Remove(tutor);
         }
 
-        public async Task AddClinicLinkAsync(TutorClinica link)
+        public async Task<Tutor?> GetByIdAndClinicIdAsync(int tutorId, int clinicaId)
         {
-            await _context.TutoresClinicas.AddAsync(link);
+            return await _context.Tutores
+                .FirstOrDefaultAsync(t => t.Id == tutorId && t.ClinicaId == clinicaId);
         }
 
-        public async Task<TutorClinica?> GetClinicLinkAsync(int tutorId, int clinicaId)
+        public async Task<bool> HasConsultasAsync(int tutorId)
         {
-            return await _context.TutoresClinicas
-                .FirstOrDefaultAsync(tc => tc.TutorId == tutorId && tc.ClinicaId == clinicaId);
-        }
-
-        public async Task UpdateClinicLinkAsync(TutorClinica link)
-        {
-            _context.TutoresClinicas.Update(link);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task<bool> IsTutorLinkedToClinicAsync(int tutorId, int clinicaId)
-        {
-            return await _context.TutoresClinicas
+            return await _context.Consultas
                 .AsNoTracking()
-                .AnyAsync(tc => tc.TutorId == tutorId && tc.ClinicaId == clinicaId);
-        }
-
-        public void RemoveClinicLink(TutorClinica link)
-        {
-            _context.TutoresClinicas.Remove(link);
+                .AnyAsync(c => c.TutorId == tutorId);
         }
 
         public async Task AddAnimalLinkAsync(TutorAnimal link)

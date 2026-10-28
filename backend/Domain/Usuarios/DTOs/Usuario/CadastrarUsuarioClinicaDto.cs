@@ -21,9 +21,6 @@ namespace backend.Domain.Usuarios.DTOs.Usuario
         [Required(ErrorMessage = "O status se é administrador ou não é obrigatório.")]
         public bool IsAtivo { get; set; }
 
-        [Required(ErrorMessage = "A clínica vinculada é obrigatória.")]
-        public int ClinicaId { get; set; }
-
         [Required(ErrorMessage = "Os perfis são obrigatórios.")]
         public List<string> Perfis { get; set; }
     }

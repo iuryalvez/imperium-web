@@ -150,31 +150,19 @@ namespace backend.Domain.AtendimentoAnimal.Services
             await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // Lógica para reutilizar tutor existente ou criar um novo
-                var tutor = await _tutorRepository.FindByCpfAsync(dto.Cpf);
-                if (tutor == null)
-                {
-                    // Tutor não existe no sistema, cria um novo
-                    tutor = _mapper.Map<Tutor>(dto);
-                    tutor.DataCadastro = DateTime.UtcNow;
-                    await _tutorRepository.AddAsync(tutor);
-                    await _tutorRepository.SaveChangesAsync(); // Salva para obter o ID
-                }
-                else
-                {
-                    // Tutor já existe, apenas atualiza seus dados com as novas informações
-                    _mapper.Map(dto, tutor);
-                }
-
-                // Verifica se este tutor já está vinculado a esta clínica
-                if (await _tutorRepository.IsTutorLinkedToClinicAsync(tutor.Id, clinicaId))
+                // O tutor pertence à clínica: o CPF só é verificado dentro da clínica atual
+                if (await _tutorRepository.CpfExistsInClinicAsync(dto.Cpf, clinicaId))
                 {
                     await transaction.RollbackAsync();
-                    return new ServiceResult { Succeeded = false, Message = "Este tutor (CPF) já está cadastrado nesta clínica." };
+                    return new ServiceResult { Succeeded = false, Message = "CPF já cadastrado nesta clínica." };
                 }
 
-                // Cria o vínculo com a clínica
-                await _tutorRepository.AddClinicLinkAsync(new TutorClinica { TutorId = tutor.Id, ClinicaId = clinicaId });
+                var tutor = _mapper.Map<Tutor>(dto);
+                tutor.ClinicaId = clinicaId;
+                tutor.DataCadastro = DateTime.UtcNow;
+                tutor.IsAtivo = true;
+                await _tutorRepository.AddAsync(tutor);
+                await _tutorRepository.SaveChangesAsync(); // Salva para obter o ID
 
                 // Lógica de vínculo com animais (se fornecido)
                 // Verifique se o nome da propriedade no seu DTO é AnimalIds (plural) para dar match com o JSON
@@ -205,7 +193,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                // Logar 'ex'
+                _logger.LogError(ex, "Erro ao cadastrar tutor na clínica {ClinicaId}.", clinicaId);
                 return new ServiceResult { Succeeded = false, Message = "Erro ao cadastrar tutor." };
             }
         }
@@ -220,6 +208,13 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 {
                     await transaction.RollbackAsync();
                     return new ServiceResult { Succeeded = false, Message = $"Tutor com ID {dto.Id} não encontrado nesta clínica." };
+                }
+
+                if (!string.IsNullOrWhiteSpace(dto.Cpf) && dto.Cpf != tutor.Cpf
+                    && await _tutorRepository.CpfExistsInClinicAsync(dto.Cpf, clinicaId, tutor.Id))
+                {
+                    await transaction.RollbackAsync();
+                    return new ServiceResult { Succeeded = false, Message = "CPF já cadastrado nesta clínica." };
                 }
 
                 // 1. MAPEAMENTO AUTOMÁTICO
@@ -265,32 +260,27 @@ namespace backend.Domain.AtendimentoAnimal.Services
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                // Logar o erro 'ex'
+                _logger.LogError(ex, "Erro ao atualizar o tutor {TutorId} na clínica {ClinicaId}.", dto.Id, clinicaId);
                 return new ServiceResult { Succeeded = false, Message = "Ocorreu um erro interno ao atualizar o tutor." };
             }
         }
 
         public async Task<ServiceResult> SetTutorStatusAsync(int tutorId, int clinicaId, bool ativo)
         {
-            var link = await _tutorRepository.GetClinicLinkAsync(tutorId, clinicaId);
-            if (link == null)
+            var tutor = await _tutorRepository.GetByIdAndClinicIdAsync(tutorId, clinicaId);
+            if (tutor == null)
             {
                 return new ServiceResult
                 {
                     Succeeded = false,
-                    Message = "Tutor não vinculado a esta clínica."
+                    Message = "Tutor não encontrado nesta clínica."
                 };
             }
 
-            link.IsAtivo = ativo;
-            if (ativo)
-            {
-                link.DataAssociacao = DateTime.UtcNow;
-                link.DataDesativacao = null;
-            }
-            else link.DataDesativacao = DateTime.UtcNow;
+            tutor.IsAtivo = ativo;
+            tutor.DataDesativacao = ativo ? null : DateTime.UtcNow;
 
-            await _tutorRepository.UpdateClinicLinkAsync(link);
+            await _tutorRepository.SaveChangesAsync();
 
             return new ServiceResult
             {
@@ -308,33 +298,25 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 if (tutor == null)
                     return new ServiceResult { Succeeded = false, Message = "Tutor não encontrado nesta clínica." };
 
-                // Remove todos os vínculos Tutor-Animal na clínica atual
-                var vinculosAnimaisParaRemover = tutor.TutoresAnimais
-                    .Where(ta => ta.Animal.AnimaisClinicas.Any(ac => ac.ClinicaId == clinicaId))
-                    .ToList();
-                if (vinculosAnimaisParaRemover.Any())
-                {
-                    _tutorRepository.RemoveAnimalLinks(vinculosAnimaisParaRemover);
-                }
+                // Consultas guardam o histórico do tutor: nesse caso ele deve ser desativado, não excluído
+                if (await _tutorRepository.HasConsultasAsync(tutor.Id))
+                    return new ServiceResult { Succeeded = false, Message = "Este tutor possui consultas registradas e não pode ser excluído. Desative-o." };
 
-                // Remove o vínculo Tutor-Clínica
-                var vinculoClinica = tutor.TutoresClinicas.First(tc => tc.ClinicaId == clinicaId);
-                _tutorRepository.RemoveClinicLink(vinculoClinica);
-
-                // Se o tutor não tiver mais nenhum vínculo com NENHUMA clínica, remove o tutor.
-                if (tutor.TutoresClinicas.Count <= 1)
+                // Remove os vínculos Tutor-Animal (todos da mesma clínica) e o tutor
+                if (tutor.TutoresAnimais != null && tutor.TutoresAnimais.Any())
                 {
-                    _tutorRepository.Remove(tutor);
+                    _tutorRepository.RemoveAnimalLinks(tutor.TutoresAnimais);
                 }
+                _tutorRepository.Remove(tutor);
 
                 await _tutorRepository.SaveChangesAsync();
                 await transaction.CommitAsync();
-                return new ServiceResult { Succeeded = true, Message = "Tutor removido da clínica com sucesso." };
+                return new ServiceResult { Succeeded = true, Message = "Tutor removido com sucesso." };
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                // Logar 'ex'
+                _logger.LogError(ex, "Erro ao remover o tutor {TutorId} da clínica {ClinicaId}.", tutorId, clinicaId);
                 return new ServiceResult { Succeeded = false, Message = "Erro ao remover tutor." };
             }
         }

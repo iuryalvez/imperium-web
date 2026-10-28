@@ -24,5 +24,6 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Animal
         public int? SemanaGestacao { get; set; }
         public List<TutorInfoSimplesDto>? Tutores { get; set; }
         public DateTime DataCadastro { get; set; }
+        public bool IsAtivo { get; set; }
     }
 }

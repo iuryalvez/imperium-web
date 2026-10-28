@@ -164,9 +164,13 @@ namespace backend.Domain.Usuarios.Services
                 return new ServiceResult { Succeeded = false, Message = "A clínica especificada não existe." };
             }
 
-            if (await _usuarioRepository.EmailExistsAsync(dto.Email))
+            // O usuário é global (e-mail único no sistema). Se o e-mail já existe, apenas vincula o usuário
+            // existente a esta clínica com os perfis escolhidos; os demais campos do DTO são ignorados
+            // (nome, CPF, telefone e senha só são alterados pelo próprio usuário ou pelo admin do sistema).
+            var usuarioExistente = await _usuarioRepository.GetUserByEmailAsync(dto.Email);
+            if (usuarioExistente != null)
             {
-                return new ServiceResult { Succeeded = false, Message = "O e-mail já está em uso." };
+                return await VincularUsuarioExistenteAsync(usuarioExistente, dto.Perfis, clinicaId);
             }
 
             // Inicia a transação a partir do repositório/contexto
@@ -225,6 +229,38 @@ namespace backend.Domain.Usuarios.Services
                 _logger.LogError(ex, "Erro inesperado ao cadastrar usuário na clínica.");
                 return new ServiceResult { Succeeded = false, Message = "Ocorreu um erro no servidor." };
             }
+        }
+
+        /// <summary>
+        /// Vincula um usuário que já existe no sistema à clínica, criando apenas o UsuarioPerfilClinica.
+        /// </summary>
+        private async Task<ServiceResult> VincularUsuarioExistenteAsync(Usuario usuario, List<string> perfis, int clinicaId)
+        {
+            if (usuario.IsAdmin)
+            {
+                return new ServiceResult { Succeeded = false, Message = "Este e-mail pertence a um administrador do sistema e não pode ser vinculado à clínica." };
+            }
+
+            if (await _usuarioRepository.IsUserLinkedToClinicAsync(usuario.Id, clinicaId))
+            {
+                return new ServiceResult { Succeeded = false, Message = "Este usuário já está vinculado a esta clínica." };
+            }
+
+            await _usuarioRepository.AddUserClinicLinkAsync(new UsuarioPerfilClinica
+            {
+                UsuarioId = usuario.Id,
+                ClinicaId = clinicaId,
+                Perfis = perfis
+            });
+            await _usuarioRepository.SaveChangesAsync();
+
+            _logger.LogInformation("Usuário existente {UsuarioId} vinculado à clínica {ClinicaId}.", usuario.Id, clinicaId);
+            return new ServiceResult
+            {
+                Succeeded = true,
+                Message = "Este e-mail já tinha cadastro no sistema. O usuário foi vinculado à clínica com os perfis escolhidos; os dados pessoais e a senha dele não foram alterados.",
+                Data = new { UsuarioId = usuario.Id, Vinculado = true }
+            };
         }
 
         public async Task<ServiceResult> SetUserActivationStatusAsync(SetUserStatusDto dto)
@@ -399,56 +435,33 @@ namespace backend.Domain.Usuarios.Services
             return new ServiceResult { Succeeded = true, Message = "Usuário atualizado com sucesso." };
         }
 
-        public async Task<ServiceResult> UpdateUsuarioClinicaAsync(EditarUsuarioClinicaDto dto)
+        /// <summary>
+        /// Edição feita pela clínica: altera apenas o vínculo (perfis). Dados pessoais e senha do usuário
+        /// só podem ser alterados pelo próprio usuário (Meu Perfil) ou pelo admin do sistema.
+        /// </summary>
+        public async Task<ServiceResult> UpdateUsuarioClinicaAsync(EditarUsuarioClinicaDto dto, int clinicaId)
         {
-            await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 var vinculo = await _usuarioRepository.GetUserClinicLinkByIdAsync(dto.UpcId);
-                if (vinculo?.Usuario == null)
+                if (vinculo?.Usuario == null || vinculo.ClinicaId != clinicaId)
                 {
-                    await transaction.RollbackAsync();
-                    return new ServiceResult { Succeeded = false, Message = "Vínculo do usuário não encontrado." };
+                    return new ServiceResult { Succeeded = false, Message = "Vínculo do usuário não encontrado nesta clínica." };
                 }
 
-                var usuario = vinculo.Usuario;
-
-                // A validação de email duplicado deve ser no escopo da clínica
-                if (await _usuarioRepository.EmailExistsInClinicForAnotherUserAsync(dto.Email, vinculo.ClinicaId, usuario.Id))
+                if (dto.Perfis == null || !dto.Perfis.Any())
                 {
-                    await transaction.RollbackAsync();
-                    return new ServiceResult { Succeeded = false, Message = "O e-mail informado já está em uso nesta clínica." };
+                    return new ServiceResult { Succeeded = false, Message = "Pelo menos um perfil deve ser selecionado." };
                 }
 
-                _mapper.Map(dto, usuario);
-
-                // ATUALIZAÇÃO EXPLÍCITA: Mapeia manualmente o campo que pertence à entidade de vínculo.
-                // Verificamos se o DTO contém a lista de perfis para não apagar perfis existentes
-                // caso o frontend não envie a lista (embora devesse enviar uma lista vazia para limpar).
-                if (dto.Perfis != null)
-                {
-                    vinculo.Perfis = dto.Perfis;
-                }
-
-                // Altera a senha, se uma nova foi fornecida
-                if (!string.IsNullOrWhiteSpace(dto.Senha))
-                {
-                    var passwordResult = await _usuarioRepository.UpdateUserPasswordAsync(usuario, dto.Senha);
-                    if (!passwordResult.Succeeded)
-                    {
-                        await transaction.RollbackAsync();
-                        return new ServiceResult { Succeeded = false, Errors = passwordResult.Errors.Select(e => e.Description).ToList() };
-                    }
-                }
+                vinculo.Perfis = dto.Perfis;
 
                 await _usuarioRepository.SaveChangesAsync();
-                await transaction.CommitAsync();
-                return new ServiceResult { Succeeded = true, Message = "Usuário atualizado com sucesso." };
+                return new ServiceResult { Succeeded = true, Message = "Perfis do usuário atualizados com sucesso." };
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
-                // Logar erro 'ex'
+                _logger.LogError(ex, "Erro ao atualizar o vínculo {UpcId} da clínica {ClinicaId}.", dto.UpcId, clinicaId);
                 return new ServiceResult { Succeeded = false, Message = "Erro inesperado ao atualizar usuário." };
             }
         }

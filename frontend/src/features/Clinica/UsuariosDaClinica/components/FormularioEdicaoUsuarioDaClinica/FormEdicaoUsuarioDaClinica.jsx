@@ -1,16 +1,12 @@
 import React from "react";
-import { Form, Input, Checkbox, Row, Col, Divider, Switch } from "antd";
+import { Form, Input, Checkbox, Row, Col, Divider, Switch, Alert } from "antd";
 import { CpfMaskInput, TelefoneMaskInput } from "../../../../../utils/masks";
-import { validarCPF } from "../../../../../utils/validators";
 
 const FormEdicaoUsuarioDaClinica = ({
   onFinish,
   initialValues,
 }) => {
   const [form] = Form.useForm();
-
-  // Observa o campo "senha" em tempo real para exibir a confirmação dinamicamente
-  const senhaDigitada = Form.useWatch("senha", form);
 
   const perfisOptions = [
     { label: "Gestor", value: "GESTOR" },
@@ -42,56 +38,43 @@ const FormEdicaoUsuarioDaClinica = ({
           <Divider orientation="left" plain>
             Dados Pessoais
           </Divider>
+          <Alert
+            type="info"
+            showIcon
+            className="mb-4"
+            message="Os dados pessoais e a senha só podem ser alterados pelo próprio usuário (Meu Perfil) ou pelo administrador do sistema."
+          />
           <Form.Item
             name="nome"
             label="Nome Completo"
-            rules={[{ required: true, message: "O nome é obrigatório." }]}
           >
-            <Input />
+            <Input disabled />
           </Form.Item>
           <Form.Item
             name="email"
             label="E-mail"
-            rules={[
-              {
-                required: true,
-                type: "email",
-                message: "Insira um e-mail válido.",
-              },
-            ]}
           >
-            <Input />
+            <Input disabled />
           </Form.Item>
           <Form.Item
             label="CPF"
             name="cpf"
-            rules={[
-              { required: true, message: "O CPF é obrigatório." },
-              () => ({
-                validator(_, value) {
-                  if (!value || validarCPF(value)) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject(new Error("CPF inválido."));
-                },
-              }),
-            ]}
           >
-            <CpfMaskInput />
+            <CpfMaskInput disabled />
           </Form.Item>
           <Form.Item label="Formação" name="formacao">
-            <Input placeholder="Ex: Médico Veterinário" />
+            <Input disabled />
           </Form.Item>
 
           <Divider orientation="left" plain>
             Contato
           </Divider>
           <Form.Item label="Telefone" name="telefone">
-            <TelefoneMaskInput />
+            <TelefoneMaskInput disabled />
           </Form.Item>
 
           <Form.Item label="WhatsApp" name="whatsapp">
-            <TelefoneMaskInput />
+            <TelefoneMaskInput disabled />
           </Form.Item>
         </Col>
 
@@ -122,66 +105,6 @@ const FormEdicaoUsuarioDaClinica = ({
             <Switch checkedChildren="ATIVO" unCheckedChildren="INATIVO" />
           </Form.Item>
 
-          <Divider orientation="left" plain>
-            Alterar Senha (Opcional)
-          </Divider>
-
-          <Form.Item
-            name="senha"
-            label="Nova Senha"
-            hasFeedback
-            // extra="Deixe em branco caso não queira alterar a senha atual."
-            rules={[
-              // Regras ignoradas pelo Ant Design se o campo estiver vazio
-              { min: 8, message: "A senha deve ter no mínimo 8 caracteres." },
-              {
-                pattern: /[A-Z]/,
-                message: "Deve conter pelo menos uma letra maiúscula.",
-              },
-              {
-                pattern: /[a-z]/,
-                message: "Deve conter pelo menos uma letra minúscula.",
-              },
-              {
-                pattern: /[0-9]/,
-                message: "Deve conter pelo menos um número.",
-              },
-              {
-                pattern: /[^A-Za-z0-9]/,
-                message: "Deve conter pelo menos um caractere especial.",
-              },
-            ]}
-          >
-            <Input.Password placeholder="Deixe em branco para não alterar" />
-          </Form.Item>
-
-          {/* Renderiza o confirmar senha APENAS se algo for digitado no campo senha */}
-          {senhaDigitada && (
-            <Form.Item
-              name="confirmarSenha"
-              label="Confirmar Nova Senha"
-              dependencies={["senha"]}
-              hasFeedback
-              rules={[
-                {
-                  required: true,
-                  message: "A confirmação da nova senha é obrigatória.",
-                },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || getFieldValue("senha") === value) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(
-                      new Error("As senhas não coincidem."),
-                    );
-                  },
-                }),
-              ]}
-            >
-              <Input.Password placeholder="Repita a nova senha" />
-            </Form.Item>
-          )}
         </Col>
       </Row>
     </Form>

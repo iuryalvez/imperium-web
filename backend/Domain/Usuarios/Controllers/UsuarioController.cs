@@ -124,9 +124,11 @@ namespace backend.Domain.Usuarios.Controllers
         [Authorize(Policy = "GerenciaClinica")]
         public async Task<IActionResult> EditarUsuarioClinica([FromBody] EditarUsuarioClinicaDto dto)
         {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId <= 0) return Forbid();
             _logger.LogInformation("Recebida requisição para editar usuário (Vínculo ID: {UpcId})", dto.UpcId);
 
-            var result = await _usuarioService.UpdateUsuarioClinicaAsync(dto);
+            var result = await _usuarioService.UpdateUsuarioClinicaAsync(dto, clinicaId);
 
             if (!result.Succeeded)
             {

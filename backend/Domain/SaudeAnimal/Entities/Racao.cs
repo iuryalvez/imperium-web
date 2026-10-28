@@ -11,7 +11,7 @@ namespace backend.Domain.SaudeAnimal.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public int ClinicaId { get; set; }
+        public int? ClinicaId { get; set; } // null = ração do sistema (compartilhada entre as clínicas)
 
         [ForeignKey("ClinicaId")]
         public Clinica? Clinica { get; set; }

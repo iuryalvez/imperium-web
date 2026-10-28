@@ -23,8 +23,17 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
                         }))
                 );
 
-            CreateMap<CadastrarTutorClinicaDto, Tutor>();
+            // ClinicaId, Id e status nunca vêm do DTO: são definidos pelo service a partir do token
+            CreateMap<CadastrarTutorClinicaDto, Tutor>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.ClinicaId, opt => opt.Ignore())
+                .ForMember(dest => dest.IsAtivo, opt => opt.Ignore())
+                .ForMember(dest => dest.DataDesativacao, opt => opt.Ignore());
             CreateMap<EditarTutorClinicaDto, Tutor>()
+                .ForMember(dest => dest.ClinicaId, opt => opt.Ignore())
+                .ForMember(dest => dest.IsAtivo, opt => opt.Ignore())
+                .ForMember(dest => dest.DataDesativacao, opt => opt.Ignore())
+                .ForMember(dest => dest.DataCadastro, opt => opt.Ignore())
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }
     }

@@ -27,8 +27,6 @@ namespace backend.Infra.Data
         public DbSet<Tutor> Tutores { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<UsuarioPerfilClinica> UsuariosPerfisClinicas { get; set; }
-        public DbSet<TutorClinica> TutoresClinicas { get; set; }
-        public DbSet<AnimalClinica> AnimaisClinicas { get; set; }
         public DbSet<TutorAnimal> TutoresAnimais { get; set; }
         public DbSet<Raca> Racas { get; set; }
 
@@ -59,15 +57,7 @@ namespace backend.Infra.Data
                 .Property(entidade => entidade.Id)
                 .ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<AnimalClinica>()
-                .Property(entidade => entidade.Id)
-                .ValueGeneratedOnAdd();
-
             modelBuilder.Entity<Tutor>()
-                .Property(entidade => entidade.Id)
-                .ValueGeneratedOnAdd();
-
-            modelBuilder.Entity<TutorClinica>()
                 .Property(entidade => entidade.Id)
                 .ValueGeneratedOnAdd();
 
@@ -131,13 +121,6 @@ namespace backend.Infra.Data
                 .Property(d => d.Status)
                 .HasDefaultValue(backend.Domain.SaudeAnimal.Enums.StatusDieta.Aberta);
 
-            // Animal 1:N AnimalClinica
-            modelBuilder.Entity<Animal>()
-                .HasMany(a => a.AnimaisClinicas)
-                .WithOne(ac => ac.Animal)
-                .HasForeignKey(ac => ac.AnimalId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             // Animal 1:N TutorAnimal
             modelBuilder.Entity<Animal>()
                 .HasMany(a => a.TutoresAnimais)
@@ -180,13 +163,24 @@ namespace backend.Infra.Data
                 .HasForeignKey(con => con.ClinicaId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Clinica 1:N TutorClinica
+            // Clinica 1:N Tutor (o tutor pertence a uma única clínica)
             modelBuilder.Entity<Clinica>()
-                .HasMany(c => c.TutoresClinicas)
-                .WithOne(tc => tc.Clinica)
-                .HasForeignKey(tc => tc.ClinicaId)
+                .HasMany(c => c.Tutores)
+                .WithOne(t => t.Clinica)
+                .HasForeignKey(t => t.ClinicaId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // CPF do tutor é único dentro da clínica
+            modelBuilder.Entity<Tutor>()
+                .HasIndex(t => new { t.ClinicaId, t.Cpf })
+                .IsUnique();
+
+            // Clinica 1:N Animal (o animal pertence a uma única clínica)
+            modelBuilder.Entity<Clinica>()
+                .HasMany(c => c.Animais)
+                .WithOne(a => a.Clinica)
+                .HasForeignKey(a => a.ClinicaId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Clinica 1:N UsuarioPerfilClinica
             modelBuilder.Entity<Clinica>()
@@ -228,13 +222,6 @@ namespace backend.Infra.Data
                 .HasMany(t => t.TutoresAnimais)
                 .WithOne(ta => ta.Tutor)
                 .HasForeignKey(ta => ta.TutorId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Tutor 1:N TutorClinica
-            modelBuilder.Entity<Tutor>()
-                .HasMany(t => t.TutoresClinicas)
-                .WithOne(tc => tc.Tutor)
-                .HasForeignKey(tc => tc.TutorId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Usuario 1:N Consulta

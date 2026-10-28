@@ -52,13 +52,19 @@ export const useUsuariosDaClinicaManager = () => {
     let successMessage = "";
     try {
       if (editingUser) {
-        // Lógica de Edição
-        await usuariosDaClinicaAPI.editar({ ...editingUser, ...values });
-        successMessage = "Usuário atualizado com sucesso!";
+        // Lógica de Edição: a clínica só altera os perfis do vínculo.
+        // Dados pessoais e senha são editados pelo próprio usuário (Meu Perfil) ou pelo admin do sistema.
+        await usuariosDaClinicaAPI.editar({
+          upcId: editingUser.upcId,
+          perfis: values.perfis,
+        });
+        successMessage = "Perfis do usuário atualizados com sucesso!";
       } else {
-        // Lógica de Cadastro
-        await usuariosDaClinicaAPI.cadastrar(values);
-        successMessage = "Usuário cadastrado com sucesso!";
+        // Lógica de Cadastro: se o e-mail já existe no sistema, o backend só vincula o usuário à clínica
+        const resultado = await usuariosDaClinicaAPI.cadastrar(values);
+        successMessage = resultado?.data?.vinculado
+          ? resultado.message
+          : "Usuário cadastrado com sucesso!";
       }
       message.success(successMessage);
       handleCloseModal();

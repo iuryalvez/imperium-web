@@ -95,31 +95,6 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tutores",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Nome = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Cpf = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: false),
-                    Telefone = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
-                    Whatsapp = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
-                    Email = table.Column<string>(type: "text", nullable: true),
-                    DataCadastro = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Cep = table.Column<string>(type: "character varying(8)", maxLength: 8, nullable: true),
-                    Logradouro = table.Column<string>(type: "text", nullable: true),
-                    Complemento = table.Column<string>(type: "text", nullable: true),
-                    Bairro = table.Column<string>(type: "text", nullable: true),
-                    Cidade = table.Column<string>(type: "text", nullable: true),
-                    Estado = table.Column<string>(type: "text", nullable: true),
-                    Uf = table.Column<string>(type: "character varying(2)", maxLength: 2, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Tutores", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -239,7 +214,8 @@ namespace backend.Migrations
                     PesoMinimoReferenciaMacho = table.Column<double>(type: "double precision", nullable: true),
                     PesoMaximoReferenciaMacho = table.Column<double>(type: "double precision", nullable: true),
                     Referencia = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    ClinicaId = table.Column<int>(type: "integer", nullable: true)
+                    ClinicaId = table.Column<int>(type: "integer", nullable: true),
+                    CategoriaMetabolica = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -258,7 +234,7 @@ namespace backend.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ClinicaId = table.Column<int>(type: "integer", nullable: false),
+                    ClinicaId = table.Column<int>(type: "integer", nullable: true),
                     Especie = table.Column<int>(type: "integer", nullable: false),
                     Nome = table.Column<string>(type: "text", nullable: false),
                     IsPorcentagem = table.Column<bool>(type: "boolean", nullable: false),
@@ -284,6 +260,40 @@ namespace backend.Migrations
                     table.PrimaryKey("PK_Racoes", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Racoes_Clinicas_ClinicaId",
+                        column: x => x.ClinicaId,
+                        principalTable: "Clinicas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Tutores",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ClinicaId = table.Column<int>(type: "integer", nullable: false),
+                    Nome = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Cpf = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: false),
+                    Telefone = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
+                    Whatsapp = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
+                    Email = table.Column<string>(type: "text", nullable: true),
+                    DataCadastro = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsAtivo = table.Column<bool>(type: "boolean", nullable: false),
+                    DataDesativacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Cep = table.Column<string>(type: "character varying(8)", maxLength: 8, nullable: true),
+                    Logradouro = table.Column<string>(type: "text", nullable: true),
+                    Complemento = table.Column<string>(type: "text", nullable: true),
+                    Bairro = table.Column<string>(type: "text", nullable: true),
+                    Cidade = table.Column<string>(type: "text", nullable: true),
+                    Estado = table.Column<string>(type: "text", nullable: true),
+                    Uf = table.Column<string>(type: "character varying(2)", maxLength: 2, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tutores", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Tutores_Clinicas_ClinicaId",
                         column: x => x.ClinicaId,
                         principalTable: "Clinicas",
                         principalColumn: "Id",
@@ -318,46 +328,20 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TutoresClinicas",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TutorId = table.Column<int>(type: "integer", nullable: false),
-                    ClinicaId = table.Column<int>(type: "integer", nullable: false),
-                    DataAssociacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    DataDesativacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    IsAtivo = table.Column<bool>(type: "boolean", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TutoresClinicas", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TutoresClinicas_Clinicas_ClinicaId",
-                        column: x => x.ClinicaId,
-                        principalTable: "Clinicas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TutoresClinicas_Tutores_TutorId",
-                        column: x => x.TutorId,
-                        principalTable: "Tutores",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Animais",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ClinicaId = table.Column<int>(type: "integer", nullable: false),
                     Nome = table.Column<string>(type: "text", nullable: true),
                     Especie = table.Column<int>(type: "integer", nullable: false),
                     RacaId = table.Column<int>(type: "integer", nullable: true),
                     Nascimento = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     DataCadastro = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     DataModificado = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsAtivo = table.Column<bool>(type: "boolean", nullable: false),
+                    DataDesativacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Sexo = table.Column<int>(type: "integer", nullable: false),
                     Peso = table.Column<double>(type: "double precision", nullable: true),
                     PesoMinimo = table.Column<double>(type: "double precision", nullable: true),
@@ -376,6 +360,12 @@ namespace backend.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Animais", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Animais_Clinicas_ClinicaId",
+                        column: x => x.ClinicaId,
+                        principalTable: "Clinicas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Animais_Racas_RacaId",
                         column: x => x.RacaId,
@@ -406,35 +396,6 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AnimaisClinicas",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    AnimalId = table.Column<int>(type: "integer", nullable: false),
-                    ClinicaId = table.Column<int>(type: "integer", nullable: false),
-                    DataAssociacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    DataDesativacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    IsAtivo = table.Column<bool>(type: "boolean", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AnimaisClinicas", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AnimaisClinicas_Animais_AnimalId",
-                        column: x => x.AnimalId,
-                        principalTable: "Animais",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_AnimaisClinicas_Clinicas_ClinicaId",
-                        column: x => x.ClinicaId,
-                        principalTable: "Clinicas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Consultas",
                 columns: table => new
                 {
@@ -442,8 +403,8 @@ namespace backend.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UsuarioId = table.Column<int>(type: "integer", nullable: false),
                     ClinicaId = table.Column<int>(type: "integer", nullable: false),
-                    TutorId = table.Column<int>(type: "integer", nullable: false),
-                    TutorIsCadastrado = table.Column<bool>(type: "boolean", nullable: false),
+                    TutorId = table.Column<int>(type: "integer", nullable: true),
+                    TutorIsCadastrado = table.Column<bool>(type: "boolean", nullable: true),
                     AnimalId = table.Column<int>(type: "integer", nullable: false),
                     DataConsulta = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -504,19 +465,19 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Relatorios",
+                name: "Avaliacoes",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ConsultaId = table.Column<int>(type: "integer", nullable: false),
-                    AcompanhamentoIndividualizadoId = table.Column<int>(type: "integer", nullable: false),
+                    AcompanhamentoId = table.Column<int>(type: "integer", nullable: false),
                     UsuarioResponsavelId = table.Column<int>(type: "integer", nullable: true),
                     Idade = table.Column<int>(type: "integer", nullable: false),
                     Peso = table.Column<double>(type: "double precision", nullable: false),
                     PesoIdeal = table.Column<double>(type: "double precision", nullable: true),
-                    CondicaoCorporal = table.Column<int>(type: "integer", nullable: false),
-                    GrauAtividade = table.Column<int>(type: "integer", nullable: false),
+                    CondicaoCorporal = table.Column<int>(type: "integer", nullable: true),
+                    GrauAtividade = table.Column<int>(type: "integer", nullable: true),
                     IsGestante = table.Column<bool>(type: "boolean", nullable: false),
                     IsLactanteNumeroFilhotes = table.Column<int>(type: "integer", nullable: false),
                     SemanaLactacao = table.Column<int>(type: "integer", nullable: false),
@@ -527,21 +488,21 @@ namespace backend.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Relatorios", x => x.Id);
+                    table.PrimaryKey("PK_Avaliacoes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Relatorios_AcompanhamentosInds_AcompanhamentoIndividualizad~",
-                        column: x => x.AcompanhamentoIndividualizadoId,
+                        name: "FK_Avaliacoes_AcompanhamentosInds_AcompanhamentoId",
+                        column: x => x.AcompanhamentoId,
                         principalTable: "AcompanhamentosInds",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Relatorios_Consultas_ConsultaId",
+                        name: "FK_Avaliacoes_Consultas_ConsultaId",
                         column: x => x.ConsultaId,
                         principalTable: "Consultas",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Relatorios_Racoes_RacaoId",
+                        name: "FK_Avaliacoes_Racoes_RacaoId",
                         column: x => x.RacaoId,
                         principalTable: "Racoes",
                         principalColumn: "Id",
@@ -549,16 +510,21 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DietasPersonalizadas",
+                name: "Dietas",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     RacaoId = table.Column<int>(type: "integer", nullable: false),
-                    RelatorioId = table.Column<int>(type: "integer", nullable: false),
+                    AvaliacaoId = table.Column<int>(type: "integer", nullable: false),
                     TipoDieta = table.Column<int>(type: "integer", nullable: false),
-                    MultiplicadorEnergeticoCustom = table.Column<double>(type: "double precision", nullable: true),
-                    PotenciaCustom = table.Column<double>(type: "double precision", nullable: true),
+                    FatorK = table.Column<double>(type: "double precision", nullable: false),
+                    Expoente = table.Column<double>(type: "double precision", nullable: false),
+                    PerfilNutricional = table.Column<string>(type: "text", nullable: false),
+                    PerfilMetabolico = table.Column<int>(type: "integer", nullable: true),
+                    IsCustomizado = table.Column<bool>(type: "boolean", nullable: false),
+                    MultiplicadorEnergetico = table.Column<double>(type: "double precision", nullable: true),
+                    Potencia = table.Column<double>(type: "double precision", nullable: true),
                     QtdAlimento = table.Column<double>(type: "double precision", nullable: true),
                     EnergiaMetabolizavel = table.Column<double>(type: "double precision", nullable: true),
                     PesoAtual = table.Column<double>(type: "double precision", nullable: true),
@@ -568,23 +534,55 @@ namespace backend.Migrations
                     CriadoPor = table.Column<string>(type: "text", nullable: true),
                     DuracaoEstimada = table.Column<int>(type: "integer", nullable: true),
                     Observacoes = table.Column<string>(type: "text", nullable: true),
-                    FaseVida = table.Column<int>(type: "integer", nullable: true)
+                    FaseVida = table.Column<int>(type: "integer", nullable: true),
+                    HasAdicionalGestacaoCao = table.Column<bool>(type: "boolean", nullable: false),
+                    NumeroFilhotes = table.Column<int>(type: "integer", nullable: true),
+                    SemanaLactacao = table.Column<int>(type: "integer", nullable: true),
+                    SemanaGestacao = table.Column<int>(type: "integer", nullable: true),
+                    PrevisoesJson = table.Column<string>(type: "text", nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    DataInicio = table.Column<DateOnly>(type: "date", nullable: true),
+                    DataConclusao = table.Column<DateOnly>(type: "date", nullable: true),
+                    NivelRestricao = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DietasPersonalizadas", x => x.Id);
+                    table.PrimaryKey("PK_Dietas", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DietasPersonalizadas_Racoes_RacaoId",
+                        name: "FK_Dietas_Avaliacoes_AvaliacaoId",
+                        column: x => x.AvaliacaoId,
+                        principalTable: "Avaliacoes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Dietas_Racoes_RacaoId",
                         column: x => x.RacaoId,
                         principalTable: "Racoes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RegistrosPesoDieta",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    DietaId = table.Column<int>(type: "integer", nullable: false),
+                    Semana = table.Column<int>(type: "integer", nullable: false),
+                    DataRegistro = table.Column<DateOnly>(type: "date", nullable: false),
+                    PesoReal = table.Column<double>(type: "double precision", nullable: false),
+                    Observacao = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RegistrosPesoDieta", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DietasPersonalizadas_Relatorios_RelatorioId",
-                        column: x => x.RelatorioId,
-                        principalTable: "Relatorios",
+                        name: "FK_RegistrosPesoDieta_Dietas_DietaId",
+                        column: x => x.DietaId,
+                        principalTable: "Dietas",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
@@ -600,169 +598,169 @@ namespace backend.Migrations
 
             migrationBuilder.InsertData(
                 table: "Racas",
-                columns: new[] { "Id", "ClinicaId", "Especie", "Nome", "PesoMaximoReferenciaFemea", "PesoMaximoReferenciaMacho", "PesoMinimoReferenciaFemea", "PesoMinimoReferenciaMacho", "Porte", "Referencia" },
+                columns: new[] { "Id", "CategoriaMetabolica", "ClinicaId", "Especie", "Nome", "PesoMaximoReferenciaFemea", "PesoMaximoReferenciaMacho", "PesoMinimoReferenciaFemea", "PesoMinimoReferenciaMacho", "Porte", "Referencia" },
                 values: new object[,]
                 {
-                    { 1, null, 1, "Airedale Terrier", 19.0, 30.0, 19.0, 30.0, 2, "Mark Morris Institute" },
-                    { 2, null, 1, "Akita Inu", 34.0, 46.0, 34.0, 46.0, 3, "Mark Morris Institute" },
-                    { 3, null, 1, "Alaskan Malamute", 34.0, 57.0, 34.0, 57.0, 3, "Mark Morris Institute" },
-                    { 4, null, 1, "Basenji", 10.0, 11.0, 10.0, 11.0, 2, "Mark Morris Institute" },
-                    { 5, null, 1, "Basset Hound", 18.0, 27.0, 18.0, 27.0, 2, "Mark Morris Institute" },
-                    { 6, null, 1, "Beagle", 12.0, 14.0, 12.0, 14.0, 2, "Mark Morris Institute" },
-                    { 7, null, 1, "Bearded Collie", 18.0, 27.0, 18.0, 27.0, 2, "Mark Morris Institute" },
-                    { 8, null, 1, "Beauceron", 30.0, 38.0, 30.0, 38.0, 2, "Mark Morris Institute" },
-                    { 9, null, 1, "Bichon Frisé", 4.5, 5.5, 4.5, 5.5, 1, "Mark Morris Institute" },
-                    { 10, null, 1, "Bichon Maltês", 1.7999999523162842, 2.7000000476837158, 1.7999999523162842, 2.7000000476837158, 1, "Mark Morris Institute" },
-                    { 11, null, 1, "Bloodhound", 45.5, 50.0, 36.0, 41.0, 3, "Mark Morris Institute" },
-                    { 12, null, 1, "Bobtail", 25.0, 30.0, 25.0, 30.0, 2, "Mark Morris Institute" },
-                    { 13, null, 1, "Boiadeiro de Berna", 40.0, 50.0, 40.0, 50.0, 3, "Mark Morris Institute" },
-                    { 14, null, 1, "Boiadeiro de Flandres", 35.0, 40.0, 27.0, 35.0, 3, "Mark Morris Institute" },
-                    { 15, null, 1, "Border Collie", 13.5, 20.5, 13.5, 20.5, 2, "Mark Morris Institute" },
-                    { 16, null, 1, "Border Terrier", 6.4000000953674316, 6.8000001907348633, 5.0, 6.8000001907348633, 1, "Mark Morris Institute" },
-                    { 17, null, 1, "Boston Terrier", 9.0, 9.0, 9.0, 9.0, 1, "Mark Morris Institute" },
-                    { 18, null, 1, "Boxer", 24.0, 32.0, 24.0, 32.0, 2, "Mark Morris Institute" },
-                    { 19, null, 1, "Braco Francês", 22.700000762939453, 27.0, 22.700000762939453, 27.0, 2, "Mark Morris Institute" },
-                    { 20, null, 1, "Braco Húngaro / Vizsla", 20.0, 30.0, 20.0, 30.0, 2, "Mark Morris Institute" },
-                    { 21, null, 1, "Braco de Saint Germain", 18.0, 26.0, 18.0, 26.0, 2, "Mark Morris Institute" },
-                    { 22, null, 1, "Bull Terrier", 23.5, 28.0, 23.5, 28.0, 2, "Mark Morris Institute" },
-                    { 23, null, 1, "Bull Terrier Miniatura", 4.5, 18.0, 4.5, 18.0, 1, "Mark Morris Institute" },
-                    { 24, null, 1, "Bulldog", 23.0, 25.0, 18.0, 23.0, 2, "Mark Morris Institute" },
-                    { 25, null, 1, "Bulldog Francês", 8.0, 13.0, 8.0, 13.0, 1, "Mark Morris Institute" },
-                    { 26, null, 1, "Bullmastiff", 54.0, 65.0, 54.0, 65.0, 3, "Mark Morris Institute" },
-                    { 27, null, 1, "Cairn Terrier", 6.0, 7.5, 6.0, 7.5, 1, "Mark Morris Institute" },
-                    { 28, null, 1, "Carlino", 6.5, 8.0, 6.5, 8.0, 1, "Mark Morris Institute" },
-                    { 29, null, 1, "Cavalier King Charles Spaniel", 5.0, 8.0, 5.0, 8.0, 1, "Mark Morris Institute" },
-                    { 30, null, 1, "Chesapeake Bay Retriever", 32.0, 36.0, 25.0, 29.5, 2, "Mark Morris Institute" },
-                    { 31, null, 1, "Chihuahua", 2.7000000476837158, 2.7000000476837158, 1.7999999523162842, 1.7999999523162842, 1, "Mark Morris Institute" },
-                    { 32, null, 1, "Chow Chow", 20.0, 30.0, 20.0, 30.0, 2, "Mark Morris Institute" },
-                    { 33, null, 1, "Clumber Spaniel", 32.0, 38.0, 25.0, 32.0, 2, "Mark Morris Institute" },
-                    { 34, null, 1, "Cocker Spaniel Americano", 11.0, 12.5, 11.0, 12.5, 2, "Mark Morris Institute" },
-                    { 35, null, 1, "Cocker Spaniel Inglês", 14.5, 15.5, 12.0, 12.5, 2, "Mark Morris Institute" },
-                    { 36, null, 1, "Collie", 30.0, 34.0, 20.0, 25.0, 2, "Mark Morris Institute" },
-                    { 37, null, 1, "Coton de Tulear", 5.0, 6.8000001907348633, 5.0, 6.8000001907348633, 1, "Mark Morris Institute" },
-                    { 38, null, 1, "Cão da Montanha dos Pirineus", 45.0, 55.0, 38.5, 45.5, 3, "Mark Morris Institute" },
-                    { 39, null, 1, "Cão de Água Americano", 18.0, 20.5, 11.0, 13.5, 2, "Mark Morris Institute" },
-                    { 40, null, 1, "Cão de Água Português", 23.0, 27.0, 16.0, 19.0, 2, "Mark Morris Institute" },
-                    { 41, null, 1, "Dachshund Miniatura", 4.5, 4.5, 4.5, 4.5, 1, "Mark Morris Institute" },
-                    { 42, null, 1, "Dandie Dinmont Terrier", 8.0, 11.0, 8.0, 11.0, 1, "Mark Morris Institute" },
-                    { 43, null, 1, "Doberman", 29.0, 39.0, 29.0, 39.0, 2, "Mark Morris Institute" },
-                    { 44, null, 1, "Dogue de Bordeuax", 54.0, 65.0, 54.0, 65.0, 3, "Mark Morris Institute" },
-                    { 45, null, 1, "Dogue de Bordeaux (grande)", 60.0, 65.0, 45.0, 45.0, 3, "Mark Morris Institute" },
-                    { 46, null, 1, "Dogue de Bordeaux (médio)", 40.0, 45.0, 35.0, 38.0, 3, "Mark Morris Institute" },
-                    { 47, null, 1, "Dálmata", 22.700000762939453, 27.0, 22.700000762939453, 27.0, 2, "Mark Morris Institute" },
-                    { 48, null, 1, "Epagneul Breton", 13.5, 18.0, 13.5, 18.0, 2, "Mark Morris Institute" },
-                    { 49, null, 1, "Fila Brasileiro", 40.5, 45.0, 40.5, 45.0, 3, "Mark Morris Institute" },
-                    { 50, null, 1, "Fox Terrier", 7.6999998092651367, 8.1999998092651367, 6.8000001907348633, 7.0, 1, "Mark Morris Institute" },
-                    { 51, null, 1, "Foxhound Inglês", 29.5, 32.0, 29.5, 32.0, 2, "Mark Morris Institute" },
-                    { 52, null, 1, "Galgo Afegão", 23.0, 27.0, 23.0, 27.0, 2, "Mark Morris Institute" },
-                    { 53, null, 1, "Galgo Espanhol", 27.0, 27.0, 27.0, 27.0, 2, "Mark Morris Institute" },
-                    { 54, null, 1, "Galgo Inglês", 29.5, 32.0, 27.0, 29.5, 2, "Mark Morris Institute" },
-                    { 55, null, 1, "Galgo Russo (Borzoi)", 40.0, 48.0, 35.0, 34.0, 3, "Mark Morris Institute" },
-                    { 56, null, 1, "Golden Retriever", 29.5, 34.0, 25.0, 29.5, 2, "Mark Morris Institute" },
-                    { 57, null, 1, "Gordon Setter", 32.0, 36.0, 20.5, 25.0, 2, "Mark Morris Institute" },
-                    { 58, null, 1, "Grand Danois", 55.0, 80.0, 55.0, 80.0, 3, "Mark Morris Institute" },
-                    { 59, null, 1, "Griffon Vendeen", 11.5, 16.0, 11.5, 16.0, 2, "Mark Morris Institute" },
-                    { 60, null, 1, "Griffon de Bruxelas", 2.2000000476837158, 5.5, 2.2000000476837158, 5.5, 1, "Mark Morris Institute" },
-                    { 61, null, 1, "Griffon de Pêlo Duro", 23.0, 27.0, 23.0, 27.0, 2, "Mark Morris Institute" },
-                    { 62, null, 1, "Husky Siberiano", 22.5, 27.0, 16.0, 20.0, 2, "Mark Morris Institute" },
-                    { 63, null, 1, "Komondor", 50.0, 68.0, 36.0, 45.0, 3, "Mark Morris Institute" },
-                    { 64, null, 1, "Kuvasz", 41.0, 52.0, 32.0, 45.0, 3, "Mark Morris Institute" },
-                    { 65, null, 1, "Labrador Retriever", 32.0, 36.0, 25.0, 29.5, 2, "Mark Morris Institute" },
-                    { 66, null, 1, "Leonberger", 36.299999237060547, 68.0, 36.299999237060547, 68.0, 3, "Mark Morris Institute" },
-                    { 67, null, 1, "Lhasa Apso", 6.4000000953674316, 8.0, 6.4000000953674316, 8.0, 1, "Mark Morris Institute" },
-                    { 68, null, 1, "Lulu da Pomerânia (Spitz anão)", 1.5, 3.2000000476837158, 1.5, 3.2000000476837158, 1, "Mark Morris Institute" },
-                    { 69, null, 1, "Mastim Espanhol", 50.0, 60.0, 50.0, 60.0, 3, "Mark Morris Institute" },
-                    { 70, null, 1, "Mastim Inglês", 75.0, 90.0, 75.0, 90.0, 3, "Mark Morris Institute" },
-                    { 71, null, 1, "Mastim Napolitano", 50.0, 70.0, 50.0, 70.0, 3, "Mark Morris Institute" },
-                    { 72, null, 1, "Mastim dos Pirineus", 55.0, 70.0, 55.0, 70.0, 3, "Mark Morris Institute" },
-                    { 73, null, 1, "Pastor Alemão", 32.0, 43.0, 32.0, 43.0, 3, "Mark Morris Institute" },
-                    { 74, null, 1, "Pastor Belga", 28.0, 30.0, 28.0, 30.0, 2, "Mark Morris Institute" },
-                    { 75, null, 1, "Pastor Catalão", 30.0, 40.0, 20.0, 30.0, 2, "Mark Morris Institute" },
-                    { 76, null, 1, "Pastor de Bergamasco", 32.0, 38.0, 26.0, 32.0, 3, "Mark Morris Institute" },
-                    { 77, null, 1, "Pastor de Brie", 34.0, 34.0, 34.0, 34.0, 3, "Mark Morris Institute" },
-                    { 78, null, 1, "Pequinois", 4.0, 6.5, 4.0, 3.5999999046325684, 1, "Mark Morris Institute" },
-                    { 79, null, 1, "Perdigueiro Alemão", 20.0, 30.0, 20.0, 30.0, 2, "Mark Morris Institute" },
-                    { 80, null, 1, "Pinscher", 4.0, 5.0, 4.0, 5.0, 1, "Mark Morris Institute" },
-                    { 81, null, 1, "Pinscher Miniatura", 4.5, 4.5, 4.5, 4.5, 1, "Mark Morris Institute" },
-                    { 82, null, 1, "Podengo Ibérico", 20.5, 23.0, 20.5, 23.0, 2, "Mark Morris Institute" },
-                    { 83, null, 1, "Pointer", 29.5, 32.0, 20.0, 25.0, 2, "Mark Morris Institute" },
-                    { 84, null, 1, "Ponteiro Alemão", 27.0, 32.0, 20.5, 25.0, 2, "Mark Morris Institute" },
-                    { 85, null, 1, "Poodle Miniatura", 5.0, 5.0, 5.0, 5.0, 1, "Mark Morris Institute" },
-                    { 86, null, 1, "Puli", 14.0, 15.0, 14.0, 13.0, 2, "Mark Morris Institute" },
-                    { 87, null, 1, "Rafeiro Alentejano", 45.0, 45.0, 35.5, 40.0, 3, "Mark Morris Institute" },
-                    { 88, null, 1, "Retrivier de Pêlo Liso", 34.0, 36.0, 25.0, 25.0, 3, "Mark Morris Institute" },
-                    { 89, null, 1, "Rottweiler", 40.0, 50.0, 40.0, 50.0, 3, "Mark Morris Institute" },
-                    { 90, null, 1, "Saluki", 13.0, 30.0, 13.0, 30.0, 2, "Mark Morris Institute" },
-                    { 91, null, 1, "Samoyedo", 25.0, 30.0, 17.0, 20.0, 2, "Mark Morris Institute" },
-                    { 92, null, 1, "Schnauzer Gigante", 30.0, 35.0, 30.0, 35.0, 2, "Mark Morris Institute" },
-                    { 93, null, 1, "Schnauzer Miniatura", 5.5, 7.0, 5.5, 7.0, 1, "Mark Morris Institute" },
-                    { 94, null, 1, "Schnauzer Médio", 15.0, 18.0, 15.0, 18.0, 2, "Mark Morris Institute" },
-                    { 95, null, 1, "Scottish Terrier", 9.5, 10.0, 8.0, 8.5, 2, "Mark Morris Institute" },
-                    { 96, null, 1, "Setter Inglês", 18.0, 25.0, 18.0, 25.0, 2, "Mark Morris Institute" },
-                    { 97, null, 1, "Setter Irlandês", 27.200000762939453, 31.700000762939453, 27.200000762939453, 31.700000762939453, 2, "Mark Morris Institute" },
-                    { 98, null, 1, "Shar-Pei", 18.0, 25.0, 18.0, 25.0, 2, "Mark Morris Institute" },
-                    { 99, null, 1, "Shih Tzu", 4.0, 8.0, 4.0, 8.0, 1, "Mark Morris Institute" },
-                    { 100, null, 1, "Silky Terrier Australiano", 3.5999999046325684, 4.5, 3.5999999046325684, 4.5, 1, "Mark Morris Institute" },
-                    { 101, null, 1, "Skye Terrier", 11.5, 11.5, 11.5, 11.5, 2, "Mark Morris Institute" },
-                    { 102, null, 1, "Spitz Alemão", 11.300000190734863, 11.300000190734863, 11.300000190734863, 11.300000190734863, 2, "Mark Morris Institute" },
-                    { 103, null, 1, "Spitz Finlandês", 11.300000190734863, 16.0, 11.300000190734863, 16.0, 2, "Mark Morris Institute" },
-                    { 104, null, 1, "Springer Spaniel Galês", 16.0, 20.0, 16.0, 20.0, 2, "Mark Morris Institute" },
-                    { 105, null, 1, "Springer Spaniel Inglês", 18.0, 22.5, 18.0, 22.5, 2, "Mark Morris Institute" },
-                    { 106, null, 1, "Staffordshire Bull Terrier", 15.0, 17.0, 11.0, 13.0, 2, "Mark Morris Institute" },
-                    { 107, null, 1, "Sussex Spaniel", 16.0, 18.0, 16.0, 18.0, 2, "Mark Morris Institute" },
-                    { 108, null, 1, "São Bernardo", 50.0, 90.0, 50.0, 90.0, 3, "Mark Morris Institute" },
-                    { 109, null, 1, "Terranova", 55.0, 69.0, 50.0, 60.0, 3, "Mark Morris Institute" },
-                    { 110, null, 1, "Terrier Australiano", 6.5, 6.5, 6.5, 6.5, 1, "Mark Morris Institute" },
-                    { 111, null, 1, "Terrier Galês", 9.0, 9.5, 9.0, 9.5, 1, "Mark Morris Institute" },
-                    { 112, null, 1, "Terrier Irlandês", 11.0, 12.0, 11.0, 12.0, 2, "Mark Morris Institute" },
-                    { 113, null, 1, "Toy Spaniel Inglês", 3.5, 6.5, 3.5, 6.5, 1, "Mark Morris Institute" },
-                    { 114, null, 1, "Welsh Corgi Cardigan", 15.5, 15.5, 11.399999618530273, 13.600000381469727, 2, "Mark Morris Institute" },
-                    { 115, null, 1, "West Highland White Terrier", 7.0, 10.0, 7.0, 10.0, 1, "Mark Morris Institute" },
-                    { 116, null, 1, "Whippet", 13.0, 13.0, 13.0, 13.0, 2, "Mark Morris Institute" },
-                    { 117, null, 1, "Yorkshire Terrier", 3.5, 3.5, 3.5, 3.5, 1, "Mark Morris Institute" },
-                    { 118, null, 1, "Sem Raça Definida (SRD)", null, null, null, null, null, "" },
-                    { 119, null, 2, "Abyssinian", null, null, null, null, null, "" },
-                    { 120, null, 2, "American Bobtail", null, null, null, null, null, "" },
-                    { 121, null, 2, "American Curl", null, null, null, null, null, "" },
-                    { 122, null, 2, "American Shorthair", null, null, null, null, null, "" },
-                    { 123, null, 2, "American Wirehair", null, null, null, null, null, "" },
-                    { 124, null, 2, "Balinese", null, null, null, null, null, "" },
-                    { 125, null, 2, "Bengal", null, null, null, null, null, "" },
-                    { 126, null, 2, "Birman", null, null, null, null, null, "" },
-                    { 127, null, 2, "Bombay", null, null, null, null, null, "" },
-                    { 128, null, 2, "British Shorthair", null, null, null, null, null, "" },
-                    { 129, null, 2, "Burmese", null, null, null, null, null, "" },
-                    { 130, null, 2, "Chartreux", null, null, null, null, null, "" },
-                    { 131, null, 2, "Cornish Rex", null, null, null, null, null, "" },
-                    { 132, null, 2, "Devon Rex", null, null, null, null, null, "" },
-                    { 133, null, 2, "Egyptian Mau", null, null, null, null, null, "" },
-                    { 134, null, 2, "Exotic Shorthair", null, null, null, null, null, "" },
-                    { 135, null, 2, "Havana Brown", null, null, null, null, null, "" },
-                    { 136, null, 2, "Himalayan", null, null, null, null, null, "" },
-                    { 137, null, 2, "Japanese Bobtail", null, null, null, null, null, "" },
-                    { 138, null, 2, "Korat", null, null, null, null, null, "" },
-                    { 139, null, 2, "LaPerm", null, null, null, null, null, "" },
-                    { 140, null, 2, "Maine Coon", null, null, null, null, null, "" },
-                    { 141, null, 2, "Manx", null, null, null, null, null, "" },
-                    { 142, null, 2, "Norwegian Forest Cat", null, null, null, null, null, "" },
-                    { 143, null, 2, "Ocicat", null, null, null, null, null, "" },
-                    { 144, null, 2, "Oriental", null, null, null, null, null, "" },
-                    { 145, null, 2, "Persian", null, null, null, null, null, "" },
-                    { 146, null, 2, "Ragamuffin", null, null, null, null, null, "" },
-                    { 147, null, 2, "Ragdoll", null, null, null, null, null, "" },
-                    { 148, null, 2, "Russian Blue", null, null, null, null, null, "" },
-                    { 149, null, 2, "Scottish Fold", null, null, null, null, null, "" },
-                    { 150, null, 2, "Selkirk Rex", null, null, null, null, null, "" },
-                    { 151, null, 2, "Sem Raça Definida (SRD)", null, null, null, null, null, "" },
-                    { 152, null, 2, "Siamese", null, null, null, null, null, "" },
-                    { 153, null, 2, "Siberian", null, null, null, null, null, "" },
-                    { 154, null, 2, "Singapura", null, null, null, null, null, "" },
-                    { 155, null, 2, "Somali", null, null, null, null, null, "" },
-                    { 156, null, 2, "Sphynx", null, null, null, null, null, "" },
-                    { 157, null, 2, "Tonkinese", null, null, null, null, null, "" },
-                    { 158, null, 2, "Turkish Angora", null, null, null, null, null, "" },
-                    { 159, null, 2, "Turkish Van", null, null, null, null, null, "" },
-                    { 160, null, 2, "Sem Raça Definida (SRD)", null, null, null, null, null, "" }
+                    { 1, 0, null, 1, "Airedale Terrier", 19.0, 30.0, 19.0, 30.0, 2, "Mark Morris Institute" },
+                    { 2, 0, null, 1, "Akita Inu", 34.0, 46.0, 34.0, 46.0, 3, "Mark Morris Institute" },
+                    { 3, 0, null, 1, "Alaskan Malamute", 34.0, 57.0, 34.0, 57.0, 3, "Mark Morris Institute" },
+                    { 4, 0, null, 1, "Basenji", 10.0, 11.0, 10.0, 11.0, 2, "Mark Morris Institute" },
+                    { 5, 0, null, 1, "Basset Hound", 18.0, 27.0, 18.0, 27.0, 2, "Mark Morris Institute" },
+                    { 6, 0, null, 1, "Beagle", 12.0, 14.0, 12.0, 14.0, 2, "Mark Morris Institute" },
+                    { 7, 0, null, 1, "Bearded Collie", 18.0, 27.0, 18.0, 27.0, 2, "Mark Morris Institute" },
+                    { 8, 0, null, 1, "Beauceron", 30.0, 38.0, 30.0, 38.0, 2, "Mark Morris Institute" },
+                    { 9, 0, null, 1, "Bichon Frisé", 4.5, 5.5, 4.5, 5.5, 1, "Mark Morris Institute" },
+                    { 10, 0, null, 1, "Bichon Maltês", 1.7999999523162842, 2.7000000476837158, 1.7999999523162842, 2.7000000476837158, 1, "Mark Morris Institute" },
+                    { 11, 0, null, 1, "Bloodhound", 45.5, 50.0, 36.0, 41.0, 3, "Mark Morris Institute" },
+                    { 12, 0, null, 1, "Bobtail", 25.0, 30.0, 25.0, 30.0, 2, "Mark Morris Institute" },
+                    { 13, 0, null, 1, "Boiadeiro de Berna", 40.0, 50.0, 40.0, 50.0, 3, "Mark Morris Institute" },
+                    { 14, 0, null, 1, "Boiadeiro de Flandres", 35.0, 40.0, 27.0, 35.0, 3, "Mark Morris Institute" },
+                    { 15, 0, null, 1, "Border Collie", 13.5, 20.5, 13.5, 20.5, 2, "Mark Morris Institute" },
+                    { 16, 0, null, 1, "Border Terrier", 6.4000000953674316, 6.8000001907348633, 5.0, 6.8000001907348633, 1, "Mark Morris Institute" },
+                    { 17, 0, null, 1, "Boston Terrier", 9.0, 9.0, 9.0, 9.0, 1, "Mark Morris Institute" },
+                    { 18, 0, null, 1, "Boxer", 24.0, 32.0, 24.0, 32.0, 2, "Mark Morris Institute" },
+                    { 19, 0, null, 1, "Braco Francês", 22.700000762939453, 27.0, 22.700000762939453, 27.0, 2, "Mark Morris Institute" },
+                    { 20, 0, null, 1, "Braco Húngaro / Vizsla", 20.0, 30.0, 20.0, 30.0, 2, "Mark Morris Institute" },
+                    { 21, 0, null, 1, "Braco de Saint Germain", 18.0, 26.0, 18.0, 26.0, 2, "Mark Morris Institute" },
+                    { 22, 0, null, 1, "Bull Terrier", 23.5, 28.0, 23.5, 28.0, 2, "Mark Morris Institute" },
+                    { 23, 0, null, 1, "Bull Terrier Miniatura", 4.5, 18.0, 4.5, 18.0, 1, "Mark Morris Institute" },
+                    { 24, 0, null, 1, "Bulldog", 23.0, 25.0, 18.0, 23.0, 2, "Mark Morris Institute" },
+                    { 25, 0, null, 1, "Bulldog Francês", 8.0, 13.0, 8.0, 13.0, 1, "Mark Morris Institute" },
+                    { 26, 0, null, 1, "Bullmastiff", 54.0, 65.0, 54.0, 65.0, 3, "Mark Morris Institute" },
+                    { 27, 0, null, 1, "Cairn Terrier", 6.0, 7.5, 6.0, 7.5, 1, "Mark Morris Institute" },
+                    { 28, 0, null, 1, "Pug", 6.5, 8.0, 6.5, 8.0, 1, "Mark Morris Institute" },
+                    { 29, 0, null, 1, "Cavalier King Charles Spaniel", 5.0, 8.0, 5.0, 8.0, 1, "Mark Morris Institute" },
+                    { 30, 0, null, 1, "Chesapeake Bay Retriever", 32.0, 36.0, 25.0, 29.5, 2, "Mark Morris Institute" },
+                    { 31, 0, null, 1, "Chihuahua", 2.7000000476837158, 2.7000000476837158, 1.7999999523162842, 1.7999999523162842, 1, "Mark Morris Institute" },
+                    { 32, 0, null, 1, "Chow Chow", 20.0, 30.0, 20.0, 30.0, 2, "Mark Morris Institute" },
+                    { 33, 0, null, 1, "Clumber Spaniel", 32.0, 38.0, 25.0, 32.0, 2, "Mark Morris Institute" },
+                    { 34, 0, null, 1, "Cocker Spaniel Americano", 11.0, 12.5, 11.0, 12.5, 2, "Mark Morris Institute" },
+                    { 35, 0, null, 1, "Cocker Spaniel Inglês", 14.5, 15.5, 12.0, 12.5, 2, "Mark Morris Institute" },
+                    { 36, 0, null, 1, "Collie", 30.0, 34.0, 20.0, 25.0, 2, "Mark Morris Institute" },
+                    { 37, 0, null, 1, "Coton de Tulear", 5.0, 6.8000001907348633, 5.0, 6.8000001907348633, 1, "Mark Morris Institute" },
+                    { 38, 0, null, 1, "Cão da Montanha dos Pirineus", 45.0, 55.0, 38.5, 45.5, 3, "Mark Morris Institute" },
+                    { 39, 0, null, 1, "Cão de Água Americano", 18.0, 20.5, 11.0, 13.5, 2, "Mark Morris Institute" },
+                    { 40, 0, null, 1, "Cão de Água Português", 23.0, 27.0, 16.0, 19.0, 2, "Mark Morris Institute" },
+                    { 41, 0, null, 1, "Dachshund Miniatura", 4.5, 4.5, 4.5, 4.5, 1, "Mark Morris Institute" },
+                    { 42, 0, null, 1, "Dandie Dinmont Terrier", 8.0, 11.0, 8.0, 11.0, 1, "Mark Morris Institute" },
+                    { 43, 0, null, 1, "Doberman", 29.0, 39.0, 29.0, 39.0, 2, "Mark Morris Institute" },
+                    { 44, 0, null, 1, "Dogue de Bordeuax", 54.0, 65.0, 54.0, 65.0, 3, "Mark Morris Institute" },
+                    { 45, 0, null, 1, "Dogue de Bordeaux (grande)", 60.0, 65.0, 45.0, 45.0, 3, "Mark Morris Institute" },
+                    { 46, 0, null, 1, "Dogue de Bordeaux (médio)", 40.0, 45.0, 35.0, 38.0, 3, "Mark Morris Institute" },
+                    { 47, 0, null, 1, "Dálmata", 22.700000762939453, 27.0, 22.700000762939453, 27.0, 2, "Mark Morris Institute" },
+                    { 48, 0, null, 1, "Epagneul Breton", 13.5, 18.0, 13.5, 18.0, 2, "Mark Morris Institute" },
+                    { 49, 0, null, 1, "Fila Brasileiro", 40.5, 45.0, 40.5, 45.0, 3, "Mark Morris Institute" },
+                    { 50, 0, null, 1, "Fox Terrier", 7.6999998092651367, 8.1999998092651367, 6.8000001907348633, 7.0, 1, "Mark Morris Institute" },
+                    { 51, 0, null, 1, "Foxhound Inglês", 29.5, 32.0, 29.5, 32.0, 2, "Mark Morris Institute" },
+                    { 52, 0, null, 1, "Galgo Afegão", 23.0, 27.0, 23.0, 27.0, 2, "Mark Morris Institute" },
+                    { 53, 0, null, 1, "Galgo Espanhol", 27.0, 27.0, 27.0, 27.0, 2, "Mark Morris Institute" },
+                    { 54, 0, null, 1, "Galgo Inglês", 29.5, 32.0, 27.0, 29.5, 2, "Mark Morris Institute" },
+                    { 55, 0, null, 1, "Galgo Russo (Borzoi)", 40.0, 48.0, 35.0, 34.0, 3, "Mark Morris Institute" },
+                    { 56, 0, null, 1, "Golden Retriever", 29.5, 34.0, 25.0, 29.5, 2, "Mark Morris Institute" },
+                    { 57, 0, null, 1, "Gordon Setter", 32.0, 36.0, 20.5, 25.0, 2, "Mark Morris Institute" },
+                    { 58, 0, null, 1, "Dogue Alemão (Grande Dinamarquês)", 55.0, 80.0, 55.0, 80.0, 3, "Mark Morris Institute" },
+                    { 59, 0, null, 1, "Griffon Vendeen", 11.5, 16.0, 11.5, 16.0, 2, "Mark Morris Institute" },
+                    { 60, 0, null, 1, "Griffon de Bruxelas", 2.2000000476837158, 5.5, 2.2000000476837158, 5.5, 1, "Mark Morris Institute" },
+                    { 61, 0, null, 1, "Griffon de Pêlo Duro", 23.0, 27.0, 23.0, 27.0, 2, "Mark Morris Institute" },
+                    { 62, 0, null, 1, "Husky Siberiano", 22.5, 27.0, 16.0, 20.0, 2, "Mark Morris Institute" },
+                    { 63, 0, null, 1, "Komondor", 50.0, 68.0, 36.0, 45.0, 3, "Mark Morris Institute" },
+                    { 64, 0, null, 1, "Kuvasz", 41.0, 52.0, 32.0, 45.0, 3, "Mark Morris Institute" },
+                    { 65, 0, null, 1, "Labrador Retriever", 32.0, 36.0, 25.0, 29.5, 2, "Mark Morris Institute" },
+                    { 66, 0, null, 1, "Leonberger", 36.299999237060547, 68.0, 36.299999237060547, 68.0, 3, "Mark Morris Institute" },
+                    { 67, 0, null, 1, "Lhasa Apso", 6.4000000953674316, 8.0, 6.4000000953674316, 8.0, 1, "Mark Morris Institute" },
+                    { 68, 0, null, 1, "Lulu da Pomerânia (Spitz anão)", 1.5, 3.2000000476837158, 1.5, 3.2000000476837158, 1, "Mark Morris Institute" },
+                    { 69, 0, null, 1, "Mastim Espanhol", 50.0, 60.0, 50.0, 60.0, 3, "Mark Morris Institute" },
+                    { 70, 0, null, 1, "Mastim Inglês", 75.0, 90.0, 75.0, 90.0, 3, "Mark Morris Institute" },
+                    { 71, 0, null, 1, "Mastim Napolitano", 50.0, 70.0, 50.0, 70.0, 3, "Mark Morris Institute" },
+                    { 72, 0, null, 1, "Mastim dos Pirineus", 55.0, 70.0, 55.0, 70.0, 3, "Mark Morris Institute" },
+                    { 73, 0, null, 1, "Pastor Alemão", 32.0, 43.0, 32.0, 43.0, 3, "Mark Morris Institute" },
+                    { 74, 0, null, 1, "Pastor Belga", 28.0, 30.0, 28.0, 30.0, 2, "Mark Morris Institute" },
+                    { 75, 0, null, 1, "Pastor Catalão", 30.0, 40.0, 20.0, 30.0, 2, "Mark Morris Institute" },
+                    { 76, 0, null, 1, "Pastor de Bergamasco", 32.0, 38.0, 26.0, 32.0, 3, "Mark Morris Institute" },
+                    { 77, 0, null, 1, "Pastor de Brie", 34.0, 34.0, 34.0, 34.0, 3, "Mark Morris Institute" },
+                    { 78, 0, null, 1, "Pequinês", 4.0, 6.5, 4.0, 3.5999999046325684, 1, "Mark Morris Institute" },
+                    { 79, 0, null, 1, "Perdigueiro Alemão", 20.0, 30.0, 20.0, 30.0, 2, "Mark Morris Institute" },
+                    { 80, 0, null, 1, "Pinscher", 4.0, 5.0, 4.0, 5.0, 1, "Mark Morris Institute" },
+                    { 81, 0, null, 1, "Pinscher Miniatura", 4.5, 4.5, 4.5, 4.5, 1, "Mark Morris Institute" },
+                    { 82, 0, null, 1, "Podengo Ibérico", 20.5, 23.0, 20.5, 23.0, 2, "Mark Morris Institute" },
+                    { 83, 0, null, 1, "Pointer", 29.5, 32.0, 20.0, 25.0, 2, "Mark Morris Institute" },
+                    { 84, 0, null, 1, "Pointer Alemão (Braco Alemão)", 27.0, 32.0, 20.5, 25.0, 2, "Mark Morris Institute" },
+                    { 85, 0, null, 1, "Poodle Miniatura", 5.0, 5.0, 5.0, 5.0, 1, "Mark Morris Institute" },
+                    { 86, 0, null, 1, "Puli", 14.0, 15.0, 14.0, 13.0, 2, "Mark Morris Institute" },
+                    { 87, 0, null, 1, "Rafeiro Alentejano", 45.0, 45.0, 35.5, 40.0, 3, "Mark Morris Institute" },
+                    { 88, 0, null, 1, "Flat-Coated Retriever", 34.0, 36.0, 25.0, 25.0, 3, "Mark Morris Institute" },
+                    { 89, 0, null, 1, "Rottweiler", 40.0, 50.0, 40.0, 50.0, 3, "Mark Morris Institute" },
+                    { 90, 0, null, 1, "Saluki", 13.0, 30.0, 13.0, 30.0, 2, "Mark Morris Institute" },
+                    { 91, 0, null, 1, "Samoieda", 25.0, 30.0, 17.0, 20.0, 2, "Mark Morris Institute" },
+                    { 92, 0, null, 1, "Schnauzer Gigante", 30.0, 35.0, 30.0, 35.0, 2, "Mark Morris Institute" },
+                    { 93, 0, null, 1, "Schnauzer Miniatura", 5.5, 7.0, 5.5, 7.0, 1, "Mark Morris Institute" },
+                    { 94, 0, null, 1, "Schnauzer Médio", 15.0, 18.0, 15.0, 18.0, 2, "Mark Morris Institute" },
+                    { 95, 0, null, 1, "Scottish Terrier", 9.5, 10.0, 8.0, 8.5, 2, "Mark Morris Institute" },
+                    { 96, 0, null, 1, "Setter Inglês", 18.0, 25.0, 18.0, 25.0, 2, "Mark Morris Institute" },
+                    { 97, 0, null, 1, "Setter Irlandês", 27.200000762939453, 31.700000762939453, 27.200000762939453, 31.700000762939453, 2, "Mark Morris Institute" },
+                    { 98, 0, null, 1, "Shar-Pei", 18.0, 25.0, 18.0, 25.0, 2, "Mark Morris Institute" },
+                    { 99, 0, null, 1, "Shih Tzu", 4.0, 8.0, 4.0, 8.0, 1, "Mark Morris Institute" },
+                    { 100, 0, null, 1, "Silky Terrier Australiano", 3.5999999046325684, 4.5, 3.5999999046325684, 4.5, 1, "Mark Morris Institute" },
+                    { 101, 0, null, 1, "Skye Terrier", 11.5, 11.5, 11.5, 11.5, 2, "Mark Morris Institute" },
+                    { 102, 0, null, 1, "Spitz Alemão", 11.300000190734863, 11.300000190734863, 11.300000190734863, 11.300000190734863, 2, "Mark Morris Institute" },
+                    { 103, 0, null, 1, "Spitz Finlandês", 11.300000190734863, 16.0, 11.300000190734863, 16.0, 2, "Mark Morris Institute" },
+                    { 104, 0, null, 1, "Springer Spaniel Galês", 16.0, 20.0, 16.0, 20.0, 2, "Mark Morris Institute" },
+                    { 105, 0, null, 1, "Springer Spaniel Inglês", 18.0, 22.5, 18.0, 22.5, 2, "Mark Morris Institute" },
+                    { 106, 0, null, 1, "Staffordshire Bull Terrier", 15.0, 17.0, 11.0, 13.0, 2, "Mark Morris Institute" },
+                    { 107, 0, null, 1, "Sussex Spaniel", 16.0, 18.0, 16.0, 18.0, 2, "Mark Morris Institute" },
+                    { 108, 0, null, 1, "São Bernardo", 50.0, 90.0, 50.0, 90.0, 3, "Mark Morris Institute" },
+                    { 109, 0, null, 1, "Terra-nova", 55.0, 69.0, 50.0, 60.0, 3, "Mark Morris Institute" },
+                    { 110, 0, null, 1, "Terrier Australiano", 6.5, 6.5, 6.5, 6.5, 1, "Mark Morris Institute" },
+                    { 111, 0, null, 1, "Terrier Galês", 9.0, 9.5, 9.0, 9.5, 1, "Mark Morris Institute" },
+                    { 112, 0, null, 1, "Terrier Irlandês", 11.0, 12.0, 11.0, 12.0, 2, "Mark Morris Institute" },
+                    { 113, 0, null, 1, "Toy Spaniel Inglês", 3.5, 6.5, 3.5, 6.5, 1, "Mark Morris Institute" },
+                    { 114, 0, null, 1, "Welsh Corgi Cardigan", 15.5, 15.5, 11.399999618530273, 13.600000381469727, 2, "Mark Morris Institute" },
+                    { 115, 0, null, 1, "West Highland White Terrier", 7.0, 10.0, 7.0, 10.0, 1, "Mark Morris Institute" },
+                    { 116, 0, null, 1, "Whippet", 13.0, 13.0, 13.0, 13.0, 2, "Mark Morris Institute" },
+                    { 117, 0, null, 1, "Yorkshire Terrier", 3.5, 3.5, 3.5, 3.5, 1, "Mark Morris Institute" },
+                    { 118, 0, null, 1, "Sem Raça Definida (SRD)", null, null, null, null, null, "" },
+                    { 119, 0, null, 2, "Abissínio", null, null, null, null, null, "" },
+                    { 120, 0, null, 2, "Bobtail Americano", null, null, null, null, null, "" },
+                    { 121, 0, null, 2, "Curl Americano", null, null, null, null, null, "" },
+                    { 122, 0, null, 2, "American Shorthair", null, null, null, null, null, "" },
+                    { 123, 0, null, 2, "American Wirehair", null, null, null, null, null, "" },
+                    { 124, 0, null, 2, "Balinês", null, null, null, null, null, "" },
+                    { 125, 0, null, 2, "Bengal (Gato-de-Bengala)", null, null, null, null, null, "" },
+                    { 126, 0, null, 2, "Birmanês (Sagrado da Birmânia)", null, null, null, null, null, "" },
+                    { 127, 0, null, 2, "Bombay (Bombaim)", null, null, null, null, null, "" },
+                    { 128, 0, null, 2, "British Shorthair", null, null, null, null, null, "" },
+                    { 129, 0, null, 2, "Burmese", null, null, null, null, null, "" },
+                    { 130, 0, null, 2, "Chartreux", null, null, null, null, null, "" },
+                    { 131, 0, null, 2, "Cornish Rex", null, null, null, null, null, "" },
+                    { 132, 0, null, 2, "Devon Rex", null, null, null, null, null, "" },
+                    { 133, 0, null, 2, "Mau Egípcio", null, null, null, null, null, "" },
+                    { 134, 0, null, 2, "Exótico", null, null, null, null, null, "" },
+                    { 135, 0, null, 2, "Havana Brown (Oriental Havana)", null, null, null, null, null, "" },
+                    { 136, 0, null, 2, "Himalaio", null, null, null, null, null, "" },
+                    { 137, 0, null, 2, "Bobtail Japonês", null, null, null, null, null, "" },
+                    { 138, 0, null, 2, "Korat", null, null, null, null, null, "" },
+                    { 139, 0, null, 2, "LaPerm", null, null, null, null, null, "" },
+                    { 140, 0, null, 2, "Maine Coon", null, null, null, null, null, "" },
+                    { 141, 0, null, 2, "Manx (Manês)", null, null, null, null, null, "" },
+                    { 142, 0, null, 2, "Norueguês da Floresta", null, null, null, null, null, "" },
+                    { 143, 0, null, 2, "Ocicat", null, null, null, null, null, "" },
+                    { 144, 0, null, 2, "Oriental Shorthair", null, null, null, null, null, "" },
+                    { 145, 0, null, 2, "Persa", null, null, null, null, null, "" },
+                    { 146, 0, null, 2, "Ragamuffin", null, null, null, null, null, "" },
+                    { 147, 0, null, 2, "Ragdoll", null, null, null, null, null, "" },
+                    { 148, 0, null, 2, "Azul Russo", null, null, null, null, null, "" },
+                    { 149, 0, null, 2, "Scottish Fold", null, null, null, null, null, "" },
+                    { 150, 0, null, 2, "Selkirk Rex", null, null, null, null, null, "" },
+                    { 151, 0, null, 2, "Sem Raça Definida (SRD)", null, null, null, null, null, "" },
+                    { 152, 0, null, 2, "Siamês", null, null, null, null, null, "" },
+                    { 153, 0, null, 2, "Siberiano", null, null, null, null, null, "" },
+                    { 154, 0, null, 2, "Singapura", null, null, null, null, null, "" },
+                    { 155, 0, null, 2, "Somali", null, null, null, null, null, "" },
+                    { 156, 0, null, 2, "Sphynx", null, null, null, null, null, "" },
+                    { 157, 0, null, 2, "Tonquinês", null, null, null, null, null, "" },
+                    { 158, 0, null, 2, "Angorá (Turkish Angora)", null, null, null, null, null, "" },
+                    { 159, 0, null, 2, "Turkish Van", null, null, null, null, null, "" },
+                    { 160, 0, null, 1, "American Pit Bull Terrier", null, null, null, null, 2, "" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -772,19 +770,14 @@ namespace backend.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Animais_ClinicaId",
+                table: "Animais",
+                column: "ClinicaId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Animais_RacaId",
                 table: "Animais",
                 column: "RacaId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AnimaisClinicas_AnimalId",
-                table: "AnimaisClinicas",
-                column: "AnimalId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AnimaisClinicas_ClinicaId",
-                table: "AnimaisClinicas",
-                column: "ClinicaId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -824,6 +817,22 @@ namespace backend.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Avaliacoes_AcompanhamentoId",
+                table: "Avaliacoes",
+                column: "AcompanhamentoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Avaliacoes_ConsultaId",
+                table: "Avaliacoes",
+                column: "ConsultaId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Avaliacoes_RacaoId",
+                table: "Avaliacoes",
+                column: "RacaoId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Consultas_AnimalId",
                 table: "Consultas",
                 column: "AnimalId");
@@ -844,15 +853,15 @@ namespace backend.Migrations
                 column: "UsuarioId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DietasPersonalizadas_RacaoId",
-                table: "DietasPersonalizadas",
-                column: "RacaoId");
+                name: "IX_Dietas_AvaliacaoId",
+                table: "Dietas",
+                column: "AvaliacaoId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_DietasPersonalizadas_RelatorioId",
-                table: "DietasPersonalizadas",
-                column: "RelatorioId",
-                unique: true);
+                name: "IX_Dietas_RacaoId",
+                table: "Dietas",
+                column: "RacaoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Racas_ClinicaId",
@@ -865,20 +874,16 @@ namespace backend.Migrations
                 column: "ClinicaId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Relatorios_AcompanhamentoIndividualizadoId",
-                table: "Relatorios",
-                column: "AcompanhamentoIndividualizadoId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Relatorios_ConsultaId",
-                table: "Relatorios",
-                column: "ConsultaId",
+                name: "IX_RegistrosPesoDieta_DietaId_Semana",
+                table: "RegistrosPesoDieta",
+                columns: new[] { "DietaId", "Semana" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Relatorios_RacaoId",
-                table: "Relatorios",
-                column: "RacaoId");
+                name: "IX_Tutores_ClinicaId_Cpf",
+                table: "Tutores",
+                columns: new[] { "ClinicaId", "Cpf" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_TutoresAnimais_AnimalId",
@@ -888,16 +893,6 @@ namespace backend.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_TutoresAnimais_TutorId",
                 table: "TutoresAnimais",
-                column: "TutorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TutoresClinicas_ClinicaId",
-                table: "TutoresClinicas",
-                column: "ClinicaId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TutoresClinicas_TutorId",
-                table: "TutoresClinicas",
                 column: "TutorId");
 
             migrationBuilder.CreateIndex(
@@ -915,9 +910,6 @@ namespace backend.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AnimaisClinicas");
-
-            migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
             migrationBuilder.DropTable(
@@ -933,13 +925,10 @@ namespace backend.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "DietasPersonalizadas");
+                name: "RegistrosPesoDieta");
 
             migrationBuilder.DropTable(
                 name: "TutoresAnimais");
-
-            migrationBuilder.DropTable(
-                name: "TutoresClinicas");
 
             migrationBuilder.DropTable(
                 name: "UsuariosPerfisClinicas");
@@ -948,7 +937,10 @@ namespace backend.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Relatorios");
+                name: "Dietas");
+
+            migrationBuilder.DropTable(
+                name: "Avaliacoes");
 
             migrationBuilder.DropTable(
                 name: "AcompanhamentosInds");

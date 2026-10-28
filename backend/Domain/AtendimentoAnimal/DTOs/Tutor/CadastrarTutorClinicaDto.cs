@@ -4,7 +4,6 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Tutor
 {
     public class CadastrarTutorClinicaDto
     {
-        public int ClinicaId { get; set; }
         public List<int>? AnimalIds { get; set; }
         public string Nome { get; set; } = string.Empty;
 

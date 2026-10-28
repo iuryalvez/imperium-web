@@ -47,17 +47,26 @@ const TabelaRacoesDaClinica = ({
               onClick={() => onView(record)}
             />
           </Tooltip>
-          <Tooltip title="Editar">
+          <Tooltip
+            title={
+              record.isSistema
+                ? "Editar (cria uma cópia desta ração para a clínica)"
+                : "Editar"
+            }
+          >
             <Button icon={<EditOutlined />} size="small" onClick={() => onEdit(record)} />
           </Tooltip>
-          <Tooltip title="Excluir">
-            <Popconfirm
-              title="Tem certeza que deseja excluir esta ração?"
-              onConfirm={() => onDelete(record.id)}
-            >
-              <Button icon={<DeleteOutlined />} size="small" danger />
-            </Popconfirm>
-          </Tooltip>
+          {/* Rações do sistema não podem ser excluídas pela clínica */}
+          {!record.isSistema && (
+            <Tooltip title="Excluir">
+              <Popconfirm
+                title="Tem certeza que deseja excluir esta ração?"
+                onConfirm={() => onDelete(record.id)}
+              >
+                <Button icon={<DeleteOutlined />} size="small" danger />
+              </Popconfirm>
+            </Tooltip>
+          )}
         </Space>
       ),
     }),

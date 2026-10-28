@@ -23,6 +23,7 @@ export const CpfMaskInput = (props) => (
     style={inputStyle}
     placeholder="000.000.000-00"
     value={props.value}
+    disabled={props.disabled}
     onAccept={(value) => props.onChange(value)}
   />
 );
@@ -89,6 +90,7 @@ export const TelefoneMaskInput = (props) => (
     style={inputStyle}
     placeholder="(00) 99999-9999"
     value={props.value}
+    disabled={props.disabled}
     onAccept={(value) => props.onChange(value)}
   />
 );

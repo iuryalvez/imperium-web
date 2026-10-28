@@ -32,7 +32,10 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
                             .ToList()
                         : new List<TutorInfoSimplesDto>()));
 
+            // ClinicaId e status são definidos pelo service a partir do token
             CreateMap<CadastrarAnimalClinicaDto, Animal>()
+                .ForMember(dest => dest.ClinicaId, opt => opt.Ignore())
+                .ForMember(dest => dest.IsAtivo, opt => opt.Ignore())
                 .ForMember(dest => dest.DataCadastro, opt => opt.MapFrom(_ => DateTime.UtcNow))
                 .ForMember(dest => dest.DataModificado, opt => opt.MapFrom(_ => DateTime.UtcNow))
                 .ForMember(dest => dest.Nascimento, opt => opt.MapFrom(src => src.Nascimento.ToUniversalTime()));

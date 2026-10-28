@@ -14,7 +14,7 @@ namespace backend.Domain.Usuarios.Interfaces
         Task<IEnumerable<GetUsuariosClinicaDto>> GetUsuariosByClinicIdAsync(int clinicaId, string currentUserId);
         Task<ServiceResult> UpdateUsuarioSistemaAsync(EditarUsuarioSistemaDto dto);
         Task<ServiceResult> CadastrarUsuarioClinicaAsync(CadastrarUsuarioClinicaDto dto, int clinicaId);
-        Task<ServiceResult> UpdateUsuarioClinicaAsync(EditarUsuarioClinicaDto dto);
+        Task<ServiceResult> UpdateUsuarioClinicaAsync(EditarUsuarioClinicaDto dto, int clinicaId);
         Task<ServiceResult> UnlinkUserFromClinicAsync(int upcId);
         Task<ServiceResult> SetUserActivationStatusAsync(SetUserStatusDto dto);
         Task<ServiceResult> GetMeuPerfilAsync(int usuarioId);

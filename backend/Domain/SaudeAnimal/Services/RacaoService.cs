@@ -46,6 +46,7 @@ public class RacaoService : IRacaoService
 
     /// <summary>
     /// Obtém a entidade Racao pelo seu ID, validando a permissão da clínica.
+    /// Retorna rações do sistema (ClinicaId nulo) ou da própria clínica; nunca de outra clínica.
     /// Este método é um bloco de construção para outros métodos do serviço.
     /// </summary>
     /// <param name="racaoId">O ID da ração a ser obtida.</param>
@@ -56,7 +57,7 @@ public class RacaoService : IRacaoService
         _logger.LogInformation("Buscando entidade Ração ID {RacaoId} para a clínica ID {ClinicaId}.", racaoId, clinicaId);
         try
         {
-            var racao = await _racaoRepository.GetByIdAndClinicIdAsync(racaoId, clinicaId);
+            var racao = await _racaoRepository.GetAvailableByIdAndClinicIdAsync(racaoId, clinicaId);
             if (racao == null)
             {
                 _logger.LogWarning("Ração ID {RacaoId} não encontrada ou não pertence à clínica ID {ClinicaId}.", racaoId, clinicaId);
@@ -96,7 +97,7 @@ public class RacaoService : IRacaoService
     }
 
     /// <summary>
-    /// Obtém uma lista de DTOs de todas as rações de uma clínica, com filtro opcional por espécie.
+    /// Obtém uma lista de DTOs das rações disponíveis para a clínica (sistema + próprias), com filtro opcional por espécie.
     /// </summary>
     /// <param name="clinicaId">O ID da clínica.</param>
     /// <param name="especie">A espécie do animal para filtrar os resultados (opcional).</param>
@@ -106,7 +107,7 @@ public class RacaoService : IRacaoService
         _logger.LogInformation("Buscando todos os DTOs de ração para a clínica ID {ClinicaId}. Filtro de espécie: {Especie}", clinicaId, especie?.ToString() ?? "Nenhum");
         try
         {
-            var racoes = await _racaoRepository.GetAllByClinicIdAndEspecieAsync(clinicaId, especie);
+            var racoes = await _racaoRepository.GetAllAvailableByClinicIdAndEspecieAsync(clinicaId, especie);
             var dtos = _mapper.Map<IEnumerable<GetRacoesDto>>(racoes);
             
             _logger.LogInformation("Busca de rações para a clínica ID {ClinicaId} concluída com sucesso.", clinicaId);
@@ -157,6 +158,7 @@ public class RacaoService : IRacaoService
 
     /// <summary>
     /// Atualiza os dados de uma ração existente e recalcula seus valores nutricionais.
+    /// Se a ração for do sistema (ClinicaId nulo), cria uma cópia específica para a clínica com as alterações.
     /// </summary>
     /// <param name="dto">O DTO com os dados a serem atualizados.</param>
     /// <param name="clinicaId">O ID da clínica para validação de posse.</param>
@@ -174,6 +176,13 @@ public class RacaoService : IRacaoService
         try
         {
             var racao = (Racao)resultadoBusca.Data;
+
+            if (racao.ClinicaId == null)
+            {
+                _logger.LogInformation("A ração {RacaoId} é do sistema. Criando uma cópia específica para a clínica {ClinicaId}.", racao.Id, clinicaId);
+                return await CreateClinicSpecificCopyAsync(racao, dto, clinicaId);
+            }
+
             _mapper.Map(dto, racao);
 
             _logger.LogInformation("Recalculando valores nutricionais para a ração ID {RacaoId} após atualização.", dto.Id);
@@ -213,6 +222,12 @@ public class RacaoService : IRacaoService
         {
             var racao = (Racao)resultadoBusca.Data;
 
+            if (racao.ClinicaId == null)
+            {
+                _logger.LogWarning("A clínica {ClinicaId} tentou excluir a ração do sistema {RacaoId}.", clinicaId, racaoId);
+                return new ServiceResult { Succeeded = false, Message = "Rações do sistema não podem ser excluídas pela clínica." };
+            }
+
             _racaoRepository.Delete(racao);
             await _racaoRepository.SaveChangesAsync();
 
@@ -224,6 +239,41 @@ public class RacaoService : IRacaoService
             _logger.LogError(ex, "Erro ao excluir a ração ID {RacaoId}.", racaoId);
             throw;
         }
+    }
+
+    /// <summary>
+    /// Cria uma ração específica para a clínica a partir de uma ração do sistema, aplicando as alterações do DTO.
+    /// A ração do sistema permanece inalterada.
+    /// </summary>
+    private async Task<ServiceResult> CreateClinicSpecificCopyAsync(Racao racaoSistema, AtualizarRacaoDto dto, int clinicaId)
+    {
+        var copia = new Racao
+        {
+            ClinicaId = clinicaId,
+            Especie = racaoSistema.Especie,
+            Nome = racaoSistema.Nome,
+            IsPorcentagem = racaoSistema.IsPorcentagem,
+            Umidade = racaoSistema.Umidade,
+            ProteinaBruta = racaoSistema.ProteinaBruta,
+            ExtratoEtereo = racaoSistema.ExtratoEtereo,
+            MateriaMineral = racaoSistema.MateriaMineral,
+            FibraBruta = racaoSistema.FibraBruta,
+            FibraDieteticaTotal = racaoSistema.FibraDieteticaTotal
+        };
+
+        _mapper.Map(dto, copia);
+        copia.Id = 0; // Garante que será tratada como uma nova entidade pelo ORM.
+        copia.ClinicaId = clinicaId;
+
+        CalcularEnergiaMetabolizavel(copia);
+        CalcularDistribuicaoEnergetica(copia);
+
+        await _racaoRepository.AddAsync(copia);
+        await _racaoRepository.SaveChangesAsync();
+
+        _logger.LogInformation("Cópia da ração do sistema {RacaoSistemaId} criada para a clínica {ClinicaId} com ID {RacaoId}.", racaoSistema.Id, clinicaId, copia.Id);
+        var resultDto = _mapper.Map<GetRacoesDto>(copia);
+        return new ServiceResult { Succeeded = true, Message = "Ração do sistema copiada para a clínica com as alterações.", Data = resultDto };
     }
 
     #endregion

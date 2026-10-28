@@ -26,7 +26,7 @@ namespace backend.Domain.AtendimentoAnimal.Repository
                 // Inclui a coleção de vínculos com tutores na consulta
                 .Include(a => a.TutoresAnimais)
                 // Garante que o animal pertence à clínica especificada
-                .Where(a => a.AnimaisClinicas!.Any(ac => ac.ClinicaId == clinicaId))
+                .Where(a => a.ClinicaId == clinicaId)
                 // Busca o animal específico pelo ID
                 .FirstOrDefaultAsync(a => a.Id == animalId);
         }
@@ -37,18 +37,18 @@ namespace backend.Domain.AtendimentoAnimal.Repository
                 .Include(a => a.TutoresAnimais!).ThenInclude(ta => ta.Tutor)
                 .Include(a => a.Acompanhamento) // Incluindo o Acompanhamento Individualizado
                 .Include(a => a.Raca) // Incluindo a Raça
-                .Where(a => a.AnimaisClinicas!.Any(ac => ac.ClinicaId == clinicaId))
+                .Where(a => a.ClinicaId == clinicaId)
                 .ToListAsync();
         }
 
         public async Task<bool> IsAnimalInClinicAsync(int animalId, int clinicaId)
         {
-            // Verifica se existe um vínculo ATIVO entre o animal e a clínica
-            return await _context.AnimaisClinicas
-                .AnyAsync(ac =>
-                    ac.AnimalId == animalId &&
-                    ac.ClinicaId == clinicaId &&
-                    ac.IsAtivo);
+            // Verifica se o animal pertence à clínica e está ATIVO
+            return await _context.Animais
+                .AnyAsync(a =>
+                    a.Id == animalId &&
+                    a.ClinicaId == clinicaId &&
+                    a.IsAtivo);
         }
 
         public async Task AddTutorLinkAsync(TutorAnimal link)
@@ -63,10 +63,10 @@ namespace backend.Domain.AtendimentoAnimal.Repository
                 return true; // Lista vazia é considerada válida
             }
 
-            // Conta quantos dos IDs fornecidos existem na tabela de vínculo Animal-Clínica
-            var validAnimalsCount = await _context.AnimaisClinicas
+            // Conta quantos dos IDs fornecidos pertencem à clínica
+            var validAnimalsCount = await _context.Animais
                 .AsNoTracking()
-                .CountAsync(ac => ac.ClinicaId == clinicaId && animalIds.Contains(ac.AnimalId));
+                .CountAsync(a => a.ClinicaId == clinicaId && animalIds.Contains(a.Id));
 
             // A validação passa se a contagem for igual ao número de IDs únicos que recebemos.
             return validAnimalsCount == animalIds.Distinct().Count();
@@ -107,7 +107,7 @@ namespace backend.Domain.AtendimentoAnimal.Repository
                     .ThenInclude(c => c.Usuario)
 
                 // Garante que estamos pegando o animal correto da clínica correta
-                .Where(a => a.Id == animalId && a.AnimaisClinicas!.Any(ac => ac.ClinicaId == clinicaId))
+                .Where(a => a.Id == animalId && a.ClinicaId == clinicaId)
                 .FirstOrDefaultAsync();
         }
 
@@ -116,7 +116,7 @@ namespace backend.Domain.AtendimentoAnimal.Repository
             return await _context.Animais
                 .Include(a => a.TutoresAnimais).ThenInclude(ta => ta.Tutor)
                 .Include(a => a.Raca)
-                .Where(a => a.AnimaisClinicas.Any(ac => ac.ClinicaId == clinicaId))
+                .Where(a => a.ClinicaId == clinicaId)
                 .FirstOrDefaultAsync(a => a.Id == animalId);
         }
 
@@ -131,20 +131,16 @@ namespace backend.Domain.AtendimentoAnimal.Repository
             return Task.CompletedTask;
         }
 
-        public async Task AddVinculoClinicaAsync(AnimalClinica vinculo)
+        public async Task<bool> HasConsultasAsync(int animalId)
         {
-            await _context.AnimaisClinicas.AddAsync(vinculo);
+            return await _context.Consultas
+                .AsNoTracking()
+                .AnyAsync(c => c.AnimalId == animalId);
         }
 
-        public async Task<AnimalClinica?> GetVinculoAnimalClinicaAsync(int animalId, int clinicaId)
+        public void Remove(Animal animal)
         {
-            return await _context.AnimaisClinicas
-                .FirstOrDefaultAsync(ac => ac.AnimalId == animalId && ac.ClinicaId == clinicaId);
-        }
-
-        public void UpdateVinculo(AnimalClinica vinculo)
-        {
-            _context.AnimaisClinicas.Update(vinculo);
+            _context.Animais.Remove(animal);
         }
 
         public async Task<int> SaveChangesAsync()

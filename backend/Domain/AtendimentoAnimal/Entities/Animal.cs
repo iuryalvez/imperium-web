@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using backend.Domain.AtendimentoAnimal.Enums;
 using backend.Domain.SaudeAnimal.Enums;
+using backend.Domain.GestaoClinica.Entities;
 
 namespace backend.Domain.AtendimentoAnimal.Entities
 {
@@ -10,6 +11,12 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
+        [Required(ErrorMessage = "O id da clínica é obrigatório.")]
+        public int ClinicaId { get; set; }
+
+        [ForeignKey("ClinicaId")]
+        public Clinica? Clinica { get; set; }
         public string? Nome { get; set; }
         public EspecieAnimal Especie { get; set; }
         public int? RacaId { get; set; }
@@ -19,6 +26,8 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         public DateTime Nascimento { get; set; }
         public DateTime DataCadastro { get; set; }
         public DateTime DataModificado { get; set; }
+        public bool IsAtivo { get; set; } = true;
+        public DateTime? DataDesativacao { get; set; }
         public Sexo Sexo { get; set; }
         public double? Peso { get; set; }
         public double? PesoMinimo { get; set; }
@@ -35,7 +44,6 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         public double? NecessidadeEnergeticaDiaria { get; set; } // resultado kcal calculado 
         public Acompanhamento? Acompanhamento { get; set; } // referência de navegação com o dependente
         public ICollection<Consulta>? Consultas { get; set; } // navegation
-        public ICollection<AnimalClinica>? AnimaisClinicas { get; set; } // referência de navegação com o dependente
         public ICollection<TutorAnimal>? TutoresAnimais { get; set; }
 
         [NotMapped] // Informa ao EF Core para NÃO criar esta coluna no banco

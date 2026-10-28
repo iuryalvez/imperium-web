@@ -42,8 +42,8 @@ namespace backend.Domain.GestaoClinica.Entities {
         public virtual ICollection<Raca>? Racas { get; set; }
         public virtual ICollection<Racao>? Racoes { get; set; }
         public virtual ICollection<UsuarioPerfilClinica>? UsuariosPerfisClinicas { get; set; }
-        public virtual ICollection<TutorClinica>? TutoresClinicas { get; set; }
-        public virtual ICollection<AnimalClinica>? AnimaisClinicas { get; set; }
+        public virtual ICollection<Tutor>? Tutores { get; set; }
+        public virtual ICollection<Animal>? Animais { get; set; }
         
         // Endereço
         [StringLength(8, ErrorMessage = "O CEP deve ter no máximo 8 dígitos.")]

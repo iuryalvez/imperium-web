@@ -6,7 +6,6 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Tutor
     public class EditarTutorClinicaDto
     {
         public int Id { get; set; }
-        public int ClinicaId { get; set; }
 
         public List<int>? AnimalIds { get; set; }
 

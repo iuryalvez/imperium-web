@@ -42,6 +42,7 @@ const FormCadastroUsuarioDaClinica = ({ onFinish }) => {
             name="email"
             label="E-mail"
             rules={[{ required: true, type: "email" }]}
+            extra="Se o e-mail já tiver cadastro no sistema, o usuário só será vinculado à clínica com os perfis escolhidos; os outros dados e a senha dele não mudam."
           >
             <Input placeholder="exemplo@email.com" />
           </Form.Item>

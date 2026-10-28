@@ -140,7 +140,7 @@ public class AnimalService : IAnimalService
     #region Métodos de Escrita
 
     /// <summary>
-    /// Cria um novo animal, vincula-o à clínica, sincroniza seus tutores e cria seu acompanhamento inicial.
+    /// Cria um novo animal na clínica, sincroniza seus tutores e cria seu acompanhamento inicial.
     /// </summary>
     /// <param name="dto">Dados para criação do animal.</param>
     /// <param name="clinicaId">ID da clínica onde o animal será cadastrado.</param>
@@ -152,14 +152,14 @@ public class AnimalService : IAnimalService
         try
         {
             var animal = _mapper.Map<Animal>(dto);
+            animal.ClinicaId = clinicaId;
+            animal.IsAtivo = true;
             animal.DataCadastro = DateTime.UtcNow;
             animal.DataModificado = DateTime.UtcNow;
 
             await _animalRepository.AddAsync(animal);
             await _animalRepository.SaveChangesAsync(); // Salva para gerar o ID do animal
             _logger.LogInformation("Animal (ID: {AnimalId}) criado no banco.", animal.Id);
-
-            await _animalRepository.AddVinculoClinicaAsync(new AnimalClinica { AnimalId = animal.Id, ClinicaId = clinicaId, IsAtivo = true });
 
             var resultadoTutores = await SincronizarTutoresAsync(animal, dto.TutorIds, clinicaId);
             if (!resultadoTutores.Succeeded)
@@ -237,45 +237,84 @@ public class AnimalService : IAnimalService
     }
 
     /// <summary>
-    /// Realiza um soft delete no vínculo entre um animal e uma clínica.
+    /// Realiza um soft delete do animal na clínica (o animal pertence a uma única clínica).
     /// </summary>
     /// <param name="animalId">ID do animal.</param>
     /// <param name="clinicaId">ID da clínica.</param>
     /// <returns>ServiceResult indicando sucesso ou falha.</returns>
     public async Task<ServiceResult> DesativarVinculoAnimalAsync(int animalId, int clinicaId)
     {
-        _logger.LogInformation("Tentando desativar vínculo do animal {AnimalId} com a clínica {ClinicaId}.", animalId, clinicaId);
+        _logger.LogInformation("Tentando desativar o animal {AnimalId} na clínica {ClinicaId}.", animalId, clinicaId);
+        try
+        {
+            var animal = await _animalRepository.GetByIdAndClinicaIdWithIncludesAsync(animalId, clinicaId);
+            if (animal == null)
+            {
+                _logger.LogWarning("Animal {AnimalId} não encontrado na clínica {ClinicaId}.", animalId, clinicaId);
+                return new ServiceResult { Succeeded = false, Message = "Animal não encontrado nesta clínica." };
+            }
+
+            if (!animal.IsAtivo)
+            {
+                _logger.LogInformation("Animal {AnimalId} na clínica {ClinicaId} já se encontra inativo.", animalId, clinicaId);
+                return new ServiceResult { Succeeded = true, Message = "O animal já estava inativo." };
+            }
+
+            animal.IsAtivo = false;
+            animal.DataDesativacao = DateTime.UtcNow;
+            await _animalRepository.SaveChangesAsync();
+
+            _logger.LogInformation("Animal {AnimalId} da clínica {ClinicaId} foi desativado com sucesso.", animalId, clinicaId);
+            return new ServiceResult { Succeeded = true, Message = "Animal desativado com sucesso." };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao desativar o animal {AnimalId} da clínica {ClinicaId}.", animalId, clinicaId);
+            return new ServiceResult { Succeeded = false, Message = "Ocorreu um erro ao desativar o animal." };
+        }
+    }
+
+    /// <summary>
+    /// Exclui um animal da clínica. Animais com consultas registradas não podem ser excluídos (devem ser desativados).
+    /// </summary>
+    /// <param name="animalId">ID do animal.</param>
+    /// <param name="clinicaId">ID da clínica.</param>
+    /// <returns>ServiceResult indicando sucesso ou falha.</returns>
+    public async Task<ServiceResult> DeleteAsync(int animalId, int clinicaId)
+    {
+        _logger.LogInformation("Tentando excluir o animal {AnimalId} da clínica {ClinicaId}.", animalId, clinicaId);
         await using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
-            var vinculo = await _animalRepository.GetVinculoAnimalClinicaAsync(animalId, clinicaId);
-            if (vinculo == null)
+            var animal = await _animalRepository.GetByIdAndClinicaIdWithIncludesAsync(animalId, clinicaId);
+            if (animal == null)
             {
-                _logger.LogWarning("Vínculo Animal-Clínica não encontrado para animal {AnimalId} e clínica {ClinicaId}.", animalId, clinicaId);
-                return new ServiceResult { Succeeded = false, Message = "Vínculo do animal com a clínica não encontrado." };
+                _logger.LogWarning("Tentativa de excluir animal {AnimalId} que não pertence à clínica {ClinicaId}.", animalId, clinicaId);
+                return new ServiceResult { Succeeded = false, Message = $"Animal com ID {animalId} não encontrado nesta clínica." };
             }
 
-            if (!vinculo.IsAtivo)
+            if (await _animalRepository.HasConsultasAsync(animalId))
             {
-                _logger.LogInformation("Vínculo para animal {AnimalId} na clínica {ClinicaId} já se encontra inativo.", animalId, clinicaId);
-                return new ServiceResult { Succeeded = true, Message = "O vínculo já estava inativo." };
+                return new ServiceResult { Succeeded = false, Message = "Este animal possui consultas registradas e não pode ser excluído. Desative-o." };
             }
 
-            vinculo.IsAtivo = false;
-            vinculo.DataDesativacao = DateTime.UtcNow;
+            if (animal.TutoresAnimais != null && animal.TutoresAnimais.Any())
+            {
+                _animalRepository.RemoveTutorLinks(animal.TutoresAnimais);
+            }
+            _animalRepository.Remove(animal);
 
-            _animalRepository.UpdateVinculo(vinculo);
             await _animalRepository.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            _logger.LogInformation("Vínculo do animal {AnimalId} com a clínica {ClinicaId} foi desativado com sucesso.", animalId, clinicaId);
-            return new ServiceResult { Succeeded = true, Message = "Vínculo do animal desativado com sucesso." };
+            _logger.LogInformation("Animal {AnimalId} excluído da clínica {ClinicaId}.", animalId, clinicaId);
+            return new ServiceResult { Succeeded = true, Message = "Animal excluído com sucesso." };
         }
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            _logger.LogError(ex, "Erro ao desativar vínculo do animal {AnimalId} com a clínica {ClinicaId}.", animalId, clinicaId);
-            return new ServiceResult { Succeeded = false, Message = "Ocorreu um erro ao desativar o vínculo." };
+            _logger.LogError(ex, "Erro ao excluir o animal {AnimalId} da clínica {ClinicaId}.", animalId, clinicaId);
+            return new ServiceResult { Succeeded = false, Message = "Ocorreu um erro interno ao excluir o animal." };
         }
     }
 
@@ -311,6 +350,12 @@ public class AnimalService : IAnimalService
         // Garante que a lista de desejados não seja nula para evitar erros.
         idsDesejados ??= new List<int>();
 
+        // Tutor e animal precisam ser da mesma clínica
+        if (animal.ClinicaId != clinicaId)
+        {
+            return new ServiceResult { Succeeded = false, Message = "O animal não pertence a esta clínica." };
+        }
+
         var resultadoValidacao = await _tutorService.ValidarTutoresDaClinicaAsync(idsDesejados, clinicaId);
         if (!resultadoValidacao.Succeeded)
         {
@@ -334,7 +379,7 @@ public class AnimalService : IAnimalService
             _logger.LogInformation("Adicionando {Count} novo(s) vínculo(s) de tutor(es) ao animal {AnimalId}.", paraAdicionar.Count, animal.Id);
             foreach (var tutorId in paraAdicionar)
             {
-                await _animalRepository.AddTutorLinkAsync(new TutorAnimal { AnimalId = animal.Id, TutorId = tutorId });
+                await _animalRepository.AddTutorLinkAsync(new TutorAnimal { AnimalId = animal.Id, TutorId = tutorId, DataAssociacao = DateTime.UtcNow });
             }
         }
 

@@ -64,6 +64,17 @@ public class UsuarioRepository : IUsuarioRepository
         return await _userManager.FindByEmailAsync(email) != null;
     }
 
+    public async Task<Usuario?> GetUserByEmailAsync(string email)
+    {
+        return await _userManager.FindByEmailAsync(email);
+    }
+
+    public async Task<bool> IsUserLinkedToClinicAsync(int userId, int clinicaId)
+    {
+        return await _context.UsuariosPerfisClinicas
+            .AnyAsync(upc => upc.UsuarioId == userId && upc.ClinicaId == clinicaId);
+    }
+
     public async Task<bool> EmailExistsInClinicAsync(string email, int clinicaId)
     {
         return await _context.UsuariosPerfisClinicas

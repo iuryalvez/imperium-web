@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using backend.Domain.GestaoClinica.Entities;
 
 namespace backend.Domain.AtendimentoAnimal.Entities
 {
@@ -8,6 +9,12 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
+        [Required(ErrorMessage = "O id da clínica é obrigatório.")]
+        public int ClinicaId { get; set; }
+
+        [ForeignKey("ClinicaId")]
+        public Clinica? Clinica { get; set; }
 
         [Required(ErrorMessage = "O nome do tutor é obrigatório.")]
         [StringLength(100, ErrorMessage = "O nome do tutor deve ter no máximo 100 caracteres.")]
@@ -27,7 +34,8 @@ namespace backend.Domain.AtendimentoAnimal.Entities
         [EmailAddress(ErrorMessage = "O e-mail não é válido.")]
         public string? Email { get; set; }
         public DateTime DataCadastro { get; set; }
-        public virtual ICollection<TutorClinica>? TutoresClinicas { get; set; }
+        public bool IsAtivo { get; set; } = true;
+        public DateTime? DataDesativacao { get; set; }
         public virtual ICollection<TutorAnimal>? TutoresAnimais { get; set; }
         public virtual ICollection<Consulta>? Consultas { get; set; }
 

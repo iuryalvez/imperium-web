@@ -18,8 +18,8 @@ namespace backend.Domain.GestaoClinica.Interfaces
         Task<ServiceResult> DeleteAsync(int clinicaId);
         public Task<bool> TutorCpfExisteNaClinicaAsync(string cpf, int clinicaId);
         public Task<bool> UsuarioCpfExisteNaClinicaAsync(string cpf, int clinicaId);
-        public Task<List<TutorClinica>> ObterVinculosTutoresDaClinicaAsync(int clinicaId);
-        public Task<List<AnimalClinica>> ObterVinculosAnimaisDaClinicaAsync(int clinicaId);
-        public Task<List<AnimalClinica>> ObterVinculosAnimaisDaClinicaComTutoresAsync(int clinicaId);
+        public Task<List<Tutor>> ObterTutoresDaClinicaAsync(int clinicaId);
+        public Task<List<Animal>> ObterAnimaisDaClinicaAsync(int clinicaId);
+        public Task<List<Animal>> ObterAnimaisDaClinicaComTutoresAsync(int clinicaId);
     }
 }

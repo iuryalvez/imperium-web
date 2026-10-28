@@ -14,6 +14,8 @@ namespace backend.Domain.Usuarios.Interfaces
         Task<IEnumerable<Usuario>> GetUnlinkedAdminsAsync(List<int> linkedUserIds, int currentUserId);
         Task<IEnumerable<UsuarioPerfilClinica>> GetVinculosByClinicIdAsync(int clinicaId);
         Task<bool> EmailExistsAsync(string email);
+        Task<Usuario?> GetUserByEmailAsync(string email);
+        Task<bool> IsUserLinkedToClinicAsync(int userId, int clinicaId);
         Task<bool> EmailExistsInClinicAsync(string email, int clinicaId);
         Task<bool> EmailExistsForAnotherUserAsync(string email, int excludeUserId);
         Task<bool> EmailExistsInClinicForAnotherUserAsync(string email, int clinicaId, int userId);

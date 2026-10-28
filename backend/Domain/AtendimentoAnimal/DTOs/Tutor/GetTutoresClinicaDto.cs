@@ -11,6 +11,8 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Tutor
         public string? Whatsapp { get; set; }
         public string? Email { get; set; }
         public DateTime DataCadastro { get; set; }
+        public bool IsAtivo { get; set; }
+        public DateTime? DataDesativacao { get; set; }
         public List<AnimalInfoSimplesDto>? Animais { get; set; }
 
         // Endereço

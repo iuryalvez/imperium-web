@@ -54,7 +54,11 @@ export const useRacoesManager = () => {
       setIsSubmitting(true);
       if (editingRacao) {
         await racoesDaClinicaAPI.editar({ ...editingRacao, ...values });
-        message.success("Ração atualizada com sucesso!");
+        message.success(
+          editingRacao.isSistema
+            ? "Ração do sistema copiada para a clínica com as alterações!"
+            : "Ração atualizada com sucesso!"
+        );
       } else {
         await racoesDaClinicaAPI.cadastrar(values);
         message.success("Ração cadastrada com sucesso!");

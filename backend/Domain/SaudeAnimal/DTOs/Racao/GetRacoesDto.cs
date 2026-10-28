@@ -10,6 +10,11 @@ public class GetRacoesDto
     public string Nome { get; set; } = string.Empty;
     public string Especie { get; set; } = string.Empty; // "Cao" ou "Gato"
 
+    /// <summary>
+    /// Indica se a ração é do sistema (compartilhada entre as clínicas). Ao editá-la, a clínica recebe uma cópia própria.
+    /// </summary>
+    public bool IsSistema { get; set; }
+
     // --- Composição Garantida (Valores de Entrada) ---
     
     /// <summary>
