@@ -1,3 +1,4 @@
+using backend.Domain.Utils;
 using AutoMapper;
 using backend.Domain.GestaoClinica.DTOs;
 using backend.Domain.GestaoClinica.DTOs.Dashboard;
@@ -18,11 +19,11 @@ namespace backend.Domain.GestaoClinica.Mappers
             // De DTO de Edição (Admin) para Entidade
             // Configurado para ignorar campos nulos, permitindo atualizações parciais (PATCH)
             CreateMap<EditarClinicaAdminDto, Clinica>()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                .IgnorarNulosDaOrigem(); // campo nulo no DTO mantém o valor atual (ver MappingExtensions)
 
             // De DTO de Edição (Clínica) para Entidade
             CreateMap<EditarClinicaDto, Clinica>()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                .IgnorarNulosDaOrigem(); // campo nulo no DTO mantém o valor atual (ver MappingExtensions)
         }
     }
 }

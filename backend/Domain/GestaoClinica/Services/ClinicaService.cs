@@ -1,3 +1,4 @@
+using backend.Domain.Utils.Paginacao;
 using backend.Infra.Data;
 using backend.Domain.GestaoClinica.Entities;
 using backend.Domain.GestaoClinica.Interfaces;
@@ -26,10 +27,17 @@ namespace backend.Domain.GestaoClinica.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<GetClinicaDto>> GetAllAsync()
+        /// <summary>Lista paginada das clínicas (admin), mais recentes primeiro por padrão.</summary>
+        public async Task<PaginaResultado<GetClinicaDto>> ListarAsync(ClinicaFiltro filtro)
         {
-            var clinicas = await _clinicaRepository.GetAllAsync();
-            return _mapper.Map<IEnumerable<GetClinicaDto>>(clinicas);
+            var pagina = await _clinicaRepository.ListarAsync(filtro);
+            return pagina.Converter(itens => _mapper.Map<IEnumerable<GetClinicaDto>>(itens));
+        }
+
+        /// <summary>Opções para selects: até 20 clínicas { id, nome, isAtivo }, ativas primeiro.</summary>
+        public async Task<List<OpcaoDto>> ListarOpcoesAsync(string? busca)
+        {
+            return await _clinicaRepository.ListarOpcoesAsync(busca);
         }
 
         public async Task<GetClinicaDto?> GetByIdAsync(int clinicaId)

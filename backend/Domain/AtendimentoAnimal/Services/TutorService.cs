@@ -5,6 +5,7 @@ using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interfaces;
 using backend.Domain.Usuarios.Interfaces;
 using backend.Domain.Utils;
+using backend.Domain.Utils.Paginacao;
 using backend.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -60,26 +61,6 @@ namespace backend.Domain.AtendimentoAnimal.Services
         }
 
         /// <summary>
-        /// Obtém uma lista de todas as entidades de tutores de uma clínica específica.
-        /// Este método retorna as entidades de domínio completas.
-        /// </summary>
-        /// <param name="clinicaId">O ID da clínica.</param>
-        /// <returns>Uma coleção de entidades 'Tutor'.</returns>
-        public async Task<IEnumerable<Tutor>> ObterTodosPorClinicaIdAsync(int clinicaId)
-        {
-            _logger.LogInformation("Buscando todas as entidades Tutor para a clínica ID {ClinicaId}.", clinicaId);
-            try
-            {
-                return await _tutorRepository.GetAllByClinicIdWithIncludesAsync(clinicaId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao buscar todas as entidades Tutor da clínica ID {ClinicaId}.", clinicaId);
-                throw;
-            }
-        }
-
-        /// <summary>
         /// Obtém um DTO de um tutor específico, fazendo uso do método de serviço que busca a entidade.
         /// </summary>
         /// <param name="tutorId">O ID do tutor a ser buscado.</param>
@@ -97,19 +78,18 @@ namespace backend.Domain.AtendimentoAnimal.Services
         }
 
         /// <summary>
-        /// Obtém uma lista de DTOs de todos os tutores de uma clínica, fazendo uso do método de serviço que busca as entidades.
+        /// Lista paginada dos tutores da clínica (ativos e inativos), mais recentes primeiro por padrão.
         /// </summary>
-        /// <param name="clinicaId">O ID da clínica.</param>
-        /// <returns>Uma coleção de DTOs 'GetTutoresClinicaDto'.</returns>
-        public async Task<IEnumerable<GetTutoresClinicaDto>> ObterTodosDtosPeloClinicaIdAsync(int clinicaId)
+        public async Task<PaginaResultado<GetTutoresClinicaDto>> ListarAsync(TutorFiltro filtro, int clinicaId)
         {
-            _logger.LogInformation("Buscando todos os DTOs de Tutores para a clínica ID {ClinicaId}.", clinicaId);
+            var pagina = await _tutorRepository.ListarDaClinicaAsync(filtro, clinicaId);
+            return pagina.Converter(itens => _mapper.Map<IEnumerable<GetTutoresClinicaDto>>(itens));
+        }
 
-            // 1. Chama o método de serviço intermediário para obter as entidades
-            var tutores = await ObterTodosPorClinicaIdAsync(clinicaId);
-
-            // 2. Mapeia a coleção de entidades para uma coleção de DTOs.
-            return _mapper.Map<IEnumerable<GetTutoresClinicaDto>>(tutores);
+        /// <summary>Opções para selects: até 20 tutores { id, nome (CPF), isAtivo }, ativos primeiro.</summary>
+        public async Task<List<OpcaoDto>> ListarOpcoesAsync(int clinicaId, string? busca)
+        {
+            return await _tutorRepository.ListarOpcoesAsync(clinicaId, busca);
         }
 
         /// <summary>

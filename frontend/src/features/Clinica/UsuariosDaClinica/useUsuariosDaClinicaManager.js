@@ -1,13 +1,17 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { message } from "antd";
 import { usuariosDaClinicaAPI } from "../../../api/clinica/usuariosDaClinicaAPI.js";
+import { usePaginacaoServidor } from "../../../utils/usePaginacaoServidor";
+import { traduzirFiltrosUsuarioClinica } from "./components/TabelaUsuariosDaClinica/colunas";
 
 /**
  * Hook customizado para gerenciar toda a lógica da página de Usuários da Clínica.
  */
 export const useUsuariosDaClinicaManager = () => {
-  const [usuarios, setUsuarios] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Lista paginada no servidor (página, tamanho, busca, ordenação e filtros de coluna)
+  const lista = usePaginacaoServidor(usuariosDaClinicaAPI.listar, {}, traduzirFiltrosUsuarioClinica);
+  const usuarios = lista.dados;
+  const loading = lista.loading;
   const [loadingRowKey, setLoadingRowKey] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -15,22 +19,7 @@ export const useUsuariosDaClinicaManager = () => {
   const [isOpenModalDetalhes, setIsOpenModalDetalhes] = useState(false);
   const [viewingUser, setViewingUser] = useState(null); // Guarda o usuário a ser visualizado
 
-  const fetchUsuarios = useCallback(async () => {
-    setLoading(true);
-    try {
-      const dadosUsuarios = await usuariosDaClinicaAPI.listar();
-      setUsuarios(dadosUsuarios);
-    } catch (error) {
-      message.error(error.message);
-      setUsuarios([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchUsuarios();
-  }, [fetchUsuarios]);
+  const fetchUsuarios = lista.recarregar;
 
   const handleOpenModalCadastro = () => {
     setEditingUser(null);
@@ -109,6 +98,9 @@ export const useUsuariosDaClinicaManager = () => {
 
   // Retorna tudo que o componente de UI precisa para funcionar
   return {
+    paginacao: lista.paginacao,
+    setBusca: lista.setBusca,
+    handleTableChange: lista.handleTableChange,
     usuarios,
     loading,
     loadingRowKey,

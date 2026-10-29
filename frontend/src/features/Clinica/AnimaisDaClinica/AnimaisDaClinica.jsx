@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Skeleton, Space } from "antd";
+import { Button, Space, Input } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -38,11 +38,11 @@ const AnimaisDaClinica = () => {
     handleToggleStatus,
     handleOpenModalDetalhes,
     handleCloseModalDetalhes,
+    paginacao,
+    setBusca,
+    handleTableChange,
   } = useAnimaisDaClinicaManager();
 
-  if (loading) {
-    return <Skeleton active />;
-  }
 
   return (
     <div>
@@ -62,7 +62,19 @@ const AnimaisDaClinica = () => {
         </Space>
       </div>
 
+      {/* Busca no servidor (com debounce); ordenação e filtros ficam nas colunas da tabela */}
+      <Input.Search
+        placeholder="Buscar por animal ou tutor..."
+        onChange={(e) => setBusca(e.target.value)}
+        allowClear
+        style={{ maxWidth: 320 }}
+        className="mb-4"
+      />
+
       <TabelaAnimais
+        loading={loading}
+        paginacao={paginacao}
+        onChange={handleTableChange}
         data={animais}
         onEdit={handleOpenModal}
         onDelete={handleDelete}

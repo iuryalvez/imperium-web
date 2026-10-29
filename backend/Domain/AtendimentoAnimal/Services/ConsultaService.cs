@@ -1,3 +1,4 @@
+using backend.Domain.Utils.Paginacao;
 using AutoMapper;
 using backend.Domain.AtendimentoAnimal.DTOs.Consulta;
 using backend.Domain.AtendimentoAnimal.Entities;
@@ -92,12 +93,12 @@ namespace backend.Domain.AtendimentoAnimal.Services
         }
 
         /// <summary>
-        /// Busca todas as consultas de uma clínica.
+        /// Lista paginada das consultas da clínica, mais recentes primeiro por padrão.
         /// </summary>
-        public async Task<IEnumerable<GetConsultaDto>> ObterTodasPorClinicaIdAsync(int clinicaId)
+        public async Task<PaginaResultado<GetConsultaDto>> ListarAsync(ConsultaFiltro filtro, int clinicaId)
         {
-            var consultas = await _consultaRepository.GetAllByClinicIdAsync(clinicaId);
-            return _mapper.Map<IEnumerable<GetConsultaDto>>(consultas);
+            var pagina = await _consultaRepository.ListarDaClinicaAsync(filtro, clinicaId);
+            return pagina.Converter(itens => _mapper.Map<IEnumerable<GetConsultaDto>>(itens));
         }
 
         /// <summary>

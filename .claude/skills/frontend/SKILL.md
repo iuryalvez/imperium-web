@@ -70,7 +70,7 @@ Referências vivas para copiar: `features/Sistema/ClinicasDoSistema`, `features/
 ### Hook `use<Entidade>Manager.js`
 - `export const use<Entidade>Manager = () => { ... return { ... } }` (export nomeado).
 - Estados típicos: lista, `loading` (inicia `true`), `isSubmitting`, `loadingRowKey` (loading por linha), `isModalOpen`, `isModalDetalhesOpen`, `editing<Entidade>`, `viewing<Entidade>`.
-- Lista: `usePaginacaoServidor` (lista paginada no servidor, ver seção 9). Telas ainda não migradas usam `fetch<Entidades>` com `useCallback` + `useEffect`.
+- Lista: `usePaginacaoServidor` (lista paginada no servidor, ver seção 9). Para recarregar depois de salvar, use `lista.recarregar`. A página não troca a tela inteira por spinner enquanto carrega: a `Table` recebe `loading`.
 - Handlers com prefixo `handle`: `handleOpenModalCadastro`, `handleEditar<Entidade>`, `handleOpenModalDetalhes`, `handleCloseModal(s)`, `handleSubmit`, `handleToggleStatus`.
 - `handleSubmit(values)`: `setIsSubmitting(true)` → se `editing<Entidade>` chama `editar({ ...editing, ...payload })`, senão `cadastrar(payload)` → `message.success(...)` → fecha modal → recarrega lista → `finally setIsSubmitting(false)`.
 - Antes de enviar: `sanitizeToNumbers` em CPF/CNPJ/CEP/telefone e `sanitizePayload` em edições (o AutoMapper do backend ignora `null`, mas grava `""`, então é assim que um campo é limpo).
@@ -191,7 +191,7 @@ Funções puras e helpers sem estado de negócio, agrupados por tipo:
 - **Ativo/Inativo**: coluna "Status" com `Tag` verde/vermelha e filtro; botão de ativar/desativar na coluna Ações com `Popconfirm` e ícones `StopOutlined`/`CheckCircleOutlined` (modelo: `TabelaUsuariosDaClinica`, `TabelaAnimaisDaClinica`). O Excluir continua para cadastro errado; o backend recusa se estiver em uso.
 - **Selects**: inativos aparecem **desabilitados** com o sufixo "(inativo)" (exceto o valor que o registro em edição já tem). Listas grandes usam `SelectBuscaRemota` com `buscarOpcoes={(busca) => api.opcoes(busca, ...)}` e `opcoesAtuais=[{ id, nome }]` do registro em edição.
 - **Catálogo do sistema (raças, rações)**: na clínica, item do sistema mostra tag "Sistema"; editar cria cópia da clínica; em vez de excluir/desativar, a clínica pode "Ocultar/Mostrar para esta clínica". No Sistema (admin), a tela tem o botão "Cópias das clínicas", que troca a lista para os itens próprios das clínicas (com coluna Clínica).
-- Situação atual: raças e rações já seguem o contrato paginado; as demais telas ainda carregam array e migram na próxima etapa.
+- Todas as listas seguem o contrato paginado, exceto Usuários do Sistema (pendente). Selects com `SelectBuscaRemota`: tutores e raças (animal), animais (tutor), animal e tutor (consulta), rações (avaliação e dieta), clínicas (usuário do sistema). Em `mode="multiple"` o componente guarda o rótulo dos itens já escolhidos.
 
 ## 10. Registrar a tela
 

@@ -1,12 +1,11 @@
 import React from "react";
-import { Button } from "antd";
+import { Button, Input } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   FormOutlined,
   ProfileOutlined,
 } from "@ant-design/icons";
-import LoadingSpinner from "../../../components/atoms/LoadingSpinner.jsx";
 import { useTutoresDaClinicaManager } from "./useTutoresDaClinicaManager.js";
 import TabelaTutoresDaClinica from "./components/TabelaTutoresDaClinica/TabelaTutoresDaClinica.jsx";
 import FormularioEdicaoTutorDaClinica from "./components/FormularioEdicaoTutorDaClinica/FormEdicaoTutorDaClinica.jsx";
@@ -32,9 +31,11 @@ const TutoresDaClinica = () => {
     handleDeletarTutor,
     handleToggleStatus,
     handleOpenModalDetalhes,
+    paginacao,
+    setBusca,
+    handleTableChange,
   } = useTutoresDaClinicaManager();
 
-  if (loading) return <LoadingSpinner />;
 
   return (
     <div>
@@ -51,7 +52,19 @@ const TutoresDaClinica = () => {
         </Button>
       </div>
 
+      {/* Busca no servidor (com debounce); ordenação e filtros ficam nas colunas da tabela */}
+      <Input.Search
+        placeholder="Buscar por nome, CPF ou e-mail..."
+        onChange={(e) => setBusca(e.target.value)}
+        allowClear
+        style={{ maxWidth: 320 }}
+        className="mb-4"
+      />
+
       <TabelaTutoresDaClinica
+        loading={loading}
+        paginacao={paginacao}
+        onChange={handleTableChange}
         tutores={tutores}
         onEdit={handleEditarTutor}
         onDelete={handleDeletarTutor}

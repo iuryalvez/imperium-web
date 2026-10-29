@@ -1,3 +1,5 @@
+using backend.Domain.Usuarios.DTOs.Usuario;
+using backend.Domain.Utils.Paginacao;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +14,7 @@ namespace backend.Domain.Usuarios.Interfaces
         Task<Usuario> GetUserByIdAsync(int userId);
         Task<Usuario> GetUserWithTotalClinicsById(int userId);
         Task<IEnumerable<Usuario>> GetUnlinkedAdminsAsync(List<int> linkedUserIds, int currentUserId);
-        Task<IEnumerable<UsuarioPerfilClinica>> GetVinculosByClinicIdAsync(int clinicaId);
+        Task<PaginaResultado<UsuarioPerfilClinica>> ListarVinculosDaClinicaAsync(UsuarioClinicaFiltro filtro, int clinicaId, int? excluirUpcId);
         Task<bool> EmailExistsAsync(string email);
         Task<Usuario?> GetUserByEmailAsync(string email);
         Task<bool> IsUserLinkedToClinicAsync(int userId, int clinicaId);

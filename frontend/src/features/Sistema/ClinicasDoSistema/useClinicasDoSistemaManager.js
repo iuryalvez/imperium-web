@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { message } from "antd";
 import { clinicasAPI } from "../../../api/sistema/clinicasAPI.js";
 import { useAuth } from "../../../services/AuthContext.js";
@@ -6,10 +6,14 @@ import {
   sanitizePayload,
   sanitizeToNumbers,
 } from "../../../utils/sanitizers.js";
+import { usePaginacaoServidor } from "../../../utils/usePaginacaoServidor";
+import { traduzirFiltrosClinica } from "./components/TabelaClinicasDoSistema/colunas";
 
 export const useClinicasDoSistemaManager = () => {
-  const [clinicas, setClinicas] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Lista paginada no servidor (página, tamanho, busca, ordenação e filtros de coluna)
+  const lista = usePaginacaoServidor(clinicasAPI.listar, {}, traduzirFiltrosClinica);
+  const clinicas = lista.dados;
+  const loading = lista.loading;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Modais
@@ -24,21 +28,7 @@ export const useClinicasDoSistemaManager = () => {
 
   const { escolherVinculoAdmin } = useAuth();
 
-  const fetchClinicas = useCallback(async () => {
-    setLoading(true);
-    try {
-      const dados = await clinicasAPI.listar();
-      setClinicas(dados);
-    } catch (error) {
-      message.error(error.message || "Erro ao carregar clínicas.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchClinicas();
-  }, [fetchClinicas]);
+  const fetchClinicas = lista.recarregar;
 
   const handleOpenModalCadastro = () => {
     setEditingClinica(null);
@@ -116,6 +106,9 @@ export const useClinicasDoSistemaManager = () => {
   };
 
   return {
+    paginacao: lista.paginacao,
+    setBusca: lista.setBusca,
+    handleTableChange: lista.handleTableChange,
     clinicas,
     loading,
     isSubmitting,

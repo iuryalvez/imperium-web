@@ -20,11 +20,20 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
 
         [HttpGet]
         [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] TutorFiltro filtro)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            var tutores = await _tutorService.ObterTodosDtosPeloClinicaIdAsync(clinicaId);
-            return Ok(tutores);
+            if (clinicaId <= 0) return Forbid();
+            return Ok(await _tutorService.ListarAsync(filtro, clinicaId));
+        }
+
+        [HttpGet("opcoes")]
+        [Authorize(Policy = "VisualizaTudo")]
+        public async Task<IActionResult> GetOpcoes([FromQuery] string? busca)
+        {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId <= 0) return Forbid();
+            return Ok(await _tutorService.ListarOpcoesAsync(clinicaId, busca));
         }
 
         [HttpGet("{tutorId}")]

@@ -3,7 +3,7 @@ import { Table, Button, Space, Tooltip } from "antd";
 import { EyeOutlined, EditOutlined, LoginOutlined } from "@ant-design/icons";
 import colunas from './colunas';
 
-const TabelaClinicasDoSistema = ({ clinicas, onEdit, onViewDetails, onAccess }) => {
+const TabelaClinicasDoSistema = ({ clinicas, paginacao, onChange, loading, onEdit, onViewDetails, onAccess }) => {
   const colunaAcoes = useMemo(() => ({
     title: "Ações",
     key: "acoes",
@@ -34,7 +34,9 @@ const TabelaClinicasDoSistema = ({ clinicas, onEdit, onViewDetails, onAccess }) 
       dataSource={clinicas}
       columns={memoColunas}
       rowKey="id"
-      pagination={{ pageSize: 10 }}
+      pagination={paginacao} // paginação no servidor (usePaginacaoServidor)
+      onChange={onChange}
+      loading={loading}
       scroll={{ x: "max-content" }}
     />
   );

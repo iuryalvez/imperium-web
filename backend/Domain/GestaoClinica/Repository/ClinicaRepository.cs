@@ -2,8 +2,10 @@ using backend.Domain.GestaoClinica.DTOs;
 using backend.Domain.GestaoClinica.DTOs.Dashboard;
 using backend.Domain.GestaoClinica.Entities;
 using backend.Domain.GestaoClinica.Interfaces;
+using backend.Domain.Utils.Paginacao;
 using backend.Infra.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace backend.Domain.GestaoClinica.Repository
 {
@@ -65,8 +67,45 @@ namespace backend.Domain.GestaoClinica.Repository
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<Clinica>> GetAllAsync() =>
-            await _context.Clinicas.AsNoTracking().OrderByDescending(c => c.DataCadastro).ThenByDescending(c => c.Id).ToListAsync();
+        // Lista branca de campos de ordenação aceitos em ClinicaFiltro.OrdenarPor
+        private static readonly Dictionary<string, Expression<Func<Clinica, object?>>> Ordenacoes = new()
+        {
+            ["dataCadastro"] = c => c.DataCadastro,
+            ["nomeClinica"] = c => c.NomeClinica,
+        };
+
+        public async Task<PaginaResultado<Clinica>> ListarAsync(ClinicaFiltro filtro)
+        {
+            var query = _context.Clinicas.AsNoTracking();
+
+            if (filtro.Ativa.HasValue) query = query.Where(c => c.IsAtiva == filtro.Ativa.Value);
+
+            var busca = filtro.BuscaNormalizada;
+            if (busca != null)
+            {
+                var padrao = QueryablePaginacaoExtensions.PadraoBusca(busca);
+                // CPF/CNPJ só quando a busca não tem letras ("Tutor 1" não deve casar com qualquer documento que tenha "1")
+                var digitos = busca.Any(char.IsLetter) ? "" : new string(busca.Where(char.IsDigit).ToArray());
+                query = query.Where(c => EF.Functions.ILike(c.NomeClinica!, padrao)
+                                      || EF.Functions.ILike(c.NomeFantasia!, padrao)
+                                      || (digitos.Length > 0 && c.Cnpj != null && c.Cnpj.Contains(digitos)));
+            }
+
+            return await query.Ordenar(filtro, Ordenacoes, "dataCadastro", c => c.Id).PaginarAsync(filtro);
+        }
+
+        public async Task<List<OpcaoDto>> ListarOpcoesAsync(string? busca)
+        {
+            var query = _context.Clinicas.AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(busca))
+                query = query.Where(c => EF.Functions.ILike(c.NomeClinica!, QueryablePaginacaoExtensions.PadraoBusca(busca.Trim())));
+
+            return await query
+                .OrderByDescending(c => c.IsAtiva).ThenBy(c => c.NomeClinica)
+                .Take(OpcaoDto.LimiteOpcoes)
+                .Select(c => new OpcaoDto { Id = c.Id, Nome = c.NomeClinica ?? "", IsAtivo = c.IsAtiva })
+                .ToListAsync();
+        }
 
         public async Task<bool> CnpjExistsForAnotherClinicAsync(string cnpj, int excludeClinicaId)
         {

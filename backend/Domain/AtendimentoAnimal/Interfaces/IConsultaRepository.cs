@@ -1,3 +1,5 @@
+using backend.Domain.AtendimentoAnimal.DTOs.Consulta;
+using backend.Domain.Utils.Paginacao;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +12,7 @@ namespace backend.Domain.AtendimentoAnimal.Interfaces
     {
         Task<Consulta?> GetByIdAsync(int consultaId);
         Task<Consulta?> GetByIdWithDetailsAsync(int consultaId);
-        Task<IEnumerable<Consulta>> GetAllByClinicIdAsync(int clinicaId);
+        Task<PaginaResultado<Consulta>> ListarDaClinicaAsync(ConsultaFiltro filtro, int clinicaId);
         Task<Consulta?> GetByIdAndClinicIdAsync(int consultaId, int clinicaId);
         Task AddAsync(Consulta consulta);
         void Delete(Consulta consulta);

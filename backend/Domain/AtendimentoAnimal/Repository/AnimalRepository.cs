@@ -1,5 +1,9 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using backend.Domain.AtendimentoAnimal.DTOs.Animal;
 using backend.Domain.AtendimentoAnimal.Entities;
+using backend.Domain.AtendimentoAnimal.Enums;
+using backend.Domain.Utils.Paginacao;
 using backend.Domain.AtendimentoAnimal.Interfaces;
 using backend.Infra.Data;
 
@@ -8,6 +12,14 @@ namespace backend.Domain.AtendimentoAnimal.Repository
     public class AnimalRepository : IAnimalRepository
     {
         private readonly AppDbContext _context;
+
+        // Lista branca de campos de ordenação aceitos em AnimalFiltro.OrdenarPor
+        private static readonly Dictionary<string, Expression<Func<Animal, object?>>> Ordenacoes = new()
+        {
+            ["dataCadastro"] = a => a.DataCadastro,
+            ["nome"] = a => a.Nome,
+            ["especie"] = a => a.Especie,
+        };
 
         public AnimalRepository(AppDbContext context)
         {
@@ -31,14 +43,46 @@ namespace backend.Domain.AtendimentoAnimal.Repository
                 .FirstOrDefaultAsync(a => a.Id == animalId);
         }
 
-        public async Task<IEnumerable<Animal>> GetAllByClinicaIdWithDetailsAsync(int clinicaId)
+        public async Task<PaginaResultado<Animal>> ListarDaClinicaAsync(AnimalFiltro filtro, int clinicaId)
         {
-            return await _context.Animais
+            var query = _context.Animais
+                .AsNoTracking()
+                .AsSplitQuery() // evita multiplicar linhas com a coleção de tutores ao paginar
                 .Include(a => a.TutoresAnimais!).ThenInclude(ta => ta.Tutor)
                 .Include(a => a.Acompanhamento) // Incluindo o Acompanhamento Individualizado
                 .Include(a => a.Raca) // Incluindo a Raça
-                .Where(a => a.ClinicaId == clinicaId)
-                .OrderByDescending(a => a.DataCadastro).ThenByDescending(a => a.Id) // mais recentes primeiro
+                .Where(a => a.ClinicaId == clinicaId);
+
+            if (filtro.Ativo.HasValue) query = query.Where(a => a.IsAtivo == filtro.Ativo.Value);
+            if (filtro.Especie.HasValue) query = query.Where(a => a.Especie == filtro.Especie.Value);
+            if (filtro.TutorId.HasValue) query = query.Where(a => a.TutoresAnimais!.Any(ta => ta.TutorId == filtro.TutorId.Value));
+
+            var busca = filtro.BuscaNormalizada;
+            if (busca != null)
+            {
+                var padrao = QueryablePaginacaoExtensions.PadraoBusca(busca);
+                query = query.Where(a => EF.Functions.ILike(a.Nome!, padrao)
+                                      || a.TutoresAnimais!.Any(ta => EF.Functions.ILike(ta.Tutor!.Nome, padrao)));
+            }
+
+            return await query.Ordenar(filtro, Ordenacoes, "dataCadastro", a => a.Id).PaginarAsync(filtro);
+        }
+
+        public async Task<List<OpcaoDto>> ListarOpcoesAsync(int clinicaId, string? busca)
+        {
+            var query = _context.Animais.AsNoTracking().Where(a => a.ClinicaId == clinicaId);
+            if (!string.IsNullOrWhiteSpace(busca))
+                query = query.Where(a => EF.Functions.ILike(a.Nome!, QueryablePaginacaoExtensions.PadraoBusca(busca.Trim())));
+
+            return await query
+                .OrderByDescending(a => a.IsAtivo).ThenBy(a => a.Nome)
+                .Take(OpcaoDto.LimiteOpcoes)
+                .Select(a => new OpcaoDto
+                {
+                    Id = a.Id,
+                    Nome = a.Nome + (a.Especie == EspecieAnimal.Cao ? " (Cão)" : " (Gato)"),
+                    IsAtivo = a.IsAtivo
+                })
                 .ToListAsync();
         }
 

@@ -1,51 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Form, Select, DatePicker, message } from "antd";
+import { Form, DatePicker } from "antd";
 import dayjs from "dayjs";
 import { animaisDaClinicaAPI } from "../../../../api/clinica/animaisDaClinicaAPI";
+import SelectBuscaRemota from "../../../../components/atoms/SelectBuscaRemota";
 import { tutoresDaClinicaAPI } from "../../../../api/clinica/tutoresDaClinicaAPI";
 
 const FormularioConsulta = ({ initialValues, onFinish }) => {
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
-  const [animais, setAnimais] = useState([]);
-  const [tutores, setTutores] = useState([]);
-
-  // Busca os dados para os selects
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [animaisData, tutoresData] = await Promise.all([
-          animaisDaClinicaAPI.listar(),
-          tutoresDaClinicaAPI.listar(),
-        ]);
-        // Inativos aparecem desabilitados, exceto o que já está na consulta em edição
-        const sufixoInativo = (item) => (item.isAtivo === false ? " (inativo)" : "");
-        setAnimais(
-          animaisData.map((a) => ({
-            label: `${a.nome} (${a.especie === 1 ? "Cão" : "Gato"})${sufixoInativo(a)}`,
-            value: a.id,
-            tutorIds: a.tutorIds || [],
-            disabled: a.isAtivo === false && a.id !== initialValues?.animalId,
-          })),
-        );
-        setTutores(
-          tutoresData.map((t) => ({
-            label: `${t.nome}${sufixoInativo(t)}`,
-            value: t.id,
-            disabled: t.isAtivo === false && t.id !== initialValues?.tutorId,
-          })),
-        );
-      } catch (error) {
-        message.error("Erro ao carregar animais e tutores.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   // Popula o formulário para edição
   useEffect(() => {
     if (initialValues) {
@@ -60,9 +21,30 @@ const FormularioConsulta = ({ initialValues, onFinish }) => {
     }
   }, [initialValues, form]);
 
+  // Tutores do animal escolhido: sem tutor = animal sob tutela da clínica
   const selectedAnimalId = Form.useWatch("animalId", form);
-  const animalSelecionado = animais.find(a => a.value === selectedAnimalId);
-  const isSobTutelaClinica = animalSelecionado && animalSelecionado.tutorIds.length === 0;
+  const [tutorIdsDoAnimal, setTutorIdsDoAnimal] = useState(null);
+
+  useEffect(() => {
+    if (!selectedAnimalId) {
+      setTutorIdsDoAnimal(null);
+      return;
+    }
+    let ativo = true;
+    animaisDaClinicaAPI
+      .detalhes(selectedAnimalId)
+      .then((resultado) => ativo && setTutorIdsDoAnimal(resultado?.data?.tutorIds || []))
+      .catch(() => ativo && setTutorIdsDoAnimal(null));
+    return () => {
+      ativo = false;
+    };
+  }, [selectedAnimalId]);
+
+  const isSobTutelaClinica = tutorIdsDoAnimal !== null && tutorIdsDoAnimal.length === 0;
+
+  // Rótulos do animal/tutor da consulta em edição (podem estar inativos ou fora da busca)
+  const animalAtual = initialValues?.animalId ? [{ id: initialValues.animalId, nome: initialValues.nomeAnimal }] : [];
+  const tutorAtual = initialValues?.tutorId ? [{ id: initialValues.tutorId, nome: initialValues.nomeTutor }] : [];
 
   useEffect(() => {
     if (isSobTutelaClinica) {
@@ -92,12 +74,11 @@ const FormularioConsulta = ({ initialValues, onFinish }) => {
         label="Paciente (Animal)"
         rules={[{ required: true, message: "Selecione o animal." }]}
       >
-        <Select
-          showSearch
-          placeholder="Selecione o paciente"
-          options={animais}
-          loading={loading}
-          optionFilterProp="label"
+        {/* Animais da clínica com busca no servidor; inativos aparecem desabilitados */}
+        <SelectBuscaRemota
+          placeholder="Busque e selecione o paciente"
+          buscarOpcoes={animaisDaClinicaAPI.opcoes}
+          opcoesAtuais={animalAtual}
         />
       </Form.Item>
 
@@ -106,13 +87,12 @@ const FormularioConsulta = ({ initialValues, onFinish }) => {
         label="Tutor Responsável (Opcional)"
         rules={[{ required: false }]}
       >
-        <Select
-          showSearch
+        {/* Tutores da clínica com busca no servidor; inativos aparecem desabilitados */}
+        <SelectBuscaRemota
           allowClear
-          placeholder={isSobTutelaClinica ? "Animal sob tutela da clínica" : "Selecione o tutor (Opcional)"}
-          options={tutores}
-          loading={loading}
-          optionFilterProp="label"
+          placeholder={isSobTutelaClinica ? "Animal sob tutela da clínica" : "Busque e selecione o tutor (Opcional)"}
+          buscarOpcoes={tutoresDaClinicaAPI.opcoes}
+          opcoesAtuais={tutorAtual}
           disabled={isSobTutelaClinica}
         />
       </Form.Item>

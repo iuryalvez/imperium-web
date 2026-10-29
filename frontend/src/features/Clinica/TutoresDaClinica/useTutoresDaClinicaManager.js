@@ -1,11 +1,15 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { message } from "antd";
 import { tutoresDaClinicaAPI } from "../../../api/clinica/tutoresDaClinicaAPI.js";
 import { sanitizeToNumbers, sanitizePayload } from "../../../utils/sanitizers.js";
+import { usePaginacaoServidor } from "../../../utils/usePaginacaoServidor";
+import { traduzirFiltrosTutor } from "./components/TabelaTutoresDaClinica/colunas";
 
 export const useTutoresDaClinicaManager = () => {
-  const [tutores, setTutores] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Lista paginada no servidor (página, tamanho, busca, ordenação e filtros de coluna)
+  const lista = usePaginacaoServidor(tutoresDaClinicaAPI.listar, {}, traduzirFiltrosTutor);
+  const tutores = lista.dados;
+  const loading = lista.loading;
   const [loadingRowKey, setLoadingRowKey] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -13,22 +17,7 @@ export const useTutoresDaClinicaManager = () => {
   const [isOpenModalDetalhes, setIsOpenModalDetalhes] = useState(false);
   const [viewingTutor, setViewingTutor] = useState(null);
 
-  const fetchTutores = useCallback(async () => {
-    setLoading(true);
-    try {
-      const dados = await tutoresDaClinicaAPI.listar();
-      setTutores(dados);
-    } catch (error) {
-      message.error(error.message || "Erro ao carregar tutores.");
-      setTutores([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTutores();
-  }, [fetchTutores]);
+  const fetchTutores = lista.recarregar;
 
   const handleOpenModalCadastro = () => {
     setEditingTutor(null);
@@ -113,6 +102,9 @@ export const useTutoresDaClinicaManager = () => {
   };
 
   return {
+    paginacao: lista.paginacao,
+    setBusca: lista.setBusca,
+    handleTableChange: lista.handleTableChange,
     tutores,
     loading,
     loadingRowKey,

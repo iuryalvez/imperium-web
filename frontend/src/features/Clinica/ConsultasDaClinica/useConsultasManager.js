@@ -1,30 +1,19 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
 import { consultasDaClinicaAPI } from "../../../api/clinica/consultasDaClinicaAPI";
+import { usePaginacaoServidor } from "../../../utils/usePaginacaoServidor";
 
 export const useConsultasManager = () => {
   const navigate = useNavigate();
-  const [consultas, setConsultas] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Lista paginada no servidor (página, tamanho, busca, ordenação e filtros de coluna)
+  const lista = usePaginacaoServidor(consultasDaClinicaAPI.listar, {});
+  const consultas = lista.dados;
+  const loading = lista.loading;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingConsulta, setEditingConsulta] = useState(null);
 
-  const fetchConsultas = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await consultasDaClinicaAPI.listar();
-      setConsultas(data);
-    } catch (error) {
-      message.error("Erro ao carregar consultas.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchConsultas();
-  }, [fetchConsultas]);
+  const fetchConsultas = lista.recarregar;
 
   const handleOpenModal = (consulta = null) => {
     setEditingConsulta(consulta);
@@ -78,6 +67,9 @@ export const useConsultasManager = () => {
   };
 
   return {
+    paginacao: lista.paginacao,
+    setBusca: lista.setBusca,
+    handleTableChange: lista.handleTableChange,
     consultas,
     loading,
     isModalOpen,

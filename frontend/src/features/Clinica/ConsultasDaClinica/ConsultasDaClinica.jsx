@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Skeleton } from "antd";
+import { Button, Input } from "antd";
 import { PlusOutlined, EditOutlined, FormOutlined } from "@ant-design/icons";
 import { useConsultasManager } from "./useConsultasManager";
 import TabelaConsultas from "./components/TabelaConsultas";
@@ -17,11 +17,11 @@ const ConsultasDaClinica = () => {
     handleSubmit,
     handleDelete,
     handleIrParaAcompanhamento,
+    paginacao,
+    setBusca,
+    handleTableChange,
   } = useConsultasManager();
 
-  if (loading) {
-    return <Skeleton active />;
-  }
 
   return (
     <div>
@@ -38,7 +38,18 @@ const ConsultasDaClinica = () => {
         </Button>
       </div>
 
+      {/* Busca no servidor (com debounce); ordenação e filtros ficam nas colunas da tabela */}
+      <Input.Search
+        placeholder="Buscar por animal ou tutor..."
+        onChange={(e) => setBusca(e.target.value)}
+        allowClear
+        style={{ maxWidth: 320 }}
+        className="mb-4"
+      />
+
       <TabelaConsultas
+        paginacao={paginacao}
+        onChange={handleTableChange}
         consultas={consultas}
         onEdit={handleOpenModal}
         onDelete={handleDelete}

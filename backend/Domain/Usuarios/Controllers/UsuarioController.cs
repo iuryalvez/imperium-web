@@ -90,15 +90,16 @@ namespace backend.Domain.Usuarios.Controllers
 
         [HttpGet("clinica/usuarios")]
         [Authorize(Policy = "GerenciaClinica")]
-        public async Task<IActionResult> ListarUsuariosClinica()
+        public async Task<IActionResult> ListarUsuariosClinica([FromQuery] UsuarioClinicaFiltro filtro)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId <= 0) return Forbid();
             _logger.LogInformation("Recebida requisição para listar usuários da clínica ID: {ClinicaId}", clinicaId);
-            var userId = User.GetClaimValue<string>(ClaimTypes.NameIdentifier);
 
-            var usuarios = await _usuarioService.GetUsuariosByClinicIdAsync(clinicaId, userId);
+            // No token de vínculo o NameIdentifier é o id do vínculo (upcId); no do admin, é o id do usuário
+            int? upcIdAtual = User.GetClaimValue<bool>("isAdmin") ? null : User.GetClaimValue<int>(ClaimTypes.NameIdentifier);
 
-            return Ok(usuarios);
+            return Ok(await _usuarioService.ListarUsuariosDaClinicaAsync(filtro, clinicaId, upcIdAtual));
         }
 
         [HttpPost("clinica/usuarios/cadastrar")]

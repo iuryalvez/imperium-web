@@ -3,6 +3,7 @@ using backend.Domain.AtendimentoAnimal.DTOs.Tutor;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.Usuarios.Interfaces;
 using backend.Domain.Utils;
+using backend.Domain.Utils.Paginacao;
 
 namespace backend.Domain.AtendimentoAnimal.Interfaces
 {
@@ -10,7 +11,8 @@ namespace backend.Domain.AtendimentoAnimal.Interfaces
     {
         // --- Métodos de Leitura (para Controllers, retornam DTOs) ---
         Task<ServiceResult> ObterPorIdAsync(int animalId);
-        Task<ServiceResult> GetAllDtosByClinicIdAsync(int clinicaId);
+        Task<PaginaResultado<GetAnimaisClinicaDto>> ListarAsync(AnimalFiltro filtro, int clinicaId);
+        Task<List<OpcaoDto>> ListarOpcoesAsync(int clinicaId, string? busca);
         Task<ServiceResult> GetDtoDetailsByIdAsync(int animalId, int clinicaId);
         Task<ServiceResult> ObterHistoricoCompletoAnimalAsync(int animalId, int clinicaId);
 

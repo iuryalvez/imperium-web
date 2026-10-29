@@ -1,3 +1,4 @@
+using backend.Domain.Utils;
 using AutoMapper;
 using backend.Domain.Usuarios.DTOs.Usuario;
 using backend.Domain.Usuarios.DTOs.Vinculo;
@@ -14,7 +15,7 @@ namespace backend.Domain.Usuarios.Mappers
             CreateMap<CadastrarUsuarioClinicaDto, Usuario>();
 
             CreateMap<EditarUsuarioSistemaDto, Usuario>()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                .IgnorarNulosDaOrigem(); // campo nulo no DTO mantém o valor atual (ver MappingExtensions)
 
             CreateMap<Usuario, GetUsuariosSistemaDto>()
             .ForMember(dest => dest.CompositeKey, opt => opt.MapFrom(src => $"admin-{src.Id}"))
@@ -65,7 +66,7 @@ namespace backend.Domain.Usuarios.Mappers
                 .ForMember(dest => dest.TotalClinicasVinculadas, opt => opt.MapFrom(src => 
                     src.UsuariosPerfisClinicas != null ? src.UsuariosPerfisClinicas.Count : 0));
             CreateMap<UpdateMeuPerfilDto, Usuario>()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                .IgnorarNulosDaOrigem(); // campo nulo no DTO mantém o valor atual (ver MappingExtensions)
         }
     }
 }

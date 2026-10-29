@@ -15,14 +15,12 @@ const endpoints = {
   sistema: {
     clinica: {
       listar: `${API_BASE_URL}/sistema/clinicas`,
+      opcoes: `${API_BASE_URL}/sistema/clinicas/opcoes`,
       // listarInativas: `${API_BASE_URL}/sistema/clinicas/inativas`, // TODO
       cadastrar: `${API_BASE_URL}/sistema/clinicas/cadastrar`,
       editar: `${API_BASE_URL}/sistema/clinicas/editar`,
       detalhes: (clinicaId) => `${API_BASE_URL}/sistema/clinicas/${clinicaId}`,
       deletar: (clinicaId) => `${API_BASE_URL}/sistema/clinicas/${clinicaId}`,
-    },
-    animal: {
-      listar: `${API_BASE_URL}/sistema/animais`,
     },
     usuario: {
       buscarPorNome: (nome) =>
@@ -83,8 +81,9 @@ const endpoints = {
     },
     animal: {
       listar: `${API_BASE_URL}/clinica/animais`,
+      opcoes: `${API_BASE_URL}/clinica/animais/opcoes`,
+      detalhes: (animalId) => `${API_BASE_URL}/clinica/animais/${animalId}`,
       cadastrar: `${API_BASE_URL}/clinica/animais/cadastrar`,
-      // detalhes: (animalId) => `${API_BASE_URL}/clinica/animais/${animalId}`,
       editar: `${API_BASE_URL}/clinica/animais/editar`,
       deletar: (animalId) => `${API_BASE_URL}/clinica/animais/${animalId}`,
       setStatus: (animalId) => `${API_BASE_URL}/clinica/animais/${animalId}/status`,
@@ -129,6 +128,7 @@ const endpoints = {
     },
     tutor: {
       listar: `${API_BASE_URL}/clinica/tutores`,
+      opcoes: `${API_BASE_URL}/clinica/tutores/opcoes`,
       detalhes: (tutorId) => `${API_BASE_URL}/clinica/tutores/${tutorId}`,
       cadastrar: `${API_BASE_URL}/clinica/tutores/cadastrar`,
       editar: `${API_BASE_URL}/clinica/tutores/editar`,

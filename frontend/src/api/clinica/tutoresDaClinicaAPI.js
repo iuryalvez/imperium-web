@@ -2,9 +2,10 @@ import api from "../index"; // configuração do axios
 import endpoints from "../../services/Endpoints"; // endpoints
 
 export const tutoresDaClinicaAPI = {
-  listar: async () => {
+  /** Lista paginada: filtro { pagina, tamanhoPagina, busca, ordenarPor, ordem, ... } → { itens, total, pagina, tamanhoPagina } */
+  listar: async (filtro) => {
     try {
-      const response = await api.get(endpoints.clinica.tutor.listar);
+      const response = await api.get(endpoints.clinica.tutor.listar, { params: filtro });
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar tutores:", error);
@@ -66,6 +67,16 @@ export const tutoresDaClinicaAPI = {
       return response.data;
     } catch (error) {
       console.error(`Erro ao alterar o status do tutor ${tutorId}:`, error);
+      throw error.response ? error.response.data : error;
+    }
+  },
+  /** Opções para selects: até 20 { id, nome, isAtivo }, ativos primeiro (inativos vêm para aparecer desabilitados). */
+  opcoes: async (busca) => {
+    try {
+      const response = await api.get(endpoints.clinica.tutor.opcoes, { params: { busca } });
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar opções de tutores:", error);
       throw error.response ? error.response.data : error;
     }
   },

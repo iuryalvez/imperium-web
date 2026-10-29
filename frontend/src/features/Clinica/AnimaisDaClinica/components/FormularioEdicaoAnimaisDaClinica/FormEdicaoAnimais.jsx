@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   Form,
   Input,
@@ -7,7 +7,6 @@ import {
   Switch,
   Row,
   Col,
-  message,
   Checkbox
 } from "antd";
 import dayjs from "dayjs";
@@ -29,40 +28,13 @@ const FormEdicaoAnimal = ({
   initialValues,
 }) => {
   const [form] = Form.useForm();
-  const [tutores, setTutores] = useState([]);
-  const [loading, setLoading] = useState(true); // Começa carregando
 
   const especieSelecionada = Form.useWatch("especie", form);
   const sobTutelaClinica = Form.useWatch("sobTutelaClinica", form);
 
-  // Efeito para buscar raças e tutores
-  useEffect(() => {
-    const carregarDadosDeSuporte = async () => {
-      try {
-        // Tutores inativos aparecem desabilitados, exceto os que já estão vinculados ao animal
-        const tutoresData = await tutoresDaClinicaAPI.listar();
-        const vinculados = initialValues?.tutorIds || [];
-        setTutores(
-          tutoresData.map((t) => ({
-            label: `${t.nome} (${t.cpf || "N/A"})${t.isAtivo === false ? " (inativo)" : ""}`,
-            value: t.id,
-            disabled: t.isAtivo === false && !vinculados.includes(t.id),
-          }))
-        );
-      } catch (err) {
-        message.error("Falha ao carregar os tutores.");
-      } finally {
-        setLoading(false); // Finaliza o carregamento após a busca
-      }
-    };
-    carregarDadosDeSuporte();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   // Efeito para preencher o formulário com os valores iniciais
-  // Roda quando os valores iniciais mudam OU quando o carregamento termina
   useEffect(() => {
-    if (initialValues && !loading) {
+    if (initialValues) {
       const tutorIds = initialValues.tutorIds || [];
       form.setFieldsValue({
         ...initialValues,
@@ -74,7 +46,7 @@ const FormEdicaoAnimal = ({
         sobTutelaClinica: tutorIds.length === 0,
       });
     }
-  }, [initialValues, loading, form]);
+  }, [initialValues, form]);
 
   // A raça atual sempre tem rótulo no select, mesmo inativa ou oculta
   const racaAtual = initialValues?.racaId
@@ -113,7 +85,7 @@ const FormEdicaoAnimal = ({
                   ? "Primeiro, selecione a espécie"
                   : "Busque e selecione a raça"
               }
-              disabled={!especieSelecionada || loading}
+              disabled={!especieSelecionada}
               buscarOpcoes={(busca) => racasDaClinicaAPI.opcoes(busca, especieSelecionada)}
               opcoesAtuais={racaAtual}
               dependencias={[especieSelecionada]}
@@ -135,12 +107,12 @@ const FormEdicaoAnimal = ({
             label="Tutor(es) Responsável(is)"
             rules={[{ required: !sobTutelaClinica, message: 'Selecione um tutor ou a tutela da clínica' }]}
           >
-            <Select
+            {/* Tutores da clínica com busca no servidor; inativos aparecem desabilitados */}
+            <SelectBuscaRemota
               mode="multiple"
               placeholder={sobTutelaClinica ? "Animal sem tutor físico" : "Busque e selecione os tutores"}
-              loading={loading}
-              options={tutores}
-              optionFilterProp="label"
+              buscarOpcoes={tutoresDaClinicaAPI.opcoes}
+              opcoesAtuais={initialValues?.tutores}
               disabled={sobTutelaClinica}
             />
           </Form.Item>

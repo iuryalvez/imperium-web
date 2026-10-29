@@ -29,17 +29,22 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
 
         [HttpGet("animais")]
         [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> GetByClinicaId()
+        public async Task<IActionResult> GetByClinicaId([FromQuery] AnimalFiltro filtro)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            if (clinicaId == 0) return BadRequest("ID da clínica não encontrado.");
+            if (clinicaId <= 0) return Forbid();
 
-            var result = await _animalService.GetAllDtosByClinicIdAsync(clinicaId);
+            return Ok(await _animalService.ListarAsync(filtro, clinicaId));
+        }
 
-            if (result.Succeeded)
-                return Ok(result.Data);
+        [HttpGet("animais/opcoes")]
+        [Authorize(Policy = "VisualizaTudo")]
+        public async Task<IActionResult> GetOpcoes([FromQuery] string? busca)
+        {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId <= 0) return Forbid();
 
-            return BadRequest(result);
+            return Ok(await _animalService.ListarOpcoesAsync(clinicaId, busca));
         }
 
         [HttpGet("animais/{animalId}")]

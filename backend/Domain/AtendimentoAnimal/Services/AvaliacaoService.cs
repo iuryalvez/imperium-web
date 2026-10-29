@@ -1,3 +1,4 @@
+using backend.Domain.Auth.Extensions;
 using System.Security.Claims;
 using AutoMapper;
 using backend.Domain.AtendimentoAnimal.DTOs.Avaliacao;
@@ -243,10 +244,10 @@ namespace backend.Domain.AtendimentoAnimal.Services
             return new ServiceResult { Succeeded = true, Message = "Avaliação excluída com sucesso." };
         }
 
+        // Id do usuário (não do vínculo) que preencheu a avaliação
         private int? GetUserId()
         {
-            var userIdStr = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-            return int.TryParse(userIdStr, out var userId) ? userId : null;
+            return _httpContextAccessor.HttpContext?.User?.GetUsuarioId();
         }
     }
 }

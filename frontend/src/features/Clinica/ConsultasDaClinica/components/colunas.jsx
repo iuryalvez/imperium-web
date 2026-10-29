@@ -10,20 +10,18 @@ const colunas = [
     dataIndex: "dataConsulta",
     key: "dataConsulta",
     render: (data) => (data ? dayjs(data).format("DD/MM/YYYY HH:mm") : "-"),
-    sorter: (a, b) =>
-      dayjs(a.dataConsulta).unix() - dayjs(b.dataConsulta).unix(),
+    sorter: true, // ordenação feita no servidor (padrão: mais recentes primeiro)
   },
   {
     title: "Paciente",
     dataIndex: "nomeAnimal",
     key: "nomeAnimal",
-    sorter: (a, b) => (a.nomeAnimal || "").localeCompare(b.nomeAnimal || ""),
+    sorter: true, // ordenação feita no servidor
   },
   {
     title: "Tutor",
     dataIndex: "nomeTutor",
     key: "nomeTutor",
-    sorter: (a, b) => (a.nomeTutor || "").localeCompare(b.nomeTutor || ""),
   },
   {
     title: "Veterinário",
@@ -62,11 +60,6 @@ const colunas = [
           </Link>
         </Tooltip>
       ),
-    filters: [
-      { text: "Preenchido", value: true },
-      { text: "Pendente", value: false },
-    ],
-    onFilter: (value, record) => record.avaliacaoPreenchida === value,
   },
 ];
 

@@ -2,9 +2,10 @@ import api from '../index';  // configuração do axios
 import endpoints from '../../services/Endpoints'; // endpoints
 
 export const clinicasAPI = {
-    listar: async () => {
+    /** Lista paginada: filtro { pagina, tamanhoPagina, busca, ordenarPor, ordem, ... } → { itens, total, pagina, tamanhoPagina } */
+  listar: async (filtro) => {
         try {
-            const response = await api.get(endpoints.sistema.clinica.listar);
+            const response = await api.get(endpoints.sistema.clinica.listar, { params: filtro });
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar clínicas:', error);
@@ -29,10 +30,6 @@ export const clinicasAPI = {
             throw error.response ? error.response : error;
         }
     }, 
-    buscarPorNome: async (nomeClinica) => {
-        const response = await api.get(endpoints.clinica.buscarPorNome(nomeClinica));
-        return response.data;
-    },
     deletar: async(clinicaId) => {
         try {
             const response = await api.delete(endpoints.sistema.clinica.deletar(clinicaId));
@@ -40,5 +37,15 @@ export const clinicasAPI = {
         } catch (error) {
             console.error(`Erro ao deletar clínica de id: ${clinicaId}`, error);
         }
+    },
+    /** Opções para selects: até 20 { id, nome, isAtivo }, ativos primeiro (inativos vêm para aparecer desabilitados). */
+    opcoes: async (busca) => {
+      try {
+        const response = await api.get(endpoints.sistema.clinica.opcoes, { params: { busca } });
+        return response.data;
+      } catch (error) {
+        console.error("Erro ao buscar opções de clínicas:", error);
+        throw error.response ? error.response.data : error;
+      }
     },
 };

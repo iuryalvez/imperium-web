@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Linq.Expressions;
+using backend.Domain.AtendimentoAnimal.DTOs.Consulta;
 using backend.Domain.AtendimentoAnimal.Entities;
+using backend.Domain.Utils.Paginacao;
 using backend.Domain.AtendimentoAnimal.Interfaces;
 using backend.Infra.Data;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +17,13 @@ namespace backend.Domain.AtendimentoAnimal.Repository
     {
         private readonly AppDbContext _context;
         public ConsultaRepository(AppDbContext context) { _context = context; }
+
+        // Lista branca de campos de ordenação aceitos em ConsultaFiltro.OrdenarPor
+        private static readonly Dictionary<string, Expression<Func<Consulta, object?>>> Ordenacoes = new()
+        {
+            ["dataConsulta"] = c => c.DataConsulta,
+            ["nomeAnimal"] = c => c.Animal!.Nome,
+        };
 
         private IQueryable<Consulta> GetBaseQuery()
         {
@@ -46,13 +56,26 @@ namespace backend.Domain.AtendimentoAnimal.Repository
                 .FirstOrDefaultAsync(c => c.Id == consultaId);
         }
 
-        public async Task<IEnumerable<Consulta>> GetAllByClinicIdAsync(int clinicaId)
+        public async Task<PaginaResultado<Consulta>> ListarDaClinicaAsync(ConsultaFiltro filtro, int clinicaId)
         {
-            return await GetBaseQuery()
-                .Where(c => c.ClinicaId == clinicaId)
-                .OrderByDescending(c => c.DataConsulta).ThenByDescending(c => c.Id) // mais recentes primeiro
+            var query = GetBaseQuery()
                 .AsNoTracking()
-                .ToListAsync();
+                .Where(c => c.ClinicaId == clinicaId);
+
+            if (filtro.AnimalId.HasValue) query = query.Where(c => c.AnimalId == filtro.AnimalId.Value);
+            if (filtro.TutorId.HasValue) query = query.Where(c => c.TutorId == filtro.TutorId.Value);
+            if (filtro.DataInicio.HasValue) query = query.Where(c => c.DataConsulta >= filtro.DataInicio.Value.ToUniversalTime());
+            if (filtro.DataFim.HasValue) query = query.Where(c => c.DataConsulta <= filtro.DataFim.Value.ToUniversalTime());
+
+            var busca = filtro.BuscaNormalizada;
+            if (busca != null)
+            {
+                var padrao = QueryablePaginacaoExtensions.PadraoBusca(busca);
+                query = query.Where(c => EF.Functions.ILike(c.Animal!.Nome!, padrao)
+                                      || (c.Tutor != null && EF.Functions.ILike(c.Tutor.Nome, padrao)));
+            }
+
+            return await query.Ordenar(filtro, Ordenacoes, "dataConsulta", c => c.Id).PaginarAsync(filtro);
         }
 
         public async Task<Consulta?> GetByIdAndClinicIdAsync(int consultaId, int clinicaId)

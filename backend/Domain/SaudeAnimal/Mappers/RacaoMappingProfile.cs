@@ -1,3 +1,4 @@
+using backend.Domain.Utils;
 using AutoMapper;
 using backend.Domain.SaudeAnimal.Entities;
 using backend.Domain.SaudeAnimal.Enums;
@@ -13,18 +14,10 @@ namespace backend.Domain.SaudeAnimal.Mappers
             CreateMap<CadastrarRacaoDto, Racao>()
                 .ForMember(dest => dest.ClinicaId, opt => opt.Ignore());
 
-            // Mapeamento para ATUALIZAR: De DTO para Entidade (atualização parcial: campo nulo no DTO mantém o valor atual).
-            // A condição olha o DTO de origem: com ForAllMembers(srcMember != null), um double?/enum? nulo
-            // chegava já convertido para 0 e zerava o campo (ex.: espécie 0 quebrava o cálculo de EM).
+            // Mapeamento para ATUALIZAR: De DTO para Entidade (atualização parcial: campo nulo no DTO mantém o valor atual)
             CreateMap<AtualizarRacaoDto, Racao>()
                 .ForMember(dest => dest.ClinicaId, opt => opt.Ignore())
-                .ForMember(dest => dest.Nome, opt => opt.Condition(src => src.Nome != null))
-                .ForMember(dest => dest.Especie, opt => opt.Condition(src => src.Especie != null))
-                .ForMember(dest => dest.Umidade, opt => opt.Condition(src => src.Umidade != null))
-                .ForMember(dest => dest.ProteinaBruta, opt => opt.Condition(src => src.ProteinaBruta != null))
-                .ForMember(dest => dest.ExtratoEtereo, opt => opt.Condition(src => src.ExtratoEtereo != null))
-                .ForMember(dest => dest.MateriaMineral, opt => opt.Condition(src => src.MateriaMineral != null))
-                .ForMember(dest => dest.FibraBruta, opt => opt.Condition(src => src.FibraBruta != null));
+                .IgnorarNulosDaOrigem(); // ver MappingExtensions
 
             // Mapeamento para CONSULTAR: De Entidade para DTO
             CreateMap<Racao, GetRacoesDto>()

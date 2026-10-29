@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Modal, Space } from "antd";
+import { Button, Modal, Space, Input } from "antd";
 import {
   PlusOutlined,
   ArrowLeftOutlined,
@@ -14,7 +14,6 @@ import FormularioEdicaoClinicaDoSistema from "./components/FormularioEdicaoClini
 import FormularioCadastroClinicaDoSistema from "./components/FormularioCadastroClinicaDoSistema/FormCadastroClinicaDoSistema.jsx";
 import FormularioDetalhesClinicaDoSistema from "./components/FormularioDetalhesClinicaDoSistema/FormDetalhesClinicaDoSistema.jsx";
 import FormularioAcessoClinicaDoSistema from "./components/FormularioAcessoClinicaDoSistema/FormAcessoClinicaDoSistema.jsx";
-import LoadingSpinner from "../../../components/atoms/LoadingSpinner.jsx";
 import ModalPadrao from "../../../components/modal/ModalPadrao.jsx";
 
 const ClinicasDoSistema = () => {
@@ -35,9 +34,11 @@ const ClinicasDoSistema = () => {
     handleCloseModals,
     handleSubmit,
     handleSimularAcesso,
+    paginacao,
+    setBusca,
+    handleTableChange,
   } = useClinicasDoSistemaManager();
 
-  if (loading) return <LoadingSpinner />;
 
   return (
     <div>
@@ -61,7 +62,19 @@ const ClinicasDoSistema = () => {
         </Button>
       </div>
 
+      {/* Busca no servidor (com debounce); ordenação e filtros ficam nas colunas da tabela */}
+      <Input.Search
+        placeholder="Buscar por nome ou CNPJ..."
+        onChange={(e) => setBusca(e.target.value)}
+        allowClear
+        style={{ maxWidth: 320 }}
+        className="mb-4"
+      />
+
       <TabelaClinicasDoSistema
+        loading={loading}
+        paginacao={paginacao}
+        onChange={handleTableChange}
         clinicas={clinicas}
         onEdit={handleEditarClinica}
         onViewDetails={handleOpenModalDetalhes}

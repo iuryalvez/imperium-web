@@ -1,14 +1,13 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../../services/AuthContext";
-import { Button } from "antd";
+import { Button, Input } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   FormOutlined,
   ProfileOutlined,
 } from "@ant-design/icons";
-import LoadingSpinner from "../../../components/atoms/LoadingSpinner.jsx";
 import { useUsuariosDaClinicaManager } from "./useUsuariosDaClinicaManager.js";
 import TabelaUsuariosDaClinica from "./components/TabelaUsuariosDaClinica/TabelaUsuariosDaClinica.jsx";
 import FormEdicaoUsuarioDaClinica from "./components/FormularioEdicaoUsuarioDaClinica/FormEdicaoUsuarioDaClinica.jsx";
@@ -33,11 +32,11 @@ const UsuariosDaClinicaConteudo = () => {
     handleEditarUsuario,
     handleToggleStatus,
     handleOpenModalDetalhes,
+    paginacao,
+    setBusca,
+    handleTableChange,
   } = useUsuariosDaClinicaManager();
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
 
   return (
     <div>
@@ -54,7 +53,19 @@ const UsuariosDaClinicaConteudo = () => {
         </Button>
       </div>
 
+      {/* Busca no servidor (com debounce); ordenação e filtros ficam nas colunas da tabela */}
+      <Input.Search
+        placeholder="Buscar por nome, e-mail ou CPF..."
+        onChange={(e) => setBusca(e.target.value)}
+        allowClear
+        style={{ maxWidth: 320 }}
+        className="mb-4"
+      />
+
       <TabelaUsuariosDaClinica
+        loading={loading}
+        paginacao={paginacao}
+        onChange={handleTableChange}
         usuarios={usuarios}
         onEdit={handleEditarUsuario}
         onToggleStatus={handleToggleStatus}

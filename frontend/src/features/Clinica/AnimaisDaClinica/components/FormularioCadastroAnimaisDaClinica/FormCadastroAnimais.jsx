@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Form, Input, Select, DatePicker, Switch, Row, Col, message, Checkbox } from "antd";
+import React, { useEffect } from "react";
+import { Form, Input, Select, DatePicker, Switch, Row, Col, Checkbox } from "antd";
 import { tutoresDaClinicaAPI } from "../../../../../api/clinica/tutoresDaClinicaAPI";
 import { racasDaClinicaAPI } from "../../../../../api/clinica/racasDaClinicaAPI";
 import SelectBuscaRemota from "../../../../../components/atoms/SelectBuscaRemota";
@@ -9,33 +9,9 @@ const opcoesSexo = [{ value: 1, label: "Macho" }, { value: 2, label: "Fêmea" }]
 
 const FormCadastroAnimal = ({ onFinish }) => {
   const [form] = Form.useForm();
-  const [tutores, setTutores] = useState([]);
-  const [loading, setLoading] = useState(false);
 
   const especieSelecionada = Form.useWatch("especie", form);
   const sobTutelaClinica = Form.useWatch("sobTutelaClinica", form);
-
-  // Efeito para buscar raças e tutores quando o componente monta
-  useEffect(() => {
-    const carregarDadosDeSuporte = async () => {
-      setLoading(true);
-      try {
-        // Tutores inativos aparecem desabilitados (não podem ganhar vínculo novo)
-        const tutoresData = await tutoresDaClinicaAPI.listar();
-        setTutores(tutoresData.map(t => ({
-          label: `${t.nome} (${t.cpf || 'N/A'})${t.isAtivo === false ? ' (inativo)' : ''}`,
-          value: t.id,
-          disabled: t.isAtivo === false,
-        })));
-
-      } catch (err) {
-        message.error("Falha ao carregar dados de suporte (raças/tutores).");
-      } finally {
-        setLoading(false);
-      }
-    };
-    carregarDadosDeSuporte();
-  }, []);
 
   // Limpa o campo 'racaId' sempre que a espécie mudar
   useEffect(() => {
@@ -77,12 +53,11 @@ const FormCadastroAnimal = ({ onFinish }) => {
             label="Tutor(es) Responsável(is)"
             rules={[{ required: !sobTutelaClinica, message: 'Selecione um tutor ou a tutela da clínica' }]}
           >
-            <Select
+            {/* Tutores da clínica com busca no servidor; inativos aparecem desabilitados */}
+            <SelectBuscaRemota
               mode="multiple"
               placeholder={sobTutelaClinica ? "Animal sem tutor físico" : "Busque e selecione os tutores"}
-              loading={loading}
-              options={tutores}
-              optionFilterProp="label"
+              buscarOpcoes={tutoresDaClinicaAPI.opcoes}
               disabled={sobTutelaClinica}
             />
           </Form.Item>

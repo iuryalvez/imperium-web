@@ -8,7 +8,7 @@ const colunas = [
       title: "Nome",
       dataIndex: "nome",
       key: "nome",
-      sorter: (a, b) => a.nome.localeCompare(b.nome),
+      sorter: true, // ordenação feita no servidor
     },
     {
       title: "Espécie",
@@ -16,13 +16,12 @@ const colunas = [
       key: "especie",
       render: (especieId) => formatarEspecie(especieId),
       filters: [ { text: "Cão", value: 1 }, { text: "Gato", value: 2 } ],
-      onFilter: (value, record) => record.especie === value,
+      filterMultiple: false, // filtro aplicado no servidor
     },
     {
       title: "Raça",
       dataIndex: "racaNome",
       key: "racaNome",
-      sorter: (a, b) => (a.racaNome || '').localeCompare(b.racaNome || ''),
       render: (raca) => raca || 'Não informada',
     },
     {
@@ -30,16 +29,12 @@ const colunas = [
       dataIndex: "sexo",
       key: "sexo",
       render: (sexoId) => formatarSexo(sexoId),
-      filters: [ { text: "Macho", value: 1 }, { text: "Fêmea", value: 2 } ],
-      onFilter: (value, record) => record.sexo === value,
     },
     {
         title: "Castrado",
         dataIndex: "isCastrado",
         key: "isCastrado",
         render: (isCastrado) => <Tag color={isCastrado ? "cyan" : "orange"}>{isCastrado ? "Sim" : "Não"}</Tag>,
-        filters: [ { text: "Sim", value: true }, { text: "Não", value: false } ],
-        onFilter: (value, record) => record.isCastrado === value,
     },
     {
       title: "Tutores",
@@ -57,7 +52,7 @@ const colunas = [
       title: "Data de Cadastro",
       dataIndex: "dataCadastro",
       key: "dataCadastro",
-      sorter: (a, b) => dayjs(a.dataCadastro).unix() - dayjs(b.dataCadastro).unix(),
+      sorter: true, // ordenação feita no servidor
       render: (data) => data ? dayjs(data).format("DD/MM/YYYY") : '-',
     },
   {
@@ -68,10 +63,16 @@ const colunas = [
       { text: "Ativo", value: true },
       { text: "Inativo", value: false },
     ],
-    onFilter: (value, record) => record.isAtivo === value,
+    filterMultiple: false, // filtro aplicado no servidor
     render: (isAtivo) =>
       isAtivo ? <Tag color="green">Ativo</Tag> : <Tag color="red">Inativo</Tag>,
   },
 ];
+
+/** Converte os filtros de coluna da Table em filtros do servidor (AnimalFiltro). */
+export const traduzirFiltrosAnimal = (filtros) => ({
+  especie: filtros.especie?.[0],
+  ativo: filtros.isAtivo?.[0],
+});
 
 export default colunas;

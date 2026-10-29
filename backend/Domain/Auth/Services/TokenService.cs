@@ -177,7 +177,8 @@ namespace backend.Domain.Auth.Services
                 {
                     Subject = new ClaimsIdentity(new Claim[]
                     {
-                        new Claim(ClaimTypes.NameIdentifier, usuarioPerfilClinicaId),
+                        new Claim(ClaimTypes.NameIdentifier, usuarioPerfilClinicaId), // id do VÍNCULO (usado na validação do token)
+                        new Claim("usuarioId", upc.UsuarioId.ToString()), // id do USUÁRIO (quem marcou consulta, preencheu avaliação...)
                         new Claim(ClaimTypes.Name, usuarioNome),
                         new Claim("UsuarioIp", usuarioIp),
                         new Claim("UsuarioAgent", usuarioAgent),
@@ -253,6 +254,7 @@ namespace backend.Domain.Auth.Services
                 var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, usuarioId),
+            new Claim("usuarioId", usuarioId), // no admin, o NameIdentifier já é o id do usuário
             new Claim(ClaimTypes.Name, usuarioNome),
             new Claim("UsuarioIp", usuarioIp),
             new Claim("UsuarioAgent", usuarioAgent),

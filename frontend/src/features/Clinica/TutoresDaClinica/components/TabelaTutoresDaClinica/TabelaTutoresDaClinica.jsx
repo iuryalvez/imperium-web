@@ -3,7 +3,7 @@ import { Table, Button, Space, Tooltip, Popconfirm, Dropdown, Checkbox } from "a
 import { EyeOutlined, EditOutlined, DeleteOutlined, SettingOutlined, StopOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import colunas from './colunas';
 
-const TabelaTutoresDaClinica = ({ tutores, onEdit, onDelete, onToggleStatus, onViewDetails, loadingRowKey }) => {
+const TabelaTutoresDaClinica = ({ tutores, paginacao, onChange, loading, onEdit, onDelete, onToggleStatus, onViewDetails, loadingRowKey }) => {
   const [visibleColumns, setVisibleColumns] = useState(["nome", "email", "cpf", "telefone", "isAtivo"]);
 
   const handleColumnVisibilityChange = (key) => {
@@ -88,7 +88,9 @@ const TabelaTutoresDaClinica = ({ tutores, onEdit, onDelete, onToggleStatus, onV
         dataSource={tutores}
         columns={colunasVisiveis}
         rowKey="id"
-        pagination={{ pageSize: 10, showSizeChanger: true }}
+        pagination={paginacao} // paginação no servidor (usePaginacaoServidor)
+        onChange={onChange}
+        loading={loading}
         scroll={{ x: "max-content" }}
       />
     </div>

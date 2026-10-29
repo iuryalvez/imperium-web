@@ -2,9 +2,10 @@ import api from "../index"; // Configuração do axios
 import endpoints from "../../services/Endpoints"; // Endpoints
 
 export const usuariosDaClinicaAPI = {
-  listar: async () => {
+  /** Lista paginada: filtro { pagina, tamanhoPagina, busca, ordenarPor, ordem, ... } → { itens, total, pagina, tamanhoPagina } */
+  listar: async (filtro) => {
     try {
-      const response = await api.get(endpoints.clinica.usuario.listar);
+      const response = await api.get(endpoints.clinica.usuario.listar, { params: filtro });
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar usuários:", error);

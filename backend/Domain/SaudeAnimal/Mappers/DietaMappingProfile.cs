@@ -1,3 +1,4 @@
+using backend.Domain.Utils;
 using AutoMapper;
 using backend.Domain.General.Extensions;
 using backend.Domain.SaudeAnimal.DTOs.Dieta;
@@ -34,7 +35,7 @@ public class DietaMappingProfile : Profile
         // Ignora campos nulos do DTO, permitindo atualizações parciais
         CreateMap<UpdateDietaDto, Dieta>()
             .ForMember(dest => dest.Id, opt => opt.Ignore()) // Ignora o mapeamento do Id para evitar alterações acidentais
-            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            .IgnorarNulosDaOrigem(); // campo nulo no DTO mantém o valor atual (ver MappingExtensions)
 
         CreateMap<UpdateDietaDto, CreateDietaDto>().ForMember(dest => dest.AvaliacaoId, opt => opt.Ignore());
     }

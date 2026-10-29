@@ -1,3 +1,4 @@
+using backend.Domain.Utils.Paginacao;
 using backend.Domain.Usuarios.DTOs.Usuario;
 using backend.Domain.Usuarios.DTOs.Vinculo;
 using backend.Domain.Usuarios.DTOs.PerfilPessoal;
@@ -11,7 +12,7 @@ namespace backend.Domain.Usuarios.Interfaces
         // Usaremos uma classe de resultado para comunicar sucesso ou falha ao controller
         Task<ServiceResult> ListarUsuariosSistemaAsync(int currentUserId);
         Task<ServiceResult> CadastrarUsuarioSistemaAsync(CadastrarUsuarioSistemaDto dto);
-        Task<IEnumerable<GetUsuariosClinicaDto>> GetUsuariosByClinicIdAsync(int clinicaId, string currentUserId);
+        Task<PaginaResultado<GetUsuariosClinicaDto>> ListarUsuariosDaClinicaAsync(UsuarioClinicaFiltro filtro, int clinicaId, int? upcIdAtual);
         Task<ServiceResult> UpdateUsuarioSistemaAsync(EditarUsuarioSistemaDto dto);
         Task<ServiceResult> CadastrarUsuarioClinicaAsync(CadastrarUsuarioClinicaDto dto, int clinicaId);
         Task<ServiceResult> UpdateUsuarioClinicaAsync(EditarUsuarioClinicaDto dto, int clinicaId);

@@ -8,7 +8,7 @@ const colunas = [
     title: "Nome",
     dataIndex: "nome",
     key: "nome",
-    sorter: (a, b) => a.nome.localeCompare(b.nome),
+    sorter: true, // ordenação feita no servidor
   },
   {
     title: "E-mail",
@@ -20,7 +20,7 @@ const colunas = [
     dataIndex: "perfis",
     key: "perfis",
     filters: perfisSistema.map((p) => ({ text: p.label, value: p.value })),
-    onFilter: (value, record) => record.perfis.includes(value),
+    filterMultiple: false, // filtro aplicado no servidor
     render: renderPerfis,
   },
   {
@@ -31,7 +31,7 @@ const colunas = [
       { text: "Ativo", value: true },
       { text: "Inativo", value: false },
     ],
-    onFilter: (value, record) => record.isAtivoNaClinica === value,
+    filterMultiple: false, // filtro aplicado no servidor
     render: (isAtivoNaClinica) =>
       isAtivoNaClinica ? <Tag color="green">Ativo</Tag> : <Tag color="red">Inativo</Tag>,
   },
@@ -39,16 +39,13 @@ const colunas = [
     title: "Data de Cadastro",
     dataIndex: "dataCadastro",
     key: "dataCadastro",
-    sorter: (a, b) =>
-      dayjs(a.dataCadastro).unix() - dayjs(b.dataCadastro).unix(),
+    sorter: true, // ordenação feita no servidor
     render: (data) => (data ? dayjs(data).format("DD/MM/YYYY") : "-"),
   },
   {
     title: "Último Acesso",
     dataIndex: "dataUltimoAcesso",
     key: "dataUltimoAcesso",
-    sorter: (a, b) =>
-      dayjs(a.dataUltimoAcesso).unix() - dayjs(b.dataUltimoAcesso).unix(),
     render: (data) => (data ? dayjs(data).format("DD/MM/YYYY HH:mm") : "Nunca"),
   },
   {
@@ -64,5 +61,11 @@ const colunas = [
     render: (telefone) => formatarTelefone(telefone),
   },
 ];
+
+/** Converte os filtros de coluna da Table em filtros do servidor (UsuarioClinicaFiltro). */
+export const traduzirFiltrosUsuarioClinica = (filtros) => ({
+  perfil: filtros.perfis?.[0],
+  ativo: filtros.isAtivoNaClinica?.[0],
+});
 
 export default colunas;

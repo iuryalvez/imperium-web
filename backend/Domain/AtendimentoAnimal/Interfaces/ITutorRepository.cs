@@ -1,4 +1,6 @@
+using backend.Domain.AtendimentoAnimal.DTOs.Tutor;
 using backend.Domain.AtendimentoAnimal.Entities;
+using backend.Domain.Utils.Paginacao;
 
 namespace backend.Domain.AtendimentoAnimal.Interfaces
 {
@@ -12,7 +14,8 @@ namespace backend.Domain.AtendimentoAnimal.Interfaces
 
         Task<bool> AllTutorsExistInClinicAsync(List<int> tutoresIds, int clinicaId);
         Task<bool> AllTutorsActiveAsync(List<int> tutoresIds, int clinicaId);
-        Task<IEnumerable<Tutor>> GetAllByClinicIdWithIncludesAsync(int clinicaId);
+        Task<PaginaResultado<Tutor>> ListarDaClinicaAsync(TutorFiltro filtro, int clinicaId);
+        Task<List<OpcaoDto>> ListarOpcoesAsync(int clinicaId, string? busca);
         Task<Tutor?> GetByIdAndClinicIdAsync(int tutorId, int clinicaId);
         Task<bool> HasConsultasAsync(int tutorId);
 

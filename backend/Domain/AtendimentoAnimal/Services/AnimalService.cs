@@ -6,6 +6,7 @@ using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interfaces;
 using backend.Domain.Usuarios.Interfaces;
 using backend.Domain.Utils;
+using backend.Domain.Utils.Paginacao;
 using backend.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -85,17 +86,20 @@ public class AnimalService : IAnimalService
     }
 
     /// <summary>
-    /// Obtém uma lista de DTOs de todos os animais ativos de uma clínica.
+    /// Lista paginada dos animais da clínica (ativos e inativos), mais recentes primeiro por padrão.
     /// </summary>
+    /// <param name="filtro">Paginação, busca, ordenação e filtros (ativo, espécie, tutor).</param>
     /// <param name="clinicaId">ID da clínica.</param>
-    /// <returns>ServiceResult contendo a lista de animais.</returns>
-    public async Task<ServiceResult> GetAllDtosByClinicIdAsync(int clinicaId)
+    public async Task<PaginaResultado<GetAnimaisClinicaDto>> ListarAsync(AnimalFiltro filtro, int clinicaId)
     {
-        _logger.LogInformation("Listando todos os animais da clínica {ClinicaId}.", clinicaId);
-        var animais = await _animalRepository.GetAllByClinicaIdWithDetailsAsync(clinicaId);
-        var dtos = _mapper.Map<IEnumerable<GetAnimaisClinicaDto>>(animais);
-        _logger.LogInformation("Encontrados {Count} animais para a clínica {ClinicaId}.", dtos.Count(), clinicaId);
-        return new ServiceResult { Succeeded = true, Data = dtos };
+        var pagina = await _animalRepository.ListarDaClinicaAsync(filtro, clinicaId);
+        return pagina.Converter(itens => _mapper.Map<IEnumerable<GetAnimaisClinicaDto>>(itens));
+    }
+
+    /// <summary>Opções para selects: até 20 animais { id, nome, isAtivo }, ativos primeiro.</summary>
+    public async Task<List<OpcaoDto>> ListarOpcoesAsync(int clinicaId, string? busca)
+    {
+        return await _animalRepository.ListarOpcoesAsync(clinicaId, busca);
     }
 
     public async Task<ServiceResult> UpdateEntityAsync(Animal animal)

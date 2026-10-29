@@ -1,22 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   Form,
   Input,
-  Select,
   Checkbox,
-  Button,
-  message,
   Row,
   Col,
   Divider,
   Switch,
 } from "antd";
 import { clinicasAPI } from "../../../../../api/sistema/clinicasAPI";
+import SelectBuscaRemota from "../../../../../components/atoms/SelectBuscaRemota";
 
 const FormCadastroUsuarioDoSistema = ({ onFinish }) => {
   const [form] = Form.useForm();
-  const [clinicas, setClinicas] = useState([]);
-  const [loadingClinicas, setLoadingClinicas] = useState(false);
 
   // 1. A FONTE DA VERDADE: Observamos o campo 'perfis' em tempo real.
   const perfisSelecionados = Form.useWatch("perfis", form) || [];
@@ -41,23 +37,8 @@ const FormCadastroUsuarioDoSistema = ({ onFinish }) => {
     // Se o usuário é admin, limpa a seleção de clínicas.
     if (isAdminSelecionado) {
       form.setFieldsValue({ clinicaIds: [] });
-      setClinicas([]);
-      return;
     }
 
-    // Se NÃO for admin (ou seja, se outros perfis forem selecionados), busca as clínicas.
-    setLoadingClinicas(true);
-    clinicasAPI
-      .listar()
-      .then((data) => {
-        const options = data.map((c) => ({
-          label: c.nomeClinica,
-          value: c.id,
-        }));
-        setClinicas(options);
-      })
-      .catch(() => message.error("Falha ao carregar a lista de clínicas."))
-      .finally(() => setLoadingClinicas(false));
   }, [isAdminSelecionado, form]);
 
   // Handler para corrigir a seleção de perfis
@@ -206,13 +187,11 @@ const FormCadastroUsuarioDoSistema = ({ onFinish }) => {
                 },
               ]}
             >
-              <Select
+              {/* Clínicas com busca no servidor; inativas aparecem desabilitadas */}
+              <SelectBuscaRemota
                 mode="multiple"
-                showSearch
-                placeholder="Selecione as clínicas para vincular"
-                optionFilterProp="label"
-                loading={loadingClinicas}
-                options={clinicas}
+                placeholder="Busque e selecione as clínicas para vincular"
+                buscarOpcoes={clinicasAPI.opcoes}
               />
             </Form.Item>
           )}

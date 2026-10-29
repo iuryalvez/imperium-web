@@ -1,5 +1,8 @@
+using System.Linq.Expressions;
+using backend.Domain.AtendimentoAnimal.DTOs.Tutor;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interfaces;
+using backend.Domain.Utils.Paginacao;
 using Microsoft.EntityFrameworkCore;
 using backend.Infra.Data;
 
@@ -8,6 +11,13 @@ namespace backend.Domain.AtendimentoAnimal.Repository
     public class TutorRepository : ITutorRepository
     {
         private readonly AppDbContext _context;
+
+        // Lista branca de campos de ordenação aceitos em TutorFiltro.OrdenarPor
+        private static readonly Dictionary<string, Expression<Func<Tutor, object?>>> Ordenacoes = new()
+        {
+            ["dataCadastro"] = t => t.DataCadastro,
+            ["nome"] = t => t.Nome,
+        };
 
         public TutorRepository(AppDbContext context)
         {
@@ -32,17 +42,48 @@ namespace backend.Domain.AtendimentoAnimal.Repository
                 .FirstOrDefaultAsync(t => t.Id == tutorId);
         }
 
-        public async Task<IEnumerable<Tutor>> GetAllByClinicIdWithIncludesAsync(int clinicaId)
+        public async Task<PaginaResultado<Tutor>> ListarDaClinicaAsync(TutorFiltro filtro, int clinicaId)
         {
-            return await _context.Tutores
-                // Inclui a tabela de junção Tutor-Animal
-                .Include(t => t.TutoresAnimais)
-                    // A partir da junção, inclui a entidade Animal
-                    .ThenInclude(ta => ta.Animal)
-                // Filtra apenas os tutores da clínica especificada, mais recentes primeiro
-                .Where(t => t.ClinicaId == clinicaId)
-                .OrderByDescending(t => t.DataCadastro).ThenByDescending(t => t.Id)
+            var query = _context.Tutores
                 .AsNoTracking()
+                .AsSplitQuery() // evita multiplicar linhas com a coleção de animais ao paginar
+                // Inclui a tabela de junção Tutor-Animal e, a partir dela, o Animal
+                .Include(t => t.TutoresAnimais!)
+                    .ThenInclude(ta => ta.Animal)
+                // Filtra apenas os tutores da clínica especificada
+                .Where(t => t.ClinicaId == clinicaId);
+
+            if (filtro.Ativo.HasValue) query = query.Where(t => t.IsAtivo == filtro.Ativo.Value);
+
+            var busca = filtro.BuscaNormalizada;
+            if (busca != null)
+            {
+                var padrao = QueryablePaginacaoExtensions.PadraoBusca(busca);
+                // CPF/CNPJ só quando a busca não tem letras ("Tutor 1" não deve casar com qualquer documento que tenha "1")
+                var digitos = busca.Any(char.IsLetter) ? "" : new string(busca.Where(char.IsDigit).ToArray());
+                query = query.Where(t => EF.Functions.ILike(t.Nome, padrao)
+                                      || EF.Functions.ILike(t.Email!, padrao)
+                                      || (digitos.Length > 0 && t.Cpf.Contains(digitos)));
+            }
+
+            return await query.Ordenar(filtro, Ordenacoes, "dataCadastro", t => t.Id).PaginarAsync(filtro);
+        }
+
+        public async Task<List<OpcaoDto>> ListarOpcoesAsync(int clinicaId, string? busca)
+        {
+            var query = _context.Tutores.AsNoTracking().Where(t => t.ClinicaId == clinicaId);
+            if (!string.IsNullOrWhiteSpace(busca))
+            {
+                var padrao = QueryablePaginacaoExtensions.PadraoBusca(busca.Trim());
+                // CPF/CNPJ só quando a busca não tem letras ("Tutor 1" não deve casar com qualquer documento que tenha "1")
+                var digitos = busca.Any(char.IsLetter) ? "" : new string(busca.Where(char.IsDigit).ToArray());
+                query = query.Where(t => EF.Functions.ILike(t.Nome, padrao) || (digitos.Length > 0 && t.Cpf.Contains(digitos)));
+            }
+
+            return await query
+                .OrderByDescending(t => t.IsAtivo).ThenBy(t => t.Nome)
+                .Take(OpcaoDto.LimiteOpcoes)
+                .Select(t => new OpcaoDto { Id = t.Id, Nome = t.Nome + (t.Cpf != "" ? " (" + t.Cpf + ")" : ""), IsAtivo = t.IsAtivo })
                 .ToListAsync();
         }
 

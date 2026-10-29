@@ -21,6 +21,9 @@ import colunas from "./colunas";
 
 const TabelaAnimais = ({
   data,
+  paginacao,
+  onChange,
+  loading,
   onEdit,
   onDelete,
   onToggleStatus,
@@ -159,7 +162,9 @@ const TabelaAnimais = ({
         dataSource={data}
         columns={colunasVisiveis}
         rowKey="id"
-        pagination={{ pageSize: 10, showSizeChanger: true }}
+        pagination={paginacao} // paginação no servidor (usePaginacaoServidor)
+        onChange={onChange}
+        loading={loading}
         scroll={{ x: "max-content" }}
       />
     </div>

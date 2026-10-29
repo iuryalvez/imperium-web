@@ -1,3 +1,4 @@
+using backend.Domain.Utils;
 using AutoMapper;
 using backend.Domain.AtendimentoAnimal.DTOs.Animal;
 using backend.Domain.AtendimentoAnimal.DTOs.Tutor;
@@ -34,7 +35,7 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
                 .ForMember(dest => dest.IsAtivo, opt => opt.Ignore())
                 .ForMember(dest => dest.DataDesativacao, opt => opt.Ignore())
                 .ForMember(dest => dest.DataCadastro, opt => opt.Ignore())
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                .IgnorarNulosDaOrigem(); // campo nulo no DTO mantém o valor atual (ver MappingExtensions)
         }
     }
 }

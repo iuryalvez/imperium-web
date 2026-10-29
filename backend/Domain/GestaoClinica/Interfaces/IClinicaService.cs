@@ -1,3 +1,4 @@
+using backend.Domain.Utils.Paginacao;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.GestaoClinica.DTOs;
 using backend.Domain.GestaoClinica.DTOs.Dashboard;
@@ -9,7 +10,8 @@ namespace backend.Domain.GestaoClinica.Interfaces
 {
     public interface IClinicaService
     {
-        Task<IEnumerable<GetClinicaDto>> GetAllAsync();
+        Task<PaginaResultado<GetClinicaDto>> ListarAsync(ClinicaFiltro filtro);
+        Task<List<OpcaoDto>> ListarOpcoesAsync(string? busca);
         Task<GetClinicaDto?> GetByIdAsync(int clinicaId);
         Task<ServiceResult> GetClinicaDashboardAsync(int clinicaId);
         Task<ServiceResult> CreateAsync(CadastrarClinicaDto dto);

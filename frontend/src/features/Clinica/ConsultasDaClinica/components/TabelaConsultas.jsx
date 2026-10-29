@@ -18,6 +18,8 @@ import colunas from "./colunas";
 
 const TabelaConsultas = ({
   consultas,
+  paginacao,
+  onChange,
   onEdit,
   onDelete,
   onIrParaAcompanhamento,
@@ -122,7 +124,8 @@ const TabelaConsultas = ({
         dataSource={consultas}
         columns={colunasVisiveis}
         rowKey="id"
-        pagination={{ pageSize: 10, showSizeChanger: true }}
+        pagination={paginacao} // paginação no servidor (usePaginacaoServidor)
+        onChange={onChange}
         loading={loading}
         scroll={{ x: "max-content" }}
       />

@@ -6,7 +6,7 @@ const colunas = [
     title: "Nome",
     dataIndex: "nome",
     key: "nome",
-    sorter: (a, b) => a.nome.localeCompare(b.nome),
+    sorter: true, // ordenação feita no servidor
   },
   {
     title: "E-mail",
@@ -39,10 +39,15 @@ const colunas = [
       { text: "Ativo", value: true },
       { text: "Inativo", value: false },
     ],
-    onFilter: (value, record) => record.isAtivo === value,
+    filterMultiple: false, // filtro aplicado no servidor
     render: (isAtivo) =>
       isAtivo ? <Tag color="green">Ativo</Tag> : <Tag color="red">Inativo</Tag>,
   },
 ];
+
+/** Converte os filtros de coluna da Table em filtros do servidor (TutorFiltro). */
+export const traduzirFiltrosTutor = (filtros) => ({
+  ativo: filtros.isAtivo?.[0],
+});
 
 export default colunas;

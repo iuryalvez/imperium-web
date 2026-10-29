@@ -17,11 +17,11 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
 
         [HttpGet]
         [Authorize(Policy = "VisualizaTudo")]
-        public async Task<IActionResult> GetAllByClinicaId()
+        public async Task<IActionResult> GetAllByClinicaId([FromQuery] ConsultaFiltro filtro)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            var consultas = await _consultaService.ObterTodasPorClinicaIdAsync(clinicaId);
-            return Ok(consultas);
+            if (clinicaId <= 0) return Forbid();
+            return Ok(await _consultaService.ListarAsync(filtro, clinicaId));
         }
 
         [HttpGet("{consultaId}")]
@@ -39,9 +39,13 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
         public async Task<IActionResult> Create([FromBody] UpsertConsultaDto dto)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            var usuarioId = User.GetClaimValue<int>(ClaimTypes.NameIdentifier);
+            if (clinicaId <= 0) return Forbid();
 
-            var result = await _consultaService.CreateAsync(dto, clinicaId, usuarioId);
+            // Id do usuário (não do vínculo): quem marcou a consulta
+            var usuarioId = User.GetUsuarioId();
+            if (usuarioId == null) return Forbid();
+
+            var result = await _consultaService.CreateAsync(dto, clinicaId, usuarioId.Value);
             if (!result.Succeeded) return BadRequest(result);
 
             var consultaDto = (DetalhesConsultaDto)result.Data;

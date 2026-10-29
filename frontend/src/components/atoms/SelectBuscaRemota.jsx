@@ -10,6 +10,7 @@
  * - opcoesAtuais: [{ id, nome }] do registro em edição, para o valor atual sempre ter rótulo
  *   mesmo que não venha na busca (ex.: item inativo ou fora dos primeiros resultados).
  * - dependencias: lista de valores que, ao mudar, recarregam as opções (ex.: [especie]).
+ * - Funciona com mode="multiple": os itens já escolhidos mantêm o rótulo mesmo depois de outra busca.
  * - demais props (mode, placeholder, disabled, allowClear...) vão direto para o Select do antd.
  */
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -32,6 +33,8 @@ const SelectBuscaRemota = ({
 }) => {
   const [opcoes, setOpcoes] = useState([]);
   const [carregando, setCarregando] = useState(false);
+  // Rótulos de todas as opções já vistas, para os valores selecionados não virarem só o id após outra busca
+  const [conhecidas, setConhecidas] = useState({});
   const temporizador = useRef(null);
   const ultimaBusca = useRef(0);
 
@@ -40,7 +43,11 @@ const SelectBuscaRemota = ({
     setCarregando(true);
     try {
       const itens = await buscarOpcoes(busca);
-      if (idBusca === ultimaBusca.current) setOpcoes((itens || []).map(paraOpcao));
+      if (idBusca === ultimaBusca.current) {
+        const novas = (itens || []).map(paraOpcao);
+        setOpcoes(novas);
+        setConhecidas((atual) => ({ ...atual, ...Object.fromEntries(novas.map((o) => [o.value, o])) }));
+      }
     } catch {
       if (idBusca === ultimaBusca.current) setOpcoes([]);
     } finally {
@@ -60,14 +67,27 @@ const SelectBuscaRemota = ({
     temporizador.current = setTimeout(() => carregar(texto), ATRASO_BUSCA_MS);
   };
 
-  // Garante rótulo para o valor atual do registro, mesmo que ele não esteja na busca
+  // Garante rótulo para os valores selecionados (do registro em edição ou escolhidos antes),
+  // mesmo que não estejam no resultado da busca atual
+  const { value } = props;
   const opcoesComAtuais = useMemo(() => {
     const ids = new Set(opcoes.map((o) => o.value));
-    const extras = (opcoesAtuais || [])
-      .filter((item) => item && item.id != null && !ids.has(item.id))
-      .map((item) => ({ value: item.id, label: item.nome }));
+    const extras = [];
+    (opcoesAtuais || []).forEach((item) => {
+      if (item && item.id != null && !ids.has(item.id)) {
+        extras.push({ value: item.id, label: item.nome });
+        ids.add(item.id);
+      }
+    });
+    const selecionados = Array.isArray(value) ? value : value != null ? [value] : [];
+    selecionados.forEach((id) => {
+      if (!ids.has(id) && conhecidas[id]) {
+        extras.push({ ...conhecidas[id], disabled: false });
+        ids.add(id);
+      }
+    });
     return [...extras, ...opcoes];
-  }, [opcoes, opcoesAtuais]);
+  }, [opcoes, opcoesAtuais, value, conhecidas]);
 
   return (
     <Select

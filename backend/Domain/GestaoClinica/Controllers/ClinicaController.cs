@@ -24,10 +24,16 @@ namespace backend.Domain.GestaoClinica.Controllers
 
         [HttpGet("sistema/clinicas")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] ClinicaFiltro filtro)
         {
-            var clinicas = await _clinicaService.GetAllAsync();
-            return Ok(clinicas);
+            return Ok(await _clinicaService.ListarAsync(filtro));
+        }
+
+        [HttpGet("sistema/clinicas/opcoes")]
+        [Authorize(Policy = "GerenciaSistema")]
+        public async Task<IActionResult> GetOpcoes([FromQuery] string? busca)
+        {
+            return Ok(await _clinicaService.ListarOpcoesAsync(busca));
         }
 
         [HttpGet("sistema/clinicas/{clinicaId}")]

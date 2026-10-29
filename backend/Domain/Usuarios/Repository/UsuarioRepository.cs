@@ -1,9 +1,12 @@
 
 namespace backend.Domain.Usuarios.Repository;
 // Infra/Data/Repositories/UsuarioRepository.cs
+using System.Linq.Expressions;
+using backend.Domain.Usuarios.DTOs.Usuario;
 using backend.Domain.Usuarios.Entities;
 using backend.Domain.Usuarios.Interfaces;
 using backend.Domain.Utils;
+using backend.Domain.Utils.Paginacao;
 using backend.Infra.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +15,13 @@ public class UsuarioRepository : IUsuarioRepository
 {
     private readonly AppDbContext _context;
     private readonly UserManager<Usuario> _userManager;
+
+    // Lista branca de campos de ordenação aceitos em UsuarioClinicaFiltro.OrdenarPor
+    private static readonly Dictionary<string, Expression<Func<UsuarioPerfilClinica, object?>>> OrdenacoesVinculo = new()
+    {
+        ["dataCadastro"] = upc => upc.Usuario!.DataCadastro,
+        ["nome"] = upc => upc.Usuario!.Nome,
+    };
 
     public UsuarioRepository(AppDbContext context, UserManager<Usuario> userManager)
     {
@@ -50,14 +60,36 @@ public class UsuarioRepository : IUsuarioRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<UsuarioPerfilClinica>> GetVinculosByClinicIdAsync(int clinicaId)
+    public async Task<PaginaResultado<UsuarioPerfilClinica>> ListarVinculosDaClinicaAsync(UsuarioClinicaFiltro filtro, int clinicaId, int? excluirUpcId)
     {
-        return await _context.UsuariosPerfisClinicas
+        var query = _context.UsuariosPerfisClinicas
             .AsNoTracking()
             .Include(upc => upc.Usuario)
-            .Where(upc => upc.ClinicaId == clinicaId)
-            .OrderByDescending(upc => upc.Usuario!.DataCadastro).ThenByDescending(upc => upc.Id) // mais recentes primeiro
-            .ToListAsync();
+            .Where(upc => upc.ClinicaId == clinicaId);
+
+        // O próprio vínculo de quem está consultando não aparece na lista
+        if (excluirUpcId.HasValue) query = query.Where(upc => upc.Id != excluirUpcId.Value);
+
+        if (filtro.Ativo == true) query = query.Where(upc => upc.Perfis == null || !upc.Perfis.Contains("INATIVO"));
+        if (filtro.Ativo == false) query = query.Where(upc => upc.Perfis != null && upc.Perfis.Contains("INATIVO"));
+        if (!string.IsNullOrWhiteSpace(filtro.Perfil))
+        {
+            var perfil = filtro.Perfil.Trim().ToUpperInvariant();
+            query = query.Where(upc => upc.Perfis != null && upc.Perfis.Contains(perfil));
+        }
+
+        var busca = filtro.BuscaNormalizada;
+        if (busca != null)
+        {
+            var padrao = QueryablePaginacaoExtensions.PadraoBusca(busca);
+            // CPF/CNPJ só quando a busca não tem letras ("Tutor 1" não deve casar com qualquer documento que tenha "1")
+                var digitos = busca.Any(char.IsLetter) ? "" : new string(busca.Where(char.IsDigit).ToArray());
+            query = query.Where(upc => EF.Functions.ILike(upc.Usuario!.Nome, padrao)
+                                    || EF.Functions.ILike(upc.Usuario!.Email!, padrao)
+                                    || (digitos.Length > 0 && upc.Usuario!.Cpf != null && upc.Usuario.Cpf.Contains(digitos)));
+        }
+
+        return await query.Ordenar(filtro, OrdenacoesVinculo, "dataCadastro", upc => upc.Id).PaginarAsync(filtro);
     }
 
     public async Task<bool> EmailExistsAsync(string email)

@@ -2,9 +2,10 @@ import api from "../index";
 import endpoints from "../../services/Endpoints";
 
 export const consultasDaClinicaAPI = {
-  listar: async () => {
+  /** Lista paginada: filtro { pagina, tamanhoPagina, busca, ordenarPor, ordem, ... } → { itens, total, pagina, tamanhoPagina } */
+  listar: async (filtro) => {
     try {
-      const response = await api.get(endpoints.clinica.consulta.listar);
+      const response = await api.get(endpoints.clinica.consulta.listar, { params: filtro });
       return response.data;
     } catch (error) {
       console.error("Erro ao listar consultas:", error);

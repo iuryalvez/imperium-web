@@ -73,8 +73,9 @@ Antes de criar um domínio novo, confirme se a entidade não cabe num existente 
 - Documentos e telefones guardados só com dígitos (CPF 11, CNPJ 14, CEP 8, telefone 11).
 
 ### Mappers
-- `<Entidade>MappingProfile : Profile` em `Mappers/`. DTOs de edição usam
-  `.ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));` para atualização parcial.
+- `<Entidade>MappingProfile : Profile` em `Mappers/`. DTOs de edição terminam o mapa com `.IgnorarNulosDaOrigem();` (`Domain/Utils/MappingExtensions.cs`): campo nulo no DTO mantém o valor atual.
+- Não use `.ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null))`: com `int?`/`bool?`/enum/`DateTime?` nulo, o valor chega convertido para 0/false/MinValue e sobrescreve a entidade (bug já visto em animal e ração).
+- Campos que nunca vêm do DTO (`ClinicaId`, `IsAtivo`, `DataCadastro`, `Id` na edição) ficam com `.ForMember(..., opt => opt.Ignore())`.
 - Registro já é automático: `AddAutoMapper(config => { }, typeof(Program).Assembly)`.
 
 ### Entities e Enums
@@ -101,7 +102,9 @@ Antes de criar um domínio novo, confirme se a entidade não cabe num existente 
 - Listas paginam no banco: o controller recebe `[FromQuery] <Entidade>Filtro` (herda `FiltroBase`: `Pagina`, `TamanhoPagina` padrão 10 e máximo 100, `Busca`, `OrdenarPor`, `Ordem` `asc|desc`) e devolve `PaginaResultado<T>` = `{ itens, total, pagina, tamanhoPagina }`.
 - No repository: filtros com `EF.Functions.ILike(..., QueryablePaginacaoExtensions.PadraoBusca(busca))`, depois `.Ordenar(filtro, mapaDeColunas, "dataCadastro", x => x.Id)` (lista branca de colunas) e `.PaginarAsync(filtro)`. O service converte com `pagina.Converter(...)` para DTO.
 - Selects usam `GET <entidades>/opcoes?busca=`: até `OpcaoDto.LimiteOpcoes` (20) itens `{ id, nome, isAtivo }`, ativos primeiro e depois por nome; inativos vêm junto (o frontend mostra desabilitado), ocultos pela clínica não vêm.
-- Situação atual: raças e rações já seguem esse contrato; as demais listas ainda devolvem array e migram para ele na próxima etapa (usuários do sistema ficam por último).
+- Listas que já seguem o contrato: clínica (animais, tutores, consultas, usuários, raças, rações) e sistema (clínicas, raças, rações e cópias). Única pendência: `GET sistema/usuarios` (junta vínculos e admins; fica para depois).
+- `/opcoes` existentes: `clinica/animais`, `clinica/tutores`, `clinica/racas?especie=`, `clinica/racoes?especie=`, `sistema/clinicas`.
+- Coleções no `Include` de lista paginada usam `.AsSplitQuery()` para o `Skip/Take` não multiplicar linhas.
 
 ## 4. Registrar e migrar
 

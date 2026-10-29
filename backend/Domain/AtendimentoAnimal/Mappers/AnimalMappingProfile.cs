@@ -1,3 +1,4 @@
+using backend.Domain.Utils;
 using AutoMapper;
 using backend.Domain.AtendimentoAnimal.DTOs.Animal;
 using backend.Domain.AtendimentoAnimal.DTOs.Tutor;
@@ -40,16 +41,10 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
                 .ForMember(dest => dest.DataModificado, opt => opt.MapFrom(_ => DateTime.UtcNow))
                 .ForMember(dest => dest.Nascimento, opt => opt.MapFrom(src => src.Nascimento.ToUniversalTime()));
 
-            // Atualização parcial: campo nulo no DTO mantém o valor atual. A condição olha o DTO de origem:
-            // com ForAllMembers(srcMember != null), enum?/DateTime? nulos chegavam convertidos para 0/MinValue e zeravam o animal.
+            // Atualização parcial: campo nulo no DTO mantém o valor atual (ver MappingExtensions)
             CreateMap<EditarAnimalClinicaDto, Animal>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.Nome, opt => opt.Condition(src => src.Nome != null))
-                .ForMember(dest => dest.RacaId, opt => opt.Condition(src => src.RacaId != null))
-                .ForMember(dest => dest.Especie, opt => opt.Condition(src => src.Especie != null))
-                .ForMember(dest => dest.Nascimento, opt => opt.Condition(src => src.Nascimento != null))
-                .ForMember(dest => dest.Sexo, opt => opt.Condition(src => src.Sexo != null))
-                .ForMember(dest => dest.IsCastrado, opt => opt.Condition(src => src.IsCastrado != null));
+                .IgnorarNulosDaOrigem();
 
             // Mapeia os dados de estado de um relatório para a entidade Animal.
             // Usado para atualizar o estado atual do animal sempre que um novo relatório é salvo.

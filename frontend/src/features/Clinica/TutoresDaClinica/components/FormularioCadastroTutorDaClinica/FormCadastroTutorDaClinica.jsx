@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Form, Input, Select, Row, Col, Divider, Button, Spin } from "antd";
+import React from "react";
+import { Form, Input, Row, Col, Divider, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import {
   CpfMaskInput,
@@ -8,32 +8,15 @@ import {
 } from "../../../../../utils/masks";
 import { animaisDaClinicaAPI } from "../../../../../api/clinica/animaisDaClinicaAPI";
 import { useCepHandler } from "../../../../../utils/useCepHandler";
+import SelectBuscaRemota from "../../../../../components/atoms/SelectBuscaRemota";
 import { validarCPF } from "../../../../../utils/validators";
 
 const FormularioCadastroTutorDaClinica = ({ onFinish }) => {
   const [form] = Form.useForm();
-  const [animaisDaClinica, setAnimaisDaClinica] = useState([]);
-  const [loadingAnimais, setLoadingAnimais] = useState(false);
 
   // Inicializa o hook de CEP
   const { handleCepSearch, loadingCep } = useCepHandler(form);
 
-  useEffect(() => {
-    setLoadingAnimais(true);
-    animaisDaClinicaAPI
-      .listar()
-      .then((data) => {
-        setAnimaisDaClinica(
-          // Animais inativos aparecem desabilitados (não podem ganhar vínculo novo)
-          data.map((animal) => ({
-            label: `${animal.nome} (${animal.especie === 1 ? "Cão" : "Gato"})${animal.isAtivo === false ? " (inativo)" : ""}`,
-            value: animal.id,
-            disabled: animal.isAtivo === false,
-          })),
-        );
-      })
-      .finally(() => setLoadingAnimais(false));
-  }, []);
 
   return (
     <Form id="form-cadastro-tutor-clinica" form={form} layout="vertical" onFinish={onFinish}>
@@ -141,13 +124,11 @@ const FormularioCadastroTutorDaClinica = ({ onFinish }) => {
             name="animalIds"
             initialValue={[]}
           >
-            <Select
+            {/* Animais da clínica com busca no servidor; inativos aparecem desabilitados */}
+            <SelectBuscaRemota
               mode="multiple"
-              showSearch
               placeholder="Busque por nome"
-              loading={loadingAnimais}
-              options={animaisDaClinica}
-              optionFilterProp="label"
+              buscarOpcoes={animaisDaClinicaAPI.opcoes}
             />
           </Form.Item>
         </Col>

@@ -5,6 +5,7 @@ using backend.Domain.Usuarios.DTOs.PerfilPessoal;
 using backend.Domain.Usuarios.Entities;
 using backend.Domain.Usuarios.Interfaces;
 using backend.Domain.Utils;
+using backend.Domain.Utils.Paginacao;
 using backend.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 using backend.Domain.Usuarios.DTOs.UsuarioStatus;
@@ -58,14 +59,13 @@ namespace backend.Domain.Usuarios.Services
             }
         }
 
-        public async Task<IEnumerable<GetUsuariosClinicaDto>> GetUsuariosByClinicIdAsync(int clinicaId, string currentUserId)
+        /// <summary>
+        /// Lista paginada dos usuários (vínculos) da clínica, sem o vínculo de quem está consultando.
+        /// </summary>
+        public async Task<PaginaResultado<GetUsuariosClinicaDto>> ListarUsuariosDaClinicaAsync(UsuarioClinicaFiltro filtro, int clinicaId, int? upcIdAtual)
         {
-            var vinculos = await _usuarioRepository.GetVinculosByClinicIdAsync(clinicaId);
-
-            var vinculosFiltrados = vinculos
-                .Where(upc => upc.UsuarioId.ToString() != currentUserId);
-
-            return _mapper.Map<IEnumerable<GetUsuariosClinicaDto>>(vinculosFiltrados);
+            var pagina = await _usuarioRepository.ListarVinculosDaClinicaAsync(filtro, clinicaId, upcIdAtual);
+            return pagina.Converter(itens => _mapper.Map<IEnumerable<GetUsuariosClinicaDto>>(itens));
         }
 
         public async Task<ServiceResult> CadastrarUsuarioSistemaAsync(CadastrarUsuarioSistemaDto dto)

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Form, Input, Select, Row, Col, Divider, Button, Spin } from "antd";
+import React, { useEffect } from "react";
+import { Form, Input, Row, Col, Divider, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import {
   CepSearchInput,
@@ -8,6 +8,7 @@ import {
 } from "../../../../../utils/masks";
 import { animaisDaClinicaAPI } from "../../../../../api/clinica/animaisDaClinicaAPI";
 import { useCepHandler } from "../../../../../utils/useCepHandler";
+import SelectBuscaRemota from "../../../../../components/atoms/SelectBuscaRemota";
 import { validarCPF } from "../../../../../utils/validators";
 
 const FormularioEdicaoTutorDaClinica = ({
@@ -16,28 +17,9 @@ const FormularioEdicaoTutorDaClinica = ({
   isSubmitting,
 }) => {
   const [form] = Form.useForm();
-  const [animaisDaClinica, setAnimaisDaClinica] = useState([]);
-  const [loading, setLoading] = useState(false);
 
   const { handleCepSearch, loadingCep } = useCepHandler(form);
 
-  useEffect(() => {
-    setLoading(true);
-    animaisDaClinicaAPI
-      .listar()
-      .then((data) => {
-        setAnimaisDaClinica(
-          // Animais inativos aparecem desabilitados, exceto os que já estão vinculados ao tutor
-          data.map((a) => ({
-            label: `${a.nome} (${a.especie === 1 ? "Cão" : "Gato"})${a.isAtivo === false ? " (inativo)" : ""}`,
-            value: a.id,
-            disabled: a.isAtivo === false && !(initialValues?.animais || []).some((v) => v.id === a.id),
-          })),
-        );
-      })
-      .finally(() => setLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     if (initialValues) {
@@ -151,13 +133,12 @@ const FormularioEdicaoTutorDaClinica = ({
             Animais Associados
           </Divider>
           <Form.Item label="Animais" name="animalIds">
-            <Select
+            {/* Animais da clínica com busca no servidor; inativos aparecem desabilitados */}
+            <SelectBuscaRemota
               mode="multiple"
-              showSearch
               placeholder="Busque e selecione os animais"
-              loading={loading}
-              options={animaisDaClinica}
-              optionFilterProp="label"
+              buscarOpcoes={animaisDaClinicaAPI.opcoes}
+              opcoesAtuais={initialValues?.animais}
             />
           </Form.Item>
         </Col>

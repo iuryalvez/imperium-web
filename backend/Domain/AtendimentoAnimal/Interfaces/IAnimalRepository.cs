@@ -1,4 +1,6 @@
+using backend.Domain.AtendimentoAnimal.DTOs.Animal;
 using backend.Domain.AtendimentoAnimal.Entities;
+using backend.Domain.Utils.Paginacao;
 
 namespace backend.Domain.AtendimentoAnimal.Interfaces
 {
@@ -6,7 +8,8 @@ namespace backend.Domain.AtendimentoAnimal.Interfaces
     {
         Task<Animal?> GetByIdAsync(int animalId);
         Task<Animal?> GetByIdAndClinicIdWithDetailsAsync(int animalId, int clinicaId);
-        Task<IEnumerable<Animal>> GetAllByClinicaIdWithDetailsAsync(int clinicaId);
+        Task<PaginaResultado<Animal>> ListarDaClinicaAsync(AnimalFiltro filtro, int clinicaId);
+        Task<List<OpcaoDto>> ListarOpcoesAsync(int clinicaId, string? busca);
         Task<bool> IsAnimalInClinicAsync(int animalId, int clinicaId);
         Task<bool> AllAnimalsExistInClinicAsync(List<int> animalIds, int clinicaId);
         Task<bool> AllAnimalsActiveAsync(List<int> animalIds, int clinicaId);
