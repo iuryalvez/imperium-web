@@ -3,6 +3,9 @@ using System.Text.Json;
 
 namespace backend.Domain.Auth.Extensions {
     public static class AuthExtension {
+        /// <summary>Marcador de vínculo desativado na lista de perfis (UsuarioPerfilClinica.Perfis).</summary>
+        public const string PerfilInativo = "INATIVO";
+
         /// <summary>
         /// Obtém o valor de uma claim específica e converte para o tipo desejado.
         /// </summary>
@@ -47,21 +50,22 @@ namespace backend.Domain.Auth.Extensions {
             }
         }
 
+        /// <summary>
+        /// Confere se o token tem pelo menos um dos perfis da clínica pedidos (claim "Perfis").
+        /// Não há atalho para admin: o admin simulando acesso a uma clínica tem só os perfis que escolheu na simulação.
+        /// Vínculo com o perfil INATIVO não passa em nenhuma policy da clínica, mesmo tendo outros perfis.
+        /// </summary>
+        /// <summary>
+        /// Perfis que podem ver os dados de contato e documentos do tutor (CPF, telefone, e-mail).
+        /// O TECNICO vê só o nome do tutor (LGPD: ele não precisa desses dados).
+        /// </summary>
+        public static bool PodeVerDadosDoTutor(this ClaimsPrincipal user) =>
+            user.TemPerfil("GESTOR", "VETERINARIO", "SECRETARIO");
+
         public static bool TemPerfil(this ClaimsPrincipal user, params string[] perfisNecessarios)
         {
             try
             {
-                // Se "isAdmin" estiver entre os perfis necessários e o usuário for admin, retorna true imediatamente
-                if (perfisNecessarios.Contains("isAdmin", StringComparer.OrdinalIgnoreCase))
-                {
-                    var isAdminClaim = user.FindFirst("isAdmin")?.Value;
-                    if (bool.TryParse(isAdminClaim, out bool isAdmin) && isAdmin)
-                    {
-                        Console.WriteLine("[DEBUG] Usuário é administrador e 'isAdmin' foi requisitado como perfil.");
-                        return true;
-                    }
-                }
-
                 var perfisClaim = user.FindFirst("Perfis")?.Value;
                 Console.WriteLine($"[DEBUG] Claim 'Perfis' encontrada: {perfisClaim}");
 
@@ -71,7 +75,13 @@ namespace backend.Domain.Auth.Extensions {
                     return false;
                 }
 
-                var perfisDeserialize = JsonSerializer.Deserialize<List<string>>(perfisClaim);
+                var perfisDeserialize = JsonSerializer.Deserialize<List<string>>(perfisClaim) ?? new List<string>();
+
+                if (perfisDeserialize.Contains(PerfilInativo, StringComparer.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine("[DEBUG] Vínculo inativo: acesso negado a todas as policies da clínica.");
+                    return false;
+                }
 
                 bool possuiPerfil = perfisNecessarios.Any(perfil => perfisDeserialize.Contains(perfil));
                 Console.WriteLine($"[DEBUG] Resultado da verificação de perfil: {possuiPerfil}");

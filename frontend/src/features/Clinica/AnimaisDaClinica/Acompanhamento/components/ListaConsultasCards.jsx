@@ -7,6 +7,7 @@ import {
   Empty,
   Popconfirm,
   Tooltip,
+  Tag,
 } from "antd";
 import {
   EditOutlined,
@@ -32,6 +33,8 @@ const ListaConsultasCards = ({
   onExcluirDieta,
   onIniciarDieta,
   onConcluirDieta,
+  podeGerenciarConsultas = true, // editar/excluir a consulta (GESTOR, VETERINARIO, SECRETARIO)
+  podeGerenciarAcompanhamento = true, // avaliação e dieta (GESTOR, VETERINARIO); sem isso, só "Ver Dieta"
 }) => {
   if (!consultas || consultas.length === 0) {
     return (
@@ -44,6 +47,7 @@ const ListaConsultasCards = ({
       {consultas.map((consulta) => {
         const hasAvaliacao = !!consulta.avaliacao;
         const hasDieta = hasAvaliacao && !!consulta.avaliacao.dieta;
+        const cancelada = consulta.status === "Cancelada";
 
         return (
           <Card
@@ -64,7 +68,21 @@ const ListaConsultasCards = ({
             }
           >
             <div className="flex flex-col gap-1.5">
+              {/* Consulta cancelada: fica no histórico, sem avaliação nem dieta até ser reaberta */}
+              {cancelada && (
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Text strong className="w-24">
+                    Status:
+                  </Text>
+                  <Tag color="red">Cancelada</Tag>
+                  {consulta.motivoCancelamento && (
+                    <Text type="secondary">Motivo: {consulta.motivoCancelamento}</Text>
+                  )}
+                </div>
+              )}
+
               {/* Gerenciamento da Consulta */}
+              {podeGerenciarConsultas && !cancelada && (
               <div className="flex items-center gap-2 flex-wrap">
                 <Text strong className="w-24">
                   Consulta:
@@ -117,8 +135,10 @@ const ListaConsultasCards = ({
                   </Tooltip>
                 </Space>
               </div>
+              )}
 
               {/* Gerenciamento da Avaliação */}
+              {podeGerenciarAcompanhamento && !cancelada && (
               <div className="flex items-center gap-2 flex-wrap">
                 <Text strong className="w-24">
                   Avaliação:
@@ -176,6 +196,7 @@ const ListaConsultasCards = ({
                   )}
                 </Space>
               </div>
+              )}
 
               {/* Gerenciamento da Dieta */}
               {hasAvaliacao && (
@@ -185,7 +206,7 @@ const ListaConsultasCards = ({
                   </Text>
                   <Space>
                     {!hasDieta ? (
-                      <Button
+                      podeGerenciarAcompanhamento && <Button
                         size="small"
                         type="primary"
                         icon={<CalculatorOutlined />}
@@ -207,6 +228,7 @@ const ListaConsultasCards = ({
                         >
                           Ver Dieta
                         </Button>
+                        {podeGerenciarAcompanhamento && (<>
                         <Button
                           size="small"
                           icon={<EditOutlined />}
@@ -261,6 +283,7 @@ const ListaConsultasCards = ({
                             Excluir Dieta
                           </Button>
                         </Popconfirm>
+                        </>)}
                       </>
                     )}
                   </Space>

@@ -15,7 +15,7 @@ namespace backend.Domain.AtendimentoAnimal.Interfaces
         Task<bool> AllTutorsExistInClinicAsync(List<int> tutoresIds, int clinicaId);
         Task<bool> AllTutorsActiveAsync(List<int> tutoresIds, int clinicaId);
         Task<PaginaResultado<Tutor>> ListarDaClinicaAsync(TutorFiltro filtro, int clinicaId);
-        Task<List<OpcaoDto>> ListarOpcoesAsync(int clinicaId, string? busca);
+        Task<List<OpcaoDto>> ListarOpcoesAsync(int clinicaId, string? busca, bool incluirCpf);
         Task<Tutor?> GetByIdAndClinicIdAsync(int tutorId, int clinicaId);
         Task<bool> HasConsultasAsync(int tutorId);
 

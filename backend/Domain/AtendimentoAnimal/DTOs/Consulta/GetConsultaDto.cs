@@ -30,5 +30,11 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Consulta
         // Status do Avaliação e Dieta
         public bool AvaliacaoPreenchida { get; set; }
         public int? DietaId { get; set; }
+
+        /// <summary>Pendente, EmAndamento, Concluida ou Cancelada.</summary>
+        public string Status { get; set; } = string.Empty;
+        public DateTime? DataCancelamento { get; set; }
+        public string? MotivoCancelamento { get; set; }
+        public string? NomeCanceladaPor { get; set; }
     }
 }

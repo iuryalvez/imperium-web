@@ -1,6 +1,4 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../../../services/AuthContext";
 import { Button, Input } from "antd";
 import {
   PlusOutlined,
@@ -15,7 +13,7 @@ import FormCadastroUsuarioDaClinica from "./components/FormularioCadastroUsuario
 import FormDetalhesUsuarioDaClinica from "./components/FormularioDetalhesUsuarioDaClinica/FormularioDetalhesUsuarioDaClinica.jsx";
 import ModalPadrao from "../../../components/modal/ModalPadrao.jsx";
 
-const UsuariosDaClinicaConteudo = () => {
+const UsuariosDaClinica = () => {
   const {
     usuarios,
     loading,
@@ -109,18 +107,6 @@ const UsuariosDaClinicaConteudo = () => {
       </ModalPadrao>
     </div>
   );
-};
-
-/**
- * Usuários da clínica: só para GESTOR (ou admin simulando acesso).
- * O backend também restringe (policy GerenciaClinica); aqui só evitamos mostrar a tela.
- */
-const UsuariosDaClinica = () => {
-  const { perfis, isAdmin } = useAuth();
-  const podeGerirClinica = isAdmin || (perfis || []).includes("GESTOR");
-
-  if (!podeGerirClinica) return <Navigate to="/clinica/inicio" replace />;
-  return <UsuariosDaClinicaConteudo />;
 };
 
 export default UsuariosDaClinica;

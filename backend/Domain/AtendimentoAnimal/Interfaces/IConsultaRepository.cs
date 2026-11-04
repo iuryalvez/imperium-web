@@ -12,7 +12,7 @@ namespace backend.Domain.AtendimentoAnimal.Interfaces
     {
         Task<Consulta?> GetByIdAsync(int consultaId);
         Task<Consulta?> GetByIdWithDetailsAsync(int consultaId);
-        Task<PaginaResultado<Consulta>> ListarDaClinicaAsync(ConsultaFiltro filtro, int clinicaId);
+        Task<PaginaResultado<Consulta>> ListarDaClinicaAsync(ConsultaFiltro filtro, int clinicaId, int? usuarioId);
         Task<Consulta?> GetByIdAndClinicIdAsync(int consultaId, int clinicaId);
         Task AddAsync(Consulta consulta);
         void Delete(Consulta consulta);

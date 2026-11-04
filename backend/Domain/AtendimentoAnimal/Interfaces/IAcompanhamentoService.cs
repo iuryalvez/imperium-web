@@ -15,7 +15,7 @@ namespace backend.Domain.AtendimentoAnimal.Interfaces
         // --- Métodos de Leitura ---
         Task<ServiceResult> ObterPorIdAsync(int acompanhamentoId, int clinicaId);
         Task<ServiceResult> ObterPorAnimalIdAsync(int animalId, int clinicaId);
-        Task<ServiceResult> ObterHistoricoCompletoAnimalAsync(int acompanhamentoId, int clinicaId);
+        Task<ServiceResult> ObterHistoricoCompletoAnimalAsync(int acompanhamentoId, int clinicaId, bool incluirDadosDoTutor = true);
         Task<ServiceResult> UpdateDietaAsync(int dietaId, UpdateDietaDto dto, int clinicaId);
         Task<ServiceResult> DeleteDietaAsync(int dietaId, int clinicaId);
     }

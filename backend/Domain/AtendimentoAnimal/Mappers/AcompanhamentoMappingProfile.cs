@@ -43,7 +43,8 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
                 .ForMember(dest => dest.TutorId, opt => opt.MapFrom(src => src.TutorId))
                 .ForMember(dest => dest.ProfissionalResponsavel, opt => opt.MapFrom(src => 
                     src.Usuario != null ? src.Usuario.Nome : "Não informado"))
-                .ForMember(dest => dest.Avaliacao, opt => opt.MapFrom(src => src.Avaliacao));
+                .ForMember(dest => dest.Avaliacao, opt => opt.MapFrom(src => src.Avaliacao))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
 
             CreateMap<Avaliacao, AvaliacaoDetalhadoDto>()
                 .ForMember(dest => dest.CondicaoCorporal, opt => opt.MapFrom(src => src.CondicaoCorporal.HasValue ? (int?)src.CondicaoCorporal.Value : null))

@@ -24,7 +24,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
         }
 
         [HttpGet("consultas/{consultaId}/avaliacao")]
-        [Authorize(Policy = "VisualizaTudo")]
+        [Authorize(Policy = "VisualizaAtendimento")]
         [ProducesResponseType(typeof(ServiceResult), 200)]
         [ProducesResponseType(typeof(ServiceResult), 404)]
         public async Task<IActionResult> Get(int consultaId)
@@ -43,7 +43,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
         }
 
         [HttpPut("consultas/{consultaId}/avaliacao")]
-        [Authorize(Policy = "GerenciaAnimais")]
+        [Authorize(Policy = "GerenciaAcompanhamento")]
         [ProducesResponseType(typeof(ServiceResult), 200)]
         [ProducesResponseType(typeof(ServiceResult), 400)]
         public async Task<IActionResult> Upsert(int consultaId, [FromBody] UpsertAvaliacaoDto dto)
@@ -60,7 +60,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
         }
 
         [HttpDelete("avaliacoes/{avaliacaoId}")]
-        [Authorize(Policy = "GerenciaAnimais")]
+        [Authorize(Policy = "GerenciaAcompanhamento")]
         [ProducesResponseType(204)] // NoContent
         [ProducesResponseType(typeof(ServiceResult), 404)]
         public async Task<IActionResult> Delete(int avaliacaoId)

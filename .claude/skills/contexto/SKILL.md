@@ -21,19 +21,28 @@ O Imperium ainda não está em produção com clientes reais. Mesmo assim, trate
 ## Usuários, perfis e vínculos
 
 - O usuário é global (um login só). Ele se liga a uma ou mais clínicas pelo vínculo `UsuarioPerfilClinica`, que guarda os perfis dele naquela clínica.
-- Perfis na clínica: GESTOR (administra a clínica), VETERINARIO, SECRETARIO e TECNICO. O admin do sistema tem `isAdmin` e pode simular acesso a uma clínica.
+- Perfis na clínica (um usuário pode ter vários; vale a soma do que cada um permite):
+  - GESTOR: administra a clínica (dashboard, dados e usuários da clínica) e tudo do atendimento.
+  - VETERINARIO: animais, raças, rações, tutores, consultas, avaliações e dietas.
+  - SECRETARIO: tutores e consultas (marca, edita, cancela e reabre); vê animais, raças, rações e o acompanhamento.
+  - TECNICO: nível mais baixo. Gerencia animais, raças e rações e vê o acompanhamento (sem editar avaliação nem dieta). Não acessa consultas, tutores, usuários nem dados da clínica, e dos tutores vê só o nome.
+- O admin do sistema tem `isAdmin` e pode simular acesso a uma clínica escolhendo perfis. Na simulação ele tem exatamente o acesso dos perfis escolhidos (não há atalho por `isAdmin` nas rotas da clínica); nas rotas do Sistema continua admin.
+- Todo usuário tem o Meu Painel (início da clínica): os próprios dados e uma seção por perfil (consultas que o secretário marcou, atendimentos do veterinário).
 - Depois do login, o usuário escolhe o vínculo (a clínica). A partir daí o token JWT (em cookie) carrega o `clinicaId` e os perfis daquela clínica.
 - O login usa Cloudflare Turnstile como proteção contra robôs.
-- O que cada perfil pode fazer é definido pelas policies em `backend/Program.cs` (`VisualizaTudo`, `GerenciaClinica`, `GerenciaAnimais`, `GerenciaTutores`, `GerenciaConsultas`, `GerenciaSistema`...). O frontend só esconde botões; a segurança real é do backend.
+- O que cada perfil pode fazer é definido pelas policies em `backend/Program.cs` (`VisualizaTudo`, `VisualizaAtendimento`, `GerenciaClinica`, `GerenciaAnimais`, `GerenciaRacoes`, `GerenciaAcompanhamento`, `GerenciaTutores`, `GerenciaConsultas`, `GerenciaSistema`...), espelhadas no frontend em `src/utils/permissoes.js`. O frontend só esconde menu, rotas e botões; a segurança real é do backend.
+- O token de vínculo tem o id do vínculo no `NameIdentifier` e o id do usuário na claim `usuarioId`. Para gravar "quem fez" (consulta, avaliação, cancelamento) use sempre o id do usuário (`User.GetUsuarioId()`).
 
 ## Entidades e regras de negócio
 
 - Clínica: o tenant, mantido pelo admin do sistema.
 - Usuário: global, ligado às clínicas pelos vínculos. Fica inativo quando todos os vínculos estão inativos.
+- Vínculo inativo (perfil `INATIVO` na lista de perfis): não aparece para escolha no login, não entra na clínica e não passa em nenhuma policy, mesmo que tenha outros perfis. Um token já emitido deixa de valer assim que o vínculo é desativado. O gestor continua vendo e reativando esse usuário em Usuários da clínica.
 - Tutor: pertence a uma clínica (`ClinicaId`). O CPF é único por clínica: o mesmo CPF pode existir em clínicas diferentes, mas não duas vezes na mesma.
 - Animal: pertence a uma clínica. Liga-se aos tutores pela tabela N:N `TutorAnimal`, e animal e tutor precisam ser da mesma clínica.
 - Raça e Ração: há um catálogo do sistema (`ClinicaId` nulo), mantido pelo admin, e itens próprios de cada clínica. Quando a clínica edita um item do sistema, nasce uma cópia da clínica. A clínica não exclui nem desativa item do sistema, mas pode ocultá-lo só para ela (`RacaOcultaClinica`, `RacaoOcultaClinica`).
-- Consulta: pertence a uma clínica, com animal, tutor e usuário responsável. Pode ter uma Avaliação (dados clínicos e nutricionais do animal).
+- Consulta: pertence a uma clínica, com animal, tutor e o usuário que a marcou (`UsuarioId`). Pode ter uma Avaliação (dados clínicos e nutricionais do animal), com o usuário que a preencheu. Não existe "veterinário responsável".
+- Status da consulta: Pendente (sem avaliação), Em andamento (com avaliação), Concluída (avaliação com dieta) e Cancelada. Só o cancelamento é gravado (data, motivo opcional e quem cancelou); os demais são calculados. Só consulta pendente pode ser cancelada; a cancelada pode ser reaberta e, enquanto cancelada, não é editada nem recebe avaliação.
 - Dieta: nasce de uma avaliação, usa uma ração e guarda o cálculo da necessidade energética (`CalculoNecessidadeEnergetica` em `SaudeAnimal/Services`), conforme o tipo de dieta (manutenção, crescimento, gestação, lactação, emagrecimento). Tem registros semanais de peso (`RegistroPesoDieta`).
 - Acompanhamento: agrupa as avaliações de um animal ao longo do tempo.
 - Dieta e Acompanhamento não têm `ClinicaId` próprio: chegam à clínica pela avaliação, consulta ou animal. Qualquer consulta a elas precisa passar por esse caminho para respeitar o tenant.

@@ -57,4 +57,24 @@ export const consultasDaClinicaAPI = {
       throw error;
     }
   },
+  // Cancela a consulta (só pendente); o motivo é opcional
+  cancelar: async (consultaId, motivo) => {
+    try {
+      const response = await api.put(endpoints.clinica.consulta.cancelar(consultaId), { motivo });
+      return response.data;
+    } catch (error) {
+      console.error(`Erro ao cancelar a consulta ${consultaId}:`, error);
+      throw error.response ? error.response.data : error;
+    }
+  },
+  // Reabre uma consulta cancelada (volta a ser pendente)
+  reabrir: async (consultaId) => {
+    try {
+      const response = await api.put(endpoints.clinica.consulta.reabrir(consultaId));
+      return response.data;
+    } catch (error) {
+      console.error(`Erro ao reabrir a consulta ${consultaId}:`, error);
+      throw error.response ? error.response.data : error;
+    }
+  },
 };

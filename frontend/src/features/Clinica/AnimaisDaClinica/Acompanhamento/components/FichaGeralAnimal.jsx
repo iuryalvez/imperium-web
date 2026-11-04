@@ -32,10 +32,12 @@ const FichaGeralAnimal = ({
           Ficha Geral - {data.nome}
         </Title>
         <Space wrap>
-          <Button
-            icon={<EditOutlined />}
-            onClick={() => onEditAnimal(data)}
-          ></Button>
+          {onEditAnimal && (
+            <Button
+              icon={<EditOutlined />}
+              onClick={() => onEditAnimal(data)}
+            ></Button>
+          )}
           {dietaRecente && (
             <Button
               type="primary"

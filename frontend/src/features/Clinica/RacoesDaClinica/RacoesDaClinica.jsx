@@ -7,6 +7,7 @@ import {
   CalculatorOutlined,
 } from "@ant-design/icons";
 import { useRacoesManager } from "./useRacoesManager";
+import { usePermissao } from "../../../utils/usePermissao";
 import FormCadastroEdicaoRacaoClinica from "./components/FormularioCadastroEdicaoRacao/FormCadastroEdicaoRacaoClinica";
 import TabelaRacoesDaClinica from "./components/TabelaRacoesDaClinica/TabelaRacoesDaClinica";
 import ModalPadrao from "../../../components/modal/ModalPadrao";
@@ -36,17 +37,23 @@ const RacoesDaClinica = () => {
     handleToggleOculta,
   } = useRacoesManager();
 
+  // Cadastrar/editar/ocultar rações: GESTOR, VETERINARIO e TECNICO (o SECRETARIO só visualiza)
+  const pode = usePermissao();
+  const podeEditar = pode("gerenciaRacoes");
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Gerenciamento de Rações</h1>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => handleOpenModal()}
-        >
-          Cadastrar Ração
-        </Button>
+        {podeEditar && (
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => handleOpenModal()}
+          >
+            Cadastrar Ração
+          </Button>
+        )}
       </div>
 
       {/* Busca e origem filtram no servidor; espécie e status ficam nos filtros das colunas */}
@@ -81,6 +88,7 @@ const RacoesDaClinica = () => {
         paginacao={paginacao}
         onChange={handleTableChange}
         modo="clinica"
+        podeEditar={podeEditar}
         onEdit={handleOpenModal}
         onDelete={handleDelete}
         onView={handleOpenViewModal}

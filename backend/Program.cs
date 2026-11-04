@@ -84,6 +84,8 @@ internal class Program
         builder.Services.AddScoped<IValidateService, ValidateService>();
         builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+        builder.Services.AddScoped<IPainelService, PainelService>();
+        builder.Services.AddScoped<IPainelRepository, PainelRepository>();
 
         // Gestão da Clínica
         builder.Services.AddScoped<IClinicaService, ClinicaService>();
@@ -259,26 +261,47 @@ internal class Program
 
         builder.Services.AddAuthorization(options =>
         {
-            // Define as policies verificando a claim "Perfis"
+            // Policies da clínica: verificam só a claim "Perfis". O admin simulando acesso tem
+            // exatamente os perfis que escolheu na simulação (não há atalho por isAdmin).
+            // Espelhadas no frontend em src/utils/permissoes.js.
+
+            // Todos os perfis: animais, raças, rações, acompanhamento (leitura), meu painel e opções de tutores
             options.AddPolicy("VisualizaTudo", policy =>
                 policy.RequireAssertion(context =>
-                    context.User.TemPerfil("isAdmin", "GESTOR", "VETERINARIO", "SECRETARIO", "TECNICO")));
+                    context.User.TemPerfil("GESTOR", "VETERINARIO", "SECRETARIO", "TECNICO")));
+
+            // Atendimento (tutores, consultas e avaliações): o TECNICO não acessa
+            options.AddPolicy("VisualizaAtendimento", policy =>
+                policy.RequireAssertion(context =>
+                    context.User.TemPerfil("GESTOR", "VETERINARIO", "SECRETARIO")));
 
             options.AddPolicy("GerenciaClinica", policy =>
                 policy.RequireAssertion(context =>
-                    context.User.TemPerfil("isAdmin", "GESTOR")));
+                    context.User.TemPerfil("GESTOR")));
 
+            // Animais e raças da clínica
             options.AddPolicy("GerenciaAnimais", policy =>
                 policy.RequireAssertion(context =>
-                    context.User.TemPerfil("isAdmin", "GESTOR", "VETERINARIO")));
+                    context.User.TemPerfil("GESTOR", "VETERINARIO", "TECNICO")));
+
+            // Rações da clínica
+            options.AddPolicy("GerenciaRacoes", policy =>
+                policy.RequireAssertion(context =>
+                    context.User.TemPerfil("GESTOR", "VETERINARIO", "TECNICO")));
+
+            // Avaliações e dietas (o TECNICO só visualiza o acompanhamento)
+            options.AddPolicy("GerenciaAcompanhamento", policy =>
+                policy.RequireAssertion(context =>
+                    context.User.TemPerfil("GESTOR", "VETERINARIO")));
 
             options.AddPolicy("GerenciaTutores", policy =>
                 policy.RequireAssertion(context =>
-                    context.User.TemPerfil("isAdmin", "GESTOR", "VETERINARIO", "SECRETARIO")));
+                    context.User.TemPerfil("GESTOR", "VETERINARIO", "SECRETARIO")));
 
+            // Consultas: cadastrar, editar, excluir, cancelar e reabrir
             options.AddPolicy("GerenciaConsultas", policy =>
                 policy.RequireAssertion(context =>
-                    context.User.TemPerfil("isAdmin", "GESTOR", "VETERINARIO", "SECRETARIO")));
+                    context.User.TemPerfil("GESTOR", "VETERINARIO", "SECRETARIO")));
 
             options.AddPolicy("GerenciaSistema", policy =>
                 policy.RequireClaim("isAdmin", "true"));

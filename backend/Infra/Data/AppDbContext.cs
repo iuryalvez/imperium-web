@@ -191,6 +191,19 @@ namespace backend.Infra.Data
                 .HasForeignKey(upc => upc.ClinicaId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Consulta N:1 Usuario (quem cancelou). Restrict: o histórico do cancelamento não some com o usuário
+            modelBuilder.Entity<Consulta>()
+                .HasOne(c => c.CanceladaPorUsuario)
+                .WithMany()
+                .HasForeignKey(c => c.CanceladaPorUsuarioId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Listas por perfil (Meu Painel): consultas que o usuário marcou na clínica e avaliações que preencheu
+            modelBuilder.Entity<Consulta>()
+                .HasIndex(c => new { c.ClinicaId, c.UsuarioId });
+            modelBuilder.Entity<Avaliacao>()
+                .HasIndex(a => a.UsuarioResponsavelId);
+
             // Consulta 1:1 Avaliacao
             modelBuilder.Entity<Consulta>()
                 .HasOne(c => c.Avaliacao)

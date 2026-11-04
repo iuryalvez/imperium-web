@@ -142,7 +142,18 @@ namespace backend.Services
                         throw new SecurityTokenException("Vínculo do usuário não encontrado no banco de dados.");
                     }
 
+                    // Vínculo desativado depois de o token ser emitido: o token antigo deixa de valer na hora
+                    if (upc.Perfis != null && upc.Perfis.Any(p => string.Equals(p, AuthExtension.PerfilInativo, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        _logger.LogWarning("[ValidateService] Vínculo ID {upcId} está inativo.", upcId);
+                        throw new SecurityTokenException("Vínculo do usuário está inativo.");
+                    }
+
                     _logger.LogInformation("[ValidateService] Vínculo comum validado com sucesso. Perfis ativos: {Perfis}", string.Join(", ", upc.Perfis ?? new List<string>()));
+                }
+                catch (SecurityTokenException)
+                {
+                    throw; // vínculo inexistente ou inativo: recusa sem registrar como erro interno
                 }
                 catch (Exception ex)
                 {

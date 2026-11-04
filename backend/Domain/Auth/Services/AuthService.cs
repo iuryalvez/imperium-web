@@ -1,3 +1,4 @@
+using backend.Domain.Auth.Extensions;
 using backend.Infra.Data;
 using backend.Domain.Auth.Interfaces;
 using backend.Domain.Auth.DTOs;
@@ -90,7 +91,10 @@ namespace backend.Domain.Auth.Services
                 .ToListAsync();
 
             var vinculos = vinculosDb
-                .Where(p => p.Perfis != null && p.Perfis.Any(perfil => perfil.ToUpper() != "INATIVO"))
+                // Vínculo com o perfil INATIVO não aparece para escolha, mesmo que tenha outros perfis
+                .Where(p => p.Perfis != null
+                         && p.Perfis.Any()
+                         && !p.Perfis.Any(perfil => perfil.ToUpper() == AuthExtension.PerfilInativo))
                 .Select(p => new GetVinculoDto
                 {
                     Id = p.Id,
@@ -153,6 +157,15 @@ namespace backend.Domain.Auth.Services
 
         public async Task<ServiceResult> SelecionarVinculoAdminAsync(GetVinculoAdminDto dto, string userIdClaim, string remoteIp, string userAgent, string usuarioNome)
         {
+            // Perfis simuláveis: os da clínica. INATIVO não é perfil de acesso (bloqueia o vínculo inteiro)
+            var perfisValidos = new[] { "GESTOR", "VETERINARIO", "SECRETARIO", "TECNICO" };
+            if (dto.Perfis == null || !dto.Perfis.Any())
+                return new ServiceResult { Succeeded = false, Message = "Selecione pelo menos um perfil para simular.", Errors = new List<string> { "Perfis" } };
+            if (dto.Perfis.Any(p => string.Equals(p, AuthExtension.PerfilInativo, StringComparison.OrdinalIgnoreCase)))
+                return new ServiceResult { Succeeded = false, Message = "O perfil INATIVO não pode ser simulado: um vínculo inativo não tem acesso à clínica.", Errors = new List<string> { "Perfis" } };
+            if (dto.Perfis.Any(p => !perfisValidos.Contains(p)))
+                return new ServiceResult { Succeeded = false, Message = "Perfil inválido. Use GESTOR, VETERINARIO, SECRETARIO ou TECNICO.", Errors = new List<string> { "Perfis" } };
+
             using var context = _contextFactory.CreateDbContext();
 
             var clinica = await context.Clinicas.AsNoTracking().FirstOrDefaultAsync(c => c.Id == dto.ClinicaId);

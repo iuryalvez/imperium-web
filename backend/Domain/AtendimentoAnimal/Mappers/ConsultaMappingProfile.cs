@@ -10,8 +10,12 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
         public ConsultaMappingProfile()
         {
             // Mapeamento para CRIAR e ATUALIZAR
+            // Cancelamento nunca vem do DTO de cadastro/edição: só pelas rotas cancelar/reabrir
             CreateMap<UpsertConsultaDto, Consulta>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore()); // Ignora o ID ao criar
+                .ForMember(dest => dest.Id, opt => opt.Ignore()) // Ignora o ID ao criar
+                .ForMember(dest => dest.DataCancelamento, opt => opt.Ignore())
+                .ForMember(dest => dest.MotivoCancelamento, opt => opt.Ignore())
+                .ForMember(dest => dest.CanceladaPorUsuarioId, opt => opt.Ignore());
 
             // Mapeamento para a LISTA de consultas
             CreateMap<Consulta, GetConsultaDto>()
@@ -25,6 +29,8 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
                 // Avaliação e Dieta
                 // Sobrescreve agressivamente qualquer booleano do banco: se o objeto existe, é true.
                 .ForMember(dest => dest.AvaliacaoPreenchida, opt => opt.MapFrom(src => src.Avaliacao != null))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+                .ForMember(dest => dest.NomeCanceladaPor, opt => opt.MapFrom(src => src.CanceladaPorUsuario != null ? src.CanceladaPorUsuario.Nome : null))
                 .ForMember(dest => dest.DietaId, opt => opt.MapFrom(src =>
                     src.Avaliacao != null && src.Avaliacao.Dieta != null
                     ? src.Avaliacao.Dieta.Id : (int?)null))
@@ -54,7 +60,8 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
                 .ForMember(dest => dest.EmailTutor, opt => opt.MapFrom(src => src.Tutor.Email))
                 .ForMember(dest => dest.TelefoneTutor, opt => opt.MapFrom(src => src.Tutor.Telefone))
                 .ForMember(dest => dest.NomeVeterinario, opt => opt.MapFrom(src => src.Usuario.Nome))
-                .ForMember(dest => dest.AvaliacaoId, opt => opt.MapFrom(src => src.Avaliacao != null ? src.Avaliacao.Id : (int?)null));
+                .ForMember(dest => dest.AvaliacaoId, opt => opt.MapFrom(src => src.Avaliacao != null ? src.Avaliacao.Id : (int?)null))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
         }
     }
 }

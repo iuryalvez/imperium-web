@@ -95,9 +95,10 @@ namespace backend.Domain.AtendimentoAnimal.Services
         /// <summary>
         /// Lista paginada das consultas da clínica, mais recentes primeiro por padrão.
         /// </summary>
-        public async Task<PaginaResultado<GetConsultaDto>> ListarAsync(ConsultaFiltro filtro, int clinicaId)
+        /// <param name="usuarioId">Usuário do token, usado pelos filtros MarcadasPorMim e AtendidasPorMim.</param>
+        public async Task<PaginaResultado<GetConsultaDto>> ListarAsync(ConsultaFiltro filtro, int clinicaId, int? usuarioId)
         {
-            var pagina = await _consultaRepository.ListarDaClinicaAsync(filtro, clinicaId);
+            var pagina = await _consultaRepository.ListarDaClinicaAsync(filtro, clinicaId, usuarioId);
             return pagina.Converter(itens => _mapper.Map<IEnumerable<GetConsultaDto>>(itens));
         }
 
@@ -133,6 +134,8 @@ namespace backend.Domain.AtendimentoAnimal.Services
             var consulta = await _consultaRepository.GetByIdAndClinicIdAsync(consultaId, clinicaId);
             if (consulta == null)
                 return new ServiceResult { Succeeded = false, Message = "Consulta não encontrada." };
+            if (consulta.DataCancelamento != null)
+                return new ServiceResult { Succeeded = false, Message = "Consulta cancelada não pode ser editada. Reabra-a antes." };
 
             // Validações de Negócio: trocar animal/tutor exige que o novo esteja ativo
             var validacao = await ValidarAnimalETutorAsync(dto, clinicaId, consulta);
@@ -143,6 +146,48 @@ namespace backend.Domain.AtendimentoAnimal.Services
 
             await _consultaRepository.SaveChangesAsync();
             return new ServiceResult { Succeeded = true, Message = "Consulta atualizada com sucesso." };
+        }
+
+        /// <summary>
+        /// Cancela a consulta (ela continua registrada). Só consultas pendentes, sem avaliação, podem ser canceladas.
+        /// </summary>
+        /// <param name="usuarioId">Quem está cancelando (id do usuário, não do vínculo).</param>
+        /// <param name="motivo">Motivo opcional, guardado no histórico.</param>
+        public async Task<ServiceResult> CancelarAsync(int consultaId, int clinicaId, int usuarioId, string? motivo)
+        {
+            var consulta = await _consultaRepository.GetByIdAndClinicIdAsync(consultaId, clinicaId);
+            if (consulta == null)
+                return new ServiceResult { Succeeded = false, Message = "Consulta não encontrada." };
+            if (consulta.DataCancelamento != null)
+                return new ServiceResult { Succeeded = false, Message = "Esta consulta já está cancelada." };
+            if (consulta.Avaliacao != null)
+                return new ServiceResult { Succeeded = false, Message = "Só consultas pendentes (sem avaliação) podem ser canceladas." };
+
+            consulta.DataCancelamento = DateTime.UtcNow;
+            consulta.MotivoCancelamento = string.IsNullOrWhiteSpace(motivo) ? null : motivo.Trim();
+            consulta.CanceladaPorUsuarioId = usuarioId;
+
+            await _consultaRepository.SaveChangesAsync();
+            return new ServiceResult { Succeeded = true, Message = "Consulta cancelada com sucesso." };
+        }
+
+        /// <summary>
+        /// Reabre uma consulta cancelada: ela volta a ser pendente.
+        /// </summary>
+        public async Task<ServiceResult> ReabrirAsync(int consultaId, int clinicaId)
+        {
+            var consulta = await _consultaRepository.GetByIdAndClinicIdAsync(consultaId, clinicaId);
+            if (consulta == null)
+                return new ServiceResult { Succeeded = false, Message = "Consulta não encontrada." };
+            if (consulta.DataCancelamento == null)
+                return new ServiceResult { Succeeded = false, Message = "Só consultas canceladas podem ser reabertas." };
+
+            consulta.DataCancelamento = null;
+            consulta.MotivoCancelamento = null;
+            consulta.CanceladaPorUsuarioId = null;
+
+            await _consultaRepository.SaveChangesAsync();
+            return new ServiceResult { Succeeded = true, Message = "Consulta reaberta com sucesso." };
         }
 
         /// <summary>

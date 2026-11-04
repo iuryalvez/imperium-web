@@ -174,8 +174,9 @@ namespace backend.Domain.Auth.Controllers
 
             var result = await _authService.SelecionarVinculoAdminAsync(dto, userIdClaim, remoteIp, userAgent, usuarioNome);
 
+            // Perfis inválidos (ex.: INATIVO) = 400; clínica inexistente = 404
             if (!result.Succeeded)
-                return NotFound(result.Message);
+                return result.Errors?.Any() == true ? BadRequest(result) : NotFound(result.Message);
 
             var responseData = (dynamic)result.Data;
             _tokenService.SetCookieToken(HttpContext, responseData.Token, isRememberMe);

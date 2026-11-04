@@ -22,6 +22,7 @@ import {
   CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useRacasDaClinicaManager } from "./useRacasDaClinicaManager";
+import { usePermissao } from "../../../../../utils/usePermissao";
 import FormCadastroRaca from "./FormCadastroRaca";
 import FormEdicaoRaca from "./FormEdicaoRaca";
 
@@ -45,6 +46,9 @@ const GerenciadorDeRacas = () => {
     handleToggleStatus,
     handleToggleOculta,
   } = useRacasDaClinicaManager();
+
+  const pode = usePermissao();
+  const podeEditar = pode("gerenciaAnimais");
 
   return (
     <div>
@@ -100,14 +104,16 @@ const GerenciadorDeRacas = () => {
             ]}
           />
         </Space>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => handleOpenModal()}
-          style={{ marginRight: 8 }}
-        >
-          Nova Raça
-        </Button>
+        {podeEditar && (
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => handleOpenModal()}
+            style={{ marginRight: 8 }}
+          >
+            Nova Raça
+          </Button>
+        )}
       </div>
 
       <Divider />
@@ -160,6 +166,8 @@ const GerenciadorDeRacas = () => {
                   </Space>
                 }
               />
+              {/* Ações só para quem pode gerenciar raças (GESTOR, VETERINARIO, TECNICO) */}
+              {podeEditar && (
               <Space size="small">
                 <Tooltip title={isSystemBreed ? "Personalizar Raça (cria uma cópia da clínica)" : "Editar"}>
                   <Button
@@ -212,6 +220,7 @@ const GerenciadorDeRacas = () => {
                   </>
                 )}
               </Space>
+              )}
             </List.Item>
           );
         }}

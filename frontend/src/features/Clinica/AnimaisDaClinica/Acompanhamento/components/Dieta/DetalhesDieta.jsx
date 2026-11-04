@@ -312,7 +312,8 @@ const DetalhesDieta = ({ dieta, isGato, onRegistrarPeso, onRemoverPeso }) => {
             </span>
           </Divider>
           
-          {isEmagrecimento && dieta.status === 2 && (
+          {/* Sem onRegistrarPeso (perfil sem permissão para editar dietas), o registro de peso fica oculto */}
+          {isEmagrecimento && dieta.status === 2 && onRegistrarPeso && (
             <div className="mb-2 flex justify-between items-center">
               <span className="text-sm text-gray-600">
                 Semana Atual: <strong>{semanaAtual}</strong> / 15

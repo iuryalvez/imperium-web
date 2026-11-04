@@ -54,6 +54,10 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.AcompanhamentoDto
         public int TutorId { get; set; }
         public string? ProfissionalResponsavel { get; set; }
         public AvaliacaoDetalhadoDto? Avaliacao { get; set; }
+
+        /// <summary>Pendente, EmAndamento, Concluida ou Cancelada.</summary>
+        public string Status { get; set; } = string.Empty;
+        public string? MotivoCancelamento { get; set; }
     }
 
     public class AvaliacaoDetalhadoDto

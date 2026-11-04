@@ -26,7 +26,7 @@ public class AcompanhamentoController : ControllerBase
     /// Retorna os perfis metabólicos disponíveis
     /// </summary>
     [HttpGet("perfis-metabolicos")]
-    [Authorize(Policy = "GerenciaAnimais")]
+    [Authorize(Policy = "VisualizaTudo")] // listas de apoio, só leitura
     public IActionResult GetPerfisMetabolicos()
     {
         var perfis = Enum.GetValues(typeof(backend.Domain.SaudeAnimal.Enums.PerfilMetabolico))
@@ -64,12 +64,16 @@ public class AcompanhamentoController : ControllerBase
     /// Obtém o histórico completo de um animal a partir do ID do acompanhamento.
     /// </summary>
     [HttpGet("{acompanhamentoId}/historico-completo")]
+    [Authorize(Policy = "VisualizaTudo")] // leitura; o TECNICO vê, mas não edita avaliações e dietas
     [ProducesResponseType(typeof(ServiceResult), 200)]
     [ProducesResponseType(typeof(ServiceResult), 404)]
     public async Task<IActionResult> GetHistoricoCompleto([FromRoute] int acompanhamentoId)
     {
         var clinicaId = User.GetClaimValue<int>("clinicaId");
-        var result = await _acompanhamentoService.ObterHistoricoCompletoAnimalAsync(acompanhamentoId, clinicaId);
+        if (clinicaId <= 0) return Forbid();
+
+        // TECNICO vê só o nome dos tutores (sem telefone e e-mail)
+        var result = await _acompanhamentoService.ObterHistoricoCompletoAnimalAsync(acompanhamentoId, clinicaId, User.PodeVerDadosDoTutor());
 
         if (result.Succeeded)
         {
@@ -85,7 +89,7 @@ public class AcompanhamentoController : ControllerBase
     /// Retorna os níveis de restrição disponíveis para dietas de emagrecimento
     /// </summary>
     [HttpGet("niveis-restricao")]
-    [Authorize(Policy = "GerenciaAnimais")]
+    [Authorize(Policy = "VisualizaTudo")] // listas de apoio, só leitura
     public IActionResult GetNiveisRestricao()
     {
         var niveis = Enum.GetValues(typeof(backend.Domain.SaudeAnimal.Enums.NivelRestricao))

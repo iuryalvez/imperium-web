@@ -466,7 +466,10 @@ namespace backend.Migrations
                     TutorId = table.Column<int>(type: "integer", nullable: true),
                     TutorIsCadastrado = table.Column<bool>(type: "boolean", nullable: true),
                     AnimalId = table.Column<int>(type: "integer", nullable: false),
-                    DataConsulta = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    DataConsulta = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DataCancelamento = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    MotivoCancelamento = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    CanceladaPorUsuarioId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -475,6 +478,12 @@ namespace backend.Migrations
                         name: "FK_Consultas_Animais_AnimalId",
                         column: x => x.AnimalId,
                         principalTable: "Animais",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Consultas_AspNetUsers_CanceladaPorUsuarioId",
+                        column: x => x.CanceladaPorUsuarioId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -893,14 +902,24 @@ namespace backend.Migrations
                 column: "RacaoId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Avaliacoes_UsuarioResponsavelId",
+                table: "Avaliacoes",
+                column: "UsuarioResponsavelId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Consultas_AnimalId",
                 table: "Consultas",
                 column: "AnimalId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Consultas_ClinicaId",
+                name: "IX_Consultas_CanceladaPorUsuarioId",
                 table: "Consultas",
-                column: "ClinicaId");
+                column: "CanceladaPorUsuarioId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Consultas_ClinicaId_UsuarioId",
+                table: "Consultas",
+                columns: new[] { "ClinicaId", "UsuarioId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Consultas_TutorId",

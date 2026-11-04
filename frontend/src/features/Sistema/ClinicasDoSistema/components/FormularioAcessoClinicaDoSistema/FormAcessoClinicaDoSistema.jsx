@@ -1,12 +1,13 @@
 import React from "react";
 import { Button, Form, Checkbox } from "antd";
 
+// Perfis que o admin pode simular. INATIVO não entra: um vínculo inativo não acessa nada da clínica
+// (o backend também recusa INATIVO na simulação).
 const perfisClinica = [
   { label: "Gestor", value: "GESTOR" },
   { label: "Técnico", value: "TECNICO" },
   { label: "Secretário", value: "SECRETARIO" },
   { label: "Veterinário", value: "VETERINARIO" },
-  { label: "Inativo", value: "INATIVO" },
 ];
 
 const FormAcessarClinica = ({ clinica, onFinish, onCancel }) => {

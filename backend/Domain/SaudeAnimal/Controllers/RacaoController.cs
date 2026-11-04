@@ -49,7 +49,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
         }
 
         [HttpPost("cadastrar")]
-        [Authorize(Policy = "VisualizaTudo")]
+        [Authorize(Policy = "GerenciaRacoes")]
         public async Task<IActionResult> CreateRacao([FromBody] CadastrarRacaoDto dto)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
@@ -61,7 +61,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
         }
 
         [HttpPut("editar")]
-        [Authorize(Policy = "VisualizaTudo")]
+        [Authorize(Policy = "GerenciaRacoes")]
         public async Task<IActionResult> UpdateRacao([FromBody] AtualizarRacaoDto dto)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
@@ -73,7 +73,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
         }
 
         [HttpDelete("{racaoId}")]
-        [Authorize(Policy = "VisualizaTudo")]
+        [Authorize(Policy = "GerenciaRacoes")]
         public async Task<IActionResult> DeleteRacao(int racaoId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
@@ -85,7 +85,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
         }
 
         [HttpPut("{racaoId}/status")]
-        [Authorize(Policy = "VisualizaTudo")]
+        [Authorize(Policy = "GerenciaRacoes")]
         public async Task<IActionResult> SetStatus(int racaoId, [FromQuery] bool ativo)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
@@ -97,7 +97,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
         }
 
         [HttpPut("{racaoId}/ocultar")]
-        [Authorize(Policy = "VisualizaTudo")]
+        [Authorize(Policy = "GerenciaRacoes")]
         public async Task<IActionResult> SetOculta(int racaoId, [FromQuery] bool oculta)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");

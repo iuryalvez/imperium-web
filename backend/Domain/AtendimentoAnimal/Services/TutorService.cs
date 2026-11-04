@@ -86,10 +86,13 @@ namespace backend.Domain.AtendimentoAnimal.Services
             return pagina.Converter(itens => _mapper.Map<IEnumerable<GetTutoresClinicaDto>>(itens));
         }
 
-        /// <summary>Opções para selects: até 20 tutores { id, nome (CPF), isAtivo }, ativos primeiro.</summary>
-        public async Task<List<OpcaoDto>> ListarOpcoesAsync(int clinicaId, string? busca)
+        /// <summary>
+        /// Opções para selects: até 20 tutores { id, nome, isAtivo }, ativos primeiro.
+        /// O CPF entra no nome (e na busca) só para quem pode ver dados do tutor; o TECNICO vê só o nome.
+        /// </summary>
+        public async Task<List<OpcaoDto>> ListarOpcoesAsync(int clinicaId, string? busca, bool incluirCpf)
         {
-            return await _tutorRepository.ListarOpcoesAsync(clinicaId, busca);
+            return await _tutorRepository.ListarOpcoesAsync(clinicaId, busca, incluirCpf);
         }
 
         /// <summary>

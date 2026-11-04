@@ -2,6 +2,8 @@ import React from "react";
 import { useAuth } from "../../../services/AuthContext";
 import { NavLink } from "react-router-dom";
 import { Menu, Tooltip, Typography } from "antd";
+import { HomeOutlined } from "@ant-design/icons";
+import { usePermissao } from "../../../utils/usePermissao";
 
 import ClinicaIcon from "../../../assets/animal/pet-care-service-pet-grooming-service-svgrepo-com.png";
 import AnimaisIcon from "../../../assets/animal/pet-14-svgrepo-com.png";
@@ -15,13 +17,19 @@ import "./Sidebar.css";
 const { Text } = Typography;
 
 const Sidebar = ({ collapsed, toggleCollapse }) => {
-  const { userName, nomeClinica, perfis, isAdmin } = useAuth();
+  const { userName, nomeClinica } = useAuth();
 
-  // Perfil/dashboard e usuários da clínica: só GESTOR (ou admin simulando acesso), igual à policy GerenciaClinica do backend
-  const podeGerirClinica = isAdmin || (perfis || []).includes("GESTOR");
+  // Cada item aparece só para os perfis com a permissão (utils/permissoes.js, espelho das policies do backend).
+  // O admin simulando acesso vê o que os perfis escolhidos na simulação permitem.
+  const pode = usePermissao();
 
   const menuItems = [
-    podeGerirClinica && {
+    {
+      key: "/clinica/inicio",
+      icon: <HomeOutlined className={`sidebar-menu-icon ${collapsed ? "collapsed" : ""}`} />,
+      label: <NavLink to="/clinica/inicio">Meu Painel</NavLink>,
+    },
+    pode("gerenciaClinica") && {
       key: "/clinica/editar",
       icon: (
         <img
@@ -32,7 +40,7 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
       ),
       label: <NavLink to="/clinica/editar">Clínica</NavLink>,
     },
-    {
+    pode("visualizaAtendimento") && {
       key: "/clinica/tutores",
       icon: (
         <img
@@ -65,7 +73,7 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
       ),
       label: <NavLink to="/clinica/racoes">Rações</NavLink>,
     },
-    {
+    pode("visualizaAtendimento") && {
       key: "/clinica/consultas",
       icon: (
         <img
@@ -76,7 +84,7 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
       ),
       label: <NavLink to="/clinica/consultas">Consultas</NavLink>,
     },
-    podeGerirClinica && {
+    pode("gerenciaClinica") && {
       key: "/clinica/usuarios",
       icon: (
         <img

@@ -14,7 +14,7 @@ namespace backend.Domain.AtendimentoAnimal.Interfaces
         Task<PaginaResultado<GetAnimaisClinicaDto>> ListarAsync(AnimalFiltro filtro, int clinicaId);
         Task<List<OpcaoDto>> ListarOpcoesAsync(int clinicaId, string? busca);
         Task<ServiceResult> GetDtoDetailsByIdAsync(int animalId, int clinicaId);
-        Task<ServiceResult> ObterHistoricoCompletoAnimalAsync(int animalId, int clinicaId);
+        Task<ServiceResult> ObterHistoricoCompletoAnimalAsync(int animalId, int clinicaId, bool incluirDadosDoTutor = true);
 
         // --- Método de Leitura (para outros Serviços, retorna Entidade) ---
         Task<ServiceResult> ObterPorIdEClinicaIdAsync(int animalId, int clinicaId);

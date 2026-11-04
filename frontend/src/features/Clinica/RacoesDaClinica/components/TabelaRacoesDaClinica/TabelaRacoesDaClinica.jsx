@@ -39,6 +39,7 @@ const TabelaRacoesDaClinica = ({
   onToggleStatus,
   onToggleOculta,
   loadingRowKey,
+  podeEditar = true, // perfis sem "gerenciaRacoes" veem só os cálculos
 }) => {
   const colunasDisponiveis = useMemo(
     () => (modo === "copias" ? [colunaClinica, ...colunas] : colunas),
@@ -62,8 +63,9 @@ const TabelaRacoesDaClinica = ({
       render: (_, record) => {
         const isRowLoading = record.id === loadingRowKey;
         // Na clínica, a ração do sistema só pode ser ocultada; o resto vale para rações próprias e para o admin
-        const podeOcultar = modo === "clinica" && record.isSistema;
-        const podeAlterarStatusEExcluir = !podeOcultar;
+        const ehDoSistemaNaClinica = modo === "clinica" && record.isSistema;
+        const podeOcultar = podeEditar && ehDoSistemaNaClinica;
+        const podeAlterarStatusEExcluir = podeEditar && !ehDoSistemaNaClinica;
 
         return (
           <Space>
@@ -74,15 +76,17 @@ const TabelaRacoesDaClinica = ({
                 onClick={() => onView(record)}
               />
             </Tooltip>
-            <Tooltip
-              title={
-                podeOcultar
-                  ? "Editar (cria uma cópia desta ração para a clínica)"
-                  : "Editar"
-              }
-            >
-              <Button icon={<EditOutlined />} size="small" onClick={() => onEdit(record)} />
-            </Tooltip>
+            {podeEditar && (
+              <Tooltip
+                title={
+                  ehDoSistemaNaClinica
+                    ? "Editar (cria uma cópia desta ração para a clínica)"
+                    : "Editar"
+                }
+              >
+                <Button icon={<EditOutlined />} size="small" onClick={() => onEdit(record)} />
+              </Tooltip>
+            )}
             {podeOcultar && (
               <Tooltip title={record.isOculta ? "Mostrar para esta clínica" : "Ocultar para esta clínica"}>
                 <Popconfirm
@@ -132,7 +136,7 @@ const TabelaRacoesDaClinica = ({
         );
       },
     }),
-    [modo, onEdit, onDelete, onView, onToggleStatus, onToggleOculta, loadingRowKey],
+    [modo, onEdit, onDelete, onView, onToggleStatus, onToggleOculta, loadingRowKey, podeEditar],
   );
 
   const colunasVisiveis = useMemo(

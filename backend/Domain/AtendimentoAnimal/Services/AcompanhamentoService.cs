@@ -108,7 +108,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
         /// <param name="acompanhamentoId">ID do acompanhamento.</param>
         /// <param name="clinicaId">ID da clínica para validação.</param>
         /// <returns>ServiceResult contendo o DTO do histórico completo do animal ou uma mensagem de erro.</returns>
-        public async Task<ServiceResult> ObterHistoricoCompletoAnimalAsync(int acompanhamentoId, int clinicaId)
+        public async Task<ServiceResult> ObterHistoricoCompletoAnimalAsync(int acompanhamentoId, int clinicaId, bool incluirDadosDoTutor = true)
         {
             var resultadoBusca = await ObterPorIdAsync(acompanhamentoId, clinicaId);
             if (!resultadoBusca.Succeeded)
@@ -118,7 +118,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
             var acompanhamento = (Acompanhamento)resultadoBusca.Data;
 
             _logger.LogInformation("Delegando para AnimalService a busca do histórico completo do animal {AnimalId}.", acompanhamento.AnimalId);
-            return await _animalService.ObterHistoricoCompletoAnimalAsync(acompanhamento.AnimalId, clinicaId);
+            return await _animalService.ObterHistoricoCompletoAnimalAsync(acompanhamento.AnimalId, clinicaId, incluirDadosDoTutor);
         }
 
         #endregion

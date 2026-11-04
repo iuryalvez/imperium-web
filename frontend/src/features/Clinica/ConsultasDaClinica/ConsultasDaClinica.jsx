@@ -17,6 +17,8 @@ const ConsultasDaClinica = () => {
     handleSubmit,
     handleDelete,
     handleIrParaAcompanhamento,
+    handleCancelar,
+    handleReabrir,
     paginacao,
     setBusca,
     handleTableChange,
@@ -54,6 +56,8 @@ const ConsultasDaClinica = () => {
         onEdit={handleOpenModal}
         onDelete={handleDelete}
         onIrParaAcompanhamento={handleIrParaAcompanhamento}
+        onCancelar={handleCancelar}
+        onReabrir={handleReabrir}
         loading={loading}
       />
 

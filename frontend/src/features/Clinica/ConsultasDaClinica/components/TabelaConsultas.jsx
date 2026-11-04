@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import {
   Table,
   Button,
@@ -7,12 +7,15 @@ import {
   Tooltip,
   Dropdown,
   Checkbox,
+  Input,
 } from "antd";
 import {
   LineChartOutlined,
   EditOutlined,
   DeleteOutlined,
   SettingOutlined,
+  StopOutlined,
+  UndoOutlined,
 } from "@ant-design/icons";
 import colunas from "./colunas";
 
@@ -23,6 +26,8 @@ const TabelaConsultas = ({
   onEdit,
   onDelete,
   onIrParaAcompanhamento,
+  onCancelar,
+  onReabrir,
   loading,
 }) => {
   const [visibleColumns, setVisibleColumns] = useState([
@@ -31,6 +36,7 @@ const TabelaConsultas = ({
     "nomeTutor",
     "nomeUsuario",
     "avaliacaoPreenchida",
+    "status",
   ]);
 
   const handleColumnVisibilityChange = (key) => {
@@ -39,48 +45,93 @@ const TabelaConsultas = ({
     );
   };
 
+  // Motivo digitado no Popconfirm de cancelamento (opcional)
+  const motivoRef = useRef("");
+
   const colunaAcoes = useMemo(
     () => ({
       title: "Ações",
       key: "acoes",
-      width: 150,
+      width: 180,
       align: "center",
       fixed: "right",
-      render: (_, consulta) => (
-        <Space size="small">
-          <Tooltip title="Editar Agendamento">
-            <Button
-              size="small"
-              icon={<EditOutlined />}
-              onClick={() => onEdit(consulta)}
-            />
-          </Tooltip>
+      render: (_, consulta) => {
+        const cancelada = consulta.status === "Cancelada";
+        const pendente = consulta.status === "Pendente";
+        return (
+          <Space size="small">
+            <Tooltip title={cancelada ? "Reabra a consulta para editar" : "Editar Agendamento"}>
+              <Button
+                size="small"
+                icon={<EditOutlined />}
+                onClick={() => onEdit(consulta)}
+                disabled={cancelada}
+              />
+            </Tooltip>
 
-          <Tooltip title="Excluir Consulta">
-            <Popconfirm
-              title="Excluir consulta"
-              description="Tem certeza que deseja excluir esta consulta?"
-              onConfirm={() => onDelete(consulta.id)}
-              okText="Sim"
-              cancelText="Não"
-            >
-              <Button size="small" danger icon={<DeleteOutlined />} />
-            </Popconfirm>
-          </Tooltip>
+            {/* Só consultas pendentes (sem avaliação) podem ser canceladas; canceladas podem ser reabertas */}
+            {pendente && (
+              <Tooltip title="Cancelar Consulta">
+                <Popconfirm
+                  title="Cancelar consulta"
+                  description={
+                    <Input.TextArea
+                      placeholder="Motivo (opcional)"
+                      maxLength={500}
+                      autoSize={{ minRows: 2, maxRows: 4 }}
+                      onChange={(e) => (motivoRef.current = e.target.value)}
+                    />
+                  }
+                  onOpenChange={(aberto) => aberto && (motivoRef.current = "")}
+                  onConfirm={() => onCancelar(consulta, motivoRef.current)}
+                  okText="Cancelar consulta"
+                  cancelText="Voltar"
+                >
+                  <Button size="small" danger icon={<StopOutlined />} />
+                </Popconfirm>
+              </Tooltip>
+            )}
+            {cancelada && (
+              <Tooltip title="Reabrir Consulta">
+                <Popconfirm
+                  title="Reabrir consulta"
+                  description="A consulta volta a ficar pendente."
+                  onConfirm={() => onReabrir(consulta)}
+                  okText="Reabrir"
+                  cancelText="Voltar"
+                >
+                  <Button size="small" icon={<UndoOutlined />} />
+                </Popconfirm>
+              </Tooltip>
+            )}
 
-          <Tooltip title="Ver Acompanhamento">
-            <Button
-              type="primary"
-              size="small"
-              icon={<LineChartOutlined />}
-              onClick={() => onIrParaAcompanhamento(consulta.animalId)}
-              className="bg-verde-medio border-none hover:bg-verde-realce text-white"
-            />
-          </Tooltip>
-        </Space>
-      ),
+            <Tooltip title="Excluir Consulta">
+              <Popconfirm
+                title="Excluir consulta"
+                description="Tem certeza que deseja excluir esta consulta?"
+                onConfirm={() => onDelete(consulta.id)}
+                okText="Sim"
+                cancelText="Não"
+              >
+                <Button size="small" danger icon={<DeleteOutlined />} />
+              </Popconfirm>
+            </Tooltip>
+
+            <Tooltip title={consulta.acompanhamentoId ? "Ver Acompanhamento" : "Animal sem acompanhamento"}>
+              <Button
+                type="primary"
+                size="small"
+                icon={<LineChartOutlined />}
+                onClick={() => onIrParaAcompanhamento(consulta.acompanhamentoId)}
+                disabled={!consulta.acompanhamentoId}
+                className="bg-verde-medio border-none hover:bg-verde-realce text-white"
+              />
+            </Tooltip>
+          </Space>
+        );
+      },
     }),
-    [onEdit, onDelete, onIrParaAcompanhamento],
+    [onEdit, onDelete, onIrParaAcompanhamento, onCancelar, onReabrir],
   );
 
   const colunasVisiveis = useMemo(

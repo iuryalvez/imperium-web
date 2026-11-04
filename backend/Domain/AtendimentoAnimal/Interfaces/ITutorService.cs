@@ -12,7 +12,7 @@ namespace backend.Domain.AtendimentoAnimal.Interfaces
         Task<Tutor?> ObterPorIdEClinicaIdAsync(int tutorId, int clinicaId);
         Task<GetTutoresClinicaDto?> ObterDtoPorIdEClinicaId(int tutorId, int clinicaId);
         Task<PaginaResultado<GetTutoresClinicaDto>> ListarAsync(TutorFiltro filtro, int clinicaId);
-        Task<List<OpcaoDto>> ListarOpcoesAsync(int clinicaId, string? busca);
+        Task<List<OpcaoDto>> ListarOpcoesAsync(int clinicaId, string? busca, bool incluirCpf);
         Task<ServiceResult> ValidarTutoresDaClinicaAsync(List<int> tutoresIds, int clinicaId);
         Task<ServiceResult> CreateAsync(CadastrarTutorClinicaDto dto, int clinicaId);
         Task<ServiceResult> UpdateAsync(EditarTutorClinicaDto dto, int clinicaId);

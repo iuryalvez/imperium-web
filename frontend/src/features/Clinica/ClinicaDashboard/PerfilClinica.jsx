@@ -1,6 +1,4 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../../../services/AuthContext";
 import { Card, Statistic, Button, Avatar, Divider } from "antd";
 import { EditOutlined, MedicineBoxOutlined } from "@ant-design/icons";
 
@@ -32,7 +30,7 @@ const CustomIconMask = ({ src }) => (
 const formatarAtivosInativos = (ativos, inativos) =>
   `${ativos || 0} ativos${inativos ? ` (${inativos} inativos)` : ""}`;
 
-const PerfilClinicaConteudo = () => {
+const PerfilClinica = () => {
   const {
     dadosClinica,
     loading,
@@ -151,18 +149,6 @@ const PerfilClinicaConteudo = () => {
       </ModalPadrao>
     </div>
   );
-};
-
-/**
- * Perfil e dashboard da clínica: só para GESTOR (ou admin simulando acesso).
- * O backend também restringe (policy GerenciaClinica); aqui só evitamos mostrar a tela.
- */
-const PerfilClinica = () => {
-  const { perfis, isAdmin } = useAuth();
-  const podeGerirClinica = isAdmin || (perfis || []).includes("GESTOR");
-
-  if (!podeGerirClinica) return <Navigate to="/clinica/inicio" replace />;
-  return <PerfilClinicaConteudo />;
 };
 
 export default PerfilClinica;

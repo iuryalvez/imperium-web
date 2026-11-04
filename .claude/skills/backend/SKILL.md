@@ -57,9 +57,21 @@ A requisição passa por `Controller`, depois `I<Entidade>Service`, depois `I<En
 - Rotas do Sistema (admin) usam `[Route("api")]` com `[HttpGet("sistema/<entidades>")]` e a policy `GerenciaSistema`.
 - Rotas da Clínica (tenant) usam `[Route("api/clinica/<entidades>")]` (ou `[Route("api/clinica")]` em controllers antigos).
 - As rotas padrão de um CRUD são: `GET <entidades>` para a lista paginada, `GET <entidades>/opcoes?busca=` para selects, `GET <entidades>/{id}` para detalhes, `POST <entidades>/cadastrar`, `PUT <entidades>/editar` (o `Id` vai no corpo), `DELETE <entidades>/{id}` e `PUT <entidades>/{id}/status?ativo=true|false`.
+- Ação de negócio que não é CRUD nem ativo/inativo usa `PUT <entidades>/{id}/<acao>` com um DTO próprio no corpo quando precisar (exemplo vivo: `PUT consultas/{id}/cancelar` com `CancelarConsultaDto { Motivo? }` e `PUT consultas/{id}/reabrir`). As regras ficam no service, que responde `ServiceResult`.
 - Quando a mesma entidade tem visão da clínica e do admin, use dois controllers no mesmo domínio: `<Entidade>Controller` em `api/clinica/<entidades>` e `<Entidade>SistemaController` em `api/sistema/<entidades>`. Nunca sirva tela de clínica por rota `sistema/` nem o contrário. Exemplo vivo: `RacaController` e `RacaSistemaController`.
-- Autorização é feita com as policies de `Program.cs`: `VisualizaTudo`, `GerenciaClinica`, `GerenciaAnimais`, `GerenciaTutores`, `GerenciaConsultas`, `GerenciaSistema`, `AcessoLoginPolicy` e `AcessoLoginOuTodosUsuarios`. Uma policy nova entra em `AddAuthorization` usando `TemPerfil(...)`.
+- Autorização é feita com as policies de `Program.cs` (perfis entre parênteses):
+  - `VisualizaTudo` (GESTOR, VETERINARIO, SECRETARIO, TECNICO): leitura de animais, raças, rações, acompanhamento, `tutores/opcoes` e Meu Painel.
+  - `VisualizaAtendimento` (GESTOR, VETERINARIO, SECRETARIO): leitura de tutores, consultas e avaliações.
+  - `GerenciaClinica` (GESTOR): dashboard, dados e usuários da clínica.
+  - `GerenciaAnimais` (GESTOR, VETERINARIO, TECNICO): escrita de animais e raças.
+  - `GerenciaRacoes` (GESTOR, VETERINARIO, TECNICO): escrita de rações.
+  - `GerenciaAcompanhamento` (GESTOR, VETERINARIO): escrita de avaliações e dietas.
+  - `GerenciaTutores` e `GerenciaConsultas` (GESTOR, VETERINARIO, SECRETARIO).
+  - `GerenciaSistema` (claim `isAdmin`), `AcessoLoginPolicy` e `AcessoLoginOuTodosUsuarios`.
+- `TemPerfil(...)` olha só a claim `Perfis`; não coloque `"isAdmin"` nas policies da clínica (o admin simulando acesso tem só os perfis escolhidos). Uma policy nova entra em `AddAuthorization` com `TemPerfil(...)` e no espelho do frontend (`src/utils/permissoes.js`).
+- Dados pessoais de terceiros por perfil: quando um perfil pode ver a entidade mas não todos os dados (TECNICO vê só o nome do tutor), o controller passa um booleano ao service (ex.: `User.PodeVerDadosDoTutor()`) e o service omite os campos. Não crie DTO paralelo.
 - Multi-tenant: em rotas de clínica o `clinicaId` vem sempre do token, com `var clinicaId = User.GetClaimValue<int>("clinicaId"); if (clinicaId <= 0) return Forbid();`, e é passado ao service. Nunca aceite `clinicaId` do body ou da query.
+- Para gravar quem fez a ação use `User.GetUsuarioId()` (claim `usuarioId`, o id do usuário). Nunca use o `NameIdentifier` do token de vínculo como id de usuário: ele é o id do vínculo.
 - Respostas: falha com `BadRequest(result)` ou `NotFound(...)`; sucesso com `Ok(result)`, `Ok(result.Data)`, `CreatedAtAction` ou `NoContent()`. Mantenha o formato que o frontend já consome naquela entidade.
 - Sem regra de negócio e sem `AppDbContext` no controller. Há legado assim em `UsuarioController`: não copie.
 

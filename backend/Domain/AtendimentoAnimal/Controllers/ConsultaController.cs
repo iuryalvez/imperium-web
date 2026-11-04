@@ -16,16 +16,16 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
         public ConsultaController(IConsultaService consultaService) { _consultaService = consultaService; }
 
         [HttpGet]
-        [Authorize(Policy = "VisualizaTudo")]
+        [Authorize(Policy = "VisualizaAtendimento")]
         public async Task<IActionResult> GetAllByClinicaId([FromQuery] ConsultaFiltro filtro)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId <= 0) return Forbid();
-            return Ok(await _consultaService.ListarAsync(filtro, clinicaId));
+            return Ok(await _consultaService.ListarAsync(filtro, clinicaId, User.GetUsuarioId()));
         }
 
         [HttpGet("{consultaId}")]
-        [Authorize(Policy = "VisualizaTudo")]
+        [Authorize(Policy = "VisualizaAtendimento")]
         public async Task<IActionResult> GetById(int consultaId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
@@ -61,6 +61,35 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
             var result = await _consultaService.UpdateAsync(dto.Id, dto, clinicaId);
             if (!result.Succeeded) return BadRequest(result);
             return NoContent();
+        }
+
+        // Ações de negócio que não são CRUD nem ativo/inativo: PUT {id}/<ação> (ver skill backend)
+        [HttpPut("{consultaId}/cancelar")]
+        [Authorize(Policy = "GerenciaConsultas")]
+        public async Task<IActionResult> Cancelar(int consultaId, [FromBody] CancelarConsultaDto? dto)
+        {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId <= 0) return Forbid();
+
+            // Id do usuário (não do vínculo): quem cancelou
+            var usuarioId = User.GetUsuarioId();
+            if (usuarioId == null) return Forbid();
+
+            var result = await _consultaService.CancelarAsync(consultaId, clinicaId, usuarioId.Value, dto?.Motivo);
+            if (!result.Succeeded) return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpPut("{consultaId}/reabrir")]
+        [Authorize(Policy = "GerenciaConsultas")]
+        public async Task<IActionResult> Reabrir(int consultaId)
+        {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId <= 0) return Forbid();
+
+            var result = await _consultaService.ReabrirAsync(consultaId, clinicaId);
+            if (!result.Succeeded) return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpDelete("{consultaId}")]

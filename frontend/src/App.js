@@ -21,7 +21,8 @@ import RacasDoSistema from "./features/Sistema/RacasDoSistema/RacasDoSistema";
 import RacoesDoSistema from "./features/Sistema/RacoesDoSistema/RacoesDoSistema";
 import PerfilPessoal from "./features/Sistema/PerfilPessoal/PerfilPessoal.jsx";
 
-import ClinicaInicio from "./features/Clinica/ClinicaInicioHome/index.jsx";
+import MeuPainelDaClinica from "./features/Clinica/MeuPainelDaClinica/MeuPainelDaClinica";
+import RotaPorPermissao from "./components/servicesComponents/RotaPorPermissao";
 
 import UsuariosDaClinica from "./features/Clinica/UsuariosDaClinica/UsuariosDaClinica.jsx";
 import AnimaisDaClinica from "./features/Clinica/AnimaisDaClinica/AnimaisDaClinica.jsx";
@@ -102,11 +103,12 @@ const App = () => {
                 {/* Rotas que exigem vínculo (isAuthenticated) */}
                 <Route element={<ProtectedRoute requiresAuth />}>
                   <Route element={<LayoutAuthenticated />}>
-                    <Route path="/clinica/inicio" element={<ClinicaInicio />} />
-                    <Route path="/clinica" element={<ClinicaInicio />} />
+                    {/* Início: Meu Painel (todos os perfis). Telas restritas usam RotaPorPermissao (utils/permissoes.js) */}
+                    <Route path="/clinica/inicio" element={<MeuPainelDaClinica />} />
+                    <Route path="/clinica" element={<MeuPainelDaClinica />} />
                     <Route
                       path="/clinica/editar"
-                      element={<PerfilClinica />}
+                      element={<RotaPorPermissao permissao="gerenciaClinica"><PerfilClinica /></RotaPorPermissao>}
                     />
                     <Route
                       path="/clinica/animais"
@@ -118,15 +120,15 @@ const App = () => {
                     />
                     <Route
                       path="/clinica/tutores"
-                      element={<TutoresDaClinica />}
+                      element={<RotaPorPermissao permissao="visualizaAtendimento"><TutoresDaClinica /></RotaPorPermissao>}
                     />
                     <Route
                       path="/clinica/usuarios"
-                      element={<UsuariosDaClinica />}
+                      element={<RotaPorPermissao permissao="gerenciaClinica"><UsuariosDaClinica /></RotaPorPermissao>}
                     />
                     <Route
                       path="/clinica/consultas"
-                      element={<ConsultasDaClinica />}
+                      element={<RotaPorPermissao permissao="visualizaAtendimento"><ConsultasDaClinica /></RotaPorPermissao>}
                     />
                     <Route
                       path="/clinica/racoes"

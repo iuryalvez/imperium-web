@@ -28,7 +28,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
         /// Cria ou atualiza uma dieta para um relatório.
         /// </summary>
         [HttpPost]
-        [Authorize(Policy = "GerenciaAnimais")]
+        [Authorize(Policy = "GerenciaAcompanhamento")]
         [ProducesResponseType(typeof(ServiceResult), 200)]
         [ProducesResponseType(typeof(ServiceResult), 400)]
         public async Task<IActionResult> CriarDieta([FromBody] CreateDietaDto dto)
@@ -46,7 +46,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
         }
 
         [HttpPut("{dietaId}")]
-        [Authorize(Policy = "GerenciaAnimais")]
+        [Authorize(Policy = "GerenciaAcompanhamento")]
         public async Task<IActionResult> UpdateDieta([FromRoute] int dietaId, [FromBody] UpdateDietaDto dto)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
@@ -61,7 +61,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
         }
 
         [HttpDelete("{dietaId}")]
-        [Authorize(Policy = "GerenciaAnimais")]
+        [Authorize(Policy = "GerenciaAcompanhamento")]
         public async Task<IActionResult> DeleteDieta([FromRoute] int dietaId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
@@ -76,7 +76,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
         }
 
         [HttpPatch("{id}/iniciar")]
-        [Authorize(Policy = "GerenciaAnimais")]
+        [Authorize(Policy = "GerenciaAcompanhamento")]
         public async Task<IActionResult> Iniciar([FromRoute] int id)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
@@ -86,7 +86,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
         }
 
         [HttpPatch("{id}/concluir")]
-        [Authorize(Policy = "GerenciaAnimais")]
+        [Authorize(Policy = "GerenciaAcompanhamento")]
         public async Task<IActionResult> Concluir([FromRoute] int id)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
@@ -96,7 +96,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
         }
 
         [HttpPost("{id}/registros-peso")]
-        [Authorize(Policy = "GerenciaAnimais")]
+        [Authorize(Policy = "GerenciaAcompanhamento")]
         public async Task<IActionResult> RegistrarPeso([FromRoute] int id, [FromBody] CreateRegistroPesoDto dto)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
@@ -106,7 +106,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
         }
 
         [HttpDelete("{id}/registros-peso/{registroId}")]
-        [Authorize(Policy = "GerenciaAnimais")]
+        [Authorize(Policy = "GerenciaAcompanhamento")]
         public async Task<IActionResult> RemoverRegistroPeso([FromRoute] int id, [FromRoute] int registroId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");

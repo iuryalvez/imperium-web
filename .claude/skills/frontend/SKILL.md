@@ -38,7 +38,10 @@ Clínica é o tenant, usada pelos usuários vinculados a uma clínica (GESTOR, V
 - Pasta `features/Clinica/<Entidade>DaClinica/` e rota `/clinica/...`.
 - Em `App.js`, fica sob `<ProtectedRoute requiresAuth />` com `<LayoutAuthenticated />`.
 - API em `api/clinica/<entidade>DaClinicaAPI.js`, usando `endpoints.clinica.<entidade>`.
-- Entrada no menu em `components/layout/Sidebar/Sidebar.jsx`.
+- Entrada no menu em `components/layout/Sidebar/Sidebar.jsx`, só para os perfis com a permissão (`pode("<permissao>") && { ... }`).
+- Tela restrita a alguns perfis: a rota em `App.js` fica dentro de `<RotaPorPermissao permissao="...">` (`components/servicesComponents/RotaPorPermissao.jsx`), que manda para `/clinica/inicio` quem não pode.
+- Botões de escrita aparecem só com a permissão: a página usa `const pode = usePermissao();` e passa `podeEditar` (ou similar) para a tabela. Exemplos vivos: `AnimaisDaClinica`, `RacoesDaClinica`, `Acompanhamento`.
+- O início da clínica (`/clinica/inicio`) é o Meu Painel (`features/Clinica/MeuPainelDaClinica`), para todos os perfis.
 - Nunca envie `clinicaId` no payload. O backend lê a clínica do token, e aceitar do frontend abriria brecha entre clínicas.
 
 Se não ficar claro qual escopo, pergunte antes de criar arquivos.
@@ -107,7 +110,7 @@ As pastas atuais são:
 - `components/atoms/`: peças pequenas de UI com props simples, como `LoadingSpinner.jsx`, `LabelComInfo.jsx` e `SelectBuscaRemota.jsx`.
 - `components/modal/`: modais base, como `ModalPadrao.jsx`.
 - `components/layout/`: estrutura da aplicação, como `LayoutAuthenticated.jsx`, `LayoutLogged.jsx`, `LayoutPublic.jsx`, `Header/AppHeader.jsx` e `Sidebar/Sidebar.jsx`.
-- `components/servicesComponents/`: componentes de infraestrutura sem UI própria, como `ProtectedRoute.js`.
+- `components/servicesComponents/`: componentes de infraestrutura sem UI própria, como `ProtectedRoute.js` e `RotaPorPermissao.jsx`.
 
 Uma pasta nova (por exemplo `components/tabela/`) só quando surgir um grupo que não cabe nas existentes, com nome em português e minúsculo.
 
@@ -174,6 +177,8 @@ Um contexto novo só quando o estado precisar ser compartilhado por várias tela
 - `sanitizers.js`: `sanitizeToNumbers` e `sanitizePayload`, antes de enviar.
 - `renderers.js`: renderizações reaproveitáveis, como `perfisSistema`, `renderPerfis` e `renderAnimais`.
 - `useCepHandler.js`: hook que preenche o endereço pelo CEP (`handleCepSearch`, `loadingCep`).
+- `permissoes.js`: `PERMISSOES` (perfis de cada permissão, espelho das policies do backend) e `temPermissao(perfis, permissao)`. Permissão nova no backend entra aqui também.
+- `usePermissao.js`: hook `const pode = usePermissao(); pode("gerenciaAnimais")`, com os perfis do vínculo atual. Não use `isAdmin` para liberar tela da clínica: o admin simulando acesso tem só os perfis escolhidos.
 - `usePaginacaoServidor.js`: hook de lista paginada no servidor. Recebe `listar(filtro)` da api, os filtros iniciais e `traduzirFiltros`; devolve `dados`, `loading`, `paginacao`, `setFiltros`, `setBusca` (com debounce), `handleTableChange` e `recarregar`.
 
 Um helper novo vai para o arquivo do tipo certo, com nome em português no padrão verbo mais alvo (`formatarPeso`, `validarCRMV`) e JSDoc curto. Enum que vem do backend como número ganha um `formatarX` aqui, em vez de `if` espalhado nas telas. Hook reutilizável de formulário segue o modelo `useCepHandler`.

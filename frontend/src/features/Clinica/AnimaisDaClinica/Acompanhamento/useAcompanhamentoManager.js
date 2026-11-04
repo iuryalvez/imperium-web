@@ -318,7 +318,7 @@ export const useAcompanhamentoManager = () => {
   const handleSubmitConsulta = async (values) => {
     try {
       if (consultaToEdit) {
-        await consultasDaClinicaAPI.atualizar(consultaToEdit.id, values);
+        await consultasDaClinicaAPI.editar(consultaToEdit.id, values);
         message.success("Consulta atualizada com sucesso!");
       }
       handleCloseConsultaModal();

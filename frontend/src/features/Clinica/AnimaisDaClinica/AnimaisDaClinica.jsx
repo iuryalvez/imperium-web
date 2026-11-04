@@ -8,6 +8,7 @@ import {
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import { useAnimaisDaClinicaManager } from "./useAnimaisDaClinicaManager";
+import { usePermissao } from "../../../utils/usePermissao";
 import FormCadastroAnimal from "./components/FormularioCadastroAnimaisDaClinica/FormCadastroAnimais";
 import FormEdicaoAnimal from "./components/FormularioEdicaoAnimaisDaClinica/FormEdicaoAnimais";
 import GerenciadorDeRacas from "./components/GerenciadorDeRacas/GerenciadorDeRacas";
@@ -43,6 +44,10 @@ const AnimaisDaClinica = () => {
     handleTableChange,
   } = useAnimaisDaClinicaManager();
 
+  // Cadastrar/editar/excluir animais: GESTOR, VETERINARIO e TECNICO (o SECRETARIO só visualiza)
+  const pode = usePermissao();
+  const podeEditar = pode("gerenciaAnimais");
+
 
   return (
     <div>
@@ -52,13 +57,15 @@ const AnimaisDaClinica = () => {
         </h1>
         <Space>
           <Button onClick={handleOpenModalRacas}>Gerenciar Raças</Button>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => handleOpenModal()}
-          >
-            Cadastrar Animal
-          </Button>
+          {podeEditar && (
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => handleOpenModal()}
+            >
+              Cadastrar Animal
+            </Button>
+          )}
         </Space>
       </div>
 
@@ -79,6 +86,7 @@ const AnimaisDaClinica = () => {
         onEdit={handleOpenModal}
         onDelete={handleDelete}
         onToggleStatus={handleToggleStatus}
+        podeEditar={podeEditar}
         onNavigateToAcompanhamento={handleNavigateToAcompanhamento}
         onViewDetails={handleOpenModalDetalhes}
         loadingRowKey={loadingRowKey}

@@ -17,6 +17,7 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { useAcompanhamentoManager } from "./useAcompanhamentoManager";
+import { usePermissao } from "../../../../utils/usePermissao";
 import ListaConsultasCards from "./components/ListaConsultasCards";
 import FormularioDieta from "./components/Dieta/FormularioDieta";
 import DetalhesDieta from "./components/Dieta/DetalhesDieta";
@@ -70,6 +71,9 @@ const Acompanhamento = () => {
     handleSubmitEditAnimal,
   } = useAcompanhamentoManager();
 
+  // O TECNICO (e o SECRETARIO) veem o acompanhamento; editar animal, avaliação, dieta e consulta depende do perfil
+  const pode = usePermissao();
+
   console.log("[Acompanhamento] historico: ", historico);
 
   if (loading) {
@@ -112,7 +116,7 @@ const Acompanhamento = () => {
         avaliacaoRecente={avaliacaoMaisRecente}
         dietaRecente={dietaMaisRecente}
         onOpenDieta={handleOpenModalVisualizarDieta}
-        onEditAnimal={handleOpenEditAnimalModal}
+        onEditAnimal={pode("gerenciaAnimais") ? handleOpenEditAnimalModal : undefined}
       />
 
       <div>
@@ -131,6 +135,8 @@ const Acompanhamento = () => {
           onExcluirDieta={handleExcluirDieta}
           onIniciarDieta={handleIniciarDieta}
           onConcluirDieta={handleConcluirDieta}
+          podeGerenciarConsultas={pode("gerenciaConsultas")}
+          podeGerenciarAcompanhamento={pode("gerenciaAcompanhamento")}
         />
       </div>
 
@@ -326,7 +332,7 @@ const Acompanhamento = () => {
         icon={<ProfileOutlined />}
         width="min(860px, 95vw)"
       >
-        {dietaParaVisualizar && <DetalhesDieta dieta={dietaParaVisualizar} isGato={isGato} onRegistrarPeso={handleRegistrarPeso} onRemoverPeso={handleRemoverPeso} />}
+        {dietaParaVisualizar && <DetalhesDieta dieta={dietaParaVisualizar} isGato={isGato} onRegistrarPeso={pode("gerenciaAcompanhamento") ? handleRegistrarPeso : undefined} onRemoverPeso={pode("gerenciaAcompanhamento") ? handleRemoverPeso : undefined} />}
       </ModalPadrao>
     </div>
   );

@@ -30,6 +30,7 @@ const TabelaAnimais = ({
   onViewDetails,
   onNavigateToAcompanhamento,
   loadingRowKey,
+  podeEditar = true, // perfis sem "gerenciaAnimais" veem a lista sem os botões de edição
 }) => {
   // ESTADO INTERNO para controlar as colunas visíveis.
   // Inicializa com todas as colunas visíveis, como pedido.
@@ -67,14 +68,16 @@ const TabelaAnimais = ({
                 disabled={isCurrentRowLoading}
               />
             </Tooltip>
-            <Tooltip title="Editar">
-              <Button
-                size="small"
-                icon={<EditOutlined />}
-                onClick={() => onEdit(record)}
-                disabled={isCurrentRowLoading}
-              />
-            </Tooltip>
+            {podeEditar && (
+              <Tooltip title="Editar">
+                <Button
+                  size="small"
+                  icon={<EditOutlined />}
+                  onClick={() => onEdit(record)}
+                  disabled={isCurrentRowLoading}
+                />
+              </Tooltip>
+            )}
             <Tooltip title="Ver Acompanhamento">
               <Button
                 type="primary"
@@ -84,6 +87,7 @@ const TabelaAnimais = ({
                 disabled={isCurrentRowLoading || record.acompanhamentoId == null}
               ></Button>
             </Tooltip>
+            {podeEditar && (<>
             <Tooltip title={record.isAtivo ? "Desativar" : "Ativar"}>
               <Popconfirm
                 title={`Tem certeza que deseja ${record.isAtivo ? "desativar" : "ativar"} este animal?`}
@@ -113,11 +117,12 @@ const TabelaAnimais = ({
                 />
               </Popconfirm>
             </Tooltip>
+            </>)}
           </Space>
         );
       },
     }),
-    [onEdit, onDelete, onToggleStatus, onNavigateToAcompanhamento, onViewDetails, loadingRowKey]
+    [onEdit, onDelete, onToggleStatus, onNavigateToAcompanhamento, onViewDetails, loadingRowKey, podeEditar]
   );
 
   // CÁLCULO DAS COLUNAS VISÍVEIS (MEMOIZADO)

@@ -62,6 +62,7 @@ const endpoints = {
   clinica: {
     editar: `${API_BASE_URL}/clinica/editar`,
     check: `${API_BASE_URL}/clinica/dashboard`, // Nova rota GET do dashboard
+    meuPainel: `${API_BASE_URL}/clinica/meu-painel`, // Meu Painel do usuário logado (todos os perfis)
     acompanhamento: {
       getHistoricoCompleto: (acompanhamentoId) =>
         `${API_BASE_URL}/clinica/acompanhamentos/${acompanhamentoId}/historico-completo`,
@@ -105,6 +106,8 @@ const endpoints = {
         `${API_BASE_URL}/clinica/consultas/${consultaId}`,
       cadastrar: `${API_BASE_URL}/clinica/consultas/cadastrar`,
       editar: `${API_BASE_URL}/clinica/consultas/editar`,
+      cancelar: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}/cancelar`,
+      reabrir: (consultaId) => `${API_BASE_URL}/clinica/consultas/${consultaId}/reabrir`,
       deletar: (consultaId) =>
         `${API_BASE_URL}/clinica/consultas/${consultaId}`,
     },

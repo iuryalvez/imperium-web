@@ -131,8 +131,9 @@ public class AnimalService : IAnimalService
     /// </summary>
     /// <param name="animalId">ID do animal.</param>
     /// <param name="clinicaId">ID da clínica para validação.</param>
+    /// <param name="incluirDadosDoTutor">Falso para quem só pode ver o nome do tutor (TECNICO): telefone e e-mail vão nulos.</param>
     /// <returns>ServiceResult contendo o DTO do histórico completo do animal ou uma mensagem de erro.</returns>
-    public async Task<ServiceResult> ObterHistoricoCompletoAnimalAsync(int animalId, int clinicaId)
+    public async Task<ServiceResult> ObterHistoricoCompletoAnimalAsync(int animalId, int clinicaId, bool incluirDadosDoTutor = true)
     {
         _logger.LogInformation("Buscando histórico completo do animal {AnimalId} na clínica {ClinicaId}.", animalId, clinicaId);
         var animalEntity = await _animalRepository.GetHistoricoCompletoAsync(animalId, clinicaId);
@@ -142,6 +143,14 @@ public class AnimalService : IAnimalService
             return new ServiceResult { Succeeded = false, Message = "Animal não encontrado nesta clínica." };
         }
         var animalDto = _mapper.Map<AnimalCompletoDto>(animalEntity);
+        if (!incluirDadosDoTutor)
+        {
+            foreach (var tutor in animalDto.Tutores ?? new List<TutorResumidoDto>())
+            {
+                tutor.Telefone = null;
+                tutor.Email = null;
+            }
+        }
         return new ServiceResult { Succeeded = true, Data = animalDto };
     }
 

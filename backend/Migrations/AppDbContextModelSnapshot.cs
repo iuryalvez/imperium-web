@@ -328,6 +328,8 @@ namespace backend.Migrations
 
                     b.HasIndex("RacaoId");
 
+                    b.HasIndex("UsuarioResponsavelId");
+
                     b.ToTable("Avaliacoes");
                 });
 
@@ -342,11 +344,21 @@ namespace backend.Migrations
                     b.Property<int>("AnimalId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("CanceladaPorUsuarioId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("ClinicaId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("DataCancelamento")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("DataConsulta")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("MotivoCancelamento")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<int?>("TutorId")
                         .HasColumnType("integer");
@@ -361,11 +373,13 @@ namespace backend.Migrations
 
                     b.HasIndex("AnimalId");
 
-                    b.HasIndex("ClinicaId");
+                    b.HasIndex("CanceladaPorUsuarioId");
 
                     b.HasIndex("TutorId");
 
                     b.HasIndex("UsuarioId");
+
+                    b.HasIndex("ClinicaId", "UsuarioId");
 
                     b.ToTable("Consultas");
                 });
@@ -3408,6 +3422,11 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("backend.Domain.Usuarios.Entities.Usuario", "CanceladaPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("CanceladaPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("backend.Domain.GestaoClinica.Entities.Clinica", "Clinica")
                         .WithMany("Consultas")
                         .HasForeignKey("ClinicaId")
@@ -3426,6 +3445,8 @@ namespace backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Animal");
+
+                    b.Navigation("CanceladaPorUsuario");
 
                     b.Navigation("Clinica");
 

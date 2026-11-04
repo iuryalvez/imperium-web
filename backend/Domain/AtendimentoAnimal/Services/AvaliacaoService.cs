@@ -148,6 +148,10 @@ namespace backend.Domain.AtendimentoAnimal.Services
             {
                 return new ServiceResult { Succeeded = false, Message = "Consulta, animal ou acompanhamento associado não encontrado." };
             }
+            if (consulta.DataCancelamento != null)
+            {
+                return new ServiceResult { Succeeded = false, Message = "Consulta cancelada não recebe avaliação. Reabra-a antes." };
+            }
             var animal = consulta.Animal;
 
             await using var transaction = await _context.Database.BeginTransactionAsync();

@@ -19,7 +19,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
         public TutorController(ITutorService tutorService) { _tutorService = tutorService; }
 
         [HttpGet]
-        [Authorize(Policy = "VisualizaTudo")]
+        [Authorize(Policy = "VisualizaAtendimento")]
         public async Task<IActionResult> GetAll([FromQuery] TutorFiltro filtro)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
@@ -33,11 +33,12 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId <= 0) return Forbid();
-            return Ok(await _tutorService.ListarOpcoesAsync(clinicaId, busca));
+            // Usado também no formulário de animal pelo TECNICO, que vê só o nome do tutor
+            return Ok(await _tutorService.ListarOpcoesAsync(clinicaId, busca, User.PodeVerDadosDoTutor()));
         }
 
         [HttpGet("{tutorId}")]
-        [Authorize(Policy = "VisualizaTudo")]
+        [Authorize(Policy = "VisualizaAtendimento")]
         public async Task<IActionResult> GetById(int tutorId)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");

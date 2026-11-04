@@ -69,7 +69,7 @@ namespace backend.Domain.AtendimentoAnimal.Repository
             return await query.Ordenar(filtro, Ordenacoes, "dataCadastro", t => t.Id).PaginarAsync(filtro);
         }
 
-        public async Task<List<OpcaoDto>> ListarOpcoesAsync(int clinicaId, string? busca)
+        public async Task<List<OpcaoDto>> ListarOpcoesAsync(int clinicaId, string? busca, bool incluirCpf)
         {
             var query = _context.Tutores.AsNoTracking().Where(t => t.ClinicaId == clinicaId);
             if (!string.IsNullOrWhiteSpace(busca))
@@ -77,13 +77,14 @@ namespace backend.Domain.AtendimentoAnimal.Repository
                 var padrao = QueryablePaginacaoExtensions.PadraoBusca(busca.Trim());
                 // CPF/CNPJ só quando a busca não tem letras ("Tutor 1" não deve casar com qualquer documento que tenha "1")
                 var digitos = busca.Any(char.IsLetter) ? "" : new string(busca.Where(char.IsDigit).ToArray());
-                query = query.Where(t => EF.Functions.ILike(t.Nome, padrao) || (digitos.Length > 0 && t.Cpf.Contains(digitos)));
+                // Sem permissão para ver o CPF, a busca também não usa o CPF (evita descobrir o documento por tentativa)
+                query = query.Where(t => EF.Functions.ILike(t.Nome, padrao) || (incluirCpf && digitos.Length > 0 && t.Cpf.Contains(digitos)));
             }
 
             return await query
                 .OrderByDescending(t => t.IsAtivo).ThenBy(t => t.Nome)
                 .Take(OpcaoDto.LimiteOpcoes)
-                .Select(t => new OpcaoDto { Id = t.Id, Nome = t.Nome + (t.Cpf != "" ? " (" + t.Cpf + ")" : ""), IsAtivo = t.IsAtivo })
+                .Select(t => new OpcaoDto { Id = t.Id, Nome = t.Nome + (incluirCpf && t.Cpf != "" ? " (" + t.Cpf + ")" : ""), IsAtivo = t.IsAtivo })
                 .ToListAsync();
         }
 
