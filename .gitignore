@@ -56,6 +56,9 @@ mono_crash.*
 /backend/bld/
 /backend/[Bb]in/
 /backend/[Oo]bj/
+/backend.Tests/[Bb]in/
+/backend.Tests/[Oo]bj/
+/backend.Tests/TestResults/
 /backend/[Ll]og/
 /backend/[Ll]ogs/
 /backend/appsettings.json

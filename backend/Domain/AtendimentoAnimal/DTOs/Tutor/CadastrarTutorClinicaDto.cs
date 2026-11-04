@@ -5,6 +5,9 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Tutor
     public class CadastrarTutorClinicaDto
     {
         public List<int>? AnimalIds { get; set; }
+
+        [Required(ErrorMessage = "O nome do tutor é obrigatório.")]
+        [StringLength(100, ErrorMessage = "O nome do tutor deve ter no máximo 100 caracteres.")]
         public string Nome { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "O CPF do tutor é obrigatório.")]

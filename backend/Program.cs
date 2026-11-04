@@ -30,7 +30,7 @@ using backend.Domain.Auth.Extensions;
 using backend.Domain.Usuarios.Repository;
 
 
-internal class Program
+public class Program
 {
     private static void Main(string[] args)
     {

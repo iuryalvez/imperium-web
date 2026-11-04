@@ -4,6 +4,7 @@ using backend.Domain.Auth.Extensions;
 using backend.Domain.AtendimentoAnimal.DTOs.Animal;
 using backend.Domain.AtendimentoAnimal.DTOs.Tutor;
 using backend.Domain.AtendimentoAnimal.Interfaces;
+using backend.Domain.Utils;
 
 // TODO: Ver possibilidade de refatorar a lógica da persistência dos dados dos tutores:
 //  -> manter o tutor cadastrado no banco e no cadastro de tutor ver se já existe um cadastro
@@ -53,7 +54,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             var result = await _tutorService.CreateAsync(dto, clinicaId);
-            if (!result.Succeeded) return Conflict(result); // Conflict (409) é bom para "CPF já existe"
+            if (!result.Succeeded) return Falha(result);
 
             return Ok(result);
         }
@@ -64,7 +65,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             var result = await _tutorService.UpdateAsync(dto, clinicaId);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return Falha(result);
             return NoContent();
         }
 
@@ -75,7 +76,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             var result = await _tutorService.SetTutorStatusAsync(tutorId, clinicaId, ativo);
 
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return Falha(result);
             return Ok(result);
         }
 
@@ -85,8 +86,19 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             var result = await _tutorService.DeleteAsync(tutorId, clinicaId);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return Falha(result);
             return NoContent();
         }
+
+        /// <summary>
+        /// Converte a falha do service no status HTTP: 404 para tutor inexistente ou de outra clínica,
+        /// 409 para CPF já cadastrado na clínica e 400 para as demais regras. O corpo é sempre o ServiceResult.
+        /// </summary>
+        private IActionResult Falha(ServiceResult result) => result.Falha switch
+        {
+            TipoFalha.NaoEncontrado => NotFound(result),
+            TipoFalha.Conflito => Conflict(result),
+            _ => BadRequest(result),
+        };
     }
 }

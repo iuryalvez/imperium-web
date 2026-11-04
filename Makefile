@@ -34,7 +34,7 @@ export
 
 # Definição de alvos falsos (.PHONY) para garantir que o Make execute os 
 # comandos mesmo se existirem pastas ou arquivos com os mesmos nomes no disco.
-.PHONY: help build build-frontend-no-cache up update down logs ps shell seed clean clean-all drop-database dev-drop-database set migrator deploy dev-set-dependencies dev-add-migration dev-database-update dev-up-api dev-up-frontend dev-clean
+.PHONY: help build build-frontend-no-cache up update down logs ps shell seed clean clean-all drop-database dev-drop-database set migrator deploy dev-set-dependencies dev-add-migration dev-database-update dev-up-api dev-up-frontend dev-clean test
 
 help:
 	@echo "Comandos disponíveis:"
@@ -59,6 +59,7 @@ help:
 	@echo "  make dev-up-frontend     -- Inicia o frontend localmente"
 	@echo "  make dev-clean           -- Remove arquivos locais de build e dependências (bin, obj, node_modules, build)"
 	@echo "  make dev-drop-database   -- Remove o banco de dados local"
+	@echo "  make test                -- Roda os testes do backend (backend.Tests; precisa do Docker, não usa o .env)"
 
 # ==============================================================================
 # COMANDOS DO MODO CONTEINERIZADO (DOCKER / PRODUÇÃO)
@@ -175,3 +176,15 @@ dev-drop-database:
 	cd backend && dotnet ef database drop --force
 	@echo "Banco de dados local removido."
 	@echo "Se quiser recriar o banco e aplicar as migrações, rode make dev-database-update."
+
+# ==============================================================================
+# TESTES AUTOMATIZADOS
+# ==============================================================================
+
+# Roda os testes de integração do backend. O banco é um PostgreSQL descartável (Testcontainers),
+# por isso precisa do Docker rodando. 'env -i' limpa o ambiente para que nenhuma variável do .env
+# (exportada no topo deste Makefile) chegue aos testes: a configuração vem só de backend.Tests.
+test:
+	cd backend.Tests && env -i HOME="$$HOME" PATH="$$PATH" USER="$$USER" TERM="$$TERM" \
+		$${DOCKER_HOST:+DOCKER_HOST="$$DOCKER_HOST"} $${DOTNET_ROOT:+DOTNET_ROOT="$$DOTNET_ROOT"} \
+		dotnet test
