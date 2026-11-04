@@ -80,7 +80,7 @@ As pastas em `backend/Domain/` são:
 
 ## Pendências conhecidas
 
-- Os testes do backend existem (`backend.Tests`, `make test`); o frontend ainda não tem testes (veja a skill `testes`).
+- Testes automatizados: backend em `backend.Tests` (`make test`) e frontend com Jest (`make test-frontend`: `utils/` e os hooks das telas). Veja a skill `testes`.
 - `GET sistema/usuarios` ainda não segue o contrato de paginação.
 - Há legado fora do padrão: `backend/Services/ValidateService.cs` e `backend/Interfaces/` na raiz, regra de negócio em `UsuarioController` e alguns nomes de arquivo do frontend sem `DaClinica`.
 - O `frontend/src/App.test.js` é o teste padrão do CRA e está quebrado.

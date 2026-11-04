@@ -46,6 +46,7 @@ Use sempre o Makefile, que carrega o `.env` e exporta as variáveis (banco, JWT,
 - Verificação rápida do backend sem banco: `cd backend && dotnet build`.
 - Verificação do frontend: `cd frontend && npm run build`.
 - Testes do backend: `make test` (precisa do Docker; não usa o `.env` nem o banco local).
+- Testes do frontend: `make test-frontend` (Jest; não usa o `.env` nem o backend).
 
 Subir API, frontend ou containers exige permissão do usuário.
 
@@ -67,7 +68,7 @@ Subir API, frontend ou containers exige permissão do usuário.
 ## Definição de pronto
 
 - `dotnet build` com 0 erros e sem warnings novos.
-- O frontend compila (`npm run build` em `frontend/`) quando houver mudança nele.
+- O frontend compila (`npm run build` em `frontend/`) e `make test-frontend` passa quando houver mudança nele.
 - As rotas do backend batem com `frontend/src/services/Endpoints.js`.
 - Mudança de tela conferida pelo teste visual ou com roteiro entregue ao usuário.
 - `make test` passando (testes do backend em `backend.Tests`, precisa do Docker; ver skill `testes`). Mudança no backend vem com teste da regra.

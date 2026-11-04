@@ -1,13 +1,13 @@
 import React, { useMemo } from "react";
-import { Table, Button, Space, Tooltip } from "antd";
-import { EyeOutlined, EditOutlined, LoginOutlined } from "@ant-design/icons";
+import { Table, Button, Space, Tooltip, Popconfirm } from "antd";
+import { EyeOutlined, EditOutlined, LoginOutlined, DeleteOutlined } from "@ant-design/icons";
 import colunas from './colunas';
 
-const TabelaClinicasDoSistema = ({ clinicas, paginacao, onChange, loading, onEdit, onViewDetails, onAccess }) => {
+const TabelaClinicasDoSistema = ({ clinicas, paginacao, onChange, loading, loadingRowKey, onEdit, onViewDetails, onAccess, onDelete }) => {
   const colunaAcoes = useMemo(() => ({
     title: "Ações",
     key: "acoes",
-    width: 180,
+    width: 220,
     align: "center",
     fixed: "right",
     render: (_, record) => (
@@ -18,6 +18,21 @@ const TabelaClinicasDoSistema = ({ clinicas, paginacao, onChange, loading, onEdi
         <Tooltip title="Editar">
           <Button size="small" icon={<EditOutlined />} onClick={() => onEdit(record)} />
         </Tooltip>
+        <Tooltip title="Excluir">
+          <Popconfirm
+            title="Tem certeza que deseja excluir esta clínica?"
+            onConfirm={() => onDelete(record)}
+            okText="Sim"
+            cancelText="Não"
+          >
+            <Button
+              size="small"
+              icon={<DeleteOutlined />}
+              danger
+              loading={record.id === loadingRowKey}
+            />
+          </Popconfirm>
+        </Tooltip>
         <Tooltip title="Acessar Clínica (Simular)">
           <Button size="small" icon={<LoginOutlined />} onClick={() => onAccess(record)} type="primary" ghost>
             Acessar
@@ -25,7 +40,7 @@ const TabelaClinicasDoSistema = ({ clinicas, paginacao, onChange, loading, onEdi
         </Tooltip>
       </Space>
     ),
-  }), [onEdit, onViewDetails, onAccess]);
+  }), [onEdit, onViewDetails, onAccess, onDelete, loadingRowKey]);
 
   const memoColunas = useMemo(() => [...colunas, colunaAcoes], [colunaAcoes]);
 

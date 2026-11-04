@@ -24,6 +24,7 @@ export const useRacasDoSistemaManager = () => {
 
   const handleAlternarVisao = () => {
     setVisao((atual) => (atual === "sistema" ? "copias" : "sistema"));
+    lista.setFiltros({});
   };
 
   const handleOpenModalCadastro = () => {

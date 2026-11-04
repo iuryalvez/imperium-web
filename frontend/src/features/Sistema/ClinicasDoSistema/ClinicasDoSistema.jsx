@@ -20,6 +20,7 @@ const ClinicasDoSistema = () => {
   const {
     clinicas,
     loading,
+    loadingRowKey,
     isSubmitting,
     isModalOpen,
     isModalDetalhesOpen,
@@ -34,6 +35,7 @@ const ClinicasDoSistema = () => {
     handleCloseModals,
     handleSubmit,
     handleSimularAcesso,
+    handleDeleteClinica,
     paginacao,
     setBusca,
     handleTableChange,
@@ -73,12 +75,14 @@ const ClinicasDoSistema = () => {
 
       <TabelaClinicasDoSistema
         loading={loading}
+        loadingRowKey={loadingRowKey}
         paginacao={paginacao}
         onChange={handleTableChange}
         clinicas={clinicas}
         onEdit={handleEditarClinica}
         onViewDetails={handleOpenModalDetalhes}
         onAccess={handleOpenModalAcesso}
+        onDelete={handleDeleteClinica}
       />
 
       {/* MODAL PADRÃO: Cadastro / Edição */}

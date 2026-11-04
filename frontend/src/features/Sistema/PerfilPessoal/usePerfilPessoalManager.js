@@ -48,7 +48,8 @@ export const usePerfilPessoalManager = () => {
       // Limpa os campos de senha após sucesso e recarrega dados
       await fetchPerfil();
     } catch (error) {
-      message.error(error.message || "Erro ao atualizar perfil.");
+      const mensagemErro = error?.message || error?.errors?.join(" ") || "Erro ao atualizar perfil.";
+      message.error(mensagemErro);
     } finally {
       setIsSubmitting(false);
     }

@@ -7,6 +7,7 @@ using backend.Domain.Usuarios.Interfaces;
 using backend.Domain.Utils;
 using backend.Domain.Utils.Paginacao;
 using backend.Infra.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using backend.Domain.Usuarios.DTOs.UsuarioStatus;
 using backend.Domain.Auth.Extensions;
@@ -595,7 +596,13 @@ namespace backend.Domain.Usuarios.Services
                     if (!passwordResult.Succeeded)
                     {
                         await transaction.RollbackAsync();
-                        return new ServiceResult { Succeeded = false, Errors = passwordResult.Errors.Select(e => e.Description).ToList() };
+                        var erros = passwordResult.Errors.Select(TraduzirErroSenhaIdentity).ToList();
+                        return new ServiceResult
+                        {
+                            Succeeded = false,
+                            Message = string.Join(" ", erros),
+                            Errors = erros,
+                        };
                     }
                 }
 
@@ -611,6 +618,17 @@ namespace backend.Domain.Usuarios.Services
                 return new ServiceResult { Succeeded = false, Message = "Erro interno ao atualizar o perfil." };
             }
         }
+
+        private static string TraduzirErroSenhaIdentity(IdentityError erro) => erro.Code switch
+        {
+            "PasswordMismatch" => "A senha atual está incorreta.",
+            "PasswordTooShort" => "A nova senha deve ter pelo menos 6 caracteres.",
+            "PasswordRequiresNonAlphanumeric" => "A nova senha deve conter pelo menos um caractere especial.",
+            "PasswordRequiresDigit" => "A nova senha deve conter pelo menos um número.",
+            "PasswordRequiresLower" => "A nova senha deve conter pelo menos uma letra minúscula.",
+            "PasswordRequiresUpper" => "A nova senha deve conter pelo menos uma letra maiúscula.",
+            _ => erro.Description,
+        };
 
         /// <summary>
         /// Normaliza (maiúsculas, sem espaços e sem repetidos) e valida os perfis de um vínculo da clínica:

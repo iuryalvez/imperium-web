@@ -27,7 +27,8 @@ export const clinicasAPI = {
             return response.data;
         } catch (error) {
             console.error(`Erro ao editar clínica com os dados: ${dadosAtualizadosClinica}`, error);
-            throw error.response ? error.response : error;
+            // Relança o corpo da resposta (ServiceResult), para o Manager mostrar error.message do backend
+            throw error.response ? error.response.data : error;
         }
     }, 
     deletar: async(clinicaId) => {
@@ -36,6 +37,8 @@ export const clinicasAPI = {
             return response.data;
         } catch (error) {
             console.error(`Erro ao deletar clínica de id: ${clinicaId}`, error);
+            // Relança o corpo da resposta (ServiceResult), para o Manager mostrar error.message do backend
+            throw error.response ? error.response.data : error;
         }
     },
     /** Opções para selects: até 20 { id, nome, isAtivo }, ativos primeiro (inativos vêm para aparecer desabilitados). */

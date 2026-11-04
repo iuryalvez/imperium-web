@@ -15,6 +15,7 @@ export const useClinicasDoSistemaManager = () => {
   const clinicas = lista.dados;
   const loading = lista.loading;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadingRowKey, setLoadingRowKey] = useState(null);
 
   // Modais
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -105,12 +106,26 @@ export const useClinicasDoSistemaManager = () => {
     }
   };
 
+  const handleDeleteClinica = async (clinica) => {
+    setLoadingRowKey(clinica.id);
+    try {
+      await clinicasAPI.deletar(clinica.id);
+      message.success("Clínica excluída com sucesso!");
+      await fetchClinicas();
+    } catch (error) {
+      message.error(error.message || "Erro ao excluir clínica.");
+    } finally {
+      setLoadingRowKey(null);
+    }
+  };
+
   return {
     paginacao: lista.paginacao,
     setBusca: lista.setBusca,
     handleTableChange: lista.handleTableChange,
     clinicas,
     loading,
+    loadingRowKey,
     isSubmitting,
     isModalOpen,
     isModalDetalhesOpen,
@@ -125,5 +140,6 @@ export const useClinicasDoSistemaManager = () => {
     handleCloseModals,
     handleSubmit,
     handleSimularAcesso,
+    handleDeleteClinica,
   };
 };

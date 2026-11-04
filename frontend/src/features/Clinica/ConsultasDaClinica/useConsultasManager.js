@@ -57,9 +57,7 @@ export const useConsultasManager = () => {
       message.success("Consulta excluída com sucesso!");
       await fetchConsultas();
     } catch (error) {
-      message.error(
-        error.response?.data?.message || "Erro ao excluir consulta.",
-      );
+      message.error(error.message || "Erro ao excluir consulta.");
     }
   };
 

@@ -9,7 +9,8 @@ export const consultasDaClinicaAPI = {
       return response.data;
     } catch (error) {
       console.error("Erro ao listar consultas:", error);
-      throw error;
+      // Relança o corpo da resposta (ServiceResult), para o Manager mostrar error.message do backend
+      throw error.response ? error.response.data : error;
     }
   },
 
@@ -20,7 +21,8 @@ export const consultasDaClinicaAPI = {
       return response.data;
     } catch (error) {
       console.error(`Erro ao buscar detalhes da consulta ${consultaId}:`, error);
-      throw error;
+      // Relança o corpo da resposta (ServiceResult), para o Manager mostrar error.message do backend
+      throw error.response ? error.response.data : error;
     }
   },
   
@@ -30,7 +32,8 @@ export const consultasDaClinicaAPI = {
       return response.data;
     } catch (error) {
       console.error("Erro ao agendar consulta:", error);
-      throw error;
+      // Relança o corpo da resposta (ServiceResult), para o Manager mostrar error.message do backend
+      throw error.response ? error.response.data : error;
     }
   },
 
@@ -44,7 +47,8 @@ export const consultasDaClinicaAPI = {
       return response.data; // PUT retorna NoContent, mas podemos retornar o corpo da resposta se houver
     } catch (error) {
       console.error(`Erro ao editar consulta ${consultaId}:`, error);
-      throw error;
+      // Relança o corpo da resposta (ServiceResult), para o Manager mostrar error.message do backend
+      throw error.response ? error.response.data : error;
     }
   },
 
@@ -54,7 +58,8 @@ export const consultasDaClinicaAPI = {
       await api.delete(url); // DELETE não retorna conteúdo
     } catch (error) {
       console.error(`Erro ao deletar consulta ${consultaId}:`, error);
-      throw error;
+      // Relança o corpo da resposta (ServiceResult), para o Manager mostrar error.message do backend
+      throw error.response ? error.response.data : error;
     }
   },
   // Cancela a consulta (só pendente); o motivo é opcional

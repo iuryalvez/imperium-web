@@ -8,7 +8,7 @@ description: Use ao criar, alterar ou rodar testes automatizados do Imperium (ba
 ## Situação atual
 
 - Backend: existe o projeto `backend.Tests/` (xUnit) com testes de integração e unitários. Rode com `make test`.
-- Frontend: ainda não tem testes. Existe só o `src/App.test.js` padrão do Create React App, que está quebrado (procura um texto "learn react" que não existe).
+- Frontend: tem testes com Jest e Testing Library (vêm com o Create React App) em `utils/` e em todos os hooks `use...Manager` e de Auth (`useRecuperarSenha`, `useNovaSenha`). Rode com `make test-frontend`.
 
 Instalar pacotes ou mudar `App.test.js` exige permissão do usuário. Antes, explique o que será criado e quais pacotes entram.
 
@@ -50,11 +50,46 @@ Nome dos testes no formato `Metodo_Situacao_Resultado`, por exemplo `Cadastrar_C
 
 ## Frontend
 
-- Jest e Testing Library, que já vêm com o Create React App. Rodar com `npm test` em `frontend/`.
-- Testar `utils/` (formatters, validators, sanitizers) com testes unitários simples.
-- Testar Managers com a camada `api/` mockada: estados de loading, submit, mensagens de sucesso e erro.
-- Testar componentes genéricos de `components/` pelas props e pelo que o usuário vê.
-- Consertar ou substituir o `App.test.js` padrão faz parte de começar os testes do frontend (com permissão).
+### Como rodar
+
+- `make test-frontend`: roda `npm test` em `frontend/` uma vez (`CI=true`, `--watchAll=false`, `--maxWorkers=2`), com o ambiente limpo (`env -i`), sem o `.env`. Leva poucos segundos e não precisa do backend nem do Docker.
+- Para rodar um arquivo só: `cd frontend && CI=true npm test -- --watchAll=false src/utils/validators.test.js`.
+- `npm test` sem argumentos fica em modo watch (para usar enquanto escreve testes).
+- Pacotes já instalados: `@testing-library/react` 13.4 (tem `renderHook`), `@testing-library/jest-dom` 5 (configurado em `src/setupTests.js`) e `@testing-library/user-event` 13 (API síncrona: `userEvent.type(input, "texto")`, sem `await` nem `setup()`). Não instale nem atualize sem permissão.
+
+### Estrutura
+
+- O teste fica ao lado do arquivo testado, com o mesmo nome e `.test.js` (padrão do CRA): `utils/validators.test.js`, `features/Clinica/TutoresDaClinica/useTutoresDaClinicaManager.test.js`.
+- `utils/`: testes unitários puros (validators, formatters, sanitizers, permissoes) e os inputs com máscara (`masks.js`), testados pelo que o usuário digita e pelo valor sem máscara entregue ao `onChange`. `permissoes.test.js` confere que `PERMISSOES` espelha as policies do `Program.cs`: se mudar uma policy no backend, o teste mostra o espelho desatualizado.
+- Managers (`use...Manager`): `renderHook` + `act` + `waitFor`, com a camada `api/` mockada por inteiro e só o `message` do antd trocado. Exemplo vivo: `useTutoresDaClinicaManager.test.js`. Todo hook novo de tela ganha um `use...Manager.test.js` ao lado.
+- Outras dependências que os hooks usam e que se mocka do mesmo jeito (variáveis usadas na factory do `jest.mock` começam com `mock`):
+  - `useAuth`: `jest.mock("../../../services/AuthContext", () => ({ useAuth: jest.fn() }))` e `useAuth.mockReturnValue({ perfis: [...] })` no teste. O `AuthContext` real importa a api de autenticação (axios), então nunca o carregue de verdade.
+  - React Router: `jest.mock("react-router-dom", () => ({ ...jest.requireActual("react-router-dom"), useNavigate: () => mockNavigate, useParams: () => ({ acompanhamentoId: "30" }) }))`.
+  - Notificações das telas de Auth (`App.useApp()`): `jest.mock("antd", () => ({ ...jest.requireActual("antd"), App: { useApp: () => ({ notification: mockNotification }) } }))`.
+
+```js
+jest.mock("../../../api/clinica/tutoresDaClinicaAPI.js", () => ({
+  tutoresDaClinicaAPI: { listar: jest.fn(), cadastrar: jest.fn(), editar: jest.fn(), deletar: jest.fn(), setStatus: jest.fn() },
+}));
+jest.mock("antd", () => ({ ...jest.requireActual("antd"), message: { success: jest.fn(), error: jest.fn() } }));
+```
+
+- Nunca importe a api real nem o `App` num teste: o axios é ESM e o Jest do CRA não o transforma ("Cannot use import statement outside a module"). Mocke a camada `api/` com factory, como acima.
+
+### O que cobrir num Manager
+
+- Carga da lista: chama a api com `{ pagina: 1, tamanhoPagina: 10 }`; busca (debounce), página, ordenação e filtros de coluna viram os parâmetros certos.
+- Cadastro, edição, exclusão e status: chamam a função certa da api com o payload certo (documentos sem máscara, campos vazios como `""`), mostram a mensagem de sucesso, fecham o modal e recarregam a lista.
+- Erro do backend: mostra a `message` que veio no corpo, mantém o modal aberto, não recarrega e libera o loading; sem mensagem, usa o texto padrão.
+
+### O erro que o Manager recebe
+
+- Os mocks rejeitam com o corpo do backend (`{ message: "..." }`), que é o contrato da camada `api/` (skill `frontend`: `throw error.response ? error.response.data : error`). Se uma api relançar o erro bruto do axios, a tela mostra "Request failed with status code 409" em vez da mensagem do backend: corrija a api, não o teste.
+
+### Próximos passos
+
+- Componentes genéricos de `components/` (pelas props e pelo que o usuário vê). O Login não tem hook próprio (usa o `login` do `AuthContext`); testar o `AuthContext` exige mockar o `autenticacaoAPI` inteiro. Componentes do Ant Design com grid ou responsivos podem precisar de um mock de `window.matchMedia` no `setupTests.js`; adicione só quando precisar.
+- Avisos "not wrapped in act(...)" e "ReactDOMTestUtils.act is deprecated" vêm da combinação Testing Library 13 + React 18.3; não são falhas.
 
 ## Regras
 

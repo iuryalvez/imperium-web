@@ -34,7 +34,7 @@ export
 
 # Definição de alvos falsos (.PHONY) para garantir que o Make execute os 
 # comandos mesmo se existirem pastas ou arquivos com os mesmos nomes no disco.
-.PHONY: help build build-frontend-no-cache up update down logs ps shell seed clean clean-all drop-database dev-drop-database set migrator deploy dev-set-dependencies dev-add-migration dev-database-update dev-up-api dev-up-frontend dev-clean test
+.PHONY: help build build-frontend-no-cache up update down logs ps shell seed clean clean-all drop-database dev-drop-database set migrator deploy dev-set-dependencies dev-add-migration dev-database-update dev-up-api dev-up-frontend dev-clean test test-frontend
 
 help:
 	@echo "Comandos disponíveis:"
@@ -60,6 +60,7 @@ help:
 	@echo "  make dev-clean           -- Remove arquivos locais de build e dependências (bin, obj, node_modules, build)"
 	@echo "  make dev-drop-database   -- Remove o banco de dados local"
 	@echo "  make test                -- Roda os testes do backend (backend.Tests; precisa do Docker, não usa o .env)"
+	@echo "  make test-frontend       -- Roda os testes do frontend uma vez (Jest; não usa o .env)"
 
 # ==============================================================================
 # COMANDOS DO MODO CONTEINERIZADO (DOCKER / PRODUÇÃO)
@@ -188,3 +189,10 @@ test:
 	cd backend.Tests && env -i HOME="$$HOME" PATH="$$PATH" USER="$$USER" TERM="$$TERM" \
 		$${DOCKER_HOST:+DOCKER_HOST="$$DOCKER_HOST"} $${DOTNET_ROOT:+DOTNET_ROOT="$$DOTNET_ROOT"} \
 		dotnet test
+
+# Roda os testes do frontend (Jest + Testing Library do Create React App) uma vez, sem o modo watch.
+# 'env -i' pelo mesmo motivo do alvo test; o NODE_OPTIONS vem do script "test" do package.json.
+# --maxWorkers=2 limita os processos do Jest para não pesar na máquina.
+test-frontend:
+	cd frontend && env -i HOME="$$HOME" PATH="$$PATH" USER="$$USER" TERM="$$TERM" CI=true \
+		npm test -- --watchAll=false --maxWorkers=2

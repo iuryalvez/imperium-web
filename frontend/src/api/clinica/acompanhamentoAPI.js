@@ -3,10 +3,16 @@ import endpoints from "../../services/Endpoints"; // seu arquivo de endpoints
 
 export const acompanhamentoAPI = {
   getHistoricoCompleto: async (acompanhamentoId) => {
-    const response = await api.get(
-      endpoints.clinica.acompanhamento.getHistoricoCompleto(acompanhamentoId)
-    );
-    return response.data;
+    try {
+      const response = await api.get(
+        endpoints.clinica.acompanhamento.getHistoricoCompleto(acompanhamentoId)
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`Erro ao buscar o histórico do acompanhamento ${acompanhamentoId}:`, error);
+      // Relança o corpo da resposta (ServiceResult), para o Manager mostrar error.message do backend
+      throw error.response ? error.response.data : error;
+    }
   },
 
   getPerfisMetabolicos: async () => {

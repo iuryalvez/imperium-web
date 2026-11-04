@@ -13,7 +13,8 @@ export const avaliacoesDaClinicaAPI = {
         return null; // Retorna nulo se o relatório não for encontrado
       }
       console.error(`Erro ao buscar relatório da consulta ${consultaId}:`, error);
-      throw error;
+      // Relança o corpo da resposta (ServiceResult), para o Manager mostrar error.message do backend
+      throw error.response ? error.response.data : error;
     }
   },
   
@@ -24,7 +25,8 @@ export const avaliacoesDaClinicaAPI = {
       return response.data;
     } catch (error) {
       console.error(`Erro ao salvar relatório da consulta ${consultaId}:`, error);
-      throw error;
+      // Relança o corpo da resposta (ServiceResult), para o Manager mostrar error.message do backend
+      throw error.response ? error.response.data : error;
     }
   },
   
@@ -34,7 +36,8 @@ export const avaliacoesDaClinicaAPI = {
       await api.delete(url);
     } catch (error) {
       console.error(`Erro ao deletar relatório ${avaliacaoId}:`, error);
-      throw error;
+      // Relança o corpo da resposta (ServiceResult), para o Manager mostrar error.message do backend
+      throw error.response ? error.response.data : error;
     }
   },
 };

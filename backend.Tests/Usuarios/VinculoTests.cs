@@ -802,6 +802,50 @@ namespace backend.Tests.Usuarios
 
         #endregion
 
+        #region Perfil pessoal (sistema/perfil)
+
+        [Fact]
+        public async Task AtualizarMeuPerfil_SenhaAtualIncorreta_RetornaBadRequestComMensagemEmPortugues()
+        {
+            var cliente = await ClienteComSenhaParaPerfilAsync();
+
+            var resposta = await cliente.PutAsJsonAsync("/api/sistema/perfil",
+                new { senhaAtual = "Errada@123", novaSenha = "NovaSenha@123" });
+
+            Assert.Equal(HttpStatusCode.BadRequest, resposta.StatusCode);
+            Assert.Contains("A senha atual está incorreta.", await TextoAsync(resposta));
+        }
+
+        [Fact]
+        public async Task AtualizarMeuPerfil_SenhaAtualCorreta_AlteraSenhaComSucesso()
+        {
+            var cliente = await ClienteComSenhaParaPerfilAsync();
+
+            var resposta = await cliente.PutAsJsonAsync("/api/sistema/perfil",
+                new { senhaAtual = Senha, novaSenha = "NovaSenha@123" });
+
+            Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
+
+            // A senha antiga deixa de valer na próxima tentativa
+            var segunda = await cliente.PutAsJsonAsync("/api/sistema/perfil",
+                new { senhaAtual = Senha, novaSenha = "OutraSenha@123" });
+            Assert.Equal(HttpStatusCode.BadRequest, segunda.StatusCode);
+        }
+
+        private async Task<HttpClient> ClienteComSenhaParaPerfilAsync()
+        {
+            var (_, gestor) = await ClinicaComGestorAsync();
+            var email = NovoEmail();
+            await gestor.PostAsJsonAsync($"{RotaUsuarios}/cadastrar", NovoUsuario(email, Perfis.Veterinario));
+            var usuarioId = Assert.Single((await ListarAsync(gestor, "")).Itens).Id;
+
+            var cliente = _cenario.ClienteAnonimo();
+            cliente.DefaultRequestHeaders.Add("Cookie", $"auth_token={TokenDeTeste.AdminSistema(usuarioId, "Perfil Teste")}");
+            return cliente;
+        }
+
+        #endregion
+
         #region Auxiliares
 
         private async Task<(ClinicaDeTeste clinica, HttpClient gestor)> ClinicaComGestorAsync()
