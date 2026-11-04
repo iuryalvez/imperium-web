@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using backend.Domain.Utils;
 using Microsoft.AspNetCore.Authorization;
 
 using backend.Domain.Auth.Extensions;
@@ -50,7 +51,7 @@ namespace backend.Domain.GestaoClinica.Controllers
         public async Task<IActionResult> Create([FromBody] CadastrarClinicaDto dto)
         {
             var result = await _clinicaService.CreateAsync(dto);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
 
             var clinicaDto = (GetClinicaDto)result.Data;
             return CreatedAtAction(nameof(GetById), new { clinicaId = clinicaDto.Id }, clinicaDto);
@@ -61,7 +62,7 @@ namespace backend.Domain.GestaoClinica.Controllers
         public async Task<IActionResult> Update([FromBody] EditarClinicaAdminDto dto)
         {
             var result = await _clinicaService.UpdateClinicaAsync(dto);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return NoContent();
         }
 
@@ -71,7 +72,7 @@ namespace backend.Domain.GestaoClinica.Controllers
         public async Task<IActionResult> Delete(int clinicaId)
         {
             var result = await _clinicaService.DeleteAsync(clinicaId);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return NoContent();
         }
 
@@ -80,17 +81,14 @@ namespace backend.Domain.GestaoClinica.Controllers
         public async Task<IActionResult> GetPerfilDashboard()
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            if (clinicaId == 0)
+            if (clinicaId <= 0)
             {
-                return Forbid("Acesso negado. Informação da clínica não encontrada no token.");
+                return Forbid();
             }
 
             var result = await _clinicaService.GetClinicaDashboardAsync(clinicaId);
 
-            if (!result.Succeeded)
-            {
-                return NotFound(result);
-            }
+            if (!result.Succeeded) return this.Falha(result);
 
             return Ok(result);
         }
@@ -101,19 +99,15 @@ namespace backend.Domain.GestaoClinica.Controllers
         {
             // Obtém o ID da clínica de forma segura a partir do token do usuário logado
             var clinicaId = User.GetClaimValue<int>("clinicaId");
-            if (clinicaId == 0)
+            if (clinicaId <= 0)
             {
-                return Forbid("Acesso negado. Informação da clínica não encontrada no token.");
+                return Forbid();
             }
 
             var result = await _clinicaService.UpdateOwnClinicAsync(clinicaId, dto);
 
             // Retorna a resposta com base no resultado do serviço
-            if (!result.Succeeded)
-            {
-                // O serviço pode retornar "Não encontrado" ou erros de validação
-                return BadRequest(result);
-            }
+            if (!result.Succeeded) return this.Falha(result); // 404 não encontrada, 409 CNPJ em uso, 400 validação
 
             return Ok(result); // Ou NoContent() para uma resposta 204
         }

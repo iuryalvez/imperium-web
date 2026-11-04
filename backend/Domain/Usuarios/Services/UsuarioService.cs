@@ -9,6 +9,7 @@ using backend.Domain.Utils.Paginacao;
 using backend.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 using backend.Domain.Usuarios.DTOs.UsuarioStatus;
+using backend.Domain.Auth.Extensions;
 
 namespace backend.Domain.Usuarios.Services
 {
@@ -70,20 +71,27 @@ namespace backend.Domain.Usuarios.Services
 
         public async Task<ServiceResult> CadastrarUsuarioSistemaAsync(CadastrarUsuarioSistemaDto dto)
         {
-            // 1. Processar e validar DTO
-            dto.IsAdmin = dto.Perfis?.Contains("ADMIN", StringComparer.OrdinalIgnoreCase) ?? false;
-            dto.IsAtivo = !(dto.Perfis?.Contains("INATIVO", StringComparer.OrdinalIgnoreCase) ?? false);
-
-            if (!dto.IsAdmin && (dto.Perfis == null || !dto.Perfis.Any()))
+            // 1. Processar e validar DTO. ADMIN vem sozinho; senão, só perfis da clínica (INATIVO não é perfil:
+            //    o status vem do switch, dto.IsAtivo).
+            dto.IsAdmin = dto.Perfis?.Any(p => string.Equals(p?.Trim(), "ADMIN", StringComparison.OrdinalIgnoreCase)) ?? false;
+            if (dto.IsAdmin)
             {
-                return new ServiceResult { Succeeded = false, Message = "Pelo menos um perfil deve ser selecionado." };
+                if (dto.Perfis!.Count(p => !string.IsNullOrWhiteSpace(p)) > 1)
+                    return ServiceResult.Invalido("O perfil ADMIN não pode ser combinado com perfis da clínica.");
+                dto.Perfis = new List<string> { "ADMIN" };
+            }
+            else
+            {
+                var erroPerfis = ValidarPerfisDaClinica(dto.Perfis, out var perfisValidos);
+                if (erroPerfis != null) return erroPerfis;
+                dto.Perfis = perfisValidos;
             }
 
             if (dto.IsAdmin)
             {
                 if (await _usuarioRepository.EmailExistsAsync(dto.Email))
                 {
-                    return new ServiceResult { Succeeded = false, Message = "O e-mail já está em uso." };
+                    return ServiceResult.Conflito("O e-mail já está em uso.");
                 }
             }
 
@@ -125,14 +133,14 @@ namespace backend.Domain.Usuarios.Services
                         if (await _usuarioRepository.EmailExistsInClinicAsync(dto.Email, clinicaId))
                         {
                             await transaction.RollbackAsync();
-                            return new ServiceResult { Succeeded = false, Message = "O email informado já está em uso nesta clínica." };
+                            return ServiceResult.Conflito("O email informado já está em uso nesta clínica.");
                         }
 
                         await _usuarioRepository.AddUserClinicLinkAsync(new UsuarioPerfilClinica
                         {
                             UsuarioId = novoUsuario.Id,
                             ClinicaId = clinicaId,
-                            Perfis = dto.Perfis
+                            Perfis = PerfisComStatus(dto.Perfis, dto.IsAtivo) // uma lista por vínculo
                         });
                     }
                 }
@@ -152,11 +160,10 @@ namespace backend.Domain.Usuarios.Services
 
         public async Task<ServiceResult> CadastrarUsuarioClinicaAsync(CadastrarUsuarioClinicaDto dto, int clinicaId)
         {
-            // Validações de Negócio Iniciais
-            if (dto.Perfis == null || !dto.Perfis.Any())
-            {
-                return new ServiceResult { Succeeded = false, Message = "Pelo menos um perfil deve ser selecionado." };
-            }
+            // Validações de Negócio Iniciais: só perfis da clínica, com pelo menos um além de INATIVO
+            var erroPerfis = ValidarPerfisDaClinica(dto.Perfis, out var perfisValidos);
+            if (erroPerfis != null) return erroPerfis;
+            dto.Perfis = perfisValidos;
 
             // O repositório agora centraliza as interações com o banco
             if (!await _usuarioRepository.ClinicaExistsAsync(clinicaId))
@@ -170,7 +177,7 @@ namespace backend.Domain.Usuarios.Services
             var usuarioExistente = await _usuarioRepository.GetUserByEmailAsync(dto.Email);
             if (usuarioExistente != null)
             {
-                return await VincularUsuarioExistenteAsync(usuarioExistente, dto.Perfis, clinicaId);
+                return await VincularUsuarioExistenteAsync(usuarioExistente, PerfisComStatus(dto.Perfis, dto.IsAtivo), clinicaId);
             }
 
             // Inicia a transação a partir do repositório/contexto
@@ -186,7 +193,7 @@ namespace backend.Domain.Usuarios.Services
                 usuario.DataUltimoAcesso = DateTime.UtcNow;
                 usuario.EmailConfirmed = true;
                 usuario.IsAdmin = false; // Usuário de clínica nunca é admin do sistema
-                usuario.IsAtivo = true;
+                usuario.IsAtivo = dto.IsAtivo; // switch "Status" do cadastro
 
                 // Chama o repositório para criar o usuário no Identity
                 var (identityResult, novoUsuario) = await _usuarioRepository.CreateUserAsync(usuario, dto.Senha);
@@ -206,7 +213,7 @@ namespace backend.Domain.Usuarios.Services
                 {
                     UsuarioId = novoUsuario.Id,
                     ClinicaId = clinicaId,
-                    Perfis = dto.Perfis
+                    Perfis = PerfisComStatus(dto.Perfis, dto.IsAtivo)
                 };
 
                 // Chama o repositório para adicionar o vínculo
@@ -238,12 +245,12 @@ namespace backend.Domain.Usuarios.Services
         {
             if (usuario.IsAdmin)
             {
-                return new ServiceResult { Succeeded = false, Message = "Este e-mail pertence a um administrador do sistema e não pode ser vinculado à clínica." };
+                return ServiceResult.Conflito("Este e-mail pertence a um administrador do sistema e não pode ser vinculado à clínica.");
             }
 
             if (await _usuarioRepository.IsUserLinkedToClinicAsync(usuario.Id, clinicaId))
             {
-                return new ServiceResult { Succeeded = false, Message = "Este usuário já está vinculado a esta clínica." };
+                return ServiceResult.Conflito("Este usuário já está vinculado a esta clínica.");
             }
 
             await _usuarioRepository.AddUserClinicLinkAsync(new UsuarioPerfilClinica
@@ -270,7 +277,7 @@ namespace backend.Domain.Usuarios.Services
                 // --- LÓGICA PARA ADMINISTRADORES ---
                 var usuario = await _usuarioRepository.GetUserByIdAsync(dto.Id);
                 if (usuario == null || !usuario.IsAdmin)
-                    return new ServiceResult { Succeeded = false, Message = "Usuário administrador não encontrado." };
+                    return ServiceResult.NaoEncontrado("Usuário administrador não encontrado.");
 
                 // Define o status diretamente na entidade principal do usuário
                 usuario.IsAtivo = dto.Activate;
@@ -284,11 +291,15 @@ namespace backend.Domain.Usuarios.Services
                 // --- LÓGICA PARA USUÁRIOS DE CLÍNICA (BASEADA NO VÍNCULO) ---
                 var vinculo = await _usuarioRepository.GetUserClinicLinkByIdAsync(dto.Id); // Aqui, dto.Id é o upcId
                 if (vinculo?.Usuario == null)
-                    return new ServiceResult { Succeeded = false, Message = "Vínculo do usuário não encontrado." };
+                    return ServiceResult.NaoEncontrado("Vínculo do usuário não encontrado.");
 
                 // Rotas de clínica informam a clínica do token: o vínculo precisa pertencer a ela
                 if (dto.ClinicaId.HasValue && vinculo.ClinicaId != dto.ClinicaId.Value)
-                    return new ServiceResult { Succeeded = false, Message = "Vínculo do usuário não encontrado nesta clínica." };
+                    return ServiceResult.NaoEncontrado("Vínculo do usuário não encontrado nesta clínica.");
+
+                // O GESTOR não desativa o próprio vínculo (perderia o acesso, como ao tirar o próprio GESTOR)
+                if (!dto.Activate && dto.UpcIdAtual.HasValue && vinculo.Id == dto.UpcIdAtual.Value)
+                    return ServiceResult.Invalido("Você não pode desativar o seu próprio vínculo.");
 
                 if (dto.Activate)
                 {
@@ -349,12 +360,71 @@ namespace backend.Domain.Usuarios.Services
             }
         }
 
+        /// <summary>
+        /// Admin: exclui o usuário e todos os vínculos dele, numa transação. Usuário com histórico
+        /// (consultas marcadas ou canceladas, avaliações) não é excluído: deve ser desativado.
+        /// </summary>
+        public async Task<ServiceResult> ExcluirUsuarioSistemaAsync(int usuarioId, int adminAtualId)
+        {
+            var usuario = await _usuarioRepository.GetUserByIdAsync(usuarioId);
+            if (usuario == null) return ServiceResult.NaoEncontrado("Usuário não encontrado.");
+            if (usuario.Id == adminAtualId) return ServiceResult.Invalido("Você não pode excluir o seu próprio usuário.");
+
+            if (await _usuarioRepository.PossuiHistoricoAsync(usuarioId))
+                return ServiceResult.Conflito("Este usuário tem consultas ou avaliações registradas e não pode ser excluído. Desative-o.");
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var vinculos = await _usuarioRepository.GetAllVinculosByUserIdAsync(usuarioId);
+                foreach (var vinculo in vinculos) await _usuarioRepository.RemoveVinculoAsync(vinculo);
+                await _usuarioRepository.SaveChangesAsync();
+
+                var resultado = await _usuarioRepository.DeleteUserAsync(usuario);
+                if (!resultado.Succeeded)
+                {
+                    await transaction.RollbackAsync();
+                    return new ServiceResult { Succeeded = false, Message = "Não foi possível excluir o usuário.", Errors = resultado.Errors.Select(e => e.Description).ToList() };
+                }
+
+                await transaction.CommitAsync();
+                return new ServiceResult { Succeeded = true, Message = $"Usuário excluído com sucesso (e {vinculos.Count} vínculo(s) removido(s))." };
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Erro ao excluir o usuário {UsuarioId}.", usuarioId);
+                return new ServiceResult { Succeeded = false, Message = "Erro inesperado ao excluir o usuário." };
+            }
+        }
+
+        /// <summary>
+        /// Clínica: remove só o vínculo do usuário com a clínica do token. Nunca exclui o usuário nem vínculos
+        /// de outras clínicas. Segue a regra do admin: o último vínculo do usuário não é removido (desative-o).
+        /// </summary>
+        public async Task<ServiceResult> RemoverVinculoDaClinicaAsync(int usuarioId, int clinicaId, int? upcIdAtual)
+        {
+            var vinculos = await _usuarioRepository.GetAllVinculosByUserIdAsync(usuarioId);
+            var vinculo = vinculos.FirstOrDefault(v => v.ClinicaId == clinicaId);
+            if (vinculo == null) return ServiceResult.NaoEncontrado("Usuário não encontrado nesta clínica.");
+
+            if (upcIdAtual.HasValue && vinculo.Id == upcIdAtual.Value)
+                return ServiceResult.Invalido("Você não pode remover o seu próprio vínculo com a clínica.");
+
+            if (vinculos.Count <= 1)
+                return ServiceResult.Invalido("Não é possível remover o último vínculo do usuário com uma clínica. Para remover o acesso, desative o usuário.");
+
+            await _usuarioRepository.RemoveVinculoAsync(vinculo);
+            await _usuarioRepository.SaveChangesAsync();
+            return new ServiceResult { Succeeded = true, Message = "Usuário removido desta clínica." };
+        }
+
         public async Task<ServiceResult> UnlinkUserFromClinicAsync(int upcId)
         {
             var vinculo = await _usuarioRepository.GetVinculoByIdAsync(upcId);
             if (vinculo == null)
             {
-                return new ServiceResult { Succeeded = false, Message = "Vínculo não encontrado." };
+                return ServiceResult.NaoEncontrado("Vínculo não encontrado.");
             }
 
             // REGRA DE NEGÓCIO: Verifica se este é o último vínculo do usuário
@@ -376,15 +446,19 @@ namespace backend.Domain.Usuarios.Services
         private async Task<ServiceResult> UpdateAdminUserAsync(EditarUsuarioSistemaDto dto)
         {
             var usuario = await _usuarioRepository.GetAdminUserByIdAsync(dto.Id);
-            if (usuario == null) return new ServiceResult { Succeeded = false, Message = "Usuário administrador não encontrado." };
+            if (usuario == null) return ServiceResult.NaoEncontrado("Usuário administrador não encontrado.");
 
             // Validação de e-mail duplicado
             if (await _usuarioRepository.EmailExistsForAnotherUserAsync(dto.Email, dto.Id))
             {
-                return new ServiceResult { Succeeded = false, Message = "O e-mail informado já está em uso." };
+                return ServiceResult.Conflito("O e-mail informado já está em uso.");
             }
 
+            // O status (ativo/inativo) e o tipo do usuário não mudam pela edição: status é pela rota de status
+            var (eraAtivo, eraAdmin) = (usuario.IsAtivo, usuario.IsAdmin);
             _mapper.Map(dto, usuario);
+            usuario.IsAtivo = eraAtivo;
+            usuario.IsAdmin = eraAdmin;
 
             // Altera a senha, se fornecida
             if (!string.IsNullOrWhiteSpace(dto.Senha))
@@ -405,25 +479,34 @@ namespace backend.Domain.Usuarios.Services
             var vinculo = await _usuarioRepository.GetUserClinicLinkByIdAsync(dto.UpcId);
             if (vinculo?.Usuario == null)
             {
-                return new ServiceResult { Succeeded = false, Message = "Vínculo do usuário não encontrado." };
+                return ServiceResult.NaoEncontrado("Vínculo do usuário não encontrado.");
             }
 
             var usuario = vinculo.Usuario;
             if (await _usuarioRepository.EmailExistsForAnotherUserAsync(dto.Email, usuario.Id))
             {
-                return new ServiceResult { Succeeded = false, Message = "O e-mail informado já está em uso." };
+                return ServiceResult.Conflito("O e-mail informado já está em uso.");
             }
 
-            // 1. Mapeia os campos que pertencem à entidade Usuario (Nome, Email, Cpf, etc.)
-            _mapper.Map(dto, usuario);
-
-            // 2. ATUALIZAÇÃO EXPLÍCITA: Mapeia manualmente o campo que pertence à entidade de vínculo.
-            //    Verificamos se o DTO contém a lista de perfis para não apagar perfis existentes
-            //    caso o frontend não envie a lista (embora devesse enviar uma lista vazia para limpar).
+            // Perfis com a mesma regra da clínica (o admin não tem a trava do próprio GESTOR).
+            // Lista nula mantém os perfis atuais.
+            List<string>? perfisValidos = null;
             if (dto.Perfis != null)
             {
-                vinculo.Perfis = dto.Perfis;
+                var erroPerfis = ValidarPerfisDaClinica(dto.Perfis, out var normalizados);
+                if (erroPerfis != null) return erroPerfis;
+                perfisValidos = normalizados;
             }
+
+            // 1. Mapeia os campos que pertencem à entidade Usuario (Nome, Email, Cpf, etc.).
+            //    Status e tipo do usuário não mudam pela edição: status é pela rota de status.
+            var (eraAtivo, eraAdmin) = (usuario.IsAtivo, usuario.IsAdmin);
+            _mapper.Map(dto, usuario);
+            usuario.IsAtivo = eraAtivo;
+            usuario.IsAdmin = eraAdmin;
+
+            // 2. Perfis do vínculo, mantendo o status atual dele
+            if (perfisValidos != null) AplicarPerfisMantendoStatus(vinculo, perfisValidos);
 
             if (!string.IsNullOrWhiteSpace(dto.Senha))
             {
@@ -443,22 +526,27 @@ namespace backend.Domain.Usuarios.Services
         /// Edição feita pela clínica: altera apenas o vínculo (perfis). Dados pessoais e senha do usuário
         /// só podem ser alterados pelo próprio usuário (Meu Perfil) ou pelo admin do sistema.
         /// </summary>
-        public async Task<ServiceResult> UpdateUsuarioClinicaAsync(EditarUsuarioClinicaDto dto, int clinicaId)
+        /// <param name="upcIdAtual">Vínculo de quem está editando (nulo para o admin): o GESTOR não tira o próprio GESTOR.</param>
+        public async Task<ServiceResult> UpdateUsuarioClinicaAsync(EditarUsuarioClinicaDto dto, int clinicaId, int? upcIdAtual)
         {
             try
             {
                 var vinculo = await _usuarioRepository.GetUserClinicLinkByIdAsync(dto.UpcId);
                 if (vinculo?.Usuario == null || vinculo.ClinicaId != clinicaId)
                 {
-                    return new ServiceResult { Succeeded = false, Message = "Vínculo do usuário não encontrado nesta clínica." };
+                    return ServiceResult.NaoEncontrado("Vínculo do usuário não encontrado nesta clínica.");
                 }
 
-                if (dto.Perfis == null || !dto.Perfis.Any())
+                var erroPerfis = ValidarPerfisDaClinica(dto.Perfis, out var perfisValidos);
+                if (erroPerfis != null) return erroPerfis;
+
+                var eraGestor = vinculo.Perfis?.Contains("GESTOR") ?? false;
+                if (upcIdAtual.HasValue && vinculo.Id == upcIdAtual.Value && eraGestor && !perfisValidos.Contains("GESTOR"))
                 {
-                    return new ServiceResult { Succeeded = false, Message = "Pelo menos um perfil deve ser selecionado." };
+                    return ServiceResult.Invalido("Você não pode remover o seu próprio perfil de GESTOR.");
                 }
 
-                vinculo.Perfis = dto.Perfis;
+                AplicarPerfisMantendoStatus(vinculo, perfisValidos);
 
                 await _usuarioRepository.SaveChangesAsync();
                 return new ServiceResult { Succeeded = true, Message = "Perfis do usuário atualizados com sucesso." };
@@ -474,7 +562,7 @@ namespace backend.Domain.Usuarios.Services
         {
             var usuario = await _usuarioRepository.GetUserWithTotalClinicsById(usuarioId);
             if (usuario == null)
-                return new ServiceResult { Succeeded = false, Message = "Usuário não encontrado." };
+                return ServiceResult.NaoEncontrado("Usuário não encontrado.");
 
             var data = _mapper.Map<GetMeuPerfilDto>(usuario);
             return new ServiceResult { Succeeded = true, Data = data };
@@ -487,12 +575,12 @@ namespace backend.Domain.Usuarios.Services
             {
                 var usuario = await _usuarioRepository.GetUserByIdAsync(usuarioId);
                 if (usuario == null)
-                    return new ServiceResult { Succeeded = false, Message = "Usuário não encontrado." };
+                    return ServiceResult.NaoEncontrado("Usuário não encontrado.");
 
                 if (!string.IsNullOrWhiteSpace(dto.Email) && dto.Email != usuario.Email)
                 {
                     if (await _usuarioRepository.EmailExistsForAnotherUserAsync(dto.Email, usuarioId))
-                        return new ServiceResult { Succeeded = false, Message = "E-mail já está em uso." };
+                        return ServiceResult.Conflito("E-mail já está em uso.");
                 }
 
                 _mapper.Map(dto, usuario);
@@ -522,6 +610,44 @@ namespace backend.Domain.Usuarios.Services
                 _logger.LogError(ex, "Erro ao atualizar perfil do usuário {UsuarioId}", usuarioId);
                 return new ServiceResult { Succeeded = false, Message = "Erro interno ao atualizar o perfil." };
             }
+        }
+
+        /// <summary>
+        /// Normaliza (maiúsculas, sem espaços e sem repetidos) e valida os perfis de um vínculo da clínica:
+        /// só GESTOR, VETERINARIO, SECRETARIO e TECNICO, com pelo menos um. INATIVO não é perfil: é o status do
+        /// vínculo, mudado só pela rota de status (ou pelo switch do cadastro).
+        /// </summary>
+        private static ServiceResult? ValidarPerfisDaClinica(List<string>? perfis, out List<string> normalizados)
+        {
+            normalizados = (perfis ?? new List<string>())
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Select(p => p.Trim().ToUpperInvariant())
+                .Distinct()
+                .ToList();
+
+            var invalidos = normalizados.Where(p => !AuthExtension.PerfisDaClinica.Contains(p)).ToList();
+            if (invalidos.Any())
+                return ServiceResult.Invalido($"Perfil inválido: {string.Join(", ", invalidos)}. Use GESTOR, VETERINARIO, SECRETARIO ou TECNICO.");
+
+            if (!normalizados.Any())
+                return ServiceResult.Invalido("Pelo menos um perfil deve ser selecionado.");
+
+            return null;
+        }
+
+        /// <summary>Cópia dos perfis de um vínculo novo, com o marcador INATIVO quando ele nasce inativo.</summary>
+        private static List<string> PerfisComStatus(List<string> perfis, bool ativo)
+        {
+            var lista = new List<string>(perfis);
+            if (!ativo) lista.Add(AuthExtension.PerfilInativo);
+            return lista;
+        }
+
+        /// <summary>Troca os perfis do vínculo sem mexer no status: se ele estava inativo, continua inativo.</summary>
+        private static void AplicarPerfisMantendoStatus(UsuarioPerfilClinica vinculo, List<string> perfisValidos)
+        {
+            var estavaInativo = vinculo.Perfis?.Contains(AuthExtension.PerfilInativo, StringComparer.OrdinalIgnoreCase) ?? false;
+            vinculo.Perfis = PerfisComStatus(perfisValidos, !estavaInativo);
         }
     }
 }

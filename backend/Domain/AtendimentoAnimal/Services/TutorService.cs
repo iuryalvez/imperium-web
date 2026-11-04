@@ -137,7 +137,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 if (await _tutorRepository.CpfExistsInClinicAsync(dto.Cpf, clinicaId))
                 {
                     await transaction.RollbackAsync();
-                    return new ServiceResult { Succeeded = false, Message = "CPF já cadastrado nesta clínica.", Falha = TipoFalha.Conflito };
+                    return ServiceResult.Conflito("CPF já cadastrado nesta clínica.");
                 }
 
                 var tutor = _mapper.Map<Tutor>(dto);
@@ -195,14 +195,14 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 if (tutor == null)
                 {
                     await transaction.RollbackAsync();
-                    return new ServiceResult { Succeeded = false, Message = $"Tutor com ID {dto.Id} não encontrado nesta clínica.", Falha = TipoFalha.NaoEncontrado };
+                    return ServiceResult.NaoEncontrado($"Tutor com ID {dto.Id} não encontrado nesta clínica.");
                 }
 
                 if (!string.IsNullOrWhiteSpace(dto.Cpf) && dto.Cpf != tutor.Cpf
                     && await _tutorRepository.CpfExistsInClinicAsync(dto.Cpf, clinicaId, tutor.Id))
                 {
                     await transaction.RollbackAsync();
-                    return new ServiceResult { Succeeded = false, Message = "CPF já cadastrado nesta clínica.", Falha = TipoFalha.Conflito };
+                    return ServiceResult.Conflito("CPF já cadastrado nesta clínica.");
                 }
 
                 // 1. MAPEAMENTO AUTOMÁTICO
@@ -265,12 +265,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
             var tutor = await _tutorRepository.GetByIdAndClinicIdAsync(tutorId, clinicaId);
             if (tutor == null)
             {
-                return new ServiceResult
-                {
-                    Succeeded = false,
-                    Message = "Tutor não encontrado nesta clínica.",
-                    Falha = TipoFalha.NaoEncontrado
-                };
+                return ServiceResult.NaoEncontrado("Tutor não encontrado nesta clínica.");
             }
 
             tutor.IsAtivo = ativo;
@@ -292,11 +287,11 @@ namespace backend.Domain.AtendimentoAnimal.Services
             {
                 var tutor = await _tutorRepository.GetByIdAndClinicIdWithIncludesAsync(tutorId, clinicaId);
                 if (tutor == null)
-                    return new ServiceResult { Succeeded = false, Message = "Tutor não encontrado nesta clínica.", Falha = TipoFalha.NaoEncontrado };
+                    return ServiceResult.NaoEncontrado("Tutor não encontrado nesta clínica.");
 
                 // Consultas guardam o histórico do tutor: nesse caso ele deve ser desativado, não excluído
                 if (await _tutorRepository.HasConsultasAsync(tutor.Id))
-                    return new ServiceResult { Succeeded = false, Message = "Este tutor possui consultas registradas e não pode ser excluído. Desative-o." };
+                    return ServiceResult.Conflito("Este tutor possui consultas registradas e não pode ser excluído. Desative-o.");
 
                 // Remove os vínculos Tutor-Animal (todos da mesma clínica) e o tutor
                 if (tutor.TutoresAnimais != null && tutor.TutoresAnimais.Any())

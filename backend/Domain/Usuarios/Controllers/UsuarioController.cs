@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 using backend.Domain.Auth.Extensions;
-using backend.Infra.Data;
 using System.Security.Claims;
 using backend.Domain.Usuarios.DTOs.Usuario;
 using backend.Domain.Usuarios.DTOs.Vinculo;
@@ -18,15 +16,12 @@ namespace backend.Domain.Usuarios.Controllers
     [Route("api")]
     public class UsuarioController : ControllerBase
     {
-        private readonly AppDbContext _context;
         private readonly IUsuarioService _usuarioService;
         private readonly ILogger<UsuarioController> _logger;
 
-        public UsuarioController(AppDbContext context,
-                                 IUsuarioService usuarioService,
+        public UsuarioController(IUsuarioService usuarioService,
                                  ILogger<UsuarioController> logger)
         {
-            _context = context;
             _usuarioService = usuarioService;
             _logger = logger;
         }
@@ -60,7 +55,7 @@ namespace backend.Domain.Usuarios.Controllers
             if (!result.Succeeded)
             {
                 _logger.LogWarning("Falha ao cadastrar usuário de sistema: {Message}", result.Message);
-                return BadRequest(result);
+                return this.Falha(result);
             }
 
             _logger.LogInformation("Usuário de sistema cadastrado com sucesso.");
@@ -78,7 +73,7 @@ namespace backend.Domain.Usuarios.Controllers
             if (!result.Succeeded)
             {
                 _logger.LogWarning("Falha ao editar usuário de sistema ID {UsuarioId}: {Message}", dto.Id, result.Message);
-                return BadRequest(result);
+                return this.Falha(result);
             }
 
             _logger.LogInformation("Usuário de sistema ID {UsuarioId} editado com sucesso.", dto.Id);
@@ -96,10 +91,7 @@ namespace backend.Domain.Usuarios.Controllers
             if (clinicaId <= 0) return Forbid();
             _logger.LogInformation("Recebida requisição para listar usuários da clínica ID: {ClinicaId}", clinicaId);
 
-            // No token de vínculo o NameIdentifier é o id do vínculo (upcId); no do admin, é o id do usuário
-            int? upcIdAtual = User.GetClaimValue<bool>("isAdmin") ? null : User.GetClaimValue<int>(ClaimTypes.NameIdentifier);
-
-            return Ok(await _usuarioService.ListarUsuariosDaClinicaAsync(filtro, clinicaId, upcIdAtual));
+            return Ok(await _usuarioService.ListarUsuariosDaClinicaAsync(filtro, clinicaId, UpcIdAtual()));
         }
 
         [HttpPost("clinica/usuarios/cadastrar")]
@@ -107,6 +99,7 @@ namespace backend.Domain.Usuarios.Controllers
         public async Task<IActionResult> CadastrarUsuarioClinica([FromBody] CadastrarUsuarioClinicaDto dto)
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId <= 0) return Forbid();
             _logger.LogInformation("Recebida requisição para cadastrar novo usuário na clínica ID: {ClinicaId}", clinicaId);
 
             var result = await _usuarioService.CadastrarUsuarioClinicaAsync(dto, clinicaId);
@@ -114,7 +107,7 @@ namespace backend.Domain.Usuarios.Controllers
             if (!result.Succeeded)
             {
                 _logger.LogWarning("Falha ao cadastrar usuário na clínica {ClinicaId}: {Message}", clinicaId, result.Message);
-                return BadRequest(result);
+                return this.Falha(result);
             }
 
             _logger.LogInformation("Usuário cadastrado com sucesso na clínica {ClinicaId}.", clinicaId);
@@ -129,12 +122,12 @@ namespace backend.Domain.Usuarios.Controllers
             if (clinicaId <= 0) return Forbid();
             _logger.LogInformation("Recebida requisição para editar usuário (Vínculo ID: {UpcId})", dto.UpcId);
 
-            var result = await _usuarioService.UpdateUsuarioClinicaAsync(dto, clinicaId);
+            var result = await _usuarioService.UpdateUsuarioClinicaAsync(dto, clinicaId, UpcIdAtual());
 
             if (!result.Succeeded)
             {
                 _logger.LogWarning("Falha ao editar usuário (Vínculo ID: {UpcId}): {Message}", dto.UpcId, result.Message);
-                return BadRequest(result);
+                return this.Falha(result);
             }
 
             _logger.LogInformation("Usuário (Vínculo ID: {UpcId}) editado com sucesso.", dto.UpcId);
@@ -142,22 +135,6 @@ namespace backend.Domain.Usuarios.Controllers
         }
 
         // Endpoints de VÍNCULO
-
-        [HttpGet("vinculos")]
-        [Authorize(Policy = "AcessoLoginPolicy")]
-        public async Task<IActionResult> GetAllVinculos()
-        {
-            var vinculos = await _context.UsuariosPerfisClinicas
-                .AsNoTracking()
-                .ToListAsync();
-
-            if (!vinculos.Any())
-            {
-                return NotFound(new { Message = "Nenhum vínculo encontrado." });
-            }
-
-            return Ok(vinculos);
-        }
 
         [HttpPut("sistema/usuarios/{usuarioId}/status")]
         [Authorize(Policy = "GerenciaSistema")]
@@ -176,12 +153,10 @@ namespace backend.Domain.Usuarios.Controllers
             if (!result.Succeeded)
             {
                 _logger.LogWarning("Falha ao alterar status para o Vínculo/Usuário ID {Id}: {Message}", dto.Id, result.Message);
-                return BadRequest(result);
+                return this.Falha(result);
             }
 
             _logger.LogInformation("Status alterado com sucesso para Vínculo/Usuário ID {Id}.", dto.Id);
-
-            if (!result.Succeeded) return BadRequest(result);
             return Ok(result);
         }
 
@@ -198,7 +173,8 @@ namespace backend.Domain.Usuarios.Controllers
                 Id = upcId,
                 IsAdmin = false, // Informa ao serviço que NÃO é um admin
                 Activate = payload.Activate,
-                ClinicaId = clinicaId // O vínculo precisa ser da clínica do token
+                ClinicaId = clinicaId, // O vínculo precisa ser da clínica do token
+                UpcIdAtual = UpcIdAtual() // O GESTOR não desativa o próprio vínculo
             };
 
             var result = await _usuarioService.SetUserActivationStatusAsync(dto);
@@ -206,12 +182,10 @@ namespace backend.Domain.Usuarios.Controllers
             if (!result.Succeeded)
             {
                 _logger.LogWarning("Falha ao alterar status para o Vínculo/Usuário ID {Id}: {Message}", dto.Id, result.Message);
-                return BadRequest(result);
+                return this.Falha(result);
             }
 
             _logger.LogInformation("Status alterado com sucesso para Vínculo/Usuário ID {Id}.", dto.Id);
-
-            if (!result.Succeeded) return BadRequest(result);
             return Ok(result);
         }
 
@@ -228,28 +202,35 @@ namespace backend.Domain.Usuarios.Controllers
             if (!result.Succeeded)
             {
                 _logger.LogWarning("Falha ao desvincular o vínculo ID {UpcId}. Motivo: {Message}", upcId, result.Message);
-                return BadRequest(new { Message = result.Message });
+                return this.Falha(result); // 404 vínculo não encontrado, 400 último vínculo
             }
 
             _logger.LogInformation("Vínculo ID {UpcId} desvinculado com sucesso.", upcId);
             return Ok(result);
         }
 
-        [HttpDelete("clinica/usuarios/{usuarioId}")]
+        /// <summary>Admin: exclui o usuário e todos os vínculos dele (409 se tiver consultas ou avaliações).</summary>
+        [HttpDelete("sistema/usuarios/{usuarioId}")]
         [Authorize(Policy = "GerenciaSistema")]
-        public async Task<IActionResult> DeleteUsuario(int usuarioId)
+        public async Task<IActionResult> ExcluirUsuarioSistema(int usuarioId)
         {
-            var usuario = await _context.Usuarios.FindAsync(usuarioId);
-            if (usuario == null)
-            {
-                return NotFound("Usuário não encontrado.");
-            }
+            var adminAtualId = User.GetClaimValue<int>(ClaimTypes.NameIdentifier);
+            var result = await _usuarioService.ExcluirUsuarioSistemaAsync(usuarioId, adminAtualId);
+            if (!result.Succeeded) return this.Falha(result);
+            return Ok(result);
+        }
 
-            // Remove o usuário do banco de dados
-            _context.Usuarios.Remove(usuario);
-            await _context.SaveChangesAsync();
+        /// <summary>Clínica: remove só o vínculo do usuário com a clínica do token (o usuário continua existindo).</summary>
+        [HttpDelete("clinica/usuarios/{usuarioId}")]
+        [Authorize(Policy = "GerenciaClinica")]
+        public async Task<IActionResult> RemoverUsuarioDaClinica(int usuarioId)
+        {
+            var clinicaId = User.GetClaimValue<int>("clinicaId");
+            if (clinicaId <= 0) return Forbid();
 
-            return Ok(new { Message = "Usuário deletado com sucesso." });
+            var result = await _usuarioService.RemoverVinculoDaClinicaAsync(usuarioId, clinicaId, UpcIdAtual());
+            if (!result.Succeeded) return this.Falha(result);
+            return Ok(result);
         }
 
         [HttpGet("debug-claims")]
@@ -269,7 +250,7 @@ namespace backend.Domain.Usuarios.Controllers
             var usuarioId = User.GetClaimValue<int>(ClaimTypes.NameIdentifier);
             var result = await _usuarioService.GetMeuPerfilAsync(usuarioId);
 
-            if (!result.Succeeded) return NotFound(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
 
@@ -280,8 +261,12 @@ namespace backend.Domain.Usuarios.Controllers
             var usuarioId = User.GetClaimValue<int>(ClaimTypes.NameIdentifier);
             var result = await _usuarioService.UpdateMeuPerfilAsync(usuarioId, dto);
 
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
+
+        /// <summary>No token de vínculo o NameIdentifier é o id do vínculo (upcId); no do admin, é o id do usuário (devolve nulo).</summary>
+        private int? UpcIdAtual() =>
+            User.GetClaimValue<bool>("isAdmin") ? null : User.GetClaimValue<int>(ClaimTypes.NameIdentifier);
     }
 }

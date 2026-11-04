@@ -52,7 +52,7 @@ namespace backend.Domain.GestaoClinica.Services
 
             if (dashboardData == null)
             {
-                return new ServiceResult { Succeeded = false, Message = "Clínica não encontrada." };
+                return ServiceResult.NaoEncontrado("Clínica não encontrada.");
             }
 
             return new ServiceResult { Succeeded = true, Data = dashboardData };
@@ -74,10 +74,10 @@ namespace backend.Domain.GestaoClinica.Services
         {
             var clinica = await _clinicaRepository.GetByIdAsync(dto.Id);
             if (clinica == null)
-                return new ServiceResult { Succeeded = false, Message = "Clínica não encontrada." };
+                return ServiceResult.NaoEncontrado("Clínica não encontrada.");
 
             if (!string.IsNullOrWhiteSpace(dto.Cnpj) && await _clinicaRepository.CnpjExistsForAnotherClinicAsync(dto.Cnpj, dto.Id))
-                return new ServiceResult { Succeeded = false, Message = "Este CNPJ já está em uso." };
+                return ServiceResult.Conflito("Este CNPJ já está em uso.");
 
             _mapper.Map(dto, clinica);
             await _clinicaRepository.SaveChangesAsync();
@@ -89,12 +89,12 @@ namespace backend.Domain.GestaoClinica.Services
             // Busca a clínica usando o ID do token, garantindo a segurança
             var clinica = await _clinicaRepository.GetByIdAsync(clinicaId);
             if (clinica == null)
-                return new ServiceResult { Succeeded = false, Message = "Clínica não encontrada ou acesso não permitido." };
+                return ServiceResult.NaoEncontrado("Clínica não encontrada ou acesso não permitido.");
 
             // Validação de negócio (ex: CNPJ único)
             if (!string.IsNullOrWhiteSpace(dto.Cnpj) && await _clinicaRepository.CnpjExistsForAnotherClinicAsync(dto.Cnpj, clinicaId))
             {
-                return new ServiceResult { Succeeded = false, Message = "Este CNPJ já está em uso por outra clínica." };
+                return ServiceResult.Conflito("Este CNPJ já está em uso por outra clínica.");
             }
 
             // O AutoMapper aplica as alterações do DTO na entidade existente
@@ -146,10 +146,10 @@ namespace backend.Domain.GestaoClinica.Services
         {
             var clinica = await _clinicaRepository.GetByIdWithDetailsAsync(clinicaId); // Necessário incluir dependentes para verificar
             if (clinica == null)
-                return new ServiceResult { Succeeded = false, Message = "Clínica não encontrada." };
+                return ServiceResult.NaoEncontrado("Clínica não encontrada.");
 
             if (clinica.UsuariosPerfisClinicas.Any()) // Lógica de verificação de dependentes
-                return new ServiceResult { Succeeded = false, Message = "Clínica possui usuários vinculados." };
+                return ServiceResult.Conflito("Clínica possui usuários vinculados.");
 
             _clinicaRepository.Delete(clinica);
             await _clinicaRepository.SaveChangesAsync();

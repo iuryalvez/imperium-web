@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { message } from "antd";
 import { usuariosDoSistemaAPI } from "../../../api/sistema/usuariosDoSistemaAPI.js";
+import { somentePerfisDaClinica } from "../../../utils/permissoes";
 
 /**
  * Hook customizado para gerenciar toda a lógica da página de Usuários do Sistema.
@@ -52,9 +53,17 @@ export const useUsuariosDoSistemaManager = () => {
     let successMessage = "";
     try {
       if (editingUser) {
-        // Lógica de Edição
-        await usuariosDoSistemaAPI.editar({ ...editingUser, ...values });
+        // Lógica de Edição. INATIVO não vai nos perfis: o status é o switch "Status de acesso"
+        const dados = { ...editingUser, ...values };
+        if (!editingUser.isAdmin) dados.perfis = somentePerfisDaClinica(dados.perfis);
+        await usuariosDoSistemaAPI.editar(dados);
         successMessage = "Usuário atualizado com sucesso!";
+
+        // Switch "Status de acesso": se mudou, usa a mesma rota do botão da tabela
+        if (typeof values.isAtivo === "boolean" && values.isAtivo !== editingUser.isAtivo) {
+          await usuariosDoSistemaAPI.setStatus(editingUser, values.isAtivo);
+          successMessage = `Usuário atualizado e ${values.isAtivo ? "ativado" : "inativado"} com sucesso!`;
+        }
       } else {
         // Lógica de Cadastro
         await usuariosDoSistemaAPI.cadastrar(values);
@@ -65,6 +74,8 @@ export const useUsuariosDoSistemaManager = () => {
       await buscarDados();
     } catch (error) {
       message.error(error.message);
+      // Na edição os dados podem ter sido salvos antes de o status falhar: atualiza a tabela
+      if (editingUser) await buscarDados();
     } finally {
       // O 'finally' garante que o botão de submit pare de carregar, mesmo se a API der erro.
       setIsSubmitting(false);

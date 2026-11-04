@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using backend.Domain.Utils;
 
 using backend.Domain.SaudeAnimal.Interfaces;
 using backend.Domain.SaudeAnimal.DTOs.Racao;
@@ -35,7 +36,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
         public async Task<IActionResult> GetById(int racaoId)
         {
             var result = await _racaoService.ObterAsync(racaoId);
-            if (!result.Succeeded) return NotFound(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result.Data);
         }
 
@@ -44,7 +45,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
         public async Task<IActionResult> Create([FromBody] CadastrarRacaoDto dto)
         {
             var result = await _racaoService.CadastrarSistemaAsync(dto);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
 
@@ -53,7 +54,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
         public async Task<IActionResult> Update([FromBody] AtualizarRacaoDto dto)
         {
             var result = await _racaoService.EditarAsync(dto);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
 
@@ -62,7 +63,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
         public async Task<IActionResult> Delete(int racaoId)
         {
             var result = await _racaoService.ExcluirAsync(racaoId);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
 
@@ -71,7 +72,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
         public async Task<IActionResult> SetStatus(int racaoId, [FromQuery] bool ativo)
         {
             var result = await _racaoService.SetStatusAsync(racaoId, ativo);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
     }

@@ -3,6 +3,7 @@ import { message } from "antd";
 import { usuariosDaClinicaAPI } from "../../../api/clinica/usuariosDaClinicaAPI.js";
 import { usePaginacaoServidor } from "../../../utils/usePaginacaoServidor";
 import { traduzirFiltrosUsuarioClinica } from "./components/TabelaUsuariosDaClinica/colunas";
+import { somentePerfisDaClinica } from "../../../utils/permissoes";
 
 /**
  * Hook customizado para gerenciar toda a lógica da página de Usuários da Clínica.
@@ -45,9 +46,16 @@ export const useUsuariosDaClinicaManager = () => {
         // Dados pessoais e senha são editados pelo próprio usuário (Meu Perfil) ou pelo admin do sistema.
         await usuariosDaClinicaAPI.editar({
           upcId: editingUser.upcId,
-          perfis: values.perfis,
+          perfis: somentePerfisDaClinica(values.perfis),
         });
         successMessage = "Perfis do usuário atualizados com sucesso!";
+
+        // Switch "Status de acesso": se mudou, usa a mesma rota do botão da tabela
+        const novoStatus = values.isAtivoNaClinica;
+        if (typeof novoStatus === "boolean" && novoStatus !== editingUser.isAtivoNaClinica) {
+          await usuariosDaClinicaAPI.setStatus(editingUser, novoStatus);
+          successMessage = `Usuário atualizado e ${novoStatus ? "ativado" : "inativado"} com sucesso!`;
+        }
       } else {
         // Lógica de Cadastro: se o e-mail já existe no sistema, o backend só vincula o usuário à clínica
         const resultado = await usuariosDaClinicaAPI.cadastrar(values);
@@ -60,6 +68,8 @@ export const useUsuariosDaClinicaManager = () => {
       await fetchUsuarios();
     } catch (error) {
       message.error(error.message);
+      // Na edição os perfis podem ter sido salvos antes de o status falhar: atualiza a tabela
+      if (editingUser) await fetchUsuarios();
     } finally {
       // O 'finally' garante que o botão de submit pare de carregar, mesmo se a API der erro.
       setIsSubmitting(false);

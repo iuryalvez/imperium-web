@@ -37,6 +37,8 @@ namespace backend.Domain.AtendimentoAnimal.Repository
             return await _context.Animais
                 // Inclui a coleção de vínculos com tutores na consulta
                 .Include(a => a.TutoresAnimais)
+                // Inclui o acompanhamento para o detalhe devolver o acompanhamentoId
+                .Include(a => a.Acompanhamento)
                 // Garante que o animal pertence à clínica especificada
                 .Where(a => a.ClinicaId == clinicaId)
                 // Busca o animal específico pelo ID

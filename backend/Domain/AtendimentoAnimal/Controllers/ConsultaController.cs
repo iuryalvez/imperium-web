@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using backend.Domain.Utils;
 
 using backend.Domain.Auth.Extensions;
 using backend.Domain.AtendimentoAnimal.Interfaces;
@@ -46,7 +47,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
             if (usuarioId == null) return Forbid();
 
             var result = await _consultaService.CreateAsync(dto, clinicaId, usuarioId.Value);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
 
             var consultaDto = (DetalhesConsultaDto)result.Data;
             return CreatedAtAction(nameof(GetById), new { consultaId = consultaDto.Id }, consultaDto);
@@ -59,7 +60,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId <= 0) return Forbid();
             var result = await _consultaService.UpdateAsync(dto.Id, dto, clinicaId);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return NoContent();
         }
 
@@ -76,7 +77,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
             if (usuarioId == null) return Forbid();
 
             var result = await _consultaService.CancelarAsync(consultaId, clinicaId, usuarioId.Value, dto?.Motivo);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
 
@@ -88,7 +89,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
             if (clinicaId <= 0) return Forbid();
 
             var result = await _consultaService.ReabrirAsync(consultaId, clinicaId);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
 
@@ -99,11 +100,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             var result = await _consultaService.DeleteAsync(consultaId, clinicaId);
 
-            if (!result.Succeeded)
-            {
-                // O serviço retorna a mensagem de erro apropriada (ex: "Não encontrado" ou "Avaliação já preenchida")
-                return BadRequest(result);
-            }
+            if (!result.Succeeded) return this.Falha(result); // 404 não encontrada, 409 já tem avaliação
 
             // Retorno padrão para um DELETE bem-sucedido.
             return NoContent();

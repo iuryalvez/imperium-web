@@ -40,7 +40,8 @@ namespace backend.Domain.Usuarios.Mappers
                 .ForMember(dest => dest.DataCadastro, opt => opt.MapFrom(src => src.Usuario.DataCadastro))
                 .ForMember(dest => dest.DataUltimoAcesso, opt => opt.MapFrom(src => src.Usuario.DataUltimoAcesso))
                 .ForMember(dest => dest.IsAdmin, opt => opt.MapFrom(src => src.Usuario.IsAdmin))
-                .ForMember(dest => dest.IsAtivo, opt => opt.MapFrom(src => src.Usuario.IsAtivo))
+                // Cada linha é um vínculo: o status mostrado (e alterado pelo botão/switch) é o do vínculo
+                .ForMember(dest => dest.IsAtivo, opt => opt.MapFrom(src => !(src.Perfis != null && src.Perfis.Contains("INATIVO"))))
                 .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.Usuario.Cpf))
                 .ForMember(dest => dest.Formacao, opt => opt.MapFrom(src => src.Usuario.Formacao))
                 .ForMember(dest => dest.Telefone, opt => opt.MapFrom(src => src.Usuario.Telefone))

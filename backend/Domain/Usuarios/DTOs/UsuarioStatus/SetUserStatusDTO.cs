@@ -18,4 +18,7 @@ public class SetUserStatusDto
 
     // Clínica do token (rotas de clínica). Nulo nas rotas do Sistema (admin).
     public int? ClinicaId { get; set; }
+
+    // Vínculo de quem está fazendo a ação (token de vínculo). Nulo para o admin.
+    public int? UpcIdAtual { get; set; }
 }

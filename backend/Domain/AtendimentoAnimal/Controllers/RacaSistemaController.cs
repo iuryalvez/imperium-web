@@ -2,6 +2,7 @@ using backend.Domain.AtendimentoAnimal.DTOs.Raca;
 using backend.Domain.AtendimentoAnimal.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using backend.Domain.Utils;
 
 namespace backend.Domain.AtendimentoAnimal.Controllers
 {
@@ -38,7 +39,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _racaService.ObterAsync(id);
-            if (!result.Succeeded) return NotFound(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result.Data);
         }
 
@@ -47,7 +48,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
         public async Task<IActionResult> Create([FromBody] CadastrarRacaDto dto)
         {
             var result = await _racaService.CadastrarSistemaAsync(dto);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
 
@@ -56,7 +57,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
         public async Task<IActionResult> Update([FromBody] UpdateRacaDto dto)
         {
             var result = await _racaService.EditarAsync(dto);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
 
@@ -65,7 +66,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _racaService.ExcluirAsync(id);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
 
@@ -74,7 +75,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
         public async Task<IActionResult> SetStatus(int id, [FromQuery] bool ativo)
         {
             var result = await _racaService.SetStatusAsync(id, ativo);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
     }

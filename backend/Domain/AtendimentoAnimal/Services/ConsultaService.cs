@@ -44,7 +44,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 if (consulta == null)
                 {
                     _logger.LogWarning("Consulta com ID {ConsultaId} não encontrada.", consultaId);
-                    return new ServiceResult { Succeeded = false, Message = "Consulta não encontrada." };
+                    return ServiceResult.NaoEncontrado("Consulta não encontrada.");
                 }
 
                 _logger.LogInformation("Consulta com ID {ConsultaId} encontrada com sucesso.", consultaId);
@@ -72,7 +72,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 if (consulta == null)
                 {
                     _logger.LogWarning("Consulta com detalhes com ID {ConsultaId} não encontrada.", consultaId);
-                    return new ServiceResult { Succeeded = false, Message = "Consulta não encontrada." };
+                    return ServiceResult.NaoEncontrado("Consulta não encontrada.");
                 }
 
                 _logger.LogInformation(
@@ -133,7 +133,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
         {
             var consulta = await _consultaRepository.GetByIdAndClinicIdAsync(consultaId, clinicaId);
             if (consulta == null)
-                return new ServiceResult { Succeeded = false, Message = "Consulta não encontrada." };
+                return ServiceResult.NaoEncontrado("Consulta não encontrada.");
             if (consulta.DataCancelamento != null)
                 return new ServiceResult { Succeeded = false, Message = "Consulta cancelada não pode ser editada. Reabra-a antes." };
 
@@ -157,7 +157,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
         {
             var consulta = await _consultaRepository.GetByIdAndClinicIdAsync(consultaId, clinicaId);
             if (consulta == null)
-                return new ServiceResult { Succeeded = false, Message = "Consulta não encontrada." };
+                return ServiceResult.NaoEncontrado("Consulta não encontrada.");
             if (consulta.DataCancelamento != null)
                 return new ServiceResult { Succeeded = false, Message = "Esta consulta já está cancelada." };
             if (consulta.Avaliacao != null)
@@ -178,7 +178,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
         {
             var consulta = await _consultaRepository.GetByIdAndClinicIdAsync(consultaId, clinicaId);
             if (consulta == null)
-                return new ServiceResult { Succeeded = false, Message = "Consulta não encontrada." };
+                return ServiceResult.NaoEncontrado("Consulta não encontrada.");
             if (consulta.DataCancelamento == null)
                 return new ServiceResult { Succeeded = false, Message = "Só consultas canceladas podem ser reabertas." };
 
@@ -195,7 +195,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
         /// </summary>
         private async Task<ServiceResult> ValidarAnimalETutorAsync(UpsertConsultaDto dto, int clinicaId, Consulta? consultaAtual)
         {
-            var animal = await _animalRepository.GetByIdAndClinicaIdWithIncludesAsync(dto.AnimalId, clinicaId);
+            var animal = await _animalRepository.GetByIdAndClinicaIdWithIncludesAsync(dto.AnimalId!.Value, clinicaId); // o [Required] do DTO já recusou nulo
             if (animal == null)
                 return new ServiceResult { Succeeded = false, Message = "Animal não encontrado ou não pertence a esta clínica." };
             if (!animal.IsAtivo && consultaAtual?.AnimalId != dto.AnimalId)
@@ -218,13 +218,13 @@ namespace backend.Domain.AtendimentoAnimal.Services
             var consulta = await _consultaRepository.GetByIdAndClinicIdAsync(consultaId, clinicaId);
             if (consulta == null)
             {
-                return new ServiceResult { Succeeded = false, Message = "Consulta não encontrada." };
+                return ServiceResult.NaoEncontrado("Consulta não encontrada.");
             }
 
             // Regra de Negócio Opcional: Impedir exclusão se já houver um relatório.
             if (consulta.Avaliacao != null)
             {
-                return new ServiceResult { Succeeded = false, Message = "Não é possível excluir uma consulta que já possui um relatório preenchido." };
+                return ServiceResult.Conflito("Não é possível excluir uma consulta que já possui um relatório preenchido.");
             }
 
             _consultaRepository.Delete(consulta);

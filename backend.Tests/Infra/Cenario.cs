@@ -15,6 +15,9 @@ namespace backend.Tests.Infra
 
     public record ClinicaDeTeste(int Id, string Nome);
 
+    /// <summary>Usuário de clínica criado no cenário: cliente autenticado, id do vínculo, id do usuário e e-mail.</summary>
+    public record UsuarioDeTeste(HttpClient Cliente, int VinculoId, int UsuarioId, string Email);
+
     /// <summary>
     /// Monta os dados de cada teste direto no banco de teste: clínicas com nome único e usuários por perfil,
     /// e devolve um HttpClient já autenticado. Cada teste cria os próprios dados; nada depende de ordem.
@@ -40,7 +43,11 @@ namespace backend.Tests.Infra
         }
 
         /// <summary>Cria um usuário com vínculo na clínica com os perfis pedidos e devolve um cliente autenticado com o token de vínculo.</summary>
-        public async Task<HttpClient> ClienteAsync(ClinicaDeTeste clinica, params string[] perfis)
+        public async Task<HttpClient> ClienteAsync(ClinicaDeTeste clinica, params string[] perfis) =>
+            (await UsuarioDaClinicaAsync(clinica, perfis)).Cliente;
+
+        /// <summary>Igual a <see cref="ClienteAsync"/>, mas devolve também os ids do vínculo e do usuário.</summary>
+        public async Task<UsuarioDeTeste> UsuarioDaClinicaAsync(ClinicaDeTeste clinica, params string[] perfis)
         {
             await using var contexto = _factory.CriarContexto();
             var usuario = NovoUsuario(isAdmin: false);
@@ -51,7 +58,8 @@ namespace backend.Tests.Infra
             contexto.UsuariosPerfisClinicas.Add(vinculo);
             await contexto.SaveChangesAsync();
 
-            return ClienteComToken(TokenDeTeste.Vinculo(vinculo.Id, usuario.Id, usuario.Nome, clinica.Id, clinica.Nome, perfis));
+            var cliente = ClienteComToken(TokenDeTeste.Vinculo(vinculo.Id, usuario.Id, usuario.Nome, clinica.Id, clinica.Nome, perfis));
+            return new UsuarioDeTeste(cliente, vinculo.Id, usuario.Id, usuario.Email!);
         }
 
         /// <summary>Cria um admin do sistema e devolve um cliente simulando acesso à clínica com os perfis escolhidos.</summary>
@@ -63,6 +71,17 @@ namespace backend.Tests.Infra
             await contexto.SaveChangesAsync();
 
             return ClienteComToken(TokenDeTeste.AdminSimulando(admin.Id, admin.Nome, clinica.Id, clinica.Nome, perfis));
+        }
+
+        /// <summary>Cria um admin do sistema e devolve um cliente com o token de login (rotas api/sistema/...).</summary>
+        public async Task<HttpClient> ClienteAdminSistemaAsync()
+        {
+            await using var contexto = _factory.CriarContexto();
+            var admin = NovoUsuario(isAdmin: true);
+            contexto.Usuarios.Add(admin);
+            await contexto.SaveChangesAsync();
+
+            return ClienteComToken(TokenDeTeste.AdminSistema(admin.Id, admin.Nome));
         }
 
         /// <summary>Cliente sem token (usuário não autenticado).</summary>

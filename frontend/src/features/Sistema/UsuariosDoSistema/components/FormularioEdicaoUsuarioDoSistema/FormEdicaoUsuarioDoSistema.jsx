@@ -12,6 +12,7 @@ import {
 } from "antd";
 import { CpfMaskInput, TelefoneMaskInput } from "../../../../../utils/masks";
 import { validarCPF } from "../../../../../utils/validators";
+import { somentePerfisDaClinica } from "../../../../../utils/permissoes";
 
 const FormEdicaoUsuarioDoSistema = ({
   onFinish,
@@ -36,7 +37,12 @@ const FormEdicaoUsuarioDoSistema = ({
       form={form}
       layout="vertical"
       onFinish={onFinish}
-      initialValues={initialValues}
+      // INATIVO não é opção de perfil: o status fica no switch "Status de acesso"
+      initialValues={
+        initialValues && !initialValues.isAdmin
+          ? { ...initialValues, perfis: somentePerfisDaClinica(initialValues.perfis) }
+          : initialValues
+      }
     >
       <Form.Item name="id" hidden>
         <Input />

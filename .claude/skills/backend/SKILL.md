@@ -72,13 +72,19 @@ A requisição passa por `Controller`, depois `I<Entidade>Service`, depois `I<En
 - Dados pessoais de terceiros por perfil: quando um perfil pode ver a entidade mas não todos os dados (TECNICO vê só o nome do tutor), o controller passa um booleano ao service (ex.: `User.PodeVerDadosDoTutor()`) e o service omite os campos. Não crie DTO paralelo.
 - Multi-tenant: em rotas de clínica o `clinicaId` vem sempre do token, com `var clinicaId = User.GetClaimValue<int>("clinicaId"); if (clinicaId <= 0) return Forbid();`, e é passado ao service. Nunca aceite `clinicaId` do body ou da query.
 - Para gravar quem fez a ação use `User.GetUsuarioId()` (claim `usuarioId`, o id do usuário). Nunca use o `NameIdentifier` do token de vínculo como id de usuário: ele é o id do vínculo.
-- Respostas: falha com `BadRequest(result)` ou `NotFound(...)`; sucesso com `Ok(result)`, `Ok(result.Data)`, `CreatedAtAction` ou `NoContent()`. Mantenha o formato que o frontend já consome naquela entidade.
+- Respostas de falha: sempre `if (!result.Succeeded) return this.Falha(result);` (`Domain/Utils/ServiceResultHttpExtensions.cs`). O status sai do tipo da falha que o service marcou, e o corpo é sempre o `ServiceResult`:
+  - 404: registro da rota inexistente ou de outra clínica (`ServiceResult.NaoEncontrado(msg)`).
+  - 409: conflito com dado existente, como duplicado (CPF, e-mail, CNPJ) ou item em uso que bloqueia a exclusão (`ServiceResult.Conflito(msg)`).
+  - 400: as demais regras e validações (`ServiceResult.Invalido(msg)` ou `new ServiceResult { Succeeded = false, ... }`). Um id inválido que vem no corpo (raça do animal, ração da dieta, tutor da consulta) é 400, não 404: 404 é só para o registro da própria rota.
+  - Nunca escolha o status comparando a mensagem (`Message.Contains("não encontrado")`).
+- Respostas de sucesso: `Ok(result)`, `Ok(result.Data)`, `CreatedAtAction` ou `NoContent()`. Mantenha o formato que o frontend já consome naquela entidade.
 - Sem regra de negócio e sem `AppDbContext` no controller. Há legado assim em `UsuarioController`: não copie.
 
 ### Service
 
 - Implementa `I<Entidade>Service` e recebe repositórios, `IMapper` e `ILogger<T>`. Recebe `AppDbContext` só para transações.
 - Retorna `ServiceResult` (`Succeeded`, `Message`, `Data`, `Errors`) nas operações de escrita. Leituras simples podem devolver o DTO.
+- Falhas de não encontrado e de conflito usam os atalhos `ServiceResult.NaoEncontrado(msg)` e `ServiceResult.Conflito(msg)`, que preenchem `Falha` (`TipoFalha`, com `[JsonIgnore]`, então não muda o JSON). É isso que o controller usa para responder 404 ou 409.
 - Validações de negócio ficam aqui, com mensagens em português: unicidade, vínculo com a clínica, item inativo ou oculto, dependentes antes de excluir.
 - Métodos assíncronos terminam em `Async`. Métodos públicos não triviais têm `/// <summary>`. `#region` é opcional.
 - Operações em várias tabelas usam `await using var transaction = await _context.Database.BeginTransactionAsync();` com `CommitAsync` e `RollbackAsync`.
@@ -101,6 +107,8 @@ A requisição passa por `Controller`, depois `I<Entidade>Service`, depois `I<En
 
 - Cada entidade tem `<Entidade>MappingProfile : Profile` em `Mappers/`. O registro é automático (`AddAutoMapper(..., typeof(Program).Assembly)`).
 - Mapas de edição terminam com `.IgnorarNulosDaOrigem();`: campo nulo no DTO mantém o valor atual. É isso que permite edição parcial sem zerar campos.
+- Nos DTOs de edição, `bool`, `int`, enum e `DateTime` são sempre anuláveis (`bool?`). Um `bool` não-nulo chega como `false` quando o campo não vem e sobrescreve a entidade (já aconteceu com `IsPorcentagem` da ração e `IsAtiva` da clínica).
+- Ao copiar um item do sistema para a clínica, a cópia parte dos dados do original e só depois recebe o DTO (`_mapper.Map(dto, copia)`); assim a cópia não perde o que não veio no DTO.
 - Não use `.ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null))`. Com `int?`, `bool?`, enum ou `DateTime?` nulo, o valor chega como 0, false ou MinValue e sobrescreve a entidade (bug já visto em animal e ração).
 - Campos que nunca vêm do DTO (`ClinicaId`, `IsAtivo`, `DataCadastro`, `DataDesativacao` e `Id` na edição) ficam com `.ForMember(..., opt => opt.Ignore())`.
 
@@ -164,7 +172,7 @@ Use Raça (`RacaController`, `RacaSistemaController`, `RacaService`, `RacaReposi
 12. Rode `dotnet build` com 0 erros e sem warnings novos.
 13. Peça permissão para criar a migration (seção 4).
 14. Avise que o frontend precisa das rotas novas em `frontend/src/services/Endpoints.js` (ou faça isso, se a tarefa incluir o frontend).
-15. Se já existir projeto de testes, cubra o caminho feliz, o isolamento entre clínicas e as regras (skill `testes`). Se não existir, diga o que deveria ser testado.
+15. Cubra a entidade com testes de integração em `backend.Tests/<Entidade>/` (skill `testes`): caminho feliz, isolamento entre clínicas, perfis, validação e regras. Rode `make test`.
 
 ## 6. Quando não houver exemplo no projeto
 
@@ -184,7 +192,8 @@ Se a tarefa pede algo que o projeto ainda não faz (upload de arquivo, envio age
 - Lista nova paginada (`FiltroBase` e `PaginaResultado`), mais recentes primeiro, e select por `/opcoes`.
 - Edição parcial não zera campos (`IgnorarNulosDaOrigem`).
 - DI em `Program.cs` e `DbSet` no `AppDbContext`.
-- `dotnet build` com 0 erros e sem warnings novos.
+- Falhas com `this.Falha(result)`: 404 não encontrado, 409 conflito, 400 regra/validação.
+- `dotnet build` com 0 erros e sem warnings novos, e `make test` passando.
 - Se o modelo mudou, migration pedida ao usuário (não criada sem permissão).
 - Rotas conferidas com `frontend/src/services/Endpoints.js` (skill `frontend`).
 - Nada alterado em `bris-web` ou `https-server`; rotas novas continuam sob `/api/`.

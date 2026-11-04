@@ -19,7 +19,7 @@ namespace backend.Domain.Usuarios.DTOs.Usuario
         [Required(ErrorMessage = "O status de administrador é obrigatório.")]
         public bool IsAdmin { get; set; }
         [Required(ErrorMessage = "O status de administrador é obrigatório.")]
-        public bool IsAtivo { get; set; }
+        public bool IsAtivo { get; set; } = true; // switch "Status" do cadastro; sem o campo, nasce ativo
         public List<int>? ClinicaIds { get; set; }
         public List<string>? Perfis { get; set; }
     }

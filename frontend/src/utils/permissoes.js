@@ -24,6 +24,17 @@ export const PERMISSOES = {
   gerenciaConsultas: [GESTOR, VETERINARIO, SECRETARIO],
 };
 
+/** Perfis que um vínculo pode ter na clínica (o backend recusa qualquer outro). */
+export const PERFIS_DA_CLINICA = [GESTOR, VETERINARIO, SECRETARIO, TECNICO];
+
+/**
+ * Deixa só os perfis da clínica, para preencher e enviar formulários de perfis.
+ * Tira o INATIVO (que é o status do vínculo, mudado pela rota de status) e o ADMIN.
+ * @param {string[]} perfis - perfis como vêm da API (podem incluir "INATIVO").
+ */
+export const somentePerfisDaClinica = (perfis) =>
+  (perfis || []).filter((perfil) => PERFIS_DA_CLINICA.includes(perfil));
+
 /**
  * Confere se algum dos perfis do usuário dá a permissão pedida.
  * @param {string[]} perfis - perfis do vínculo atual (useAuth().perfis).

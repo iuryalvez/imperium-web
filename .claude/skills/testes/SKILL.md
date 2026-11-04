@@ -7,30 +7,46 @@ description: Use ao criar, alterar ou rodar testes automatizados do Imperium (ba
 
 ## Situação atual
 
-O projeto ainda não tem testes automatizados. No frontend existe só o `src/App.test.js` padrão do Create React App, que está quebrado (procura um texto "learn react" que não existe).
+- Backend: existe o projeto `backend.Tests/` (xUnit) com testes de integração e unitários. Rode com `make test`.
+- Frontend: ainda não tem testes. Existe só o `src/App.test.js` padrão do Create React App, que está quebrado (procura um texto "learn react" que não existe).
 
-Criar o projeto de testes, instalar pacotes ou mudar `App.test.js` exige permissão do usuário. Antes disso, explique o que será criado e quais pacotes entram.
+Instalar pacotes ou mudar `App.test.js` exige permissão do usuário. Antes, explique o que será criado e quais pacotes entram.
 
 ## Backend
 
-Estrutura combinada:
+### Como rodar
 
-- Projeto `backend.Tests` ao lado de `backend/`, com xUnit.
-- Testes de integração da API com `WebApplicationFactory<Program>`, chamando as rotas reais.
-- Banco real com Testcontainers para PostgreSQL. Precisa do Docker rodando e não usa o banco local nem o `.env`.
-- Tokens de teste gerados com uma chave JWT só de teste, definida na configuração do próprio projeto de testes. Nunca use a chave real.
-- Rodar com `dotnet test`.
+- `make test`: roda `dotnet test` em `backend.Tests` com o ambiente limpo (`env -i`), para nada do `.env` chegar aos testes.
+- Precisa do Docker rodando: o Testcontainers sobe um `postgres:16-alpine` descartável uma vez por execução e o apaga no fim. Não usa o banco local, o de homologação nem o `.env`.
+- Para rodar um teste só: `cd backend.Tests && dotnet test --filter "FullyQualifiedName~NomeDoTeste"`.
+- O projeto está no `backend/backend.sln`, então `cd backend && dotnet build` compila os testes também.
+
+### Estrutura
+
+- `backend.Tests/Infra/ImperiumApiFactory.cs`: `WebApplicationFactory<Program>` que sobe a API real apontando para o Postgres do Testcontainers e aplica as migrations. A configuração (connection string, `Jwt__*` com chave só de teste, `CookieSecure`, `SwaggerAuth`) entra por variáveis de ambiente de teste. Todas as classes de teste usam `[Collection(ApiCollection.Nome)]`, que compartilha essa factory.
+- `Infra/TokenDeTeste.cs`: gera os mesmos tokens do `TokenService` (vínculo da clínica, admin simulando clínica e login do admin no sistema). O token vai no cookie `auth_token`, e o cliente envia `User-Agent` e `X-Forwarded-For` iguais às claims, porque o `ValidateService` confere IP e navegador.
+- `Infra/Cenario.cs`: cria direto no banco clínicas com nome único e usuários com vínculo por perfil, e devolve clientes autenticados: `ClienteAsync(clinica, perfis)`, `UsuarioDaClinicaAsync` (também devolve ids do vínculo e do usuário), `ClienteAdminSimulandoAsync`, `ClienteAdminSistemaAsync` e `ClienteAnonimo`. Também tem o `GeradorCpf` (CPF válido) e as constantes de `Perfis`.
+- `Infra/ApiDeTeste.cs`: monta os cenários pelas rotas reais (`CadastrarTutorAsync`, `CadastrarAnimalAsync`, `CadastrarRacaDaClinicaAsync`, `CadastrarRacaDoSistemaAsync`, `CadastrarRacaoDaClinicaAsync`, `CadastrarRacaoDoSistemaAsync`, `CadastrarConsultaAsync`) e lê JSON (`LerAsync<T>`, `LerIdDoDataAsync`, `ResultadoComDados<T>`). `RegistrarAvaliacaoComRacaoAsync` grava uma avaliação mínima no banco para deixar uma ração "em uso".
+- Uma pasta por entidade, com `<Entidade>Tests.cs`: `Tutores`, `Animais`, `Racas`, `Racoes`, `Consultas`, `Sistema` (catálogo do admin), `Clinicas` (dashboard, dados da clínica e clínicas do admin) e `Usuarios` (vínculos).
+- `Unitarios/`: testes sem banco nem API, para lógica pura (hoje, o cálculo de necessidade energética, com valores do NRC 2006 calculados à parte).
+
+### Regras para escrever testes
+
+- Cada teste cria os próprios dados (clínica nova por teste); nada depende de ordem nem de outro teste.
+- O catálogo do sistema (raças e rações com `ClinicaId` nulo) e as seeds são compartilhados por todos os testes. Em listas e opções que trazem itens do sistema, filtre por nome único (`Cenario.Unico()`) ou por `?origem=clinica`.
+- Use só os asserts do xUnit. Depois de uma tentativa negada (403, 404 de outra clínica), confira também que o dado não mudou.
+- Testes usam só dados fictícios.
 
 O que cobrir em cada funcionalidade:
 
 - Caminho feliz: cadastrar, listar, detalhar, editar, mudar status e excluir.
-- Isolamento: um usuário da clínica A não lê, edita, exclui nem vincula dados da clínica B (deve receber "não encontrado" ou 403).
-- Perfis: perfil sem permissão recebe 403 (por exemplo TECNICO tentando cadastrar animal).
-- Validação: entrada inválida recebe 400 com mensagem em português.
+- Isolamento: um usuário da clínica A não lê, edita, exclui nem vincula dados da clínica B (deve receber 404, e o dado de A continua igual).
+- Perfis: perfil sem permissão recebe 403 (por exemplo SECRETARIO tentando cadastrar animal).
+- Códigos de erro (ver skill `backend`): 404 para registro da rota inexistente ou de outra clínica, 409 para duplicado ou item em uso, 400 com mensagem em português para validação e regras.
 - Regras de negócio: CPF único por clínica, item inativo recusado em registro novo, item oculto recusado, exclusão bloqueada quando em uso, cópia ao editar item do sistema, edição parcial que não zera campos.
 - Paginação: total, página, tamanho máximo, busca, ordenação e mais recentes primeiro.
 
-Nome dos testes no formato `Metodo_Situacao_Resultado`, por exemplo `Cadastrar_CpfJaExisteNaClinica_RetornaBadRequest`.
+Nome dos testes no formato `Metodo_Situacao_Resultado`, por exemplo `Cadastrar_CpfJaExisteNaClinica_RetornaConflict`.
 
 ## Frontend
 

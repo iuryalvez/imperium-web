@@ -6,6 +6,9 @@ namespace backend.Domain.Auth.Extensions {
         /// <summary>Marcador de vínculo desativado na lista de perfis (UsuarioPerfilClinica.Perfis).</summary>
         public const string PerfilInativo = "INATIVO";
 
+        /// <summary>Perfis que um vínculo pode ter na clínica (além do marcador INATIVO).</summary>
+        public static readonly string[] PerfisDaClinica = { "GESTOR", "VETERINARIO", "SECRETARIO", "TECNICO" };
+
         /// <summary>
         /// Obtém o valor de uma claim específica e converte para o tipo desejado.
         /// </summary>

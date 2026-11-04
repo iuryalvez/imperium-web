@@ -172,6 +172,18 @@ public class UsuarioRepository : IUsuarioRepository
             .ToListAsync();
     }
 
+    /// <summary>Consultas marcadas ou canceladas e avaliações preenchidas pelo usuário: histórico que impede excluí-lo.</summary>
+    public async Task<bool> PossuiHistoricoAsync(int userId)
+    {
+        return await _context.Consultas.AsNoTracking().AnyAsync(c => c.UsuarioId == userId || c.CanceladaPorUsuarioId == userId)
+            || await _context.Avaliacoes.AsNoTracking().AnyAsync(a => a.UsuarioResponsavelId == userId);
+    }
+
+    public async Task<IdentityResult> DeleteUserAsync(Usuario user)
+    {
+        return await _userManager.DeleteAsync(user);
+    }
+
     public async Task<UsuarioPerfilClinica> GetVinculoByIdAsync(int upcId)
     {
         return await _context.UsuariosPerfisClinicas.FindAsync(upcId);

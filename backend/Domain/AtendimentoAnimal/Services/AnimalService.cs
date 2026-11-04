@@ -61,7 +61,7 @@ public class AnimalService : IAnimalService
         if (animal == null)
         {
             _logger.LogWarning("Busca por animal com ID {AnimalId} não encontrou resultados.", animalId);
-            return new ServiceResult { Succeeded = false, Message = $"Animal com Id {animalId} não encontrado." };
+            return ServiceResult.NaoEncontrado($"Animal com Id {animalId} não encontrado.");
         }
         return new ServiceResult { Succeeded = true, Data = animal };
     }
@@ -80,7 +80,7 @@ public class AnimalService : IAnimalService
         if (animal == null)
         {
             _logger.LogWarning("Animal {AnimalId} não encontrado ou não pertence à clínica {ClinicaId}.", animalId, clinicaId);
-            return new ServiceResult { Succeeded = false, Message = $"Animal com ID {animalId} não encontrado nesta clínica." };
+            return ServiceResult.NaoEncontrado($"Animal com ID {animalId} não encontrado nesta clínica.");
         }
         return new ServiceResult { Succeeded = true, Data = animal };
     }
@@ -140,7 +140,7 @@ public class AnimalService : IAnimalService
         if (animalEntity == null)
         {
             _logger.LogWarning("Histórico do animal {AnimalId} não encontrado para a clínica {ClinicaId}.", animalId, clinicaId);
-            return new ServiceResult { Succeeded = false, Message = "Animal não encontrado nesta clínica." };
+            return ServiceResult.NaoEncontrado("Animal não encontrado nesta clínica.");
         }
         var animalDto = _mapper.Map<AnimalCompletoDto>(animalEntity);
         if (!incluirDadosDoTutor)
@@ -171,6 +171,10 @@ public class AnimalService : IAnimalService
         // A raça precisa estar disponível para a clínica, ativa e não oculta
         var resultadoRaca = await _racaService.ValidarSelecionavelAsync(dto.RacaId, clinicaId);
         if (!resultadoRaca.Succeeded) return resultadoRaca;
+
+        // A raça precisa ser da espécie do animal (o formulário já filtra; a API também recusa)
+        var resultadoEspecie = await _racaService.ValidarEspecieAsync(dto.RacaId, clinicaId, dto.Especie);
+        if (!resultadoEspecie.Succeeded) return resultadoEspecie;
 
         await using var transaction = await _context.Database.BeginTransactionAsync();
         try
@@ -243,6 +247,19 @@ public class AnimalService : IAnimalService
                 }
             }
 
+            // Mudou a raça ou a espécie: a raça final precisa ser da espécie final
+            var racaFinal = dto.RacaId ?? animal.RacaId;
+            var especieFinal = dto.Especie ?? animal.Especie;
+            if (racaFinal.HasValue && ((dto.RacaId.HasValue && dto.RacaId != animal.RacaId) || especieFinal != animal.Especie))
+            {
+                var resultadoEspecie = await _racaService.ValidarEspecieAsync(racaFinal.Value, clinicaId, especieFinal);
+                if (!resultadoEspecie.Succeeded)
+                {
+                    await transaction.RollbackAsync();
+                    return resultadoEspecie;
+                }
+            }
+
             _mapper.Map(dto, animal);
             animal.DataModificado = DateTime.UtcNow;
 
@@ -288,7 +305,7 @@ public class AnimalService : IAnimalService
             if (animal == null)
             {
                 _logger.LogWarning("Animal {AnimalId} não encontrado na clínica {ClinicaId}.", animalId, clinicaId);
-                return new ServiceResult { Succeeded = false, Message = "Animal não encontrado nesta clínica." };
+                return ServiceResult.NaoEncontrado("Animal não encontrado nesta clínica.");
             }
 
             animal.IsAtivo = ativo;
@@ -320,12 +337,12 @@ public class AnimalService : IAnimalService
             if (animal == null)
             {
                 _logger.LogWarning("Tentativa de excluir animal {AnimalId} que não pertence à clínica {ClinicaId}.", animalId, clinicaId);
-                return new ServiceResult { Succeeded = false, Message = $"Animal com ID {animalId} não encontrado nesta clínica." };
+                return ServiceResult.NaoEncontrado($"Animal com ID {animalId} não encontrado nesta clínica.");
             }
 
             if (await _animalRepository.HasConsultasAsync(animalId))
             {
-                return new ServiceResult { Succeeded = false, Message = "Este animal possui consultas registradas e não pode ser excluído. Desative-o." };
+                return ServiceResult.Conflito("Este animal possui consultas registradas e não pode ser excluído. Desative-o.");
             }
 
             if (animal.TutoresAnimais != null && animal.TutoresAnimais.Any())

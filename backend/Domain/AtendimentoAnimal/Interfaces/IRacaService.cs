@@ -18,6 +18,9 @@ namespace backend.Domain.AtendimentoAnimal.Interfaces
         Task<ServiceResult> SetOcultaAsync(int id, int clinicaId, bool oculta);
         Task<ServiceResult> ValidarSelecionavelAsync(int racaId, int clinicaId);
 
+        /// <summary>Confere se a raça (disponível para a clínica) é da espécie informada.</summary>
+        Task<ServiceResult> ValidarEspecieAsync(int racaId, int clinicaId, EspecieAnimal especie);
+
         // --- Sistema (admin) ---
         Task<PaginaResultado<GetRacaDto>> ListarSistemaAsync(RacaFiltro filtro);
         Task<PaginaResultado<GetRacaDto>> ListarCopiasAsync(RacaFiltro filtro);

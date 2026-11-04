@@ -4,6 +4,7 @@ using backend.Domain.AtendimentoAnimal.Interfaces;
 using backend.Domain.Auth.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using backend.Domain.Utils;
 
 namespace backend.Domain.AtendimentoAnimal.Controllers
 {
@@ -46,7 +47,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId <= 0) return Forbid();
             var result = await _racaService.ObterDaClinicaAsync(id, clinicaId);
-            if (!result.Succeeded) return NotFound(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result.Data);
         }
 
@@ -57,7 +58,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId <= 0) return Forbid();
             var result = await _racaService.CadastrarDaClinicaAsync(dto, clinicaId);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
 
@@ -68,7 +69,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId <= 0) return Forbid();
             var result = await _racaService.EditarDaClinicaAsync(dto, clinicaId);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
 
@@ -79,7 +80,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId <= 0) return Forbid();
             var result = await _racaService.ExcluirDaClinicaAsync(id, clinicaId);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
 
@@ -90,7 +91,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId <= 0) return Forbid();
             var result = await _racaService.SetStatusDaClinicaAsync(id, clinicaId, ativo);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
 
@@ -101,7 +102,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             if (clinicaId <= 0) return Forbid();
             var result = await _racaService.SetOcultaAsync(id, clinicaId, oculta);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
     }

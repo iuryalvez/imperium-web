@@ -38,8 +38,8 @@ namespace backend.Domain.GestaoClinica.DTOs
         [StringLength(30, ErrorMessage = "O instagram da clínica deve ter no máximo 30 caracteres.")]
         public string? Instagram { get; set; }
 
-        [Required(ErrorMessage = "O status da clínica é obrigatório.")]
-        public bool IsAtiva { get; set; }
+        // Nulo mantém o status atual (edição parcial). Antes era bool: sem o campo, a clínica era desativada.
+        public bool? IsAtiva { get; set; }
 
         // Endereço
         [StringLength(8, ErrorMessage = "O CEP deve ter no máximo 8 dígitos.")]

@@ -30,6 +30,8 @@ namespace backend.Domain.Usuarios.Interfaces
         Task<IdentityResult> UpdateUserPasswordAsync(Usuario user, string newPassword);
         Task<IEnumerable<UsuarioPerfilClinica>> GetAllVinculosSistemaAsync();
         Task<List<UsuarioPerfilClinica>> GetAllVinculosByUserIdAsync(int userId);
+        Task<bool> PossuiHistoricoAsync(int userId);
+        Task<IdentityResult> DeleteUserAsync(Usuario user);
         Task<UsuarioPerfilClinica> GetVinculoByIdAsync(int upcId);
         Task RemoveVinculoAsync(UsuarioPerfilClinica vinculo);
         Task<int> SaveChangesAsync();

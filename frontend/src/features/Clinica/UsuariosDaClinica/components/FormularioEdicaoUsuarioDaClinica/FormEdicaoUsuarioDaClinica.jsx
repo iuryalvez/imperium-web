@@ -1,6 +1,7 @@
 import React from "react";
 import { Form, Input, Checkbox, Row, Col, Divider, Switch, Alert } from "antd";
 import { CpfMaskInput, TelefoneMaskInput } from "../../../../../utils/masks";
+import { somentePerfisDaClinica } from "../../../../../utils/permissoes";
 
 const FormEdicaoUsuarioDaClinica = ({
   onFinish,
@@ -22,7 +23,8 @@ const FormEdicaoUsuarioDaClinica = ({
       form={form}
       layout="vertical"
       onFinish={onFinish}
-      initialValues={initialValues}
+      // INATIVO não é opção de perfil: o status fica no switch "Status de acesso"
+      initialValues={initialValues && { ...initialValues, perfis: somentePerfisDaClinica(initialValues.perfis) }}
     >
       {/* IDs necessários para o backend, mas ocultos para o usuário */}
       <Form.Item name="id" hidden>

@@ -204,6 +204,97 @@ namespace backend.Tests.Tutores
             Assert.Equal(HttpStatusCode.NotFound, (await gestor.GetAsync($"{Rota}/{id}")).StatusCode);
         }
 
+        [Fact]
+        public async Task Excluir_TutorComConsultas_RetornaConflictENaoRemove()
+        {
+            var clinica = await _cenario.CriarClinicaAsync("A");
+            var gestor = await _cenario.ClienteAsync(clinica, Perfis.Gestor);
+            var id = await CadastrarAsync(gestor, GeradorCpf.Novo(), "Tutor com Consulta");
+            var racaId = await ApiDeTeste.CadastrarRacaDaClinicaAsync(gestor);
+            var animalId = await ApiDeTeste.CadastrarAnimalAsync(gestor, racaId, tutorIds: new[] { id });
+            await ApiDeTeste.CadastrarConsultaAsync(gestor, animalId, id);
+
+            var resposta = await gestor.DeleteAsync($"{Rota}/{id}");
+
+            Assert.Equal(HttpStatusCode.Conflict, resposta.StatusCode);
+            Assert.Contains("possui consultas registradas", await resposta.Content.ReadAsStringAsync());
+            Assert.Equal(HttpStatusCode.OK, (await gestor.GetAsync($"{Rota}/{id}")).StatusCode);
+        }
+
+        [Fact]
+        public async Task Cadastrar_ComAnimalInativo_RetornaBadRequestENaoCadastra()
+        {
+            var clinica = await _cenario.CriarClinicaAsync("A");
+            var gestor = await _cenario.ClienteAsync(clinica, Perfis.Gestor);
+            var racaId = await ApiDeTeste.CadastrarRacaDaClinicaAsync(gestor);
+            var animalId = await ApiDeTeste.CadastrarAnimalAsync(gestor, racaId);
+            await gestor.PutAsync($"/api/clinica/animais/{animalId}/status?ativo=false", null);
+
+            var resposta = await gestor.PostAsJsonAsync($"{Rota}/cadastrar",
+                new { nome = "Tutor Novo", cpf = GeradorCpf.Novo(), email = "novo@teste.local", animalIds = new[] { animalId } });
+
+            Assert.Equal(HttpStatusCode.BadRequest, resposta.StatusCode);
+            Assert.Contains("Um ou mais animais selecionados estão inativos.", await resposta.Content.ReadAsStringAsync());
+            Assert.Equal(0, (await ListarAsync(gestor, "")).Total);
+        }
+
+        [Fact]
+        public async Task Cadastrar_ComAnimalDeOutraClinica_RetornaBadRequest()
+        {
+            var clinicaA = await _cenario.CriarClinicaAsync("A");
+            var clinicaB = await _cenario.CriarClinicaAsync("B");
+            var gestorA = await _cenario.ClienteAsync(clinicaA, Perfis.Gestor);
+            var gestorB = await _cenario.ClienteAsync(clinicaB, Perfis.Gestor);
+            var racaDeB = await ApiDeTeste.CadastrarRacaDaClinicaAsync(gestorB);
+            var animalDeB = await ApiDeTeste.CadastrarAnimalAsync(gestorB, racaDeB);
+
+            var resposta = await gestorA.PostAsJsonAsync($"{Rota}/cadastrar",
+                new { nome = "Tutor de A", cpf = GeradorCpf.Novo(), email = "a@teste.local", animalIds = new[] { animalDeB } });
+
+            Assert.Equal(HttpStatusCode.BadRequest, resposta.StatusCode);
+            Assert.Contains("não pertencem à clínica", await resposta.Content.ReadAsStringAsync());
+        }
+
+        [Fact]
+        public async Task Editar_MantendoAnimalQueFicouInativo_RetornaNoContent()
+        {
+            var clinica = await _cenario.CriarClinicaAsync("A");
+            var gestor = await _cenario.ClienteAsync(clinica, Perfis.Gestor);
+            var racaId = await ApiDeTeste.CadastrarRacaDaClinicaAsync(gestor);
+            var animalId = await ApiDeTeste.CadastrarAnimalAsync(gestor, racaId);
+            var cpf = GeradorCpf.Novo();
+            var cadastro = await gestor.PostAsJsonAsync($"{Rota}/cadastrar",
+                new { nome = "Tutor Fiel", cpf, email = "fiel@teste.local", animalIds = new[] { animalId } });
+            var id = await LerTutorIdAsync(cadastro);
+            await gestor.PutAsync($"/api/clinica/animais/{animalId}/status?ativo=false", null);
+
+            var resposta = await gestor.PutAsJsonAsync($"{Rota}/editar",
+                new { id, nome = "Tutor Fiel Editado", cpf, email = "fiel@teste.local", animalIds = new[] { animalId } });
+
+            Assert.Equal(HttpStatusCode.NoContent, resposta.StatusCode);
+            var tutor = await ObterAsync(gestor, id);
+            Assert.Equal("Tutor Fiel Editado", tutor.Nome);
+            Assert.Contains(tutor.Animais!, a => a.Id == animalId);
+        }
+
+        [Fact]
+        public async Task Editar_AdicionandoAnimalInativo_RetornaBadRequest()
+        {
+            var clinica = await _cenario.CriarClinicaAsync("A");
+            var gestor = await _cenario.ClienteAsync(clinica, Perfis.Gestor);
+            var racaId = await ApiDeTeste.CadastrarRacaDaClinicaAsync(gestor);
+            var animalId = await ApiDeTeste.CadastrarAnimalAsync(gestor, racaId);
+            await gestor.PutAsync($"/api/clinica/animais/{animalId}/status?ativo=false", null);
+            var cpf = GeradorCpf.Novo();
+            var id = await CadastrarAsync(gestor, cpf, "Tutor Sem Animal");
+
+            var resposta = await gestor.PutAsJsonAsync($"{Rota}/editar",
+                new { id, nome = "Tutor Sem Animal", cpf, email = "sem@teste.local", animalIds = new[] { animalId } });
+
+            Assert.Equal(HttpStatusCode.BadRequest, resposta.StatusCode);
+            Assert.Contains("Um ou mais animais selecionados estão inativos.", await resposta.Content.ReadAsStringAsync());
+        }
+
         #endregion
 
         #region CPF único por clínica

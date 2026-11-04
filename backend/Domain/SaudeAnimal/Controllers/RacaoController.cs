@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using backend.Domain.Utils;
 
 using backend.Domain.Auth.Extensions;
 using backend.Domain.SaudeAnimal.Interfaces;
@@ -44,7 +45,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
             if (clinicaId <= 0) return Forbid();
 
             var result = await _racaoService.ObterDtoPorIdAsync(racaoId, clinicaId);
-            if (!result.Succeeded) return NotFound(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result.Data);
         }
 
@@ -56,7 +57,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
             if (clinicaId <= 0) return Forbid();
 
             var result = await _racaoService.CreateAsync(dto, clinicaId);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
 
@@ -68,7 +69,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
             if (clinicaId <= 0) return Forbid();
 
             var result = await _racaoService.UpdateAsync(dto, clinicaId);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
 
@@ -80,7 +81,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
             if (clinicaId <= 0) return Forbid();
 
             var result = await _racaoService.DeleteAsync(racaoId, clinicaId);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
 
@@ -92,7 +93,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
             if (clinicaId <= 0) return Forbid();
 
             var result = await _racaoService.SetStatusDaClinicaAsync(racaoId, clinicaId, ativo);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
 
@@ -104,7 +105,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
             if (clinicaId <= 0) return Forbid();
 
             var result = await _racaoService.SetOcultaAsync(racaoId, clinicaId, oculta);
-            if (!result.Succeeded) return BadRequest(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
     }

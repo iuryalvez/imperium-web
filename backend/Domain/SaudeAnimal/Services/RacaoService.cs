@@ -52,7 +52,7 @@ public class RacaoService : IRacaoService
         if (racao == null)
         {
             _logger.LogWarning("Ração ID {RacaoId} não encontrada ou não pertence à clínica ID {ClinicaId}.", racaoId, clinicaId);
-            return Falha(MsgNaoEncontrada);
+            return ServiceResult.NaoEncontrado(MsgNaoEncontrada);
         }
         return new ServiceResult { Succeeded = true, Data = racao };
     }
@@ -65,7 +65,9 @@ public class RacaoService : IRacaoService
     public async Task<ServiceResult> ObterSelecionavelAsync(int racaoId, int clinicaId, int? racaoAtualId = null)
     {
         var resultado = await ObterPorIdEClinicaIdAsync(racaoId, clinicaId);
-        if (!resultado.Succeeded || racaoAtualId == racaoId) return resultado;
+        // A ração vem no corpo de outro registro (dieta, avaliação): inexistente é erro de validação (400), não 404
+        if (!resultado.Succeeded) return Falha("A ração selecionada não existe ou não pertence a esta clínica.");
+        if (racaoAtualId == racaoId) return resultado;
 
         var racao = (Racao)resultado.Data;
         if (!racao.IsAtivo) return Falha("A ração selecionada está inativa.");
@@ -194,7 +196,7 @@ public class RacaoService : IRacaoService
     public async Task<ServiceResult> ObterAsync(int racaoId)
     {
         var racao = await _racaoRepository.GetByIdAsync(racaoId);
-        if (racao == null) return Falha("Ração não encontrada.");
+        if (racao == null) return ServiceResult.NaoEncontrado("Ração não encontrada.");
         return new ServiceResult { Succeeded = true, Data = _mapper.Map<GetRacoesDto>(racao) };
     }
 
@@ -208,21 +210,21 @@ public class RacaoService : IRacaoService
     public async Task<ServiceResult> EditarAsync(AtualizarRacaoDto dto)
     {
         var racao = await _racaoRepository.GetByIdAsync(dto.Id);
-        if (racao == null) return Falha("Ração não encontrada.");
+        if (racao == null) return ServiceResult.NaoEncontrado("Ração não encontrada.");
         return await AtualizarEntidadeAsync(racao, dto);
     }
 
     public async Task<ServiceResult> ExcluirAsync(int racaoId)
     {
         var racao = await _racaoRepository.GetByIdAsync(racaoId);
-        if (racao == null) return Falha("Ração não encontrada.");
+        if (racao == null) return ServiceResult.NaoEncontrado("Ração não encontrada.");
         return await ExcluirEntidadeAsync(racao);
     }
 
     public async Task<ServiceResult> SetStatusAsync(int racaoId, bool ativo)
     {
         var racao = await _racaoRepository.GetByIdAsync(racaoId);
-        if (racao == null) return Falha("Ração não encontrada.");
+        if (racao == null) return ServiceResult.NaoEncontrado("Ração não encontrada.");
         return await AplicarStatusAsync(racao, ativo);
     }
 
@@ -260,7 +262,7 @@ public class RacaoService : IRacaoService
 
     private async Task<ServiceResult> ExcluirEntidadeAsync(Racao racao)
     {
-        if (await _racaoRepository.EmUsoAsync(racao.Id)) return Falha(MsgEmUso);
+        if (await _racaoRepository.EmUsoAsync(racao.Id)) return ServiceResult.Conflito(MsgEmUso);
 
         _racaoRepository.Delete(racao);
         await _racaoRepository.SaveChangesAsync();

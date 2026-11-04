@@ -45,6 +45,7 @@ Use sempre o Makefile, que carrega o `.env` e exporta as variáveis (banco, JWT,
 - Aplicar migrations no banco local: `make dev-database-update`, só com permissão.
 - Verificação rápida do backend sem banco: `cd backend && dotnet build`.
 - Verificação do frontend: `cd frontend && npm run build`.
+- Testes do backend: `make test` (precisa do Docker; não usa o `.env` nem o banco local).
 
 Subir API, frontend ou containers exige permissão do usuário.
 
@@ -69,4 +70,4 @@ Subir API, frontend ou containers exige permissão do usuário.
 - O frontend compila (`npm run build` em `frontend/`) quando houver mudança nele.
 - As rotas do backend batem com `frontend/src/services/Endpoints.js`.
 - Mudança de tela conferida pelo teste visual ou com roteiro entregue ao usuário.
-- Testes automatizados ainda não existem (pendência do projeto, ver skill `testes`).
+- `make test` passando (testes do backend em `backend.Tests`, precisa do Docker; ver skill `testes`). Mudança no backend vem com teste da regra.

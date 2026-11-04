@@ -54,7 +54,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
         public async Task<ServiceResult> ObterDaClinicaAsync(int id, int clinicaId)
         {
             var raca = await _racaRepository.GetDisponivelParaClinicaAsync(id, clinicaId);
-            if (raca == null) return Falha(MsgNaoEncontrada);
+            if (raca == null) return ServiceResult.NaoEncontrado(MsgNaoEncontrada);
 
             var dto = _mapper.Map<GetRacaDto>(raca);
             dto.IsOculta = (await _racaRepository.GetOcultaAsync(id, clinicaId)) != null;
@@ -73,16 +73,27 @@ namespace backend.Domain.AtendimentoAnimal.Services
         public async Task<ServiceResult> EditarDaClinicaAsync(UpdateRacaDto dto, int clinicaId)
         {
             var raca = await _racaRepository.GetDisponivelParaClinicaAsync(dto.Id, clinicaId);
-            if (raca == null) return Falha(MsgNaoEncontrada);
+            if (raca == null) return ServiceResult.NaoEncontrado(MsgNaoEncontrada);
 
             if (raca.ClinicaId == null)
             {
                 _logger.LogInformation("A raça {RacaId} é do sistema. Criando cópia para a clínica {ClinicaId}.", raca.Id, clinicaId);
-                var copia = _mapper.Map<Raca>(dto);
+                // A cópia parte dos dados da raça do sistema; o DTO só sobrescreve o que veio preenchido
+                var copia = new Raca
+                {
+                    Nome = raca.Nome,
+                    Especie = raca.Especie,
+                    Porte = raca.Porte,
+                    Referencia = raca.Referencia,
+                    CategoriaMetabolica = raca.CategoriaMetabolica,
+                    PesoMinimoReferenciaFemea = raca.PesoMinimoReferenciaFemea,
+                    PesoMaximoReferenciaFemea = raca.PesoMaximoReferenciaFemea,
+                    PesoMinimoReferenciaMacho = raca.PesoMinimoReferenciaMacho,
+                    PesoMaximoReferenciaMacho = raca.PesoMaximoReferenciaMacho,
+                };
+                _mapper.Map(dto, copia);
                 copia.Id = 0; // Garante que será tratada como uma nova entidade pelo ORM.
                 copia.ClinicaId = clinicaId;
-                copia.Porte = raca.Porte;
-                copia.Referencia = raca.Referencia;
                 copia.IsAtivo = true;
                 copia.DataCadastro = DateTime.UtcNow;
 
@@ -104,7 +115,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
         public async Task<ServiceResult> ExcluirDaClinicaAsync(int id, int clinicaId)
         {
             var raca = await _racaRepository.GetDisponivelParaClinicaAsync(id, clinicaId);
-            if (raca == null) return Falha(MsgNaoEncontrada);
+            if (raca == null) return ServiceResult.NaoEncontrado(MsgNaoEncontrada);
             if (raca.ClinicaId == null)
             {
                 _logger.LogWarning("A clínica {ClinicaId} tentou excluir a raça do sistema {RacaId}.", clinicaId, id);
@@ -117,7 +128,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
         public async Task<ServiceResult> SetStatusDaClinicaAsync(int id, int clinicaId, bool ativo)
         {
             var raca = await _racaRepository.GetDisponivelParaClinicaAsync(id, clinicaId);
-            if (raca == null) return Falha(MsgNaoEncontrada);
+            if (raca == null) return ServiceResult.NaoEncontrado(MsgNaoEncontrada);
             if (raca.ClinicaId == null)
                 return Falha("Raças do sistema são ativadas/desativadas pelo administrador. Você pode ocultá-la para esta clínica.");
 
@@ -128,7 +139,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
         public async Task<ServiceResult> SetOcultaAsync(int id, int clinicaId, bool oculta)
         {
             var raca = await _racaRepository.GetDisponivelParaClinicaAsync(id, clinicaId);
-            if (raca == null) return Falha(MsgNaoEncontrada);
+            if (raca == null) return ServiceResult.NaoEncontrado(MsgNaoEncontrada);
             if (raca.ClinicaId != null)
                 return Falha("Só raças do sistema podem ser ocultadas. Para raças da clínica, use desativar.");
 
@@ -160,6 +171,18 @@ namespace backend.Domain.AtendimentoAnimal.Services
             return new ServiceResult { Succeeded = true };
         }
 
+        /// <summary>
+        /// Confere se a raça é da espécie do animal. Não olha ativa/oculta: serve também para a edição,
+        /// em que manter a raça atual (mesmo inativa) é permitido.
+        /// </summary>
+        public async Task<ServiceResult> ValidarEspecieAsync(int racaId, int clinicaId, EspecieAnimal especie)
+        {
+            var raca = await _racaRepository.GetDisponivelParaClinicaAsync(racaId, clinicaId);
+            if (raca == null) return Falha("A raça selecionada não existe ou não pertence a esta clínica.");
+            if (raca.Especie != especie) return Falha("A raça escolhida não pertence à espécie do animal.");
+            return new ServiceResult { Succeeded = true };
+        }
+
         #endregion
 
         #region Sistema (admin)
@@ -179,7 +202,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
         public async Task<ServiceResult> ObterAsync(int id)
         {
             var raca = await _racaRepository.GetByIdAsync(id);
-            if (raca == null) return Falha(MsgNaoEncontrada);
+            if (raca == null) return ServiceResult.NaoEncontrado(MsgNaoEncontrada);
             return new ServiceResult { Succeeded = true, Data = _mapper.Map<GetRacaDto>(raca) };
         }
 
@@ -193,7 +216,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
         public async Task<ServiceResult> EditarAsync(UpdateRacaDto dto)
         {
             var raca = await _racaRepository.GetByIdAsync(dto.Id);
-            if (raca == null) return Falha(MsgNaoEncontrada);
+            if (raca == null) return ServiceResult.NaoEncontrado(MsgNaoEncontrada);
 
             _mapper.Map(dto, raca);
             await _racaRepository.SaveChangesAsync();
@@ -203,14 +226,14 @@ namespace backend.Domain.AtendimentoAnimal.Services
         public async Task<ServiceResult> ExcluirAsync(int id)
         {
             var raca = await _racaRepository.GetByIdAsync(id);
-            if (raca == null) return Falha(MsgNaoEncontrada);
+            if (raca == null) return ServiceResult.NaoEncontrado(MsgNaoEncontrada);
             return await ExcluirEntidadeAsync(raca);
         }
 
         public async Task<ServiceResult> SetStatusAsync(int id, bool ativo)
         {
             var raca = await _racaRepository.GetByIdAsync(id);
-            if (raca == null) return Falha(MsgNaoEncontrada);
+            if (raca == null) return ServiceResult.NaoEncontrado(MsgNaoEncontrada);
             return await AplicarStatusAsync(raca, ativo);
         }
 
@@ -234,7 +257,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
 
         private async Task<ServiceResult> ExcluirEntidadeAsync(Raca raca)
         {
-            if (await _racaRepository.EmUsoAsync(raca.Id)) return Falha(MsgEmUso);
+            if (await _racaRepository.EmUsoAsync(raca.Id)) return ServiceResult.Conflito(MsgEmUso);
 
             _racaRepository.Delete(raca);
             await _racaRepository.SaveChangesAsync();

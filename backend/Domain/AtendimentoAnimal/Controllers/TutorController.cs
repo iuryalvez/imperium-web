@@ -54,7 +54,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             var result = await _tutorService.CreateAsync(dto, clinicaId);
-            if (!result.Succeeded) return Falha(result);
+            if (!result.Succeeded) return this.Falha(result);
 
             return Ok(result);
         }
@@ -65,7 +65,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             var result = await _tutorService.UpdateAsync(dto, clinicaId);
-            if (!result.Succeeded) return Falha(result);
+            if (!result.Succeeded) return this.Falha(result);
             return NoContent();
         }
 
@@ -76,7 +76,7 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             var result = await _tutorService.SetTutorStatusAsync(tutorId, clinicaId, ativo);
 
-            if (!result.Succeeded) return Falha(result);
+            if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
 
@@ -86,19 +86,8 @@ namespace backend.Domain.AtendimentoAnimal.Controllers
         {
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             var result = await _tutorService.DeleteAsync(tutorId, clinicaId);
-            if (!result.Succeeded) return Falha(result);
+            if (!result.Succeeded) return this.Falha(result);
             return NoContent();
         }
-
-        /// <summary>
-        /// Converte a falha do service no status HTTP: 404 para tutor inexistente ou de outra clínica,
-        /// 409 para CPF já cadastrado na clínica e 400 para as demais regras. O corpo é sempre o ServiceResult.
-        /// </summary>
-        private IActionResult Falha(ServiceResult result) => result.Falha switch
-        {
-            TipoFalha.NaoEncontrado => NotFound(result),
-            TipoFalha.Conflito => Conflict(result),
-            _ => BadRequest(result),
-        };
     }
 }

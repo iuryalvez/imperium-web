@@ -8,10 +8,11 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Raca
         public int Id { get; set; }
 
         [Required(ErrorMessage = "O nome da raça é obrigatório.")]
-        [StringLength(100)]
+        [StringLength(100, ErrorMessage = "O nome da raça deve ter no máximo 100 caracteres.")]
         public string Nome { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "A espécie é obrigatória.")]
+        [EnumDataType(typeof(EspecieAnimal), ErrorMessage = "A espécie é inválida.")]
         public EspecieAnimal Especie { get; set; }
 
         public double? PesoMinimoReferenciaFemea { get; set; }

@@ -35,6 +35,22 @@ namespace backend.Tests.Infra
             });
         }
 
+        /// <summary>Token de login do admin, usado nas rotas do Sistema (TokenService.GenerateTokenLogin).</summary>
+        public static string AdminSistema(int usuarioId, string nomeUsuario)
+        {
+            return Gerar(new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, usuarioId.ToString()),
+                new Claim(ClaimTypes.Name, nomeUsuario),
+                new Claim("UsuarioIp", Ip),
+                new Claim("UsuarioAgent", UserAgent),
+                new Claim("acessoLogin", "true"),
+                new Claim("rememberMe", "False"),
+                new Claim("isAdmin", "true"),
+                new Claim("isAtivo", "true"),
+            });
+        }
+
         /// <summary>Token do admin simulando acesso a uma clínica (TokenService.GenerateTokenVinculoAdmin).</summary>
         public static string AdminSimulando(int usuarioId, string nomeUsuario, int clinicaId, string nomeClinica, IEnumerable<string> perfis)
         {
