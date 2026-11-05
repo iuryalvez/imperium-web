@@ -1,8 +1,7 @@
 import React from "react";
-import { Button, Input, Modal, Space } from "antd";
+import { Button, Input } from "antd";
 import {
   PlusOutlined,
-  ArrowLeftOutlined,
   EditOutlined,
   FormOutlined,
   CalculatorOutlined,
@@ -11,10 +10,14 @@ import {
 } from "@ant-design/icons";
 import { useRacoesDoSistemaManager } from "./useRacoesDoSistemaManager";
 import ModalPadrao from "../../../components/modal/ModalPadrao.jsx";
+import PaginaPadrao from "../../../components/layout/PaginaPadrao.jsx";
 // Tabela, formulário e memória de cálculo são os mesmos da clínica (a regra nutricional é única)
 import TabelaRacoesDaClinica from "../../Clinica/RacoesDaClinica/components/TabelaRacoesDaClinica/TabelaRacoesDaClinica";
 import FormCadastroEdicaoRacaoClinica from "../../Clinica/RacoesDaClinica/components/FormularioCadastroEdicaoRacao/FormCadastroEdicaoRacaoClinica";
 import ModalDetalhesCalculoRacao from "../../Clinica/RacoesDaClinica/components/ModalDetalhesCalculosRacao/ModalDetalhesCalculosRacao";
+
+// Breadcrumb: Início do admin > esta tela
+const TRILHA = [{ titulo: "Início", para: "/sistema" }];
 
 const RacoesDoSistema = () => {
   const {
@@ -43,54 +46,48 @@ const RacoesDoSistema = () => {
   const isCopias = visao === "copias";
 
   return (
-    <div>
-      <button
-        onClick={() => window.history.back()}
-        className="flex items-center font-bold text-[var(--verde-medio)] mb-2"
-      >
-        <ArrowLeftOutlined className="mr-2" /> Voltar
-      </button>
-
-      <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-        <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
-          {isCopias ? "Rações das Clínicas" : "Rações do Sistema"}
-        </h1>
-        <Space wrap>
-          <Button
-            icon={isCopias ? <GlobalOutlined /> : <ShopOutlined />}
-            onClick={handleAlternarVisao}
-          >
-            {isCopias ? "Ver rações do sistema" : "Cópias das clínicas"}
-          </Button>
-          {!isCopias && (
-            <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenModalCadastro}>
-              Cadastrar Ração
+    <>
+      <PaginaPadrao
+        titulo={isCopias ? "Rações das Clínicas" : "Rações do Sistema"}
+        trilha={TRILHA}
+        acoes={
+          <>
+            <Button
+              icon={isCopias ? <GlobalOutlined /> : <ShopOutlined />}
+              onClick={handleAlternarVisao}
+            >
+              {isCopias ? "Ver rações do sistema" : "Cópias das clínicas"}
             </Button>
-          )}
-        </Space>
-      </div>
-
-      <Input.Search
-        placeholder={isCopias ? "Buscar por ração ou clínica..." : "Buscar por nome..."}
-        onChange={(e) => setBusca(e.target.value)}
-        allowClear
-        style={{ maxWidth: 320 }}
-        className="mb-4"
-      />
-
-      <TabelaRacoesDaClinica
-        key={visao}
-        racoes={racoes}
-        loading={loading}
-        paginacao={paginacao}
-        onChange={handleTableChange}
-        modo={visao}
-        onEdit={handleEditarRacao}
-        onDelete={handleDelete}
-        onView={handleOpenModalDetalhes}
-        onToggleStatus={handleToggleStatus}
-        loadingRowKey={loadingRowKey}
-      />
+            {!isCopias && (
+              <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenModalCadastro}>
+                Cadastrar Ração
+              </Button>
+            )}
+          </>
+        }
+      >
+        <TabelaRacoesDaClinica
+          key={visao}
+          barra={
+            <Input.Search
+              placeholder={isCopias ? "Buscar por ração ou clínica..." : "Buscar por nome..."}
+              onChange={(e) => setBusca(e.target.value)}
+              allowClear
+              className="w-full sm:w-80"
+            />
+          }
+          racoes={racoes}
+          loading={loading}
+          paginacao={paginacao}
+          onChange={handleTableChange}
+          modo={visao}
+          onEdit={handleEditarRacao}
+          onDelete={handleDelete}
+          onView={handleOpenModalDetalhes}
+          onToggleStatus={handleToggleStatus}
+          loadingRowKey={loadingRowKey}
+        />
+      </PaginaPadrao>
 
       <ModalPadrao
         modo={editingRacao ? "edicao" : "criacao"}
@@ -104,28 +101,16 @@ const RacoesDoSistema = () => {
         <FormCadastroEdicaoRacaoClinica initialValues={editingRacao} onFinish={handleSubmit} />
       </ModalPadrao>
 
-      <Modal
-        title={
-          <Space>
-            <CalculatorOutlined />
-            <span>Memória de Cálculo - {viewingRacao?.nome}</span>
-          </Space>
-        }
+      <ModalPadrao
+        modo="detalhes"
         open={isModalDetalhesOpen}
         onCancel={handleCloseModals}
-        footer={[
-          <Button key="close" onClick={handleCloseModals}>
-            Fechar
-          </Button>,
-        ]}
-        destroyOnClose
-        width={700}
-        centered
-        styles={{ body: { maxHeight: "70vh", overflowY: "auto", paddingRight: "8px" } }}
+        title={`Memória de Cálculo - ${viewingRacao?.nome ?? ""}`}
+        icon={<CalculatorOutlined />}
       >
         <ModalDetalhesCalculoRacao racao={viewingRacao} />
-      </Modal>
-    </div>
+      </ModalPadrao>
+    </>
   );
 };
 

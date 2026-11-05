@@ -1,14 +1,20 @@
 import { useState, useEffect, useCallback } from "react";
 import { message } from "antd";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../services/AuthContext";
 import { perfilClinicaAPI } from "../../../api/clinica/perfilClinicaAPI";
+import { racasDaClinicaAPI } from "../../../api/clinica/racasDaClinicaAPI";
 import { sanitizePayload, sanitizeToNumbers } from "../../../utils/sanitizers";
 
 export const usePerfilClinicaManager = () => {
+  const navigate = useNavigate();
   const [dadosClinica, setDadosClinica] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  // Raças que a clínica enxerga (sistema + próprias), por espécie. Vem da mesma listagem do
+  // Gerenciador de Raças, então o número bate com o "x registro(s)" de lá.
+  const [totalRacas, setTotalRacas] = useState(null);
 
   // Hook global de autenticação
   const { authData, setAuthData } = useAuth();
@@ -31,9 +37,23 @@ export const usePerfilClinicaManager = () => {
     }
   }, []);
 
+  // Conta só o total (página de 1 item); se falhar, o card de animais mostra só os animais.
+  const fetchTotalRacas = useCallback(async () => {
+    try {
+      const [caes, gatos] = await Promise.all([
+        racasDaClinicaAPI.listar({ pagina: 1, tamanhoPagina: 1, especie: 1 }),
+        racasDaClinicaAPI.listar({ pagina: 1, tamanhoPagina: 1, especie: 2 }),
+      ]);
+      setTotalRacas({ caes: caes?.total ?? 0, gatos: gatos?.total ?? 0 });
+    } catch {
+      setTotalRacas(null);
+    }
+  }, []);
+
   useEffect(() => {
     fetchClinicaDashboard();
-  }, [fetchClinicaDashboard]);
+    fetchTotalRacas();
+  }, [fetchClinicaDashboard, fetchTotalRacas]);
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
@@ -80,11 +100,15 @@ export const usePerfilClinicaManager = () => {
 
   return {
     dadosClinica,
+    totalRacas,
     loading,
     isSubmitting,
     isModalOpen,
     handleOpenModal,
     handleCloseModal,
     handleSubmit,
+    handleIrParaMeuPainel: () => navigate("/clinica/inicio"),
+    // Atalhos da Visão Geral: cada card leva à tela da entidade
+    handleIrPara: (rota) => navigate(rota),
   };
 };

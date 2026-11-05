@@ -1,15 +1,21 @@
 /*
-  Sobrescreve a cor de fundo padrão do botão que recolhe/expande a sidebar.
-  O '!important' é usado para garantir que nossa regra tenha prioridade sobre os estilos padrão do Ant Design.
-  Obs: Não funciona setando no ant-theme, tive que setar aqui.
+  Regras da sidebar do LayoutAuthenticated. As do shell (altura, scroll do conteúdo) ficam em AppShell.css.
 */
-.ant-layout-sider-trigger {
-  background: #064420 !important; /* Sua cor --verde-escuro */
+
+/* O menu da sidebar rola sozinho se não couber na altura */
+.app-shell-sider .ant-layout-sider-children {
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /*
-  Define a cor do botão quando o mouse passa por cima (hover).
+  Sobrescreve a cor de fundo padrão do botão que recolhe/expande a sidebar.
+  Obs: Não funciona setando no ant-theme, tive que setar aqui.
 */
+.ant-layout-sider-trigger {
+  background: var(--verde-escuro) !important;
+}
+
 .ant-layout-sider-trigger:hover {
-  background: #278F54 !important; /* Sua cor --verde-claro (sugestão para hover) */
+  background: var(--verde-claro) !important;
 }

@@ -4,6 +4,7 @@ import { PlusOutlined, EditOutlined, FormOutlined } from "@ant-design/icons";
 import { useConsultasManager } from "./useConsultasManager";
 import TabelaConsultas from "./components/TabelaConsultas";
 import FormularioConsulta from "./components/FormularioConsulta";
+import PaginaPadrao from "../../../components/layout/PaginaPadrao";
 import ModalPadrao from "../../../components/modal/ModalPadrao";
 
 const ConsultasDaClinica = () => {
@@ -26,40 +27,36 @@ const ConsultasDaClinica = () => {
 
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
-          Gerenciamento de Consultas
-        </h1>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => handleOpenModal()}
-        >
-          Agendar Consulta
-        </Button>
-      </div>
-
-      {/* Busca no servidor (com debounce); ordenação e filtros ficam nas colunas da tabela */}
-      <Input.Search
-        placeholder="Buscar por animal ou tutor..."
-        onChange={(e) => setBusca(e.target.value)}
-        allowClear
-        style={{ maxWidth: 320 }}
-        className="mb-4"
-      />
-
-      <TabelaConsultas
-        paginacao={paginacao}
-        onChange={handleTableChange}
-        consultas={consultas}
-        onEdit={handleOpenModal}
-        onDelete={handleDelete}
-        onIrParaAcompanhamento={handleIrParaAcompanhamento}
-        onCancelar={handleCancelar}
-        onReabrir={handleReabrir}
-        loading={loading}
-      />
+    <>
+      <PaginaPadrao
+        titulo="Gerenciamento de Consultas"
+        acoes={
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => handleOpenModal()}>
+            Agendar Consulta
+          </Button>
+        }
+      >
+        <TabelaConsultas
+          barra={
+            // Busca no servidor (com debounce); ordenação e filtros ficam nas colunas da tabela
+            <Input.Search
+              placeholder="Buscar por animal ou tutor..."
+              onChange={(e) => setBusca(e.target.value)}
+              allowClear
+              className="w-full sm:w-80"
+            />
+          }
+          paginacao={paginacao}
+          onChange={handleTableChange}
+          consultas={consultas}
+          onEdit={handleOpenModal}
+          onDelete={handleDelete}
+          onIrParaAcompanhamento={handleIrParaAcompanhamento}
+          onCancelar={handleCancelar}
+          onReabrir={handleReabrir}
+          loading={loading}
+        />
+      </PaginaPadrao>
 
       {/* Modal de Criação / Edição de Consulta */}
       <ModalPadrao
@@ -69,14 +66,14 @@ const ConsultasDaClinica = () => {
         title={editingConsulta ? "Editar Consulta" : "Agendar Nova Consulta"}
         icon={editingConsulta ? <EditOutlined /> : <FormOutlined />}
         formId="form-cadastro-edicao-consulta"
-        width="min(500px, 95vw)"
+        tamanho="sm"
       >
         <FormularioConsulta
           initialValues={editingConsulta}
           onFinish={handleSubmit}
         />
       </ModalPadrao>
-    </div>
+    </>
   );
 };
 

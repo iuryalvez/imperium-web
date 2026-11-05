@@ -1,0 +1,41 @@
+/* Rodapé fino: uma linha no desktop, duas linhas centralizadas no celular */
+.app-footer {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 16px;
+  padding: 6px 24px !important;
+  border-top: 1px solid rgba(39, 143, 84, 0.15);
+  font-size: 12px;
+}
+
+.app-footer-texto {
+  color: var(--cinza-escuro);
+}
+
+.app-footer-texto strong {
+  color: var(--verde-medio);
+  letter-spacing: 0.04em;
+}
+
+.app-footer-organizacoes {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-footer-logo {
+  height: 20px;
+  width: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 767px) {
+  .app-footer {
+    justify-content: center;
+    text-align: center;
+    padding: 8px 16px !important;
+  }
+}

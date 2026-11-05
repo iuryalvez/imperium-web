@@ -106,6 +106,8 @@ const App = () => {
                     {/* Início: Meu Painel (todos os perfis). Telas restritas usam RotaPorPermissao (utils/permissoes.js) */}
                     <Route path="/clinica/inicio" element={<MeuPainelDaClinica />} />
                     <Route path="/clinica" element={<MeuPainelDaClinica />} />
+                    {/* Meu perfil dentro da clínica (menu do usuário no header). A mesma tela de /sistema/perfil. */}
+                    <Route path="/clinica/perfil" element={<PerfilPessoal />} />
                     <Route
                       path="/clinica/editar"
                       element={<RotaPorPermissao permissao="gerenciaClinica"><PerfilClinica /></RotaPorPermissao>}

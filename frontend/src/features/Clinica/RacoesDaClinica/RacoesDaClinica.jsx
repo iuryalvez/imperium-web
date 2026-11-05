@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Input, Modal, Select, Space } from "antd";
+import { Button, Input, Select } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -11,6 +11,7 @@ import { usePermissao } from "../../../utils/usePermissao";
 import FormCadastroEdicaoRacaoClinica from "./components/FormularioCadastroEdicaoRacao/FormCadastroEdicaoRacaoClinica";
 import TabelaRacoesDaClinica from "./components/TabelaRacoesDaClinica/TabelaRacoesDaClinica";
 import ModalPadrao from "../../../components/modal/ModalPadrao";
+import PaginaPadrao from "../../../components/layout/PaginaPadrao";
 import ModalDetalhesCalculoRacao from "./components/ModalDetalhesCalculosRacao/ModalDetalhesCalculosRacao";
 
 const RacoesDaClinica = () => {
@@ -42,60 +43,59 @@ const RacoesDaClinica = () => {
   const podeEditar = pode("gerenciaRacoes");
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Gerenciamento de Rações</h1>
-        {podeEditar && (
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => handleOpenModal()}
-          >
-            Cadastrar Ração
-          </Button>
-        )}
-      </div>
-
-      {/* Busca e origem filtram no servidor; espécie e status ficam nos filtros das colunas */}
-      <Space wrap className="mb-4">
-        <Input.Search
-          placeholder="Buscar por nome..."
-          onChange={(e) => setBusca(e.target.value)}
-          allowClear
-          style={{ width: 260 }}
-        />
-        <Select
-          defaultValue={null}
-          style={{ width: 190 }}
-          onChange={(value) =>
-            setFiltros({
-              origem: value === "ocultas" ? undefined : value,
-              oculta: value === "ocultas" ? true : undefined,
-            })
+    <>
+      <PaginaPadrao
+        titulo="Gerenciamento de Rações"
+        acoes={
+          podeEditar && (
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => handleOpenModal()}>
+              Cadastrar Ração
+            </Button>
+          )
+        }
+      >
+        <TabelaRacoesDaClinica
+          barra={
+            // Busca e origem filtram no servidor; espécie e status ficam nos filtros das colunas
+            <>
+              <Input.Search
+                placeholder="Buscar por nome..."
+                onChange={(e) => setBusca(e.target.value)}
+                allowClear
+                className="w-full sm:w-64"
+              />
+              <Select
+                defaultValue={null}
+                className="w-full sm:w-48"
+                onChange={(value) =>
+                  setFiltros({
+                    origem: value === "ocultas" ? undefined : value,
+                    oculta: value === "ocultas" ? true : undefined,
+                  })
+                }
+                options={[
+                  { value: null, label: "Todas as Origens" },
+                  { value: "sistema", label: "Apenas do Sistema" },
+                  { value: "clinica", label: "Apenas da Clínica" },
+                  { value: "ocultas", label: "Ocultas pela Clínica" },
+                ]}
+              />
+            </>
           }
-          options={[
-            { value: null, label: "Todas as Origens" },
-            { value: "sistema", label: "Apenas do Sistema" },
-            { value: "clinica", label: "Apenas da Clínica" },
-            { value: "ocultas", label: "Ocultas pela Clínica" },
-          ]}
+          racoes={racoes}
+          loading={loading}
+          paginacao={paginacao}
+          onChange={handleTableChange}
+          modo="clinica"
+          podeEditar={podeEditar}
+          onEdit={handleOpenModal}
+          onDelete={handleDelete}
+          onView={handleOpenViewModal}
+          onToggleStatus={handleToggleStatus}
+          onToggleOculta={handleToggleOculta}
+          loadingRowKey={loadingRowKey}
         />
-      </Space>
-
-      <TabelaRacoesDaClinica
-        racoes={racoes}
-        loading={loading}
-        paginacao={paginacao}
-        onChange={handleTableChange}
-        modo="clinica"
-        podeEditar={podeEditar}
-        onEdit={handleOpenModal}
-        onDelete={handleDelete}
-        onView={handleOpenViewModal}
-        onToggleStatus={handleToggleStatus}
-        onToggleOculta={handleToggleOculta}
-        loadingRowKey={loadingRowKey}
-      />
+      </PaginaPadrao>
 
       <ModalPadrao
         modo={editingRacao ? "edicao" : "criacao"}
@@ -113,34 +113,16 @@ const RacoesDaClinica = () => {
       </ModalPadrao>
 
       {/* Modal de Detalhes dos Cálculos */}
-      <Modal
-        title={
-          <Space>
-            <CalculatorOutlined></CalculatorOutlined>
-            <span>Memória de Cálculo - {viewingRacao?.nome}</span>
-          </Space>
-        }
+      <ModalPadrao
+        modo="detalhes"
         open={isViewModalOpen}
         onCancel={handleCloseViewModal}
-        footer={[
-          <Button key="close" onClick={handleCloseViewModal}>
-            Fechar
-          </Button>,
-        ]}
-        destroyOnClose
-        width={700}
-        centered
-        styles={{
-          body: {
-            maxHeight: "70vh",
-            overflowY: "auto",
-            paddingRight: "8px", // Prevents content from touching the scrollbar
-          },
-        }}
+        title={`Memória de Cálculo - ${viewingRacao?.nome ?? ""}`}
+        icon={<CalculatorOutlined />}
       >
         <ModalDetalhesCalculoRacao racao={viewingRacao} />
-      </Modal>
-    </div>
+      </ModalPadrao>
+    </>
   );
 };
 

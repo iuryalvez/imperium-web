@@ -1,9 +1,11 @@
 /* Estilo principal para o container do Header */
 .app-header {
-  position: fixed;
+  position: sticky; /* fica no topo; no desktop o shell nem rola */
   top: 0;
   z-index: 50;
   width: 100%;
+  flex: none;
+  gap: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -11,6 +13,18 @@
   border-bottom: 1px solid #f0f0f0;
   box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.05);
   /* A cor de fundo é herdada do themeConfig (Layout.headerBg) */
+}
+
+/* Telas pequenas: menos respiro lateral */
+@media (max-width: 575px) {
+  .app-header {
+    padding: 0 12px;
+  }
+}
+
+/* Botão ☰ que abre a sidebar em gaveta (só abaixo de lg) */
+.app-header-botao-menu {
+  flex: none;
 }
 
 /* Estilo para a logo, tornando a área clicável */
@@ -46,4 +60,68 @@
 .app-header-menu .ant-menu-item-danger:hover {
   color: var(--antd-colorError) !important; 
   background-color: transparent !important;
+}
+/* Lado direito do header logado: clínica atual + menu do usuário */
+.app-header-direita {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.app-header-clinica {
+  max-width: 280px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  color: var(--verde-medio);
+  padding-right: 16px;
+  border-right: 1px solid rgba(39, 143, 84, 0.3);
+  line-height: 1.4;
+}
+
+.app-header-usuario {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.app-header-usuario:hover,
+.app-header-usuario:focus-visible {
+  background-color: var(--verde-fraco);
+}
+
+.app-header-avatar {
+  background-color: var(--verde-medio) !important;
+  flex: none;
+}
+
+.app-header-usuario-nome {
+  max-width: 180px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  color: var(--verde-escuro);
+}
+
+/* O item de identificação do menu fica com cor normal, apesar de "disabled" */
+.app-header-usuario-identificacao.ant-dropdown-menu-item-disabled {
+  cursor: default !important;
+}
+
+/* Celular: só o avatar; a clínica e o nome aparecem dentro do menu */
+@media (max-width: 767px) {
+  .app-header-clinica,
+  .app-header-usuario-nome {
+    display: none;
+  }
 }

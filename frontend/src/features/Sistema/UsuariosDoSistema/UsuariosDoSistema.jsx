@@ -2,7 +2,6 @@ import React from "react";
 import { Button } from "antd";
 import {
   PlusOutlined,
-  ArrowLeftOutlined,
   EditOutlined,
   FormOutlined,
   ProfileOutlined,
@@ -13,7 +12,11 @@ import FormCadastroUsuarioDoSistema from "./components/FormularioCadastroUsuario
 import FormEdicaoUsuarioDoSistema from "./components/FormularioEdicaoUsuarioDoSistema/FormEdicaoUsuarioDoSistema.jsx";
 import TabelaUsuariosDoSistema from "./components/TabelaUsuariosDoSistema/TabelaUsuariosDoSistema.jsx";
 import FormDetalhesUsuarioDoSistema from "./components/FormularioDetalhesUsuarioDoSistema/FormDetalhesUsuarioDoSistema.jsx";
+import PaginaPadrao from "../../../components/layout/PaginaPadrao.jsx";
 import ModalPadrao from "../../../components/modal/ModalPadrao.jsx";
+
+// Breadcrumb: Início do admin > esta tela
+const TRILHA = [{ titulo: "Início", para: "/sistema" }];
 
 const UsuariosDoSistema = () => {
   const {
@@ -39,34 +42,24 @@ const UsuariosDoSistema = () => {
   }
 
   return (
-    <div>
-      <button
-        onClick={() => window.history.back()}
-        className="flex items-center font-bold text-[var(--verde-medio)] mb-2"
+    <>
+      <PaginaPadrao
+        titulo="Gerenciamento de Usuários do Sistema"
+        trilha={TRILHA}
+        acoes={
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAbrirModalCadastro}>
+            Cadastrar Usuário
+          </Button>
+        }
       >
-        <ArrowLeftOutlined className="mr-2" /> Voltar
-      </button>
-
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
-          Gerenciamento de Usuários do Sistema
-        </h1>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleAbrirModalCadastro}
-        >
-          Cadastrar Usuário
-        </Button>
-      </div>
-
-      <TabelaUsuariosDoSistema
-        data={usuarios}
-        onEdit={handleEditarUsuario}
-        onToggleStatus={handleToggleStatus}
-        onViewDetails={handleVerDetalhes}
-        loadingRowKey={loadingRowKey}
-      />
+        <TabelaUsuariosDoSistema
+          data={usuarios}
+          onEdit={handleEditarUsuario}
+          onToggleStatus={handleToggleStatus}
+          onViewDetails={handleVerDetalhes}
+          loadingRowKey={loadingRowKey}
+        />
+      </PaginaPadrao>
 
       {/* MODAL PADRÃO: Cadastro / Edição */}
       <ModalPadrao
@@ -102,7 +95,7 @@ const UsuariosDoSistema = () => {
       >
         {viewingUser && <FormDetalhesUsuarioDoSistema valores={viewingUser} />}
       </ModalPadrao>
-    </div>
+    </>
   );
 };
 

@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Skeleton,
-  Result,
-  Button,
-  Modal,
-  Space,
-  Popconfirm,
-  Tooltip,
-} from "antd";
+import { Skeleton, Result, Button, Popconfirm, Tooltip } from "antd";
 import { Link } from "react-router-dom";
 import {
   FormOutlined,
@@ -23,6 +15,7 @@ import FormularioDieta from "./components/Dieta/FormularioDieta";
 import DetalhesDieta from "./components/Dieta/DetalhesDieta";
 import FichaGeralAnimal from "./components/FichaGeralAnimal";
 import ModalPadrao from "../../../../components/modal/ModalPadrao";
+import PaginaPadrao from "../../../../components/layout/PaginaPadrao";
 import FormularioAvaliacao from "./components/Avaliacao/FormularioAvaliacao";
 import FormularioConsulta from "../../ConsultasDaClinica/components/FormularioConsulta";
 import FormEdicaoAnimal from "../components/FormularioEdicaoAnimaisDaClinica/FormEdicaoAnimais";
@@ -74,8 +67,6 @@ const Acompanhamento = () => {
   // O TECNICO (e o SECRETARIO) veem o acompanhamento; editar animal, avaliação, dieta e consulta depende do perfil
   const pode = usePermissao();
 
-  console.log("[Acompanhamento] historico: ", historico);
-
   if (loading) {
     return <Skeleton active paragraph={{ rows: 8 }} />;
   }
@@ -110,53 +101,65 @@ const Acompanhamento = () => {
   const sexoInt = isFemea ? 2 : 1;
 
   return (
-    <div className="mt-4 flex flex-col gap-6">
-      <FichaGeralAnimal
-        data={historico}
-        avaliacaoRecente={avaliacaoMaisRecente}
-        dietaRecente={dietaMaisRecente}
-        onOpenDieta={handleOpenModalVisualizarDieta}
-        onEditAnimal={pode("gerenciaAnimais") ? handleOpenEditAnimalModal : undefined}
-      />
+    <PaginaPadrao
+      preencher={false}
+      trilha={[{ titulo: "Animais", para: "/clinica/animais" }]}
+      titulo={`Acompanhamento de ${historico.nome || "animal"}`}
+    >
+      {/* >= lg: ficha numa coluna lateral fixa (resumo sempre à vista) e consultas na principal.
+          Abaixo de lg: uma coluna só, ficha em cima. */}
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(300px,380px)_minmax(0,1fr)] gap-6 items-start">
+        <div className="lg:sticky lg:top-0">
+          <FichaGeralAnimal
+            data={historico}
+            avaliacaoRecente={avaliacaoMaisRecente}
+            dietaRecente={dietaMaisRecente}
+            onOpenDieta={handleOpenModalVisualizarDieta}
+            onEditAnimal={pode("gerenciaAnimais") ? handleOpenEditAnimalModal : undefined}
+          />
+        </div>
 
-      <div>
-        <h2 className="text-xl font-semibold text-verde-escuro mb-4">
-          Consultas
-        </h2>
-        <ListaConsultasCards
-          consultas={consultas}
-          onEditConsulta={handleEditConsulta}
-          onDeleteConsulta={handleDeleteConsulta}
-          onOpenAvaliacao={handleOpenAvaliacaoModal}
-          onDeleteAvaliacao={handleDeleteAvaliacao}
-          onOpenModalCriarDieta={handleOpenModalCriarDieta}
-          onOpenModalVisualizarDieta={handleOpenModalVisualizarDieta}
-          onOpenModalEditarDieta={handleOpenModalEditarDieta}
-          onExcluirDieta={handleExcluirDieta}
-          onIniciarDieta={handleIniciarDieta}
-          onConcluirDieta={handleConcluirDieta}
-          podeGerenciarConsultas={pode("gerenciaConsultas")}
-          podeGerenciarAcompanhamento={pode("gerenciaAcompanhamento")}
-        />
+        <section className="flex flex-col gap-4 min-w-0">
+          <h2 className="m-0 text-xl font-semibold text-verde-escuro">Consultas</h2>
+          <ListaConsultasCards
+            consultas={consultas}
+            onEditConsulta={handleEditConsulta}
+            onDeleteConsulta={handleDeleteConsulta}
+            onOpenAvaliacao={handleOpenAvaliacaoModal}
+            onDeleteAvaliacao={handleDeleteAvaliacao}
+            onOpenModalCriarDieta={handleOpenModalCriarDieta}
+            onOpenModalVisualizarDieta={handleOpenModalVisualizarDieta}
+            onOpenModalEditarDieta={handleOpenModalEditarDieta}
+            onExcluirDieta={handleExcluirDieta}
+            onIniciarDieta={handleIniciarDieta}
+            onConcluirDieta={handleConcluirDieta}
+            podeGerenciarConsultas={pode("gerenciaConsultas")}
+            podeGerenciarAcompanhamento={pode("gerenciaAcompanhamento")}
+          />
+        </section>
       </div>
 
       {/* Modal de Edição da Consulta */}
-      <Modal
-        title="Editar Consulta"
+      <ModalPadrao
+        modo="edicao"
         open={isConsultaModalOpen}
         onCancel={handleCloseConsultaModal}
-        footer={null}
-        destroyOnClose
+        title="Editar Consulta"
+        icon={<EditOutlined />}
+        formId="form-cadastro-edicao-consulta"
+        isSubmitting={isSubmitting}
+        tamanho="sm"
       >
         <FormularioConsulta
           initialValues={{
             dataConsulta: consultaToEdit?.dataConsulta,
             animalId: historico?.id,
-            tutorId: consultaToEdit?.tutorId,
+            // O histórico manda tutorId 0 quando a consulta não tem tutor: vira vazio no select
+            tutorId: consultaToEdit?.tutorId || undefined,
           }}
           onFinish={handleSubmitConsulta}
         />
-      </Modal>
+      </ModalPadrao>
 
       {/* Modal de Edição do Animal */}
       <ModalPadrao
@@ -183,21 +186,14 @@ const Acompanhamento = () => {
       </ModalPadrao>
 
       {/* Modal de Avaliação da Consulta */}
-      <Modal
-        title={
-          <Space>
-            <FileTextOutlined className="modal-title-icon" />
-            <span className="text-verde-escuro m-0 text-lg">
-              Avaliação da Consulta -{" "}
-              {selectedConsulta?.nomeAnimal || historico?.nome}
-            </span>
-          </Space>
-        }
+      <ModalPadrao
         open={isAvaliacaoModalOpen}
         onCancel={handleCloseAvaliacaoModal}
-        style={{ top: 40 }}
-        footer={
-          <div className="modal-footer-actions">
+        title={`Avaliação da Consulta - ${selectedConsulta?.nomeAnimal || historico?.nome}`}
+        icon={<FileTextOutlined />}
+        tamanho="md"
+        rodape={
+          <>
             <Button onClick={handleCloseAvaliacaoModal}>Cancelar</Button>
 
             {avaliacaoData && (
@@ -236,28 +232,24 @@ const Acompanhamento = () => {
             >
               Salvar Avaliação
             </Button>
-          </div>
+          </>
         }
-        destroyOnClose
-        width="min(800px, 95vw)"
       >
-        <div className="modal-scroll-container">
-          {loadingAvaliacao ? (
-            <Skeleton active />
-          ) : (
-            <FormularioAvaliacao
-              data={{
-                ...selectedConsulta,
-                especieAnimal: especieInt,
-                sexoAnimal: sexoInt,
-                faseVidaAtual: historico.faseVidaAtual,
-              }}
-              initialValues={avaliacaoData}
-              onFinish={handleSubmitAvaliacao}
-            />
-          )}
-        </div>
-      </Modal>
+        {loadingAvaliacao ? (
+          <Skeleton active />
+        ) : (
+          <FormularioAvaliacao
+            data={{
+              ...selectedConsulta,
+              especieAnimal: especieInt,
+              sexoAnimal: sexoInt,
+              faseVidaAtual: historico.faseVidaAtual,
+            }}
+            initialValues={avaliacaoData}
+            onFinish={handleSubmitAvaliacao}
+          />
+        )}
+      </ModalPadrao>
 
       {/* Modal Padrao: Criar Dieta */}
       <ModalPadrao
@@ -268,7 +260,7 @@ const Acompanhamento = () => {
         icon={<FormOutlined />}
         formId="form-dieta-animal"
         isSubmitting={isSubmitting}
-        width="min(700px, 95vw)"
+        tamanho="md"
       >
         {avaliacaoSelecionado && (
           <FormularioDieta
@@ -293,7 +285,7 @@ const Acompanhamento = () => {
         icon={<EditOutlined />}
         formId="form-dieta-animal"
         isSubmitting={isSubmitting}
-        width="min(700px, 95vw)"
+        tamanho="md"
       >
         {dietaParaEditar && avaliacaoSelecionado && (
           <FormularioDieta
@@ -330,11 +322,11 @@ const Acompanhamento = () => {
             : ""
         }
         icon={<ProfileOutlined />}
-        width="min(860px, 95vw)"
+        tamanho="lg"
       >
         {dietaParaVisualizar && <DetalhesDieta dieta={dietaParaVisualizar} isGato={isGato} onRegistrarPeso={pode("gerenciaAcompanhamento") ? handleRegistrarPeso : undefined} onRemoverPeso={pode("gerenciaAcompanhamento") ? handleRemoverPeso : undefined} />}
       </ModalPadrao>
-    </div>
+    </PaginaPadrao>
   );
 };
 

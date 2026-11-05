@@ -11,6 +11,7 @@ import TabelaUsuariosDaClinica from "./components/TabelaUsuariosDaClinica/Tabela
 import FormEdicaoUsuarioDaClinica from "./components/FormularioEdicaoUsuarioDaClinica/FormEdicaoUsuarioDaClinica.jsx";
 import FormCadastroUsuarioDaClinica from "./components/FormularioCadastroUsuarioDaClinica/FormCadastroUsuarioDaClinica.jsx";
 import FormDetalhesUsuarioDaClinica from "./components/FormularioDetalhesUsuarioDaClinica/FormularioDetalhesUsuarioDaClinica.jsx";
+import PaginaPadrao from "../../../components/layout/PaginaPadrao.jsx";
 import ModalPadrao from "../../../components/modal/ModalPadrao.jsx";
 
 const UsuariosDaClinica = () => {
@@ -37,39 +38,35 @@ const UsuariosDaClinica = () => {
 
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
-          Gerenciamento de Usuários
-        </h1>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleOpenModalCadastro}
-        >
-          Cadastrar Usuário
-        </Button>
-      </div>
-
-      {/* Busca no servidor (com debounce); ordenação e filtros ficam nas colunas da tabela */}
-      <Input.Search
-        placeholder="Buscar por nome, e-mail ou CPF..."
-        onChange={(e) => setBusca(e.target.value)}
-        allowClear
-        style={{ maxWidth: 320 }}
-        className="mb-4"
-      />
-
-      <TabelaUsuariosDaClinica
-        loading={loading}
-        paginacao={paginacao}
-        onChange={handleTableChange}
-        usuarios={usuarios}
-        onEdit={handleEditarUsuario}
-        onToggleStatus={handleToggleStatus}
-        onViewDetails={handleOpenModalDetalhes}
-        loadingRowKey={loadingRowKey}
-      />
+    <>
+      <PaginaPadrao
+        titulo="Gerenciamento de Usuários"
+        acoes={
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenModalCadastro}>
+            Cadastrar Usuário
+          </Button>
+        }
+      >
+        <TabelaUsuariosDaClinica
+          barra={
+            // Busca no servidor (com debounce); ordenação e filtros ficam nas colunas da tabela
+            <Input.Search
+              placeholder="Buscar por nome, e-mail ou CPF..."
+              onChange={(e) => setBusca(e.target.value)}
+              allowClear
+              className="w-full sm:w-80"
+            />
+          }
+          loading={loading}
+          paginacao={paginacao}
+          onChange={handleTableChange}
+          usuarios={usuarios}
+          onEdit={handleEditarUsuario}
+          onToggleStatus={handleToggleStatus}
+          onViewDetails={handleOpenModalDetalhes}
+          loadingRowKey={loadingRowKey}
+        />
+      </PaginaPadrao>
 
       {/* Modal de Criação / Edição */}
       <ModalPadrao
@@ -105,7 +102,7 @@ const UsuariosDaClinica = () => {
       >
         {viewingUser && <FormDetalhesUsuarioDaClinica valores={viewingUser} />}
       </ModalPadrao>
-    </div>
+    </>
   );
 };
 

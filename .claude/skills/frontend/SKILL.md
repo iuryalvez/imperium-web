@@ -30,7 +30,7 @@ Sistema é a gestão dos tenants, usada pelo administrador do Imperium (`isAdmin
 - Pasta `features/Sistema/<Entidade>DoSistema/` e rota `/sistema/...`.
 - Em `App.js`, fica sob `<ProtectedRoute requiresAdmin />` com `<LayoutLogged />`.
 - API em `api/sistema/<entidade>API.js`, usando `endpoints.sistema.<entidade>`.
-- Não tem menu lateral: a tela tem botão "Voltar" (`window.history.back()`) no topo e atalho em `SistemaInicioAdmin`.
+- Não tem menu lateral: a tela tem breadcrumb "Início / <tela>" (`trilha={[{ titulo: "Início", para: "/sistema" }]}` na `PaginaPadrao`) e um `CardAtalho` em `SistemaInicioAdmin`.
 - Pode listar e editar dados de qualquer clínica.
 
 Clínica é o tenant, usada pelos usuários vinculados a uma clínica (GESTOR, VETERINARIO, SECRETARIO, TECNICO):
@@ -42,6 +42,7 @@ Clínica é o tenant, usada pelos usuários vinculados a uma clínica (GESTOR, V
 - Tela restrita a alguns perfis: a rota em `App.js` fica dentro de `<RotaPorPermissao permissao="...">` (`components/servicesComponents/RotaPorPermissao.jsx`), que manda para `/clinica/inicio` quem não pode.
 - Botões de escrita aparecem só com a permissão: a página usa `const pode = usePermissao();` e passa `podeEditar` (ou similar) para a tabela. Exemplos vivos: `AnimaisDaClinica`, `RacoesDaClinica`, `Acompanhamento`.
 - O início da clínica (`/clinica/inicio`) é o Meu Painel (`features/Clinica/MeuPainelDaClinica`), para todos os perfis.
+- Breadcrumb na Clínica só em sub-telas de uma entidade (hoje, o Acompanhamento: "Animais / Acompanhamento de X"). Telas do menu não têm trilha: o Meu Painel não é a "raiz" das outras.
 - Nunca envie `clinicaId` no payload. O backend lê a clínica do token, e aceitar do frontend abriria brecha entre clínicas.
 
 Se não ficar claro qual escopo, pergunte antes de criar arquivos.
@@ -69,11 +70,11 @@ Há nomes legados fora do padrão (por exemplo `RacoesDaClinica/useRacoesManager
 ### Página
 
 - Desestrutura tudo de `use<Entidade>Manager()`. Não chama API nem guarda estado de negócio, assim a tela fica fácil de ler e a lógica pode ser testada e reaproveitada.
-- Cabeçalho com `h1` em `className="text-2xl font-bold text-[var(--verde-medio)]"` e botão `type="primary"` com `<PlusOutlined />` para cadastrar.
-- Não troca a tela inteira por spinner enquanto a lista carrega: a `Table` recebe `loading`. `LoadingSpinner` só para carregamento inicial de tela sem tabela.
+- Toda página usa `components/layout/PaginaPadrao.jsx` (seção 4.1): ela desenha o breadcrumb, o `h1`, as ações (botão `type="primary"` com `<PlusOutlined />` para cadastrar) e a linha de filtros. Não escreva `h1` nem "Voltar" à mão.
+- Tela de lista: `<PaginaPadrao titulo acoes>` com a `TabelaPadrao` dentro; a busca vai na prop `barra` da tabela. Tela de vários cards (painel, perfil, início): `<PaginaPadrao preencher={false} ...>`.
+- Não troca a tela inteira por spinner enquanto a lista carrega: a tabela recebe `loading`. `LoadingSpinner` só para carregamento inicial de tela sem tabela.
 - A tabela recebe dados e callbacks (`onEdit`, `onViewDetails`, `onToggleStatus`...).
-- Modais via `components/modal/ModalPadrao.jsx`. Em `modo="criacao"` ou `modo="edicao"`, passe `formId` igual ao `id` do `<Form>` e `isSubmitting`; o botão de submit do rodapé usa `form={formId}`. Em `modo="detalhes"` é só leitura, com `onEdit` e `onDelete` opcionais. Ícones: `FormOutlined` (cadastro), `EditOutlined` (edição) e `ProfileOutlined` (detalhes).
-- Use o `Modal` nativo do antd só quando o rodapé for diferente do padrão (exemplo: "Simular acesso"), reaproveitando as classes `modal-scroll-container` e `modal-footer-actions`.
+- Modais sempre via `components/modal/ModalPadrao.jsx` (nada de `Modal` nativo). Em `modo="criacao"` ou `modo="edicao"`, passe `formId` igual ao `id` do `<Form>` e `isSubmitting`; o botão de submit do rodapé usa `form={formId}`. Em `modo="detalhes"` é só leitura, com `onEdit` e `onDelete` opcionais. Largura por `tamanho` (`sm` 520, `md` 800 padrão, `lg` 1000); rodapé diferente com `rodape={<>...botões</>}` e sem rodapé com `rodape={null}` (formulário que já tem botões). Ícones: `FormOutlined` (cadastro), `EditOutlined` (edição) e `ProfileOutlined` (detalhes).
 
 ### Manager
 
@@ -89,9 +90,9 @@ Há nomes legados fora do padrão (por exemplo `RacoesDaClinica/useRacoesManager
 ### Tabela
 
 - `colunas.js` exporta por padrão o array das colunas de dados (`title`, `dataIndex`, `key`, `sorter`, `render`) e, quando houver filtros, a função `traduzirFiltros<Entidade>`.
-- O componente monta a coluna "Ações" com `useMemo`: botões `size="small"` com `Tooltip`, `EyeOutlined`, `EditOutlined` e o toggle de status com `Popconfirm`, em `fixed: "right"`.
-- A tabela é `<Table rowKey="id" pagination={paginacao} onChange={handleTableChange} scroll={{ x: "max-content" }} />`.
-- Seletor de colunas visíveis com `Dropdown` e `Checkbox` é opcional (modelo: `TabelaUsuariosDaClinica`).
+- O componente monta a coluna "Ações" com `useMemo`, `fixed: "right"` e `width: compacta ? 64 : N`, renderizando `<AcoesLinha compacta={compacta} acoes={[...]} />` (seção 4.1), com `const compacta = Grid.useBreakpoint().md === false`.
+- A tabela é `<TabelaPadrao barra={busca} rowKey="id" pagination={paginacao} onChange={handleTableChange} scroll={{ x: "max-content" }} />`. Nunca use `Table` do antd direto.
+- Seletor de colunas: `selecionarColunas` e `colunasIniciais={["nome", ...]}` (as outras ficam no botão "Colunas"). Modelo: `TabelaAnimaisDaClinica`.
 
 ### Formulários
 
@@ -108,11 +109,14 @@ Um componente vai para `components/` quando não conhece nenhuma entidade de neg
 As pastas atuais são:
 
 - `components/atoms/`: peças pequenas de UI com props simples, como `LoadingSpinner.jsx`, `LabelComInfo.jsx` e `SelectBuscaRemota.jsx`.
+- `components/atoms/IconeMascara.jsx`: pinta um PNG de `assets/` com uma cor do tema (máscara CSS).
+- `components/cards/`: `CardAtalho.jsx`.
 - `components/modal/`: modais base, como `ModalPadrao.jsx`.
-- `components/layout/`: estrutura da aplicação, como `LayoutAuthenticated.jsx`, `LayoutLogged.jsx`, `LayoutPublic.jsx`, `Header/AppHeader.jsx` e `Sidebar/Sidebar.jsx`.
+- `components/table/`: `TabelaPadrao.jsx`, `AcoesLinha.jsx` e `SeletorColunas.jsx`.
+- `components/layout/`: estrutura da aplicação, como `LayoutAuthenticated.jsx`, `LayoutLogged.jsx`, `LayoutPublic.jsx`, `AppShell.css`, `PaginaPadrao.jsx`, `Header/AppHeader.jsx`, `Footer/AppFooter.jsx` e `Sidebar/Sidebar.jsx`.
 - `components/servicesComponents/`: componentes de infraestrutura sem UI própria, como `ProtectedRoute.js` e `RotaPorPermissao.jsx`.
 
-Uma pasta nova (por exemplo `components/tabela/`) só quando surgir um grupo que não cabe nas existentes, com nome em português e minúsculo.
+Uma pasta nova só quando surgir um grupo que não cabe nas existentes, com nome em português e minúsculo.
 
 Regras de um componente genérico:
 
@@ -122,6 +126,15 @@ Regras de um componente genérico:
 - Estilo com classes Tailwind do tema (`text-verde-medio`, `border-verde-escuro`) ou tokens do antd, nunca cor hex solta.
 - Comentário curto no topo explicando para que serve e as props principais.
 - Ao alterar um componente genérico, procure todos os usos (`grep -rn "NomeDoComponente" src/`) e confirme que nenhuma tela quebra.
+
+## 4.1 Layout e componentes de tela
+
+- **Shell** (`AppShell.css`, usado pelos três layouts): a partir de 768px a página nunca rola; header e rodapé (`AppFooter`) ficam fixos e só a área de conteúdo rola. Abaixo de 768px a página rola com o header sticky. Na Clínica a sidebar fica expandida a partir de 992px, só com ícones entre 768 e 991px e vira gaveta (botão ☰) no celular.
+- **`PaginaPadrao`**: props `titulo`, `descricao`, `trilha` (`[{ titulo, para }]`, o último nível é o título), `acoes`, `filtros` e `preencher` (padrão `true`: o conteúdo ocupa a altura que sobra e a `TabelaPadrao` rola por dentro, com cabeçalho fixo e paginação no rodapé; `false` para telas de cards).
+- **`TabelaPadrao`**: aceita as props da `Table` do antd mais `barra` (busca e filtros à esquerda), `selecionarColunas` e `colunasIniciais`. Visual (padding 12/16, só linhas horizontais, cabeçalho verde-fraco) vem do `ant-theme.js` e da moldura em `index.css`; não sobrescreva por tela.
+- **`AcoesLinha`**: `acoes` é uma lista de `{ chave, rotulo, icone, onClick, tipo, perigo, desabilitado, carregando, confirmar, confirmarDescricao }` (itens falsos são ignorados, então `pode("x") && {...}` funciona). No desktop vira botões com Tooltip/Popconfirm; com `compacta` vira um menu ⋮.
+- **`CardAtalho`**: card de grade que leva a outra tela (`titulo`, `icone`, `valor` ou `descricao`, `rotulo`, `onClick`). Modelos: Visão Geral da Clínica e `SistemaInicioAdmin`.
+- **Responsividade**: grades com Tailwind (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`); no celular o `ModalPadrao` vira tela cheia e as ações da tabela viram ⋮. Para conferir no celular sem perder a sessão, veja a skill `teste-visual` (iframe de 375px).
 
 ## 5. Camada de API
 
@@ -185,10 +198,11 @@ Um helper novo vai para o arquivo do tipo certo, com nome em português no padr�
 
 ## 8. Tema
 
-- `theme/colors.js` é a única fonte da verdade das cores (`branco`, `cinza.*`, `verde.fraco|realce|claro|medio|escuro`, `vermelho.delete`). O `tailwind.config.js` importa esse arquivo, por isso existem classes como `text-verde-medio`.
+- `theme/colors.js` é a única fonte da verdade das cores (`branco`, `cinza.background` (header), `cinza.claro` (fundo do conteúdo), `cinza.borda`, `verde.fraco|realce|claro|medio|escuro`, `vermelho.delete` e `grafico.real|alvo` para séries de gráfico). O `tailwind.config.js` importa esse arquivo, por isso existem classes como `text-verde-medio`.
 - `theme/ant-theme.js` (`themeConfig`) mapeia essas cores para os tokens do antd. Para mudar a aparência de um componente do antd no app todo, ajuste aqui, não com CSS na tela.
 - `theme/validateMessages.js` tem as mensagens de validação em português usadas por todos os `Form`.
-- `src/index.css` repete as cores como variáveis CSS (`--verde-medio`...) e define classes globais (`modal-scroll-container`, `modal-footer-actions`, `modal-title-icon`). Ao criar ou mudar uma cor, atualize `colors.js` e as variáveis de `index.css`.
+- `src/index.css` repete as cores como variáveis CSS (`--verde-medio`...) e define classes globais (`modal-footer-actions`, `modal-title-icon`, `tabela-padrao`, `tabela-preenche`). Ao criar ou mudar uma cor, atualize `colors.js` e as variáveis de `index.css`.
+- Regra CSS que só usa classes do antd (`.ant-...`) vai **fora** do `@layer components`: o Tailwind descarta regras de layer cujas classes não aparecem no código.
 - Nas telas, prefira nesta ordem: token ou componente do antd, classe Tailwind do tema e por fim `var(--cor)`. Evite `style={{ color: "#..." }}`.
 
 ## 9. Listas, status e selects
@@ -249,6 +263,7 @@ Se a tarefa pede algo que o projeto ainda não faz (gráfico novo, upload, impre
 - Endpoints, arquivo de API, rota e menu registrados.
 - Nenhum `clinicaId` enviado pelo frontend em telas de Clínica.
 - Lista nova paginada no servidor, com status Ativo e Inativo, toggle com `Popconfirm` e selects mostrando inativos desabilitados.
+- Tela em `PaginaPadrao`, tabela em `TabelaPadrao` com `AcoesLinha`, modal em `ModalPadrao`; conferida em desktop, tablet (768–991px) e celular.
 - Cores só via tema, textos em português e feedback com `message.success` e `message.error`.
 - `npm run build` em `frontend/` sem erros e sem warnings novos.
 - Teste visual feito ou roteiro entregue ao usuário (skill `teste-visual`).

@@ -15,6 +15,7 @@ body,
 #root {
   --branco: #ffffff;
   --cinza-background: #f7f7f7;
+  --cinza-claro: #fbfbfb;
   --cinza-escuro: #9e9e9e;
   --cinza-desativado: #c0c0c0;
   --verde-fraco: #d9ffec;
@@ -33,7 +34,7 @@ body,
 
   /* Rodapé com linha separadora para formulários */
   .modal-footer-actions {
-    @apply flex justify-end mt-4 pt-4 border-t border-gray-200 gap-2; /* gap-2 substitui o marginRight: 8 nos botões */
+    @apply flex flex-wrap justify-end pt-4 border-t border-gray-200 gap-2; /* gap-2 substitui o marginRight: 8 nos botões */
   }
 
   /* Ícones de título padronizados com a cor do tema */
@@ -41,51 +42,55 @@ body,
     @apply text-verde-medio; /* Utiliza a cor já mapeada no seu tailwind.config.js */
   }
 
-  /* Estilos específicos para a TabelaPadrao que simula o design moderno de listas de processos */
-  .tabela-padrao .ant-table {
-    border-radius: 8px;
-    background: transparent;
-  }
-
-  /* Remoção das bordas externas no wrapper, transferindo o foco para as linhas horizontais */
-  .tabela-padrao.ant-table-wrapper {
-    border: none;
-    box-shadow: none;
-  }
-
-  /* Cabeçalho (Header) */
-  .tabela-padrao .ant-table-thead > tr > th {
-    background: linear-gradient(180deg, var(--verde-fraco), var(--branco)) !important;
-    color: var(--verde-escuro) !important;
-    font-weight: 600;
-    border-bottom: 2px solid var(--cinza-background) !important;
-    padding: 16px 24px;
-  }
-
-  /* Esconde pseudo-elementos (divisores verticais padrão do ant design) */
-  .tabela-padrao .ant-table-thead > tr > th::before {
-    display: none !important;
-  }
-
-  /* Células e Linhas do Corpo (Body) */
-  .tabela-padrao .ant-table-tbody > tr > td {
-    padding: 16px 24px;
-    border-bottom: 1px solid rgba(6, 68, 32, 0.15) !important; /* Linha sutil em verde escuro nas separações de linha */
-    color: #4b5563; /* cinza neutro */
-    font-weight: 500;
-  }
-
-  /* Cor de fundo para as linhas (zebra stripe sutil) */
-  .tabela-padrao .ant-table-tbody > tr.linha-par > td {
+  /* TabelaPadrao: cores, padding e linhas vêm dos tokens em theme/ant-theme.js.
+     Aqui fica só a moldura (borda e cantos), que o antd não tem como token. */
+  .tabela-padrao .ant-table-container {
     background-color: var(--branco);
-  }
-  
-  .tabela-padrao .ant-table-tbody > tr.linha-impar > td {
-    background-color: #fafafa;
+    border: 1px solid rgba(39, 143, 84, 0.15);
+    border-radius: 8px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   }
 
-  /* Hover nas linhas */
-  .tabela-padrao .ant-table-tbody > tr:hover > td {
-    background-color: rgba(39, 143, 84, 0.05) !important;
+  /* Tabela que preenche a altura (PaginaPadrao, telas >= md). Cada nível do antd vira flex
+     coluna até a .ant-table-content, que é quem rola (nas duas direções). O cabeçalho fica
+     sticky no topo dela e a paginação, fora dela, fica sempre no rodapé da área. */
+  .tabela-preenche {
+    display: flex;
+    flex-direction: column;
   }
+
+  .tabela-preenche .ant-table-wrapper,
+  .tabela-preenche .ant-spin-nested-loading,
+  .tabela-preenche .ant-spin-container,
+  .tabela-preenche .ant-table,
+  .tabela-preenche .ant-table-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tabela-preenche .ant-table-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto !important;
+  }
+
+  .tabela-preenche .ant-table-thead > tr > th {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+  }
+
+  /* Cabeçalho da coluna fixa (Ações): fica acima dos outros ao rolar para os lados */
+  .tabela-preenche .ant-table-thead > tr > th.ant-table-cell-fix-right {
+    z-index: 4;
+  }
+}
+
+/* Fora do @layer: o Tailwind descarta regras de layer cujas classes não aparecem no código.
+   Paginação de lista dentro de modal: o seletor "x / página" fica alinhado ao meio da linha
+   e passa 1px da caixa, o que criava uma barra de rolagem no corpo do modal sem necessidade. */
+.ant-modal-body .ant-list-pagination {
+  padding-bottom: 1px;
 }

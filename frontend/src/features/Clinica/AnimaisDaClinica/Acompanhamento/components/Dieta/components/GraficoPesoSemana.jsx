@@ -10,6 +10,7 @@ import {
   Legend,
   ReferenceLine,
 } from "recharts";
+import { colors } from "../../../../../../../theme/colors";
 
 const formatarPeso = (valor) =>
   typeof valor === "number"
@@ -43,10 +44,10 @@ const GraficoPesoSemana = ({ previsoes = [], registros = [], pesoInicial, pesoAl
   if (dados.length === 0) return null;
 
   return (
-    <div style={{ width: "100%", height: 260 }}>
+    <div className="w-full h-[260px]">
       <ResponsiveContainer>
         <LineChart data={dados} margin={{ top: 10, right: 16, left: 0, bottom: 16 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <CartesianGrid strokeDasharray="3 3" stroke={colors.cinza.borda} />
           <XAxis
             dataKey="semana"
             tickFormatter={(v) => (v === 0 ? "Início" : `S${v}`)}
@@ -68,16 +69,16 @@ const GraficoPesoSemana = ({ previsoes = [], registros = [], pesoInicial, pesoAl
           {typeof pesoAlvo === "number" && pesoAlvo > 0 && (
             <ReferenceLine
               y={pesoAlvo}
-              stroke="#d97706"
+              stroke={colors.grafico.alvo}
               strokeDasharray="6 4"
-              label={{ value: `Alvo ${pesoAlvo.toLocaleString("pt-BR")} kg`, position: "insideBottomRight", fontSize: 11, fill: "#d97706" }}
+              label={{ value: `Alvo ${pesoAlvo.toLocaleString("pt-BR")} kg`, position: "insideBottomRight", fontSize: 11, fill: colors.grafico.alvo }}
             />
           )}
           <Line
             type="monotone"
             dataKey="estimado"
             name="Peso estimado"
-            stroke="#278F54"
+            stroke={colors.verde.claro}
             strokeWidth={2}
             strokeDasharray="5 3"
             dot={{ r: 3 }}
@@ -86,7 +87,7 @@ const GraficoPesoSemana = ({ previsoes = [], registros = [], pesoInicial, pesoAl
             type="monotone"
             dataKey="real"
             name="Peso real"
-            stroke="#1d4ed8"
+            stroke={colors.grafico.real}
             strokeWidth={2.5}
             dot={{ r: 4 }}
             connectNulls

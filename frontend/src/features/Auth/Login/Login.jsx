@@ -47,8 +47,8 @@ const Login = () => {
   };
 
   return (
-    <Row className="min-h-[calc(100vh-64px)] flex items-start pt-[5vh] bg-verde-fraco">
-      <Col xs={24} md={14} className="p-8 md:pl-16 flex flex-col">
+    <Row className="flex-1 flex items-start pt-[5vh]">
+      <Col xs={24} md={14} className="p-6 sm:p-8 md:pl-16 flex flex-col">
         <Title level={1}>Bem-vindo ao Software IMPERIUM!</Title>
         <Paragraph className="text-base leading-relaxed">
           Este software tem como objetivo auxiliar no controle nutricional de
@@ -59,7 +59,7 @@ const Login = () => {
           necessidades energéticas dos animais.
         </Paragraph>
 
-        <div className="mt-20 xl:mt-auto pt-8 flex flex-col w-full border-t border-verde-escuro/10">
+        <div className="mt-8 md:mt-20 xl:mt-auto pt-8 flex flex-col w-full border-t border-verde-escuro/10">
           <span className="text-sm font-semibold text-verde-escuro uppercase tracking-wider mb-5 opacity-70">
             Desenvolvido em parceria com:
           </span>
@@ -83,9 +83,10 @@ const Login = () => {
       <Col
         xs={24}
         md={10}
-        className="p-8 md:pr-16 flex justify-center items-start"
+        // No celular o formulário vem antes do texto de boas-vindas, para não precisar rolar até ele
+        className="order-first md:order-none p-6 sm:p-8 md:pr-16 flex justify-center items-start"
       >
-        <div className="flex flex-col items-center bg-white rounded-3xl shadow-lg p-10 w-full max-w-[450px]">
+        <div className="flex flex-col items-center bg-white rounded-3xl shadow-lg p-6 sm:p-10 w-full max-w-[450px]">
           <Title level={2} className="text-verde-medio mb-6">
             LOGIN
           </Title>

@@ -1,100 +1,71 @@
-import React, { useState, useMemo } from "react";
-import { Button, Space, Tooltip, Popconfirm, Dropdown, Checkbox } from "antd";
-import { EyeOutlined, EditOutlined, DeleteOutlined, SettingOutlined, StopOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import React, { useMemo } from "react";
+import { Grid } from "antd";
+import { EyeOutlined, EditOutlined, DeleteOutlined, StopOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import TabelaPadrao from "../../../../../components/table/TabelaPadrao";
+import AcoesLinha from "../../../../../components/table/AcoesLinha";
 import colunas from './colunas';
 
-const TabelaTutoresDaClinica = ({ tutores, paginacao, onChange, loading, onEdit, onDelete, onToggleStatus, onViewDetails, loadingRowKey }) => {
-  const [visibleColumns, setVisibleColumns] = useState(["nome", "email", "cpf", "telefone", "isAtivo"]);
+// Colunas que aparecem ao abrir a tela; o endereço fica no botão "Colunas".
+const COLUNAS_INICIAIS = ["nome", "email", "cpf", "telefone", "isAtivo"];
 
-  const handleColumnVisibilityChange = (key) => {
-    setVisibleColumns((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-    );
-  };
+const TabelaTutoresDaClinica = ({ tutores, paginacao, onChange, loading, onEdit, onDelete, onToggleStatus, onViewDetails, loadingRowKey, barra }) => {
+  // No celular as ações viram um menu "⋮"
+  const telas = Grid.useBreakpoint();
+  const compacta = telas.md === false;
 
   const colunaAcoes = useMemo(() => ({
     title: "Ações",
     key: "acoes",
-    width: 150,
+    width: compacta ? 64 : 150,
     align: "center",
     fixed: "right",
     render: (_, record) => {
-      const isCurrentRowLoading = record.id === loadingRowKey;
+      const carregandoLinha = record.id === loadingRowKey;
       return (
-        <Space>
-          <Tooltip title="Ver Detalhes">
-            <Button size="small" icon={<EyeOutlined />} onClick={() => onViewDetails(record)} disabled={isCurrentRowLoading} />
-          </Tooltip>
-          <Tooltip title="Editar">
-            <Button size="small" icon={<EditOutlined />} onClick={() => onEdit(record)} disabled={isCurrentRowLoading} />
-          </Tooltip>
-          <Tooltip title={record.isAtivo ? "Desativar" : "Ativar"}>
-            <Popconfirm
-              title={`Tem certeza que deseja ${record.isAtivo ? "desativar" : "ativar"} este tutor?`}
-              onConfirm={() => onToggleStatus(record)}
-              okText="Sim"
-              cancelText="Não"
-              disabled={isCurrentRowLoading}
-            >
-              <Button
-                size="small"
-                icon={record.isAtivo ? <StopOutlined /> : <CheckCircleOutlined />}
-                danger={record.isAtivo}
-                loading={isCurrentRowLoading}
-              />
-            </Popconfirm>
-          </Tooltip>
-          <Tooltip title="Remover">
-            <Popconfirm
-              title="Tem certeza que deseja remover este tutor?"
-              onConfirm={() => onDelete(record)}
-              okText="Sim"
-              cancelText="Não"
-              disabled={isCurrentRowLoading}
-            >
-              <Button size="small" icon={<DeleteOutlined />} danger loading={isCurrentRowLoading} />
-            </Popconfirm>
-          </Tooltip>
-        </Space>
+        <AcoesLinha
+          compacta={compacta}
+          acoes={[
+            { chave: "detalhes", rotulo: "Ver detalhes", icone: <EyeOutlined />, onClick: () => onViewDetails(record), desabilitado: carregandoLinha },
+            { chave: "editar", rotulo: "Editar", icone: <EditOutlined />, onClick: () => onEdit(record), desabilitado: carregandoLinha },
+            {
+              chave: "status",
+              rotulo: record.isAtivo ? "Desativar" : "Ativar",
+              icone: record.isAtivo ? <StopOutlined /> : <CheckCircleOutlined />,
+              perigo: record.isAtivo,
+              carregando: carregandoLinha,
+              confirmar: `Tem certeza que deseja ${record.isAtivo ? "desativar" : "ativar"} este tutor?`,
+              onClick: () => onToggleStatus(record),
+            },
+            {
+              chave: "excluir",
+              rotulo: "Remover",
+              icone: <DeleteOutlined />,
+              perigo: true,
+              desabilitado: carregandoLinha,
+              confirmar: "Tem certeza que deseja remover este tutor?",
+              onClick: () => onDelete(record),
+            },
+          ]}
+        />
       );
     },
-  }), [onEdit, onDelete, onToggleStatus, onViewDetails, loadingRowKey]);
+  }), [onEdit, onDelete, onToggleStatus, onViewDetails, loadingRowKey, compacta]);
 
-  const colunasVisiveis = useMemo(() => [
-    ...colunas.filter((col) => visibleColumns.includes(col.key)),
-    colunaAcoes,
-  ], [visibleColumns, colunaAcoes]);
-
-  const menuColunas = (
-    <div style={{ padding: 8, backgroundColor: "white", border: "1px solid #d9d9d9", borderRadius: 4 }}>
-      {colunas.map((col) => (
-        <div key={col.key}>
-          <Checkbox checked={visibleColumns.includes(col.key)} onChange={() => handleColumnVisibilityChange(col.key)}>
-            {col.title}
-          </Checkbox>
-        </div>
-      ))}
-    </div>
-  );
+  const colunasComAcoes = useMemo(() => [...colunas, colunaAcoes], [colunaAcoes]);
 
   return (
-    <div>
-      <div style={{ marginBottom: 16, textAlign: "right" }}>
-        <Dropdown dropdownRender={() => menuColunas} trigger={["click"]}>
-          <Button icon={<SettingOutlined />}>Colunas</Button>
-        </Dropdown>
-      </div>
-      <TabelaPadrao
-        dataSource={tutores}
-        columns={colunasVisiveis}
-        rowKey="id"
-        pagination={paginacao} // paginação no servidor (usePaginacaoServidor)
-        onChange={onChange}
-        loading={loading}
-        scroll={{ x: "max-content" }}
-      />
-    </div>
+    <TabelaPadrao
+      barra={barra}
+      selecionarColunas
+      colunasIniciais={COLUNAS_INICIAIS}
+      dataSource={tutores}
+      columns={colunasComAcoes}
+      rowKey="id"
+      pagination={paginacao} // paginação no servidor (usePaginacaoServidor)
+      onChange={onChange}
+      loading={loading}
+      scroll={{ x: "max-content" }}
+    />
   );
 };
 

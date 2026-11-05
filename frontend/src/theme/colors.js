@@ -2,9 +2,11 @@
 export const colors = {
   branco: '#FFFFFF',
   cinza: {
-    background: '#F7F7F7',
+    background: '#F7F7F7', // header
+    claro: '#FBFBFB', // fundo da área de conteúdo (um pouco mais claro que o header)
     escuro: '#9E9E9E',
     desativado: '#C0C0C0',
+    borda: '#E5E7EB', // linhas neutras (grade de gráfico, trilho de barra de progresso)
   },
   verde: {
     fraco: '#D9FFEC',
@@ -15,5 +17,10 @@ export const colors = {
   },
   vermelho: {
     delete: '#D30A0A',
+  },
+  // Séries de gráfico que precisam se distinguir do verde (ex.: evolução de peso)
+  grafico: {
+    real: '#1D4ED8', // azul: medição real
+    alvo: '#D97706', // laranja: meta / referência
   },
 };

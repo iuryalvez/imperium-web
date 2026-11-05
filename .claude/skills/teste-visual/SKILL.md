@@ -25,6 +25,8 @@ Adapte à tela mudada e confira:
 - Erros da API: mensagens em português aparecem para o usuário, sem tela quebrada.
 - Perfis sem permissão: botões escondidos e, se forçar a ação, o backend responde 403.
 - Largura de celular (cerca de 375 px): sem rolagem horizontal da página e modais utilizáveis.
+  - O backend amarra o token ao User-Agent: emular celular no navegador (preset mobile ou largura < 768 px) troca o User-Agent e derruba a sessão. Para conferir o celular logado, mantenha a aba em largura de desktop e abra a tela num iframe de 375 px na mesma aba (`document.body.innerHTML = ''` e um `<iframe src="/rota" style="width:375px;height:812px">`).
+- Tablet (768 a 991 px): sidebar só com ícones e tabela preenchendo a altura, com rolagem só dentro dela.
 - Cores: só as do tema (verdes, cinzas, vermelho de exclusão), sem cor solta.
 
 Abra também o console e a aba de rede:

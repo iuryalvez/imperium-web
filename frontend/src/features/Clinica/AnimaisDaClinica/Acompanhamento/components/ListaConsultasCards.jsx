@@ -56,7 +56,8 @@ const ListaConsultasCards = ({
             className="shadow-sm border-gray-200"
             styles={{ body: { padding: "8px 12px" } }}
             title={
-              <div className="flex justify-between items-center w-full">
+              // O título do Card do antd não quebra linha: no celular a data e o profissional descem um embaixo do outro
+              <div className="flex flex-wrap justify-between items-center gap-x-3 w-full whitespace-normal py-1">
                 <span>
                   Consulta em{" "}
                   {dayjs(consulta.dataConsulta).format("DD/MM/YYYY HH:mm")}

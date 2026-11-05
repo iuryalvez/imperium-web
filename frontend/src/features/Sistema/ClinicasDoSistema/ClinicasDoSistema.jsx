@@ -1,8 +1,7 @@
 import React from "react";
-import { Button, Modal, Space, Input } from "antd";
+import { Button, Input } from "antd";
 import {
   PlusOutlined,
-  ArrowLeftOutlined,
   DesktopOutlined,
   EditOutlined,
   FormOutlined,
@@ -14,7 +13,11 @@ import FormularioEdicaoClinicaDoSistema from "./components/FormularioEdicaoClini
 import FormularioCadastroClinicaDoSistema from "./components/FormularioCadastroClinicaDoSistema/FormCadastroClinicaDoSistema.jsx";
 import FormularioDetalhesClinicaDoSistema from "./components/FormularioDetalhesClinicaDoSistema/FormDetalhesClinicaDoSistema.jsx";
 import FormularioAcessoClinicaDoSistema from "./components/FormularioAcessoClinicaDoSistema/FormAcessoClinicaDoSistema.jsx";
+import PaginaPadrao from "../../../components/layout/PaginaPadrao.jsx";
 import ModalPadrao from "../../../components/modal/ModalPadrao.jsx";
+
+// Breadcrumb: Início do admin > esta tela
+const TRILHA = [{ titulo: "Início", para: "/sistema" }];
 
 const ClinicasDoSistema = () => {
   const {
@@ -43,47 +46,37 @@ const ClinicasDoSistema = () => {
 
 
   return (
-    <div>
-      <button
-        onClick={() => window.history.back()}
-        className="flex items-center font-bold text-[var(--verde-medio)] mb-2"
+    <>
+      <PaginaPadrao
+        titulo="Gerenciamento de Clínicas do Sistema"
+        trilha={TRILHA}
+        acoes={
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenModalCadastro}>
+            Cadastrar Clínica
+          </Button>
+        }
       >
-        <ArrowLeftOutlined className="mr-2" /> Voltar
-      </button>
-
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
-          Gerenciamento de Clínicas do Sistema
-        </h1>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleOpenModalCadastro}
-        >
-          Cadastrar Clínica
-        </Button>
-      </div>
-
-      {/* Busca no servidor (com debounce); ordenação e filtros ficam nas colunas da tabela */}
-      <Input.Search
-        placeholder="Buscar por nome ou CNPJ..."
-        onChange={(e) => setBusca(e.target.value)}
-        allowClear
-        style={{ maxWidth: 320 }}
-        className="mb-4"
-      />
-
-      <TabelaClinicasDoSistema
-        loading={loading}
-        loadingRowKey={loadingRowKey}
-        paginacao={paginacao}
-        onChange={handleTableChange}
-        clinicas={clinicas}
-        onEdit={handleEditarClinica}
-        onViewDetails={handleOpenModalDetalhes}
-        onAccess={handleOpenModalAcesso}
-        onDelete={handleDeleteClinica}
-      />
+        <TabelaClinicasDoSistema
+          barra={
+            // Busca no servidor (com debounce); ordenação e filtros ficam nas colunas da tabela
+            <Input.Search
+              placeholder="Buscar por nome ou CNPJ..."
+              onChange={(e) => setBusca(e.target.value)}
+              allowClear
+              className="w-full sm:w-80"
+            />
+          }
+          loading={loading}
+          loadingRowKey={loadingRowKey}
+          paginacao={paginacao}
+          onChange={handleTableChange}
+          clinicas={clinicas}
+          onEdit={handleEditarClinica}
+          onViewDetails={handleOpenModalDetalhes}
+          onAccess={handleOpenModalAcesso}
+          onDelete={handleDeleteClinica}
+        />
+      </PaginaPadrao>
 
       {/* MODAL PADRÃO: Cadastro / Edição */}
       <ModalPadrao
@@ -98,7 +91,6 @@ const ClinicasDoSistema = () => {
             : "form-cadastro-clinica-sistema"
         }
         isSubmitting={isSubmitting}
-        width="min(850px, 95vw)"
       >
         {editingClinica ? (
           <FormularioEdicaoClinicaDoSistema
@@ -123,40 +115,30 @@ const ClinicasDoSistema = () => {
         )}
       </ModalPadrao>
 
-      {/* MODAL NATIVO (Customizado): Acesso (Simulação) */}
-      <Modal
-        title={
-          <Space>
-            <DesktopOutlined className="modal-title-icon" />
-            <span className="text-verde-escuro m-0 text-lg">
-              Simular Acesso na clínica {accessingClinica?.nomeClinica}
-            </span>
-          </Space>
-        }
+      {/* Acesso (simulação): rodapé próprio, com o botão que envia o formulário de perfis */}
+      <ModalPadrao
         open={isModalAcessoOpen}
         onCancel={handleCloseModals}
-        style={{ top: 40 }}
-        footer={
-          <div className="modal-footer-actions">
+        title={`Simular Acesso na clínica ${accessingClinica?.nomeClinica ?? ""}`}
+        icon={<DesktopOutlined />}
+        tamanho="sm"
+        rodape={
+          <>
             <Button onClick={handleCloseModals}>Cancelar</Button>
             <Button form="form-acesso-clinica" type="primary" htmlType="submit">
               Acessar {accessingClinica?.nomeClinica}
             </Button>
-          </div>
+          </>
         }
-        destroyOnClose
-        width="min(600px, 95vw)"
       >
-        <div className="modal-scroll-container">
-          {accessingClinica && (
-            <FormularioAcessoClinicaDoSistema
-              clinica={accessingClinica}
-              onFinish={handleSimularAcesso}
-            />
-          )}
-        </div>
-      </Modal>
-    </div>
+        {accessingClinica && (
+          <FormularioAcessoClinicaDoSistema
+            clinica={accessingClinica}
+            onFinish={handleSimularAcesso}
+          />
+        )}
+      </ModalPadrao>
+    </>
   );
 };
 

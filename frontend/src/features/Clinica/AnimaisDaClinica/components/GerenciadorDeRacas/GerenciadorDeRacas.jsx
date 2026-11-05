@@ -3,17 +3,16 @@ import {
   List,
   Button,
   Space,
-  Modal,
   Popconfirm,
   Tooltip,
   Tag,
   Input,
-  Divider,
   Select,
 } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
+  FormOutlined,
   DeleteOutlined,
   GlobalOutlined,
   EyeOutlined,
@@ -22,6 +21,7 @@ import {
   CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useRacasDaClinicaManager } from "./useRacasDaClinicaManager";
+import ModalPadrao from "../../../../../components/modal/ModalPadrao";
 import { usePermissao } from "../../../../../utils/usePermissao";
 import FormCadastroRaca from "./FormCadastroRaca";
 import FormEdicaoRaca from "./FormEdicaoRaca";
@@ -51,7 +51,7 @@ const GerenciadorDeRacas = () => {
   const podeEditar = pode("gerenciaAnimais");
 
   return (
-    <div>
+    <div className="flex flex-col gap-4">
       <div
         style={{
           display: "flex",
@@ -116,8 +116,6 @@ const GerenciadorDeRacas = () => {
         )}
       </div>
 
-      <Divider />
-
       <List
         loading={loading}
         grid={{ gutter: 16, column: 3, xs: 1, sm: 2, md: 3 }}
@@ -137,7 +135,7 @@ const GerenciadorDeRacas = () => {
               style={{
                 border: "1px solid #f0f0f0",
                 borderRadius: 8,
-                padding: "12px 16px",
+                padding: "10px 14px",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
@@ -230,13 +228,14 @@ const GerenciadorDeRacas = () => {
         }}
       />
 
-      <Modal
+      {/* Os formulários de raça já trazem os próprios botões, por isso o modal sem rodapé */}
+      <ModalPadrao
         title={editingRaca ? "Editar Raça" : "Cadastrar Nova Raça"}
+        icon={editingRaca ? <EditOutlined /> : <FormOutlined />}
         open={isModalOpen}
         onCancel={handleCloseModal}
-        footer={null}
-        destroyOnClose
-        centered
+        tamanho="sm"
+        rodape={null}
       >
         {editingRaca ? (
           <FormEdicaoRaca
@@ -252,7 +251,7 @@ const GerenciadorDeRacas = () => {
             isSubmitting={isSubmitting}
           />
         )}
-      </Modal>
+      </ModalPadrao>
     </div>
   );
 };

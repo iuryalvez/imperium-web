@@ -40,10 +40,11 @@ const colunas = [
     title: "Avaliação",
     dataIndex: "avaliacaoPreenchida",
     key: "avaliacaoPreenchida",
-    // O link usa o id do ACOMPANHAMENTO (a rota /acompanhamento/:acompanhamentoId); sem acompanhamento, fica desabilitado
+    // O link usa o id do ACOMPANHAMENTO (a rota /acompanhamento/:acompanhamentoId); sem acompanhamento, fica desabilitado.
+    // O texto diz a ação ("Preencher") e não o estado, para não repetir o "Pendente" da coluna Status.
     render: (preenchido, record) =>
       !record.acompanhamentoId ? (
-        <Button size="small" disabled style={{ width: "110px" }}>
+        <Button size="small" disabled className="w-[120px]">
           Sem acompanhamento
         </Button>
       ) : preenchido ? (
@@ -53,9 +54,9 @@ const colunas = [
               size="small"
               type="primary"
               icon={<LineChartOutlined />}
-              style={{ width: "110px" }}
+              className="w-[120px]"
             >
-              Preenchido
+              Preenchida
             </Button>
           </Link>
         </Tooltip>
@@ -66,9 +67,9 @@ const colunas = [
               size="small"
               type="dashed"
               icon={<LineChartOutlined />}
-              style={{ width: "110px" }}
+              className="w-[120px]"
             >
-              Pendente
+              Preencher
             </Button>
           </Link>
         </Tooltip>

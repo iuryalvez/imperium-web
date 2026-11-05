@@ -1,23 +1,19 @@
-import React, { useState, useMemo } from "react";
-import {
-  Button,
-  Space,
-  Tooltip,
-  Popconfirm,
-  Dropdown,
-  Checkbox,
-} from "antd";
-
+import React, { useMemo } from "react";
+import { Grid } from "antd";
 import {
   EyeOutlined,
   EditOutlined,
   StopOutlined,
   CheckCircleOutlined,
-  SettingOutlined,
 } from "@ant-design/icons";
 import TabelaPadrao from "../../../../../components/table/TabelaPadrao";
+import AcoesLinha from "../../../../../components/table/AcoesLinha";
 import colunas from "./colunas";
 
+// Colunas que aparecem ao abrir a tela; as outras ficam no botão "Colunas".
+const COLUNAS_INICIAIS = ["nome", "perfis", "nomeClinica", "dataCadastro"];
+
+// Lista ainda paginada no cliente: GET sistema/usuarios não segue o contrato de paginação (pendência conhecida).
 const TabelaUsuariosDoSistema = ({
   data,
   onEdit,
@@ -25,124 +21,54 @@ const TabelaUsuariosDoSistema = ({
   onViewDetails,
   loadingRowKey,
 }) => {
-  // ESTADO INTERNO DO COMPONENTE
-  const [visibleColumns, setVisibleColumns] = useState([
-    "nome",
-    "perfis",
-    "nomeClinica",
-    "dataCadastro",
-  ]);
+  // No celular as ações viram um menu "⋮"
+  const telas = Grid.useBreakpoint();
+  const compacta = telas.md === false;
 
-  const handleColumnVisibilityChange = (key) => {
-    setVisibleColumns((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-    );
-  };
-
-  // DEFINIÇÃO DA COLUNA DE AÇÕES (MEMOIZADA)
-  // Usamos useMemo porque esta coluna depende das props (onEdit, etc.).
-  // Ela só será recriada se uma dessas funções mudar.
   const colunaAcoes = useMemo(
     () => ({
       title: "Ações",
       key: "acoes",
-      width: 150,
+      width: compacta ? 64 : 120,
       align: "center",
       fixed: "right",
       render: (_, record) => {
-        const currentRowKey = record.compositeKey || record.id;
-        const isCurrentRowLoading = currentRowKey === loadingRowKey;
+        const carregandoLinha = (record.compositeKey || record.id) === loadingRowKey;
         return (
-          <Space>
-            <Tooltip title="Ver Detalhes">
-              <Button
-                size="small"
-                icon={<EyeOutlined />}
-                onClick={() => onViewDetails(record)}
-                disabled={isCurrentRowLoading}
-              />
-            </Tooltip>
-            <Tooltip title="Editar">
-              <Button
-                size="small"
-                icon={<EditOutlined />}
-                onClick={() => onEdit(record)}
-                disabled={isCurrentRowLoading}
-              />
-            </Tooltip>
-            <Tooltip title={record.isAtivo ? "Inativar" : "Ativar"}>
-              <Popconfirm
-                title={`Tem certeza que deseja ${
-                  record.isAtivo ? "inativar" : "ativar"
-                } este usuário?`}
-                onConfirm={() => onToggleStatus(record)}
-                okText="Sim"
-                cancelText="Não"
-                disabled={isCurrentRowLoading}
-              >
-                <Button
-                  size="small"
-                  icon={
-                    record.isAtivo ? <StopOutlined /> : <CheckCircleOutlined />
-                  }
-                  danger={record.isAtivo}
-                  loading={isCurrentRowLoading}
-                />
-              </Popconfirm>
-            </Tooltip>
-          </Space>
+          <AcoesLinha
+            compacta={compacta}
+            acoes={[
+              { chave: "detalhes", rotulo: "Ver detalhes", icone: <EyeOutlined />, onClick: () => onViewDetails(record), desabilitado: carregandoLinha },
+              { chave: "editar", rotulo: "Editar", icone: <EditOutlined />, onClick: () => onEdit(record), desabilitado: carregandoLinha },
+              {
+                chave: "status",
+                rotulo: record.isAtivo ? "Inativar" : "Ativar",
+                icone: record.isAtivo ? <StopOutlined /> : <CheckCircleOutlined />,
+                perigo: record.isAtivo,
+                carregando: carregandoLinha,
+                confirmar: `Tem certeza que deseja ${record.isAtivo ? "inativar" : "ativar"} este usuário?`,
+                onClick: () => onToggleStatus(record),
+              },
+            ]}
+          />
         );
       },
     }),
-    [onEdit, onToggleStatus, onViewDetails, loadingRowKey]
-  ); // Dependências da coluna de ações
-
-  // CÁLCULO DAS COLUNAS VISÍVEIS (MEMOIZADO)
-  const colunasVisiveis = useMemo(
-    () => [
-      ...colunas.filter((col) => visibleColumns.includes(col.key)),
-      colunaAcoes,
-    ],
-    [visibleColumns, colunaAcoes]
+    [onEdit, onToggleStatus, onViewDetails, loadingRowKey, compacta]
   );
 
-  const menuColunas = (
-    <div
-      style={{
-        padding: 8,
-        backgroundColor: "white",
-        border: "1px solid #d9d9d9",
-        borderRadius: 4,
-      }}
-    >
-      {colunas.map((col) => (
-        <div key={col.key}>
-          <Checkbox
-            checked={visibleColumns.includes(col.key)}
-            onChange={() => handleColumnVisibilityChange(col.key)}
-          >
-            {col.title}
-          </Checkbox>
-        </div>
-      ))}
-    </div>
-  );
+  const colunasComAcoes = useMemo(() => [...colunas, colunaAcoes], [colunaAcoes]);
 
   return (
-    <div>
-      <div style={{ marginBottom: 16, textAlign: "right" }}>
-        <Dropdown dropdownRender={() => menuColunas} trigger={["click"]}>
-          <Button icon={<SettingOutlined />}>Colunas</Button>
-        </Dropdown>
-      </div>
-      <TabelaPadrao
-        dataSource={data}
-        columns={colunasVisiveis}
-        rowKey={(record) => record.compositeKey || record.id}
-        pagination={{ pageSize: 10, showSizeChanger: true }}
-        scroll={{ x: "max-content" }}
-      />
-    </div>
+    <TabelaPadrao
+      selecionarColunas
+      colunasIniciais={COLUNAS_INICIAIS}
+      dataSource={data}
+      columns={colunasComAcoes}
+      rowKey={(record) => record.compositeKey || record.id}
+      pagination={{ pageSize: 10, showSizeChanger: true }}
+      scroll={{ x: "max-content" }}
+    />
   );
 };
 

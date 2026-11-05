@@ -243,11 +243,12 @@ namespace backend.Domain.Usuarios.Controllers
 
         // Endpoints de PERFIL PESSOAL (TODOS USUÁRIOS)
 
+        // Vale para o token de login (antes de escolher o vínculo) e para o de vínculo (dentro da clínica).
         [HttpGet("sistema/perfil")]
-        [Authorize(Policy = "AcessoLoginPolicy")]
+        [Authorize(Policy = "AcessoLoginOuTodosUsuarios")]
         public async Task<IActionResult> GetMeuPerfil()
         {
-            var usuarioId = User.GetClaimValue<int>(ClaimTypes.NameIdentifier);
+            var usuarioId = UsuarioIdDoPerfil();
             var result = await _usuarioService.GetMeuPerfilAsync(usuarioId);
 
             if (!result.Succeeded) return this.Falha(result);
@@ -255,15 +256,22 @@ namespace backend.Domain.Usuarios.Controllers
         }
 
         [HttpPut("sistema/perfil")]
-        [Authorize(Policy = "AcessoLoginPolicy")]
+        [Authorize(Policy = "AcessoLoginOuTodosUsuarios")]
         public async Task<IActionResult> UpdateMeuPerfil([FromBody] UpdateMeuPerfilDto dto)
         {
-            var usuarioId = User.GetClaimValue<int>(ClaimTypes.NameIdentifier);
+            var usuarioId = UsuarioIdDoPerfil();
             var result = await _usuarioService.UpdateMeuPerfilAsync(usuarioId, dto);
 
             if (!result.Succeeded) return this.Falha(result);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Id do usuário dono do perfil. No token de vínculo vem da claim usuarioId (o NameIdentifier é o id do vínculo);
+        /// no token de login (usuário comum ou admin) o NameIdentifier já é o id do usuário.
+        /// </summary>
+        private int UsuarioIdDoPerfil() =>
+            User.GetUsuarioId() ?? User.GetClaimValue<int>(ClaimTypes.NameIdentifier);
 
         /// <summary>No token de vínculo o NameIdentifier é o id do vínculo (upcId); no do admin, é o id do usuário (devolve nulo).</summary>
         private int? UpcIdAtual() =>

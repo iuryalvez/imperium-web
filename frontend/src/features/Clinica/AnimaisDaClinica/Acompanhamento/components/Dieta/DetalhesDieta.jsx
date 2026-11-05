@@ -9,7 +9,6 @@ import {
   Popover,
   Tag,
   Button,
-  Modal,
   Form,
   InputNumber,
   Input,
@@ -24,8 +23,11 @@ import {
   CalculatorOutlined,
   InfoCircleOutlined,
   PlusOutlined,
-  DeleteOutlined
+  DeleteOutlined,
+  LineChartOutlined
 } from "@ant-design/icons";
+import ModalPadrao from "../../../../../../components/modal/ModalPadrao";
+import { colors } from "../../../../../../theme/colors";
 import FormulaPreview from "./components/FormulaPreview";
 import GraficoPesoSemana from "./components/GraficoPesoSemana";
 
@@ -88,6 +90,7 @@ const conteudoTodasFormulas = (
 
 const DetalhesDieta = ({ dieta, isGato, onRegistrarPeso, onRemoverPeso }) => {
   const [isPesoModalVisible, setIsPesoModalVisible] = useState(false);
+  const [salvandoPeso, setSalvandoPeso] = useState(false);
   const [formPeso] = Form.useForm();
 
   if (!dieta) return null;
@@ -206,8 +209,13 @@ const DetalhesDieta = ({ dieta, isGato, onRegistrarPeso, onRemoverPeso }) => {
         pesoReal: values.pesoReal,
         observacao: values.observacao
       };
-      const ok = await onRegistrarPeso(dieta.id, dto);
-      if (ok) handleClosePesoModal();
+      setSalvandoPeso(true);
+      try {
+        const ok = await onRegistrarPeso(dieta.id, dto);
+        if (ok) handleClosePesoModal();
+      } finally {
+        setSalvandoPeso(false);
+      }
     }
   };
 
@@ -455,8 +463,8 @@ const DetalhesDieta = ({ dieta, isGato, onRegistrarPeso, onRemoverPeso }) => {
                   <Progress
                     percent={percentualProgresso}
                     size="small"
-                    strokeColor="#006634"
-                    trailColor="#e5e7eb"
+                    strokeColor={colors.verde.medio}
+                    trailColor={colors.cinza.borda}
                   />
                   {estimativaAlvoTexto && (
                     <div className="text-xs text-gray-500 mt-1">{estimativaAlvoTexto}</div>
@@ -481,7 +489,7 @@ const DetalhesDieta = ({ dieta, isGato, onRegistrarPeso, onRemoverPeso }) => {
           fontWeight: 500,
           width: "140px",
         }}
-        contentStyle={{ backgroundColor: "#ffffff" }}
+        contentStyle={{ backgroundColor: colors.branco }}
       >
         <Descriptions.Item label="Ração Base">{racao}</Descriptions.Item>
         <Descriptions.Item label="Tipo de Dieta">
@@ -523,37 +531,36 @@ const DetalhesDieta = ({ dieta, isGato, onRegistrarPeso, onRemoverPeso }) => {
       )}
 
       {/* Modal para Registrar Peso */}
-      <Modal
-        title="Registrar Peso Semanal"
+      <ModalPadrao
+        modo="criacao"
         open={isPesoModalVisible}
         onCancel={handleClosePesoModal}
-        footer={null}
-        destroyOnClose
+        title="Registrar Peso Semanal"
+        icon={<LineChartOutlined />}
+        formId="form-registrar-peso"
+        isSubmitting={salvandoPeso}
+        tamanho="sm"
       >
-        <Form form={formPeso} layout="vertical" onFinish={submitPeso} initialValues={{ semana: semanaSugerida }}>
+        <Form id="form-registrar-peso" form={formPeso} layout="vertical" onFinish={submitPeso} initialValues={{ semana: semanaSugerida }}>
           <Form.Item
             name="semana"
             label="Semana do plano"
             rules={[{ required: true, message: "Obrigatório" }]}
           >
-            <InputNumber style={{ width: "100%" }} min={1} max={15} precision={0} placeholder="Ex: 1" />
+            <InputNumber className="w-full" min={1} max={15} precision={0} placeholder="Ex: 1" />
           </Form.Item>
           <Form.Item
             name="pesoReal"
             label="Peso Real do Animal (kg)"
             rules={[{ required: true, message: "Obrigatório" }]}
           >
-            <InputNumber style={{ width: "100%" }} min={0.1} step={0.1} decimalSeparator="," placeholder="Ex: 4,8" addonAfter="kg" />
+            <InputNumber className="w-full" min={0.1} step={0.1} decimalSeparator="," placeholder="Ex: 4,8" addonAfter="kg" />
           </Form.Item>
-          <Form.Item name="observacao" label="Observação (Opcional)">
+          <Form.Item name="observacao" label="Observação (Opcional)" className="mb-0">
             <Input.TextArea rows={2} placeholder="Ex: Animal apresentou letargia" />
           </Form.Item>
-          <div className="flex justify-end gap-2 mt-4">
-            <Button onClick={handleClosePesoModal}>Cancelar</Button>
-            <Button type="primary" htmlType="submit">Salvar Registro</Button>
-          </div>
         </Form>
-      </Modal>
+      </ModalPadrao>
     </div>
   );
 };

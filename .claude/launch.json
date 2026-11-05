@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "imperium-api",
+      "runtimeExecutable": "make",
+      "runtimeArgs": ["dev-up-api"],
+      "port": 5050
+    },
+    {
+      "name": "imperium-frontend",
+      "runtimeExecutable": "make",
+      "runtimeArgs": ["dev-up-frontend"],
+      "port": 3000
+    }
+  ]
+}

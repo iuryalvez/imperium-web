@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Typography, Row, Col, Button, Collapse, Space } from "antd";
+import { Card, Typography, Row, Col, Button, Collapse, Space, Tooltip } from "antd";
 import {
   ManOutlined,
   WomanOutlined,
@@ -25,18 +25,22 @@ const FichaGeralAnimal = ({
   return (
     <Card
       className="shadow-sm border-cinza-desativado"
-      bodyStyle={{ padding: "16px 24px" }}
+      styles={{ body: { padding: "16px 24px" } }}
     >
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-        <Title level={3} className="text-verde-escuro m-0">
-          Ficha Geral - {data.nome}
+      {/* O nome do animal já está no título da página */}
+      <div className="flex flex-wrap justify-between items-center mb-4 gap-3">
+        <Title level={4} className="text-verde-escuro m-0">
+          Ficha Geral
         </Title>
         <Space wrap>
           {onEditAnimal && (
-            <Button
-              icon={<EditOutlined />}
-              onClick={() => onEditAnimal(data)}
-            ></Button>
+            <Tooltip title="Editar animal">
+              <Button
+                icon={<EditOutlined />}
+                aria-label="Editar animal"
+                onClick={() => onEditAnimal(data)}
+              />
+            </Tooltip>
           )}
           {dietaRecente && (
             <Button
@@ -59,9 +63,10 @@ const FichaGeralAnimal = ({
           }
           key="1"
         >
-          <Row gutter={[32, 16]}>
+          {/* >= lg a ficha fica na coluna lateral estreita: as duas colunas de dados viram uma */}
+          <Row gutter={[32, 8]}>
             {/* Informações Básicas */}
-            <Col xs={24} md={12}>
+            <Col xs={24} md={12} lg={24}>
               <div className="flex flex-col gap-2">
                 <Text>
                   <strong className="text-verde-escuro">Espécie:</strong>{" "}
@@ -87,7 +92,7 @@ const FichaGeralAnimal = ({
             </Col>
 
             {/* Informações Clínicas Mais Recentes */}
-            <Col xs={24} md={12}>
+            <Col xs={24} md={12} lg={24}>
               <div className="flex flex-col gap-2">
                 <Text className="flex items-center gap-1">
                   <strong className="text-verde-escuro">Sexo:</strong>{" "}

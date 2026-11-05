@@ -73,5 +73,6 @@ export const useMeuPainelDaClinicaManager = () => {
     consultasPendentes,
     handleIrParaAcompanhamento,
     handleIrParaDashboard: () => navigate("/clinica/editar"),
+    handleIrParaMeuPerfil: () => navigate("/clinica/perfil"),
   };
 };

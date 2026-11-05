@@ -10,8 +10,8 @@ const RecuperarSenha = () => {
   const { loading, onFinish } = useRecuperarSenha();
 
   return (
-    <div className="min-h-[calc(100vh-64px)] flex items-start justify-center py-12 bg-verde-fraco w-full">
-      <div className="flex flex-col items-center bg-white rounded-3xl shadow-lg p-10 w-full max-w-[450px]">
+    <div className="flex-1 flex items-start justify-center py-12 px-4 w-full">
+      <div className="flex flex-col items-center bg-white rounded-3xl shadow-lg p-6 sm:p-10 w-full max-w-[450px]">
         <Title level={2} className="text-verde-medio mb-4">
           Recuperar Senha
         </Title>

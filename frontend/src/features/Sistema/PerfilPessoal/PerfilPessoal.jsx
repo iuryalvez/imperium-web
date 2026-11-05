@@ -1,11 +1,13 @@
 import React from "react";
 import {
-  ArrowLeftOutlined,
   UserOutlined,
   ShopOutlined,
   CalendarOutlined,
 } from "@ant-design/icons";
 import { Avatar, Divider } from "antd";
+import { useLocation } from "react-router-dom";
+import PaginaPadrao from "../../../components/layout/PaginaPadrao.jsx";
+import { useAuth } from "../../../services/AuthContext";
 import LoadingSpinner from "../../../components/atoms/LoadingSpinner.jsx";
 import { usePerfilPessoalManager } from "./usePerfilPessoalManager.js";
 import FormularioEdicaoPerfilPessoal from "./components/FormularioEdicaoPerfilPessoal.jsx";
@@ -13,35 +15,32 @@ import FormularioEdicaoPerfilPessoal from "./components/FormularioEdicaoPerfilPe
 const PerfilPessoal = () => {
   const { perfil, loading, isSubmitting, handleSubmit } =
     usePerfilPessoalManager();
+  const { pathname } = useLocation();
+  const { isAdmin } = useAuth();
+
+  // Breadcrumb só fora da clínica (/sistema/perfil): dentro dela não há uma tela "raiz" para apontar
+  const naClinica = pathname.startsWith("/clinica");
+  const inicio = isAdmin
+    ? { titulo: "Início", para: "/sistema" }
+    : { titulo: "Vínculos", para: "/sistema/vinculos" };
 
   if (loading) {
     return <LoadingSpinner />;
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <button
-        onClick={() => window.history.back()}
-        className="flex items-center font-bold text-[var(--verde-medio)] mb-4 hover:opacity-80 transition-opacity"
-      >
-        <ArrowLeftOutlined className="mr-2" /> Voltar
-      </button>
-
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
-          Gerenciamento de Perfil Pessoal
-        </h1>
-        <p className="text-gray-500 text-sm">
-          As alterações feitas aqui refletirão em todas as clínicas que você
-          possui acesso.
-        </p>
-      </div>
-
+    <PaginaPadrao
+      preencher={false}
+      titulo="Gerenciamento de Perfil Pessoal"
+      descricao="As alterações feitas aqui refletirão em todas as clínicas que você possui acesso."
+      // Breadcrumb só fora da clínica (/sistema/perfil)
+      trilha={naClinica ? undefined : [inicio]}
+    >
       {/* Grid layout: 1 column on mobile, 3 columns on large screens. 
         Form takes 2 columns, Summary card takes 1.
       */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow h-fit">
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 h-fit">
           <div className="flex flex-col items-center text-center">
             <Avatar
               size={80}
@@ -80,7 +79,7 @@ const PerfilPessoal = () => {
           </div>
         </div>
 
-        <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow">
+        <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <FormularioEdicaoPerfilPessoal
             initialValues={perfil}
             onFinish={handleSubmit}
@@ -88,7 +87,7 @@ const PerfilPessoal = () => {
           />
         </div>
       </div>
-    </div>
+    </PaginaPadrao>
   );
 };
 

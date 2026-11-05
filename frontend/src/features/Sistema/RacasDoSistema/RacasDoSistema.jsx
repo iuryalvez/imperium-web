@@ -1,16 +1,22 @@
 import React from "react";
-import { Button, Input, Modal, Space } from "antd";
+import { Button, Input } from "antd";
 import {
   PlusOutlined,
-  ArrowLeftOutlined,
+  EditOutlined,
+  FormOutlined,
   ShopOutlined,
   GlobalOutlined,
 } from "@ant-design/icons";
 import { useRacasDoSistemaManager } from "./useRacasDoSistemaManager";
 import TabelaRacasDoSistema from "./components/TabelaRacasDoSistema/TabelaRacasDoSistema";
 // Formulários de raça são os mesmos da clínica (gerenciador de raças)
+import PaginaPadrao from "../../../components/layout/PaginaPadrao";
+import ModalPadrao from "../../../components/modal/ModalPadrao";
 import FormCadastroRaca from "../../Clinica/AnimaisDaClinica/components/GerenciadorDeRacas/FormCadastroRaca";
 import FormEdicaoRaca from "../../Clinica/AnimaisDaClinica/components/GerenciadorDeRacas/FormEdicaoRaca";
+
+// Breadcrumb: Início do admin > esta tela
+const TRILHA = [{ titulo: "Início", para: "/sistema" }];
 
 const RacasDoSistema = () => {
   const {
@@ -36,62 +42,56 @@ const RacasDoSistema = () => {
   const isCopias = visao === "copias";
 
   return (
-    <div>
-      <button
-        onClick={() => window.history.back()}
-        className="flex items-center font-bold text-[var(--verde-medio)] mb-2"
-      >
-        <ArrowLeftOutlined className="mr-2" /> Voltar
-      </button>
-
-      <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-        <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
-          {isCopias ? "Raças das Clínicas" : "Raças do Sistema"}
-        </h1>
-        <Space wrap>
-          <Button
-            icon={isCopias ? <GlobalOutlined /> : <ShopOutlined />}
-            onClick={handleAlternarVisao}
-          >
-            {isCopias ? "Ver raças do sistema" : "Cópias das clínicas"}
-          </Button>
-          {!isCopias && (
-            <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenModalCadastro}>
-              Cadastrar Raça
+    <>
+      <PaginaPadrao
+        titulo={isCopias ? "Raças das Clínicas" : "Raças do Sistema"}
+        trilha={TRILHA}
+        acoes={
+          <>
+            <Button
+              icon={isCopias ? <GlobalOutlined /> : <ShopOutlined />}
+              onClick={handleAlternarVisao}
+            >
+              {isCopias ? "Ver raças do sistema" : "Cópias das clínicas"}
             </Button>
-          )}
-        </Space>
-      </div>
+            {!isCopias && (
+              <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenModalCadastro}>
+                Cadastrar Raça
+              </Button>
+            )}
+          </>
+        }
+      >
+        <TabelaRacasDoSistema
+          key={visao}
+          barra={
+            <Input.Search
+              placeholder={isCopias ? "Buscar por raça ou clínica..." : "Buscar por nome..."}
+              onChange={(e) => setBusca(e.target.value)}
+              allowClear
+              className="w-full sm:w-80"
+            />
+          }
+          racas={racas}
+          loading={loading}
+          paginacao={paginacao}
+          onChange={handleTableChange}
+          visao={visao}
+          onEdit={handleEditarRaca}
+          onDelete={handleDelete}
+          onToggleStatus={handleToggleStatus}
+          loadingRowKey={loadingRowKey}
+        />
+      </PaginaPadrao>
 
-      <Input.Search
-        placeholder={isCopias ? "Buscar por raça ou clínica..." : "Buscar por nome..."}
-        onChange={(e) => setBusca(e.target.value)}
-        allowClear
-        style={{ maxWidth: 320 }}
-        className="mb-4"
-      />
-
-      <TabelaRacasDoSistema
-        key={visao}
-        racas={racas}
-        loading={loading}
-        paginacao={paginacao}
-        onChange={handleTableChange}
-        visao={visao}
-        onEdit={handleEditarRaca}
-        onDelete={handleDelete}
-        onToggleStatus={handleToggleStatus}
-        loadingRowKey={loadingRowKey}
-      />
-
-      {/* Os formulários de raça já trazem os próprios botões, por isso o Modal nativo sem rodapé */}
-      <Modal
+      {/* Os formulários de raça já trazem os próprios botões, por isso o modal sem rodapé */}
+      <ModalPadrao
         title={editingRaca ? "Editar Raça" : "Cadastrar Raça do Sistema"}
+        icon={editingRaca ? <EditOutlined /> : <FormOutlined />}
         open={isModalOpen}
         onCancel={handleCloseModal}
-        footer={null}
-        destroyOnClose
-        centered
+        tamanho="sm"
+        rodape={null}
       >
         {editingRaca ? (
           <FormEdicaoRaca
@@ -107,8 +107,8 @@ const RacasDoSistema = () => {
             isSubmitting={isSubmitting}
           />
         )}
-      </Modal>
-    </div>
+      </ModalPadrao>
+    </>
   );
 };
 

@@ -1,11 +1,12 @@
 import React from "react";
 import { Button, Card, Col, Descriptions, Row, Statistic, Tag } from "antd";
-import { DashboardOutlined } from "@ant-design/icons";
+import { DashboardOutlined, UserOutlined } from "@ant-design/icons";
 import LoadingSpinner from "../../../components/atoms/LoadingSpinner.jsx";
 import { renderPerfis } from "../../../utils/renderers";
 import { formatarTelefone } from "../../../utils/formatters";
 import { useMeuPainelDaClinicaManager } from "./useMeuPainelDaClinicaManager";
 import TabelaConsultasDoPainel from "./components/TabelaConsultasDoPainel";
+import PaginaPadrao from "../../../components/layout/PaginaPadrao";
 
 const MeuPainelDaClinica = () => {
   const {
@@ -19,6 +20,7 @@ const MeuPainelDaClinica = () => {
     consultasPendentes,
     handleIrParaAcompanhamento,
     handleIrParaDashboard,
+    handleIrParaMeuPerfil,
   } = useMeuPainelDaClinicaManager();
 
   if (loading) return <LoadingSpinner />;
@@ -28,18 +30,23 @@ const MeuPainelDaClinica = () => {
   const vet = painel.veterinario;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex justify-between items-center flex-wrap gap-2">
-        <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
-          Meu Painel {painel.nomeClinica ? `- ${painel.nomeClinica}` : ""}
-        </h1>
-        {podeVerDashboard && (
-          <Button type="primary" icon={<DashboardOutlined />} onClick={handleIrParaDashboard}>
-            Dashboard da clínica
+    <PaginaPadrao
+      preencher={false}
+      titulo="Meu Painel" // a clínica já aparece no header
+      acoes={
+        <>
+          {/* Mesmo destino do "Meu perfil" do menu do usuário */}
+          <Button icon={<UserOutlined />} onClick={handleIrParaMeuPerfil}>
+            Meu perfil
           </Button>
-        )}
-      </div>
-
+          {podeVerDashboard && (
+            <Button type="primary" icon={<DashboardOutlined />} onClick={handleIrParaDashboard}>
+              Dashboard da clínica
+            </Button>
+          )}
+        </>
+      }
+    >
       {/* Meus dados: todos os perfis */}
       <Card title="Meus dados" className="shadow-sm">
         <Descriptions column={{ xs: 1, md: 2 }} size="small">
@@ -80,7 +87,7 @@ const MeuPainelDaClinica = () => {
           </Card>
         </>
       )}
-    </div>
+    </PaginaPadrao>
   );
 };
 

@@ -1,0 +1,62 @@
+/*
+  Shell das telas (LayoutAuthenticated, LayoutLogged e LayoutPublic).
+  < md (768px): a página rola normalmente e o header fica sticky.
+  >= md: o shell ocupa exatamente a altura da janela; header e rodapé ficam fixos e só a área
+  de conteúdo rola (ou a tabela, dentro da PaginaPadrao).
+*/
+.app-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Linha sidebar + coluna principal (LayoutAuthenticated) */
+.app-shell-corpo {
+  flex: 1 1 auto;
+}
+
+/* Coluna principal: conteúdo + rodapé */
+.app-shell-principal {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.app-shell-conteudo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 16px;
+}
+
+/* Telas públicas: fundo verde-fraco e sem padding (Login e Sobre têm o próprio espaçamento) */
+.app-shell-conteudo.app-shell-conteudo-publico {
+  background-color: var(--verde-fraco);
+  padding: 0;
+}
+
+@media (min-width: 768px) {
+  .app-shell {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .app-shell-corpo,
+  .app-shell-principal {
+    min-height: 0;
+  }
+
+  .app-shell-conteudo {
+    min-height: 0;
+    overflow-y: auto;
+    padding: 24px;
+  }
+
+  /* Telas do Sistema (sem sidebar): mais respiro nas laterais */
+  .app-shell-conteudo.app-shell-conteudo-largo {
+    padding: 32px 64px 24px;
+  }
+
+  .app-shell-conteudo.app-shell-conteudo-publico {
+    padding: 0;
+  }
+}

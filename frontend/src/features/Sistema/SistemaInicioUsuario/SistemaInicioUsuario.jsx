@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 
 import { Card, Typography, Spin, Alert, Row, Col, Button } from "antd";
+import PaginaPadrao from "../../../components/layout/PaginaPadrao.jsx";
+import { renderPerfis } from "../../../utils/renderers";
 import { autenticacaoAPI } from "../../../api/autenticacaoAPI";
 import { useAuth } from "../../../services/AuthContext";
 
 import "./SistemaInicioUsuario.css";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const SistemaInicioUsuario = () => {
   const { escolherVinculo, isLoading } = useAuth();
@@ -31,7 +33,7 @@ const SistemaInicioUsuario = () => {
 
   if (pageLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center flex-1 py-16">
         <Spin size="large" />
       </div>
     );
@@ -39,29 +41,30 @@ const SistemaInicioUsuario = () => {
 
   if (error) {
     return (
-      <div className="container mx-auto my-8">
-        <Title level={2}>Lista de Vínculos</Title>
+      <PaginaPadrao preencher={false} titulo="Lista de Vínculos">
         <Alert message={error} type="error" showIcon />
-      </div>
+      </PaginaPadrao>
     );
   }
 
   return (
-    <div className="vinculos-container">
-      <Title level={2} className="vinculos-title">
-        Lista de Vínculos
-      </Title>
+    <PaginaPadrao
+      preencher={false}
+      titulo="Lista de Vínculos"
+      descricao="Escolha a clínica em que deseja trabalhar."
+    >
 
       <Row gutter={[24, 24]}>
         {vinculos.map((vinculo) => (
-          <Col xs={24} md={12} lg={8} key={vinculo.id}>
+          <Col xs={24} sm={12} lg={8} key={vinculo.id}>
             <Card
               title={vinculo.nomeClinica || "Clínica Desconhecida"}
               bordered={false}
               className="vinculo-card"
               actions={[
                 <Button
-                  type="primary" // Usará a cor do seu themeConfig
+                  type="primary"
+                  block
                   onClick={() => escolherVinculo(vinculo.id)}
                   loading={isLoading} // Usa a prop 'loading' para um UX melhor
                 >
@@ -69,18 +72,13 @@ const SistemaInicioUsuario = () => {
                 </Button>,
               ]}
             >
-              <Text strong>Perfis:</Text>
-              <br />
-              <Text>
-                {vinculo.perfis?.length > 0
-                  ? vinculo.perfis.join(", ")
-                  : "Nenhum perfil vinculado"}
-              </Text>
+              <Text strong className="block mb-2">Perfis</Text>
+              {renderPerfis(vinculo.perfis)}
             </Card>
           </Col>
         ))}
       </Row>
-    </div>
+    </PaginaPadrao>
   );
 };
 

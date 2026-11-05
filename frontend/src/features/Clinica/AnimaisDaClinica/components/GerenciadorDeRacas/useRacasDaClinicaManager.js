@@ -9,6 +9,7 @@ import { usePaginacaoServidor } from "../../../../../utils/usePaginacaoServidor"
  * Raça própria: pode ser editada, ativada/desativada e excluída (se não estiver em uso).
  */
 export const useRacasDaClinicaManager = () => {
+  // 12 por página = 4 linhas de 3 cards compactos, que cabem no modal sem rolar em telas comuns
   const lista = usePaginacaoServidor(racasDaClinicaAPI.listar, { tamanhoPagina: 12 });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);

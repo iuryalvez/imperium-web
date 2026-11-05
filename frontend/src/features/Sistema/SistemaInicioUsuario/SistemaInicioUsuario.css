@@ -1,47 +1,34 @@
-/* Container principal da página */
-.vinculos-container {
-  max-width: 1200px; /* Define uma largura máxima */
-  margin: 2rem auto;  /* Centraliza e adiciona margem (my-8) */
-}
-
-/* Título da página */
-.vinculos-title .ant-typography {
-  /* A cor já é herdada do themeConfig (token.colorText), 
-     mas podemos forçar se necessário. */
-  color: var(--verde-escuro);
-}
-
-/* Estilo customizado para os cards de vínculo */
+/* Card branco com borda verde clara e faixa do título no cinza do header (cinza.background) */
 .vinculo-card {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); /* Sombra mais sutil */
-  border-radius: 12px !important; /* O antd pode ser teimoso com bordas */
-  border: 1px solid #f0f0f0;
+  height: 100%;
+  border: 1px solid rgba(39, 143, 84, 0.15);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
 }
 
-/* Garante que a cor do título do card seja a correta */
+.vinculo-card:hover {
+  box-shadow: 0 4px 12px rgba(39, 143, 84, 0.12);
+}
+
+.vinculo-card .ant-card-head {
+  background-color: var(--cinza-background);
+  border-bottom-color: rgba(39, 143, 84, 0.15);
+}
+
 .vinculo-card .ant-card-head-title {
   color: var(--verde-escuro);
 }
 
-/* Estiliza o texto dentro do corpo do card */
 .vinculo-card .ant-card-body .ant-typography {
   color: var(--verde-escuro);
 }
 
-/* O Ant Design adiciona um padding extra nas ações do card que podemos remover */
-/* .vinculo-card .ant-card-actions {
-  padding: 0px !important;
-} */
+.vinculo-card .ant-card-actions {
+  border-top-color: rgba(39, 143, 84, 0.15);
+}
 
-/* O botão de ação dentro do card */
-/* .vinculo-card .ant-card-actions > li > span {
-    padding: 0px !important;
-    width: 100%;
-} */
-
-.vinculo-card .ant-card-actions button {
-  /* border-radius: 0 0 11px 11px !important;  */
-  height: 2.5rem;
-  font-weight: bold;
-  width: 80%;
+.vinculo-card .ant-card-actions > li {
+  margin: 12px 16px;
 }

@@ -1,10 +1,9 @@
 import React from "react";
-import { useAuth } from "../../../services/AuthContext";
-import { NavLink } from "react-router-dom";
-import { Menu, Tooltip, Typography } from "antd";
-import { HomeOutlined } from "@ant-design/icons";
+import { NavLink, useLocation } from "react-router-dom";
+import { Menu } from "antd";
 import { usePermissao } from "../../../utils/usePermissao";
 
+import MeuPainelIcon from "../../../assets/animal/pet-hotel-sign-of-a-bone-in-a-dog-house-svgrepo-com.png";
 import ClinicaIcon from "../../../assets/animal/pet-care-service-pet-grooming-service-svgrepo-com.png";
 import AnimaisIcon from "../../../assets/animal/pet-14-svgrepo-com.png";
 import ConsultasIcon from "../../../assets/document/consultation-consulting-laptop-doctor-healthy-medical-care-svgrepo-com.png";
@@ -14,10 +13,9 @@ import RacoesIcon from "../../../assets/animal/dog-food-pet-svgrepo-com.png";
 
 import "./Sidebar.css";
 
-const { Text } = Typography;
-
-const Sidebar = ({ collapsed, toggleCollapse }) => {
-  const { userName, nomeClinica } = useAuth();
+const Sidebar = ({ collapsed }) => {
+  // useLocation já vem sem o basename (/dev em homologação), ao contrário de window.location.
+  const { pathname } = useLocation();
 
   // Cada item aparece só para os perfis com a permissão (utils/permissoes.js, espelho das policies do backend).
   // O admin simulando acesso vê o que os perfis escolhidos na simulação permitem.
@@ -26,7 +24,13 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
   const menuItems = [
     {
       key: "/clinica/inicio",
-      icon: <HomeOutlined className={`sidebar-menu-icon ${collapsed ? "collapsed" : ""}`} />,
+      icon: (
+        <img
+          src={MeuPainelIcon}
+          alt="Meu Painel"
+          className={`sidebar-menu-icon ${collapsed ? "collapsed" : ""}`}
+        />
+      ),
       label: <NavLink to="/clinica/inicio">Meu Painel</NavLink>,
     },
     pode("gerenciaClinica") && {
@@ -99,31 +103,10 @@ const Sidebar = ({ collapsed, toggleCollapse }) => {
 
   return (
     <div className="sidebar-container">
-      <div className={`sidebar-header ${collapsed ? "collapsed" : ""}`}>
-        {!collapsed && (
-          // Usando Tailwind w-full e overflow-hidden para garantir que o contêiner não expanda
-          <div className="flex flex-col items-center w-full px-2 overflow-hidden">
-            {/* Tooltip mostra o nome completo caso o usuário passe o mouse sobre o texto truncado */}
-            <Tooltip title={nomeClinica || "Clínica"} placement="right">
-              <Text className="clinic-name text-center w-full" ellipsis={true}>
-                {nomeClinica || "Clínica"}
-              </Text>
-            </Tooltip>
-
-            <Tooltip title={userName || "Usuário"} placement="right">
-              <Text className="user-name text-center w-full" ellipsis={true}>
-                {userName || "Usuário"}
-              </Text>
-            </Tooltip>
-          </div>
-        )}
-      </div>
-
       <Menu
         theme="dark"
         mode="inline"
-        defaultSelectedKeys={[window.location.pathname]}
-        selectedKeys={[window.location.pathname]}
+        selectedKeys={[pathname]}
         className="sidebar-menu"
         items={menuItems}
       />

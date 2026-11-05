@@ -1,23 +1,19 @@
-import React, { useState, useMemo } from "react";
-import {
-  Button,
-  Space,
-  Tooltip,
-  Popconfirm,
-  Dropdown,
-  Checkbox,
-} from "antd";
+import React, { useMemo } from "react";
+import { Grid } from "antd";
 import {
   EyeOutlined,
   EditOutlined,
   DeleteOutlined,
-  SettingOutlined,
   LineChartOutlined,
   StopOutlined,
   CheckCircleOutlined,
 } from "@ant-design/icons";
 import TabelaPadrao from "../../../../../components/table/TabelaPadrao";
+import AcoesLinha from "../../../../../components/table/AcoesLinha";
 import colunas from "./colunas";
+
+// Colunas que aparecem ao abrir a tela; as outras (sexo, castrado, tutores) ficam no botão "Colunas".
+const COLUNAS_INICIAIS = ["nome", "especie", "racaNome", "dataCadastro", "isAtivo"];
 
 const TabelaAnimais = ({
   data,
@@ -30,149 +26,89 @@ const TabelaAnimais = ({
   onViewDetails,
   onNavigateToAcompanhamento,
   loadingRowKey,
+  barra, // busca da página, mostrada na mesma linha do botão "Colunas"
   podeEditar = true, // perfis sem "gerenciaAnimais" veem a lista sem os botões de edição
 }) => {
-  // ESTADO INTERNO para controlar as colunas visíveis.
-  // Inicializa com todas as colunas visíveis, como pedido.
-  const [visibleColumns, setVisibleColumns] = useState([
-    "nome",
-    "especie",
-    "racaNome",
-    "dataCadastro",
-    "isAtivo",
-  ]);
+  // No celular as ações viram um menu "⋮", para a coluna não ocupar metade da tela.
+  const telas = Grid.useBreakpoint();
+  const compacta = telas.md === false;
 
-  const handleColumnVisibilityChange = (key) => {
-    setVisibleColumns((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-    );
-  };
-
-  // DEFINIÇÃO DA COLUNA DE AÇÕES (MEMOIZADA)
   const colunaAcoes = useMemo(
     () => ({
       title: "Ações",
       key: "acoes",
-      width: 150,
+      width: compacta ? 64 : 170,
       align: "center",
       fixed: "right",
       render: (_, record) => {
-        const isCurrentRowLoading = record.id === loadingRowKey; // Supondo loading por ID
+        const carregandoLinha = record.id === loadingRowKey;
         return (
-          <Space>
-            <Tooltip title="Ver Detalhes">
-              <Button
-                size="small"
-                icon={<EyeOutlined />}
-                onClick={() => onViewDetails(record)}
-                disabled={isCurrentRowLoading}
-              />
-            </Tooltip>
-            {podeEditar && (
-              <Tooltip title="Editar">
-                <Button
-                  size="small"
-                  icon={<EditOutlined />}
-                  onClick={() => onEdit(record)}
-                  disabled={isCurrentRowLoading}
-                />
-              </Tooltip>
-            )}
-            <Tooltip title="Ver Acompanhamento">
-              <Button
-                type="primary"
-                size="small"
-                icon={<LineChartOutlined />}
-                onClick={() => onNavigateToAcompanhamento(record.acompanhamentoId)}
-                disabled={isCurrentRowLoading || record.acompanhamentoId == null}
-              ></Button>
-            </Tooltip>
-            {podeEditar && (<>
-            <Tooltip title={record.isAtivo ? "Desativar" : "Ativar"}>
-              <Popconfirm
-                title={`Tem certeza que deseja ${record.isAtivo ? "desativar" : "ativar"} este animal?`}
-                onConfirm={() => onToggleStatus(record)}
-                okText="Sim"
-                cancelText="Não"
-                disabled={isCurrentRowLoading}
-              >
-                <Button
-                  size="small"
-                  icon={record.isAtivo ? <StopOutlined /> : <CheckCircleOutlined />}
-                  danger={record.isAtivo}
-                  loading={isCurrentRowLoading}
-                />
-              </Popconfirm>
-            </Tooltip>
-            <Tooltip title="Excluir">
-              <Popconfirm
-                title="Tem certeza que deseja excluir?"
-                onConfirm={() => onDelete(record.id)}
-              >
-                <Button
-                  size="small"
-                  icon={<DeleteOutlined />}
-                  danger
-                  disabled={isCurrentRowLoading}
-                />
-              </Popconfirm>
-            </Tooltip>
-            </>)}
-          </Space>
+          <AcoesLinha
+            compacta={compacta}
+            acoes={[
+              {
+                chave: "detalhes",
+                rotulo: "Ver detalhes",
+                icone: <EyeOutlined />,
+                onClick: () => onViewDetails(record),
+                desabilitado: carregandoLinha,
+              },
+              podeEditar && {
+                chave: "editar",
+                rotulo: "Editar",
+                icone: <EditOutlined />,
+                onClick: () => onEdit(record),
+                desabilitado: carregandoLinha,
+              },
+              {
+                chave: "acompanhamento",
+                rotulo: "Ver acompanhamento",
+                icone: <LineChartOutlined />,
+                tipo: "primary",
+                onClick: () => onNavigateToAcompanhamento(record.acompanhamentoId),
+                desabilitado: carregandoLinha || record.acompanhamentoId == null,
+              },
+              podeEditar && {
+                chave: "status",
+                rotulo: record.isAtivo ? "Desativar" : "Ativar",
+                icone: record.isAtivo ? <StopOutlined /> : <CheckCircleOutlined />,
+                perigo: record.isAtivo,
+                carregando: carregandoLinha,
+                confirmar: `Tem certeza que deseja ${record.isAtivo ? "desativar" : "ativar"} este animal?`,
+                onClick: () => onToggleStatus(record),
+              },
+              podeEditar && {
+                chave: "excluir",
+                rotulo: "Excluir",
+                icone: <DeleteOutlined />,
+                perigo: true,
+                desabilitado: carregandoLinha,
+                confirmar: "Tem certeza que deseja excluir?",
+                onClick: () => onDelete(record.id),
+              },
+            ]}
+          />
         );
       },
     }),
-    [onEdit, onDelete, onToggleStatus, onNavigateToAcompanhamento, onViewDetails, loadingRowKey, podeEditar]
+    [onEdit, onDelete, onToggleStatus, onNavigateToAcompanhamento, onViewDetails, loadingRowKey, podeEditar, compacta]
   );
 
-  // CÁLCULO DAS COLUNAS VISÍVEIS (MEMOIZADO)
-  const colunasVisiveis = useMemo(
-    () => [
-      ...colunas.filter((col) => visibleColumns.includes(col.key)),
-      colunaAcoes,
-    ],
-    [visibleColumns, colunaAcoes]
-  );
-
-  const menuColunas = (
-    <div
-      style={{
-        padding: 8,
-        backgroundColor: "white",
-        border: "1px solid #d9d9d9",
-        borderRadius: 4,
-      }}
-    >
-      {colunas.map((col) => (
-        <div key={col.key}>
-          <Checkbox
-            checked={visibleColumns.includes(col.key)}
-            onChange={() => handleColumnVisibilityChange(col.key)}
-          >
-            {col.title}
-          </Checkbox>
-        </div>
-      ))}
-    </div>
-  );
+  const colunasComAcoes = useMemo(() => [...colunas, colunaAcoes], [colunaAcoes]);
 
   return (
-    <div>
-      <div style={{ marginBottom: 16, textAlign: "right" }}>
-        <Dropdown dropdownRender={() => menuColunas} trigger={["click"]}>
-          <Button icon={<SettingOutlined />}>Colunas</Button>
-        </Dropdown>
-      </div>
-      <TabelaPadrao
-        dataSource={data}
-        columns={colunasVisiveis}
-        rowKey="id"
-        pagination={paginacao} // paginação no servidor (usePaginacaoServidor)
-        onChange={onChange}
-        loading={loading}
-        scroll={{ x: "max-content" }}
-      />
-    </div>
+    <TabelaPadrao
+      barra={barra}
+      selecionarColunas
+      colunasIniciais={COLUNAS_INICIAIS}
+      dataSource={data}
+      columns={colunasComAcoes}
+      rowKey="id"
+      pagination={paginacao} // paginação no servidor (usePaginacaoServidor)
+      onChange={onChange}
+      loading={loading}
+      scroll={{ x: "max-content" }}
+    />
   );
 };
 

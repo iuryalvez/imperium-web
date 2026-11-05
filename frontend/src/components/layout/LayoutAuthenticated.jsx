@@ -1,58 +1,73 @@
-import React, { useState } from "react";
-import { Layout } from "antd";
-import { Outlet } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Drawer, Grid, Layout } from "antd";
+import { Outlet, useLocation } from "react-router-dom";
 import AppHeader from "./Header/AppHeader.jsx";
+import AppFooter from "./Footer/AppFooter.jsx";
 import Sidebar from "./Sidebar/Sidebar.jsx";
 import { colors } from "../../theme/colors.js";
+import "./AppShell.css";
 import "./LayoutAuthenticated.css";
 
 const { Content, Sider } = Layout;
 
+/**
+ * Shell das telas da Clínica.
+ * - >= lg (992px): sidebar expandida (pode recolher para ícones).
+ * - md a lg (768-991px): sidebar começa recolhida, só com ícones.
+ * - >= md: a página nunca rola; header, sidebar e rodapé ficam fixos e quem rola é a área de
+ *   conteúdo (ou a tabela, dentro da PaginaPadrao).
+ * - < md (celular): a sidebar vira gaveta (botão ☰ no header) e a página rola com o header sticky.
+ */
 const LayoutAuthenticated = () => {
-  const [collapsed, setCollapsed] = useState(false);
+  const telas = Grid.useBreakpoint();
+  // No primeiro render o useBreakpoint ainda não mediu a tela; assume desktop para não piscar.
+  const telaGrande = telas.lg ?? true;
+  const telaCelular = telas.md === false;
+
+  const [collapsed, setCollapsed] = useState(!telaGrande);
+  const [menuAberto, setMenuAberto] = useState(false);
+  const { pathname } = useLocation();
+
+  // Ao cruzar 992px, a sidebar expande (desktop) ou recolhe para ícones (tablet).
+  useEffect(() => setCollapsed(!telaGrande), [telaGrande]);
+
+  // Fecha a gaveta ao navegar e ao sair do tamanho de celular.
+  useEffect(() => setMenuAberto(false), [pathname, telaCelular]);
 
   return (
-    // O Layout principal envolve toda a página
-    <Layout style={{ }}>
-      <AppHeader />
-      {/* Um segundo Layout para a combinação Sider + Content */}
-      <Layout>
-        <Sider
-          collapsible
-          collapsed={collapsed}
-          onCollapse={(value) => setCollapsed(value)}
-          width={256} // Largura padrão quando expandido (w-64 do Tailwind)
-          style={{
-            // Estilos para manter a sidebar fixa enquanto o conteúdo rola
-            overflow: "auto",
-            height: "100vh",
-            position: "fixed",
-            left: 0,
-            top: 0,
-            bottom: 0,
-            marginTop: "64px",
-            backgroundColor: colors.verde.medio, // Obs: Não funciona setando no ant-theme, tive que setar aqui.
-          }}
-        >
-          {/* Nosso componente Sidebar simplificado é renderizado AQUI DENTRO */}
-          <Sidebar collapsed={collapsed} />
-        </Sider>
+    <Layout className="app-shell">
+      <AppHeader onAbrirMenu={telaCelular ? () => setMenuAberto(true) : undefined} />
 
-        {/* Este Layout de conteúdo se ajusta automaticamente à sidebar */}
-        <Layout
-          style={{
-            paddingRight: '2rem',
-            paddingLeft: '2rem',
-            marginLeft: collapsed ? 80 : 256, // Largura padrão do antd recolhido (80) e expandido (256)
-            transition: "margin-left 0.2s",
-            marginTop: 64,
-            backgroundColor: colors.branco,
-            minHeight: 'calc(100vh - 64px)', 
-          }}
-        >
-          <Content style={{ margin: "24px 16px", overflow: "initial" }}>
+      <Layout className="app-shell-corpo">
+        {telaCelular ? (
+          <Drawer
+            placement="left"
+            open={menuAberto}
+            onClose={() => setMenuAberto(false)}
+            width={256}
+            closable={false}
+            styles={{ body: { padding: 0, backgroundColor: colors.verde.medio } }}
+          >
+            <Sidebar collapsed={false} />
+          </Drawer>
+        ) : (
+          <Sider
+            collapsible
+            collapsed={collapsed}
+            onCollapse={(value) => setCollapsed(value)}
+            width={256}
+            className="app-shell-sider"
+            style={{ backgroundColor: colors.verde.medio }} // Obs: não funciona setando no ant-theme.
+          >
+            <Sidebar collapsed={collapsed} />
+          </Sider>
+        )}
+
+        <Layout className="app-shell-principal">
+          <Content className="app-shell-conteudo">
             <Outlet />
           </Content>
+          <AppFooter />
         </Layout>
       </Layout>
     </Layout>

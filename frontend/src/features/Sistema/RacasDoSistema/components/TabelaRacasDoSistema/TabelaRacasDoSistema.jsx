@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Table, Space, Tooltip, Button, Popconfirm } from "antd";
+import { Grid } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -7,10 +7,13 @@ import {
   CheckCircleOutlined,
 } from "@ant-design/icons";
 import colunas, { colunaClinica } from "./colunas";
+import TabelaPadrao from "../../../../../components/table/TabelaPadrao";
+import AcoesLinha from "../../../../../components/table/AcoesLinha";
 
 /**
  * Tabela de raças do admin, paginada no servidor.
  * visao "copias" mostra a coluna Clínica (raças próprias das clínicas).
+ * barra: busca da página, acima da tabela.
  */
 const TabelaRacasDoSistema = ({
   racas,
@@ -22,50 +25,49 @@ const TabelaRacasDoSistema = ({
   onDelete,
   onToggleStatus,
   loadingRowKey,
+  barra,
 }) => {
+  // No celular as ações viram um menu "⋮"
+  const telas = Grid.useBreakpoint();
+  const compacta = telas.md === false;
+
   const colunaAcoes = useMemo(
     () => ({
       title: "Ações",
       key: "acoes",
       fixed: "right",
       align: "center",
+      width: compacta ? 64 : 120,
       render: (_, record) => {
-        const isRowLoading = record.id === loadingRowKey;
+        const carregandoLinha = record.id === loadingRowKey;
         return (
-          <Space>
-            <Tooltip title="Editar">
-              <Button size="small" icon={<EditOutlined />} onClick={() => onEdit(record)} />
-            </Tooltip>
-            <Tooltip title={record.isAtivo ? "Desativar" : "Ativar"}>
-              <Popconfirm
-                title={`Tem certeza que deseja ${record.isAtivo ? "desativar" : "ativar"} esta raça?`}
-                onConfirm={() => onToggleStatus(record)}
-                okText="Sim"
-                cancelText="Não"
-              >
-                <Button
-                  size="small"
-                  loading={isRowLoading}
-                  danger={record.isAtivo}
-                  icon={record.isAtivo ? <StopOutlined /> : <CheckCircleOutlined />}
-                />
-              </Popconfirm>
-            </Tooltip>
-            <Tooltip title="Excluir">
-              <Popconfirm
-                title="Tem certeza que deseja excluir esta raça?"
-                onConfirm={() => onDelete(record)}
-                okText="Sim"
-                cancelText="Não"
-              >
-                <Button size="small" icon={<DeleteOutlined />} danger />
-              </Popconfirm>
-            </Tooltip>
-          </Space>
+          <AcoesLinha
+            compacta={compacta}
+            acoes={[
+              { chave: "editar", rotulo: "Editar", icone: <EditOutlined />, onClick: () => onEdit(record) },
+              {
+                chave: "status",
+                rotulo: record.isAtivo ? "Desativar" : "Ativar",
+                icone: record.isAtivo ? <StopOutlined /> : <CheckCircleOutlined />,
+                perigo: record.isAtivo,
+                carregando: carregandoLinha,
+                confirmar: `Tem certeza que deseja ${record.isAtivo ? "desativar" : "ativar"} esta raça?`,
+                onClick: () => onToggleStatus(record),
+              },
+              {
+                chave: "excluir",
+                rotulo: "Excluir",
+                icone: <DeleteOutlined />,
+                perigo: true,
+                confirmar: "Tem certeza que deseja excluir esta raça?",
+                onClick: () => onDelete(record),
+              },
+            ]}
+          />
         );
       },
     }),
-    [onEdit, onDelete, onToggleStatus, loadingRowKey],
+    [onEdit, onDelete, onToggleStatus, loadingRowKey, compacta],
   );
 
   const colunasVisiveis = useMemo(
@@ -74,7 +76,8 @@ const TabelaRacasDoSistema = ({
   );
 
   return (
-    <Table
+    <TabelaPadrao
+      barra={barra}
       dataSource={racas}
       columns={colunasVisiveis}
       rowKey="id"

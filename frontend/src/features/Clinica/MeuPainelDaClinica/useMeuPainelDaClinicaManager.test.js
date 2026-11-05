@@ -100,6 +100,13 @@ describe("seções por perfil", () => {
     expect(mockNavigate).toHaveBeenCalledWith("/clinica/editar");
   });
 
+  test("qualquer perfil vai ao Meu perfil da clínica", async () => {
+    const { result } = await montarHook(["TECNICO"]);
+
+    act(() => result.current.handleIrParaMeuPerfil());
+    expect(mockNavigate).toHaveBeenCalledWith("/clinica/perfil");
+  });
+
   test("página da seção de pendentes troca só nessa lista", async () => {
     const { result } = await montarHook(["VETERINARIO"]);
 

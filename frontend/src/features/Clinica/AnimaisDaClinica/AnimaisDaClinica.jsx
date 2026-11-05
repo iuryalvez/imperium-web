@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Space, Input } from "antd";
+import { Button, Input } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -15,6 +15,7 @@ import GerenciadorDeRacas from "./components/GerenciadorDeRacas/GerenciadorDeRac
 import TabelaAnimais from "./components/TabelaAnimaisDaClinica/TabelaAnimaisDaClinica";
 import FormDetalhesAnimal from "./components/FormularioDetalhesAnimaisDaClinica/FormDetalhesAnimais";
 import ModalPadrao from "../../../components/modal/ModalPadrao";
+import PaginaPadrao from "../../../components/layout/PaginaPadrao";
 
 const AnimaisDaClinica = () => {
   const {
@@ -50,47 +51,47 @@ const AnimaisDaClinica = () => {
 
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
-          Gerenciamento de Animais
-        </h1>
-        <Space>
-          <Button onClick={handleOpenModalRacas}>Gerenciar Raças</Button>
-          {podeEditar && (
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => handleOpenModal()}
-            >
-              Cadastrar Animal
-            </Button>
-          )}
-        </Space>
-      </div>
-
-      {/* Busca no servidor (com debounce); ordenação e filtros ficam nas colunas da tabela */}
-      <Input.Search
-        placeholder="Buscar por animal ou tutor..."
-        onChange={(e) => setBusca(e.target.value)}
-        allowClear
-        style={{ maxWidth: 320 }}
-        className="mb-4"
-      />
-
-      <TabelaAnimais
-        loading={loading}
-        paginacao={paginacao}
-        onChange={handleTableChange}
-        data={animais}
-        onEdit={handleOpenModal}
-        onDelete={handleDelete}
-        onToggleStatus={handleToggleStatus}
-        podeEditar={podeEditar}
-        onNavigateToAcompanhamento={handleNavigateToAcompanhamento}
-        onViewDetails={handleOpenModalDetalhes}
-        loadingRowKey={loadingRowKey}
-      />
+    <>
+      <PaginaPadrao
+        titulo="Gerenciamento de Animais"
+        acoes={
+          <>
+            <Button onClick={handleOpenModalRacas}>Gerenciar Raças</Button>
+            {podeEditar && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => handleOpenModal()}
+              >
+                Cadastrar Animal
+              </Button>
+            )}
+          </>
+        }
+      >
+        <TabelaAnimais
+          barra={
+            // Busca no servidor (com debounce); ordenação e filtros ficam nas colunas da tabela
+            <Input.Search
+              placeholder="Buscar por animal ou tutor..."
+              onChange={(e) => setBusca(e.target.value)}
+              allowClear
+              className="w-full sm:w-80"
+            />
+          }
+          loading={loading}
+          paginacao={paginacao}
+          onChange={handleTableChange}
+          data={animais}
+          onEdit={handleOpenModal}
+          onDelete={handleDelete}
+          onToggleStatus={handleToggleStatus}
+          podeEditar={podeEditar}
+          onNavigateToAcompanhamento={handleNavigateToAcompanhamento}
+          onViewDetails={handleOpenModalDetalhes}
+          loadingRowKey={loadingRowKey}
+        />
+      </PaginaPadrao>
 
       {/* Modal de Criação / Edição de Animal */}
       <ModalPadrao
@@ -123,6 +124,7 @@ const AnimaisDaClinica = () => {
         onCancel={handleCloseModalRacas}
         title="Gerenciamento de Raças"
         icon={<UnorderedListOutlined />}
+        tamanho="lg"
       >
         <GerenciadorDeRacas />
       </ModalPadrao>
@@ -137,7 +139,7 @@ const AnimaisDaClinica = () => {
       >
         {viewingAnimal && <FormDetalhesAnimal valores={viewingAnimal} />}
       </ModalPadrao>
-    </div>
+    </>
   );
 };
 

@@ -1,6 +1,7 @@
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { message } from "antd";
 import { perfilClinicaAPI } from "../../../api/clinica/perfilClinicaAPI";
+import { racasDaClinicaAPI } from "../../../api/clinica/racasDaClinicaAPI";
 import { useAuth } from "../../../services/AuthContext";
 import { usePerfilClinicaManager } from "./usePerfilClinicaManager";
 
@@ -8,8 +9,18 @@ jest.mock("../../../api/clinica/perfilClinicaAPI", () => ({
   perfilClinicaAPI: { getClinicaDashboard: jest.fn(), updateOwnClinica: jest.fn() },
 }));
 
+jest.mock("../../../api/clinica/racasDaClinicaAPI", () => ({
+  racasDaClinicaAPI: { listar: jest.fn() },
+}));
+
 // O AuthContext real importa a api de autenticação (axios): só o useAuth é usado aqui
 jest.mock("../../../services/AuthContext", () => ({ useAuth: jest.fn() }));
+
+const mockNavigate = jest.fn();
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useNavigate: () => mockNavigate,
+}));
 
 jest.mock("antd", () => ({
   ...jest.requireActual("antd"),
@@ -30,6 +41,33 @@ beforeEach(() => {
   jest.clearAllMocks();
   useAuth.mockReturnValue({ authData, setAuthData });
   perfilClinicaAPI.getClinicaDashboard.mockResolvedValue({ succeeded: true, data: dashboard });
+  racasDaClinicaAPI.listar.mockImplementation(async ({ especie }) => ({ itens: [], total: especie === 1 ? 90 : 70 }));
+});
+
+describe("total de raças da Visão Geral", () => {
+  test("conta cães e gatos pela listagem de raças da clínica (sistema + próprias)", async () => {
+    const { result } = await montarHook();
+
+    await waitFor(() => expect(result.current.totalRacas).toEqual({ caes: 90, gatos: 70 }));
+    expect(racasDaClinicaAPI.listar).toHaveBeenCalledWith({ pagina: 1, tamanhoPagina: 1, especie: 1 });
+    expect(racasDaClinicaAPI.listar).toHaveBeenCalledWith({ pagina: 1, tamanhoPagina: 1, especie: 2 });
+  });
+
+  test("se a listagem falhar, fica sem total e o painel carrega normalmente", async () => {
+    racasDaClinicaAPI.listar.mockRejectedValue(new Error("falhou"));
+    const { result } = await montarHook();
+
+    await waitFor(() => expect(racasDaClinicaAPI.listar).toHaveBeenCalled());
+    expect(result.current.totalRacas).toBeNull();
+    expect(result.current.dadosClinica).toEqual(dashboard);
+  });
+
+  test("handleIrPara navega para a tela do card", async () => {
+    const { result } = await montarHook();
+
+    act(() => result.current.handleIrPara("/clinica/tutores"));
+    expect(mockNavigate).toHaveBeenCalledWith("/clinica/tutores");
+  });
 });
 
 describe("carga do dashboard", () => {
@@ -118,4 +156,12 @@ describe("editar dados da clínica", () => {
     expect(perfilClinicaAPI.getClinicaDashboard).toHaveBeenCalledTimes(1);
     expect(setAuthData).not.toHaveBeenCalled();
   });
+});
+
+test("handleIrParaMeuPainel leva ao Meu Painel da clínica", async () => {
+  const { result } = await montarHook();
+
+  act(() => result.current.handleIrParaMeuPainel());
+
+  expect(mockNavigate).toHaveBeenCalledWith("/clinica/inicio");
 });

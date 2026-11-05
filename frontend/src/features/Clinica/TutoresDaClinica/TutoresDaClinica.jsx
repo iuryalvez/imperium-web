@@ -12,6 +12,7 @@ import FormularioEdicaoTutorDaClinica from "./components/FormularioEdicaoTutorDa
 import FormularioCadastroTutorDaClinica from "./components/FormularioCadastroTutorDaClinica/FormCadastroTutorDaClinica.jsx";
 import FormularioDetalhesTutorDaClinica from "./components/FormularioDetalhesTutorDaClinica/FormDetalhesTutorDaClinica.jsx";
 import ModalPadrao from "../../../components/modal/ModalPadrao.jsx";
+import PaginaPadrao from "../../../components/layout/PaginaPadrao.jsx";
 
 const TutoresDaClinica = () => {
   const {
@@ -38,40 +39,36 @@ const TutoresDaClinica = () => {
 
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-[var(--verde-medio)]">
-          Gerenciamento de Tutores
-        </h1>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleOpenModalCadastro}
-        >
-          Cadastrar Tutor
-        </Button>
-      </div>
-
-      {/* Busca no servidor (com debounce); ordenação e filtros ficam nas colunas da tabela */}
-      <Input.Search
-        placeholder="Buscar por nome, CPF ou e-mail..."
-        onChange={(e) => setBusca(e.target.value)}
-        allowClear
-        style={{ maxWidth: 320 }}
-        className="mb-4"
-      />
-
-      <TabelaTutoresDaClinica
-        loading={loading}
-        paginacao={paginacao}
-        onChange={handleTableChange}
-        tutores={tutores}
-        onEdit={handleEditarTutor}
-        onDelete={handleDeletarTutor}
-        onToggleStatus={handleToggleStatus}
-        onViewDetails={handleOpenModalDetalhes}
-        loadingRowKey={loadingRowKey}
-      />
+    <>
+      <PaginaPadrao
+        titulo="Gerenciamento de Tutores"
+        acoes={
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenModalCadastro}>
+            Cadastrar Tutor
+          </Button>
+        }
+      >
+        <TabelaTutoresDaClinica
+          barra={
+            // Busca no servidor (com debounce); ordenação e filtros ficam nas colunas da tabela
+            <Input.Search
+              placeholder="Buscar por nome, CPF ou e-mail..."
+              onChange={(e) => setBusca(e.target.value)}
+              allowClear
+              className="w-full sm:w-80"
+            />
+          }
+          loading={loading}
+          paginacao={paginacao}
+          onChange={handleTableChange}
+          tutores={tutores}
+          onEdit={handleEditarTutor}
+          onDelete={handleDeletarTutor}
+          onToggleStatus={handleToggleStatus}
+          onViewDetails={handleOpenModalDetalhes}
+          loadingRowKey={loadingRowKey}
+        />
+      </PaginaPadrao>
 
       <ModalPadrao
         modo={editingTutor ? "edicao" : "criacao"}
@@ -109,7 +106,7 @@ const TutoresDaClinica = () => {
           <FormularioDetalhesTutorDaClinica valores={viewingTutor} />
         )}
       </ModalPadrao>
-    </div>
+    </>
   );
 };
 
