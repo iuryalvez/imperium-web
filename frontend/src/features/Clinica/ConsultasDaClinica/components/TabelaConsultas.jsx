@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useRef } from "react";
 import {
-  Table,
   Button,
   Space,
   Popconfirm,
@@ -17,6 +16,7 @@ import {
   StopOutlined,
   UndoOutlined,
 } from "@ant-design/icons";
+import TabelaPadrao from "../../../../components/table/TabelaPadrao";
 import colunas from "./colunas";
 
 const TabelaConsultas = ({
@@ -171,7 +171,7 @@ const TabelaConsultas = ({
           <Button icon={<SettingOutlined />}>Colunas</Button>
         </Dropdown>
       </div>
-      <Table
+      <TabelaPadrao
         dataSource={consultas}
         columns={colunasVisiveis}
         rowKey="id"

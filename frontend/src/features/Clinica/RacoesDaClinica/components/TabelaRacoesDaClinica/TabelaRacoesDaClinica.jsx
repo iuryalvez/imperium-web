@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from "react";
 import {
-  Table,
   Space,
   Tooltip,
   Button,
@@ -19,6 +18,7 @@ import {
   EyeInvisibleOutlined,
 } from "@ant-design/icons";
 import colunas, { colunaClinica } from "./colunas";
+import TabelaPadrao from "../../../../../components/table/TabelaPadrao";
 
 /**
  * Tabela de rações paginada no servidor. Usada pela clínica e pelo admin (Sistema).
@@ -176,7 +176,7 @@ const TabelaRacoesDaClinica = ({
           <Button icon={<SettingOutlined />}>Colunas</Button>
         </Dropdown>
       </div>
-      <Table
+      <TabelaPadrao
         dataSource={racoes}
         columns={colunasVisiveis}
         rowKey="id"

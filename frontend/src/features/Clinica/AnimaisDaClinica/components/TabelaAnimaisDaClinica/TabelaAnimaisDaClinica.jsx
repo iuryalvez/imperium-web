@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from "react";
 import {
-  Table,
   Button,
   Space,
   Tooltip,
@@ -17,6 +16,7 @@ import {
   StopOutlined,
   CheckCircleOutlined,
 } from "@ant-design/icons";
+import TabelaPadrao from "../../../../../components/table/TabelaPadrao";
 import colunas from "./colunas";
 
 const TabelaAnimais = ({
@@ -163,7 +163,7 @@ const TabelaAnimais = ({
           <Button icon={<SettingOutlined />}>Colunas</Button>
         </Dropdown>
       </div>
-      <Table
+      <TabelaPadrao
         dataSource={data}
         columns={colunasVisiveis}
         rowKey="id"

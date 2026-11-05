@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
-import { Table, Button, Space, Tooltip, Popconfirm } from "antd";
+import { Button, Space, Tooltip, Popconfirm } from "antd";
 import { EyeOutlined, EditOutlined, LoginOutlined, DeleteOutlined } from "@ant-design/icons";
+import TabelaPadrao from "../../../../../components/table/TabelaPadrao";
 import colunas from './colunas';
 
 const TabelaClinicasDoSistema = ({ clinicas, paginacao, onChange, loading, loadingRowKey, onEdit, onViewDetails, onAccess, onDelete }) => {
@@ -45,7 +46,7 @@ const TabelaClinicasDoSistema = ({ clinicas, paginacao, onChange, loading, loadi
   const memoColunas = useMemo(() => [...colunas, colunaAcoes], [colunaAcoes]);
 
   return (
-    <Table
+    <TabelaPadrao
       dataSource={clinicas}
       columns={memoColunas}
       rowKey="id"

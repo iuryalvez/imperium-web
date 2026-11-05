@@ -46,7 +46,7 @@ const LayoutAuthenticated = () => {
             marginLeft: collapsed ? 80 : 256, // Largura padrão do antd recolhido (80) e expandido (256)
             transition: "margin-left 0.2s",
             marginTop: 64,
-            backgroundColor: colors.verde.fraco,
+            backgroundColor: colors.branco,
             minHeight: 'calc(100vh - 64px)', 
           }}
         >
