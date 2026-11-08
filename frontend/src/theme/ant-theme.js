@@ -5,7 +5,7 @@ export const themeConfig = {
     colorPrimary: colors.verde.medio,
     colorSuccess: colors.verde.realce,
     colorError: colors.vermelho.delete,
-    colorInfo: colors.verde.medio,
+    colorInfo: colors.azul.info, // azul informativo (ⓘ, Alert info), separado do verde das ações
     colorBgLayout: colors.cinza.claro, // Fundo do conteúdo: cinza claro, para cards/tabelas/modais brancos se destacarem
     
     colorText: colors.verde.escuro,
@@ -15,8 +15,8 @@ export const themeConfig = {
   },
   components: {
     Alert: {
-      colorInfoBg: colors.verde.fraco,
-      colorInfoBorder: colors.verde.claro,
+      colorInfoBg: colors.azul.fraco,
+      colorInfoBorder: colors.azul.borda,
     },
     Button: {
       colorPrimaryActive: colors.verde.escuro,

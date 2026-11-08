@@ -19,7 +19,7 @@ const LabelComInfo = ({ label, tituloPopover, conteudoPopover }) => (
       trigger="click"
       placement="right"
     >
-      <InfoCircleOutlined className="text-verde-medio cursor-pointer hover:text-verde-escuro transition-colors" />
+      <InfoCircleOutlined className="text-azul-info cursor-pointer hover:text-azul-hover transition-colors" />
     </Popover>
   </Space>
 );

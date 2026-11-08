@@ -239,7 +239,7 @@ const DetalhesDieta = ({ dieta, isGato, onRegistrarPeso, onRemoverPeso }) => {
               trigger="click"
               placement="right"
             >
-              <InfoCircleOutlined className="text-[var(--verde-medio)] cursor-pointer hover:text-[var(--verde-escuro)] transition-colors text-sm" />
+              <InfoCircleOutlined className="text-azul-info cursor-pointer hover:text-azul-hover transition-colors text-sm" />
             </Popover>
           </div>
           <Statistic

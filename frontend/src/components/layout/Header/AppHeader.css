@@ -125,3 +125,10 @@
     display: none;
   }
 }
+
+/* Itens do menu do usuário que só repetem o que o header já mostra a partir de md */
+@media (min-width: 768px) {
+  .app-header-so-celular {
+    display: none !important;
+  }
+}

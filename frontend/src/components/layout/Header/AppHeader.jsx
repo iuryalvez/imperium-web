@@ -48,16 +48,18 @@ const AppHeader = ({ onAbrirMenu }) => {
   const menuUsuario = useMemo(
     () => ({
       items: [
+        // Identificação no topo do menu. O nome e a clínica já aparecem no header a partir de md,
+        // então no menu só aparecem no celular (onde o header mostra só o avatar). Sem vínculo,
+        // no desktop não sobra nada, e o bloco inteiro (com a linha abaixo) some.
         {
           key: "identificacao",
           disabled: true,
-          className: "app-header-usuario-identificacao",
+          className: `app-header-usuario-identificacao ${isAuthenticated ? "" : "app-header-so-celular"}`,
           label: (
             <div className="flex flex-col py-1">
-              <span className="font-semibold text-verde-escuro">{userName || "Usuário"}</span>
+              <span className="font-semibold text-verde-escuro md:hidden">{userName || "Usuário"}</span>
               {isAuthenticated && (
                 <>
-                  {/* A clínica já aparece no header; no menu, só no celular (onde o header a esconde) */}
                   <span className="text-xs text-gray-500 md:hidden">{nomeClinica}</span>
                   <span className="text-xs text-gray-500">{rotuloPerfis(perfis)}</span>
                 </>
@@ -65,7 +67,7 @@ const AppHeader = ({ onAbrirMenu }) => {
             </div>
           ),
         },
-        { type: "divider" },
+        { type: "divider", className: isAuthenticated ? undefined : "app-header-so-celular" },
         {
           key: "perfil",
           icon: <UserOutlined />,

@@ -18,6 +18,13 @@ export const colors = {
   vermelho: {
     delete: '#D30A0A',
   },
+  // Informativo: ícones de ajuda (ⓘ) e avisos "info". Azul escuro para ter contraste no branco.
+  azul: {
+    info: '#1D4ED8',
+    hover: '#1E3A8A',
+    fraco: '#EFF6FF', // fundo de Alert info
+    borda: '#BFDBFE', // borda de Alert info
+  },
   // Séries de gráfico que precisam se distinguir do verde (ex.: evolução de peso)
   grafico: {
     real: '#1D4ED8', // azul: medição real
