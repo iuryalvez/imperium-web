@@ -10,6 +10,8 @@ import colunas, { colunaClinica } from "./colunas";
 import TabelaPadrao from "../../../../../components/table/TabelaPadrao";
 import AcoesLinha from "../../../../../components/table/AcoesLinha";
 
+const COLUNAS_CELULAR = ["nome", "especie"];
+
 /**
  * Tabela de raças do admin, paginada no servidor.
  * visao "copias" mostra a coluna Clínica (raças próprias das clínicas).
@@ -78,6 +80,8 @@ const TabelaRacasDoSistema = ({
   return (
     <TabelaPadrao
       barra={barra}
+      selecionarColunas
+      colunasCelular={COLUNAS_CELULAR}
       dataSource={racas}
       columns={colunasVisiveis}
       rowKey="id"

@@ -21,6 +21,8 @@ const COLUNAS_INICIAIS = [
   "status",
 ];
 
+const COLUNAS_CELULAR = ["dataConsulta", "nomeAnimal"];
+
 const TabelaConsultas = ({
   consultas,
   paginacao,
@@ -123,6 +125,7 @@ const TabelaConsultas = ({
       barra={barra}
       selecionarColunas
       colunasIniciais={COLUNAS_INICIAIS}
+      colunasCelular={COLUNAS_CELULAR}
       dataSource={consultas}
       columns={colunasComAcoes}
       rowKey="id"

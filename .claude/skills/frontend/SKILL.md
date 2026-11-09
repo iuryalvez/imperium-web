@@ -93,6 +93,7 @@ Há nomes legados fora do padrão (por exemplo `RacoesDaClinica/useRacoesManager
 - O componente monta a coluna "Ações" com `useMemo`, `fixed: "right"` e `width: compacta ? 64 : N`, renderizando `<AcoesLinha compacta={compacta} acoes={[...]} />` (seção 4.1), com `const compacta = Grid.useBreakpoint().md === false`.
 - A tabela é `<TabelaPadrao barra={busca} rowKey="id" pagination={paginacao} onChange={handleTableChange} scroll={{ x: "max-content" }} />`. Nunca use `Table` do antd direto.
 - Seletor de colunas: `selecionarColunas` e `colunasIniciais={["nome", ...]}` (as outras ficam no botão "Colunas"). Modelo: `TabelaAnimaisDaClinica`.
+- Toda tabela de tela tem `colunasCelular` com só o essencial (em geral o nome; Animais: nome e tutores; Consultas: data e paciente). A tela é lida ao abrir; o botão "Colunas" libera o resto em qualquer tamanho. Padrão do desktop enxuto: dados de contato, documentos e nutrientes ficam fora de `colunasIniciais`.
 
 ### Formulários
 
@@ -131,9 +132,9 @@ Regras de um componente genérico:
 
 - **Shell** (`AppShell.css`, usado pelos três layouts): a partir de 768px a página nunca rola; header e rodapé (`AppFooter`) ficam fixos e só a área de conteúdo rola. Abaixo de 768px a página rola com o header sticky. Na Clínica a sidebar fica expandida a partir de 992px, só com ícones entre 768 e 991px e vira gaveta (botão ☰) no celular.
 - **`PaginaPadrao`**: props `titulo`, `descricao`, `trilha` (`[{ titulo, para }]`, o último nível é o título), `acoes`, `filtros` e `preencher` (padrão `true`: o conteúdo ocupa a altura que sobra e a `TabelaPadrao` rola por dentro, com cabeçalho fixo e paginação no rodapé; `false` para telas de cards).
-- **`TabelaPadrao`**: aceita as props da `Table` do antd mais `barra` (busca e filtros à esquerda), `selecionarColunas` e `colunasIniciais`. Visual (padding 12/16, só linhas horizontais, cabeçalho verde-fraco) vem do `ant-theme.js` e da moldura em `index.css`; não sobrescreva por tela.
+- **`TabelaPadrao`**: aceita as props da `Table` do antd mais `barra` (busca e filtros à esquerda), `selecionarColunas`, `colunasIniciais` e `colunasCelular`. Visual (padding 12/16, só linhas horizontais, cabeçalho verde-fraco) vem do `ant-theme.js` e da moldura em `index.css`; não sobrescreva por tela.
 - **`AcoesLinha`**: `acoes` é uma lista de `{ chave, rotulo, icone, onClick, tipo, perigo, desabilitado, carregando, confirmar, confirmarDescricao }` (itens falsos são ignorados, então `pode("x") && {...}` funciona). No desktop vira botões com Tooltip/Popconfirm; com `compacta` vira um menu ⋮.
-- **`CardAtalho`**: card de grade que leva a outra tela (`titulo`, `icone`, `valor` ou `descricao`, `rotulo`, `onClick`). Modelos: Visão Geral da Clínica e `SistemaInicioAdmin`.
+- **`CardAtalho`**: card de grade que leva a outra tela (`titulo`, `icone`, `valor` ou `descricao`, `rotulo`, `onClick`). O card inteiro é clicável (mouse e teclado). Modelos: Visão Geral da Clínica e `SistemaInicioAdmin`.
 - **Responsividade**: grades com Tailwind (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`); no celular o `ModalPadrao` vira tela cheia e as ações da tabela viram ⋮. Para conferir no celular sem perder a sessão, veja a skill `teste-visual` (iframe de 375px).
 
 ## 5. Camada de API
@@ -198,7 +199,7 @@ Um helper novo vai para o arquivo do tipo certo, com nome em português no padr�
 
 ## 8. Tema
 
-- `theme/colors.js` é a única fonte da verdade das cores (`branco`, `cinza.background` (header), `cinza.claro` (fundo do conteúdo), `cinza.borda`, `verde.fraco|realce|claro|medio|escuro`, `vermelho.delete` e `grafico.real|alvo` para séries de gráfico). O `tailwind.config.js` importa esse arquivo, por isso existem classes como `text-verde-medio`.
+- `theme/colors.js` é a única fonte da verdade das cores (`branco`, `cinza.background` (header), `cinza.claro` (fundo do conteúdo), `cinza.borda`, `verde.fraco|realce|claro|medio|escuro`, `vermelho.delete`, `azul.info|hover|fraco|borda` para informação e `grafico.real|alvo` para séries de gráfico). Azul é só para informar (ícones ⓘ, `Alert type="info"`; o `colorInfo` do tema é azul); ações e links continuam verdes (`colorLink` fixado no verde, porque o antd o derivaria do `colorInfo`). O `tailwind.config.js` importa esse arquivo, por isso existem classes como `text-verde-medio`.
 - `theme/ant-theme.js` (`themeConfig`) mapeia essas cores para os tokens do antd. Para mudar a aparência de um componente do antd no app todo, ajuste aqui, não com CSS na tela.
 - `theme/validateMessages.js` tem as mensagens de validação em português usadas por todos os `Form`.
 - `src/index.css` repete as cores como variáveis CSS (`--verde-medio`...) e define classes globais (`modal-footer-actions`, `modal-title-icon`, `tabela-padrao`, `tabela-preenche`). Ao criar ou mudar uma cor, atualize `colors.js` e as variáveis de `index.css`.

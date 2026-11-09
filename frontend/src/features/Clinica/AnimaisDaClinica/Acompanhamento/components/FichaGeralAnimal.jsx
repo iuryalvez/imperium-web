@@ -66,7 +66,7 @@ const FichaGeralAnimal = ({
           {/* >= lg a ficha fica na coluna lateral estreita: as duas colunas de dados viram uma */}
           <Row gutter={[32, 8]}>
             {/* Informações Básicas */}
-            <Col xs={24} md={12} lg={24}>
+            <Col xs={24} md={12} xl={24}>
               <div className="flex flex-col gap-2">
                 <Text>
                   <strong className="text-verde-escuro">Espécie:</strong>{" "}
@@ -92,7 +92,7 @@ const FichaGeralAnimal = ({
             </Col>
 
             {/* Informações Clínicas Mais Recentes */}
-            <Col xs={24} md={12} lg={24}>
+            <Col xs={24} md={12} xl={24}>
               <div className="flex flex-col gap-2">
                 <Text className="flex items-center gap-1">
                   <strong className="text-verde-escuro">Sexo:</strong>{" "}

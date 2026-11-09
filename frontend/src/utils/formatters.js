@@ -94,3 +94,25 @@ export const formatarGrauAtividade = (value) => {
         default: return <Typography.Text type="secondary">Sem dados de consultas</Typography.Text>;
     }
 };
+/**
+ * Idade a partir da data de nascimento, para ajudar no cadastro do animal.
+ * Ex.: "2 anos e 3 meses", "1 ano", "5 meses", "menos de 1 mês".
+ * @param {dayjs.Dayjs | string | Date} nascimento
+ * @param {dayjs.Dayjs} [hoje] - referência (para testes).
+ * @returns {string | null} null sem data ou com data futura.
+ */
+export const formatarIdade = (nascimento, hoje = dayjs()) => {
+    if (!nascimento) return null;
+    const data = dayjs(nascimento);
+    if (!data.isValid() || data.isAfter(hoje, 'day')) return null;
+
+    const totalMeses = hoje.diff(data, 'month');
+    const anos = Math.floor(totalMeses / 12);
+    const meses = totalMeses % 12;
+    const texto = (n, singular, plural) => `${n} ${n === 1 ? singular : plural}`;
+
+    if (anos === 0 && meses === 0) return 'menos de 1 mês';
+    if (anos === 0) return texto(meses, 'mês', 'meses');
+    if (meses === 0) return texto(anos, 'ano', 'anos');
+    return `${texto(anos, 'ano', 'anos')} e ${texto(meses, 'mês', 'meses')}`;
+};

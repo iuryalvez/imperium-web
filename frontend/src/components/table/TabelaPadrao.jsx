@@ -3,6 +3,10 @@ import { Grid, Table } from "antd";
 import { PreencherAlturaContext } from "../layout/PaginaPadrao";
 import SeletorColunas from "./SeletorColunas";
 
+// Mesmo limite do breakpoint md do antd e do Tailwind
+const ehCelular = () =>
+  typeof window !== "undefined" && !!window.matchMedia?.("(max-width: 767px)").matches;
+
 /**
  * TabelaPadrao
  * Padroniza o visual de todas as tabelas (tokens em theme/ant-theme.js e moldura em index.css)
@@ -13,6 +17,8 @@ import SeletorColunas from "./SeletorColunas";
  * - selecionarColunas: mostra o botão "Colunas" à direita da barra. A coluna de key "acoes"
  *   fica sempre visível e fora da lista.
  * - colunasIniciais: keys das colunas visíveis ao abrir (padrão: todas).
+ * - colunasCelular: keys das colunas visíveis ao abrir no celular (< 768px). Sem ela, o celular usa
+ *   colunasIniciais. A tela é lida só ao abrir; depois o botão "Colunas" libera as outras.
  * - preencherAltura: em telas >= md, a tabela ocupa a altura que sobra no contêiner e as linhas
  *   rolam por dentro, com cabeçalho fixo (sticky) e paginação no rodapé da área. É feito só com
  *   CSS (.tabela-preenche em index.css), sem scroll.y, para o cabeçalho continuar na mesma
@@ -23,6 +29,7 @@ const TabelaPadrao = ({
   barra,
   selecionarColunas = false,
   colunasIniciais,
+  colunasCelular,
   preencherAltura,
   columns = [],
   scroll,
@@ -40,11 +47,13 @@ const TabelaPadrao = ({
   );
   // Guarda as ocultas (e não as visíveis) para que uma coluna que surja depois (ex.: "Clínica" no
   // modo cópias das rações) já apareça visível.
-  const [ocultas, setOcultas] = useState(() =>
-    colunasIniciais
-      ? colunasOpcionais.map((col) => col.key).filter((key) => !colunasIniciais.includes(key))
-      : []
-  );
+  const [ocultas, setOcultas] = useState(() => {
+    // matchMedia e não o useBreakpoint: no primeiro render o useBreakpoint ainda vem vazio
+    const iniciais = colunasCelular && ehCelular() ? colunasCelular : colunasIniciais;
+    return iniciais
+      ? colunasOpcionais.map((col) => col.key).filter((key) => !iniciais.includes(key))
+      : [];
+  });
   const visiveis = useMemo(
     () => colunasOpcionais.map((col) => col.key).filter((key) => !ocultas.includes(key)),
     [colunasOpcionais, ocultas]

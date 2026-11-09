@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import dayjs from "dayjs";
 import {
   formatarData,
   formatarDataCadastroPerfil,
@@ -9,6 +10,7 @@ import {
   formatarEspecie,
   formatarSexo,
   formatarGrauAtividade,
+  formatarIdade,
 } from "./formatters";
 
 describe("formatarCPF", () => {
@@ -89,5 +91,26 @@ describe("enums", () => {
     expect(formatarGrauAtividade(3)).toBe("Alto");
     render(<div>{formatarGrauAtividade(undefined)}</div>);
     expect(screen.getByText("Sem dados de consultas")).toBeInTheDocument();
+  });
+});
+
+describe("formatarIdade", () => {
+  const hoje = dayjs("2026-11-09");
+
+  test("anos e meses, no singular e no plural", () => {
+    expect(formatarIdade("2024-08-01", hoje)).toBe("2 anos e 3 meses");
+    expect(formatarIdade("2025-10-01", hoje)).toBe("1 ano e 1 mês");
+    expect(formatarIdade("2023-11-09", hoje)).toBe("3 anos");
+    expect(formatarIdade("2026-06-01", hoje)).toBe("5 meses");
+  });
+
+  test("menos de um mês de vida", () => {
+    expect(formatarIdade("2026-10-20", hoje)).toBe("menos de 1 mês");
+    expect(formatarIdade("2026-11-09", hoje)).toBe("menos de 1 mês");
+  });
+
+  test("sem data ou com data futura não mostra nada", () => {
+    expect(formatarIdade(null, hoje)).toBeNull();
+    expect(formatarIdade("2026-11-10", hoje)).toBeNull();
   });
 });

@@ -6,7 +6,9 @@ import AcoesLinha from "../../../../../components/table/AcoesLinha";
 import colunas from './colunas';
 
 // Colunas que aparecem ao abrir a tela; o endereço fica no botão "Colunas".
-const COLUNAS_INICIAIS = ["nome", "email", "cpf", "telefone", "isAtivo"];
+// Contato e documentos ficam no botão "Colunas"
+const COLUNAS_INICIAIS = ["nome", "isAtivo"];
+const COLUNAS_CELULAR = ["nome"];
 
 const TabelaTutoresDaClinica = ({ tutores, paginacao, onChange, loading, onEdit, onDelete, onToggleStatus, onViewDetails, loadingRowKey, barra }) => {
   // No celular as ações viram um menu "⋮"
@@ -58,6 +60,7 @@ const TabelaTutoresDaClinica = ({ tutores, paginacao, onChange, loading, onEdit,
       barra={barra}
       selecionarColunas
       colunasIniciais={COLUNAS_INICIAIS}
+      colunasCelular={COLUNAS_CELULAR}
       dataSource={tutores}
       columns={colunasComAcoes}
       rowKey="id"

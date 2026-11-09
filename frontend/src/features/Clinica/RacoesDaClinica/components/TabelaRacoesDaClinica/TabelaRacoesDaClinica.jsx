@@ -13,6 +13,11 @@ import colunas, { colunaClinica } from "./colunas";
 import TabelaPadrao from "../../../../../components/table/TabelaPadrao";
 import AcoesLinha from "../../../../../components/table/AcoesLinha";
 
+// Os nutrientes, a unidade, o status e o cadastro ficam no botão "Colunas".
+// "nomeClinica" só existe no modo "copias".
+const COLUNAS_INICIAIS = ["nome", "especie", "nomeClinica"];
+const COLUNAS_CELULAR = ["nome"];
+
 /**
  * Tabela de rações paginada no servidor. Usada pela clínica e pelo admin (Sistema).
  * modo:
@@ -107,6 +112,8 @@ const TabelaRacoesDaClinica = ({
     <TabelaPadrao
       barra={barra}
       selecionarColunas
+      colunasIniciais={COLUNAS_INICIAIS}
+      colunasCelular={COLUNAS_CELULAR}
       dataSource={racoes}
       columns={colunasComAcoes}
       rowKey="id"

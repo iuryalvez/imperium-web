@@ -6,6 +6,10 @@ export const themeConfig = {
     colorSuccess: colors.verde.realce,
     colorError: colors.vermelho.delete,
     colorInfo: colors.azul.info, // azul informativo (ⓘ, Alert info), separado do verde das ações
+    // O antd deriva a cor de link do colorInfo; os links são ações, então ficam no verde
+    colorLink: colors.verde.medio,
+    colorLinkHover: colors.verde.claro,
+    colorLinkActive: colors.verde.escuro,
     colorBgLayout: colors.cinza.claro, // Fundo do conteúdo: cinza claro, para cards/tabelas/modais brancos se destacarem
     
     colorText: colors.verde.escuro,

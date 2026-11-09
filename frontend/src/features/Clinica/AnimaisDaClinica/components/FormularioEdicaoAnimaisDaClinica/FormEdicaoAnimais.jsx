@@ -7,12 +7,15 @@ import {
   Switch,
   Row,
   Col,
-  Checkbox
+  Checkbox,
+  Alert,
 } from "antd";
 import dayjs from "dayjs";
 import { tutoresDaClinicaAPI } from "../../../../../api/clinica/tutoresDaClinicaAPI";
 import { racasDaClinicaAPI } from "../../../../../api/clinica/racasDaClinicaAPI";
 import SelectBuscaRemota from "../../../../../components/atoms/SelectBuscaRemota";
+import { useAuth } from "../../../../../services/AuthContext";
+import { formatarIdade } from "../../../../../utils/formatters";
 
 const opcoesEspecie = [
   { value: 1, label: "Cão" },
@@ -31,6 +34,12 @@ const FormEdicaoAnimal = ({
 
   const especieSelecionada = Form.useWatch("especie", form);
   const sobTutelaClinica = Form.useWatch("sobTutelaClinica", form);
+  const nascimento = Form.useWatch("nascimento", form);
+  const idade = formatarIdade(nascimento);
+  // Só o admin marca ou desmarca a tutela da clínica. Os outros perfis não veem o checkbox,
+  // mas um animal que já está sob tutela continua assim (aviso no lugar, tutor não obrigatório).
+  const { isAdmin } = useAuth();
+  const jaSobTutela = (initialValues?.tutorIds || []).length === 0;
 
   // Efeito para preencher o formulário com os valores iniciais
   useEffect(() => {
@@ -91,7 +100,8 @@ const FormEdicaoAnimal = ({
               dependencias={[especieSelecionada]}
             />
           </Form.Item>
-          <Form.Item name="sobTutelaClinica" valuePropName="checked" style={{ marginBottom: 8 }}>
+          {/* O campo fica no form (escondido) para o valor continuar valendo na validação dos tutores */}
+          <Form.Item name="sobTutelaClinica" valuePropName="checked" style={{ marginBottom: 8 }} hidden={!isAdmin}>
             <Checkbox
               onChange={(e) => {
                 if (e.target.checked) {
@@ -102,6 +112,14 @@ const FormEdicaoAnimal = ({
               Animal sob tutela da clínica
             </Checkbox>
           </Form.Item>
+          {!isAdmin && jaSobTutela && (
+            <Alert
+              className="mb-4"
+              type="info"
+              showIcon
+              message="Animal sob tutela da clínica"
+            />
+          )}
           <Form.Item 
             name="tutorIds" 
             label="Tutor(es) Responsável(is)"
@@ -122,8 +140,13 @@ const FormEdicaoAnimal = ({
             name="nascimento"
             label="Data de Nascimento"
             rules={[{ required: true }]}
+            extra={idade && `Idade: ${idade}`}
           >
-            <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
+            <DatePicker
+              style={{ width: "100%" }}
+              format="DD/MM/YYYY"
+              disabledDate={(data) => data.isAfter(dayjs(), "day")}
+            />
           </Form.Item>
           <Form.Item name="sexo" label="Sexo" rules={[{ required: true }]}>
             <Select options={opcoesSexo} />

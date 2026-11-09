@@ -12,8 +12,9 @@ import TabelaPadrao from "../../../../../components/table/TabelaPadrao";
 import AcoesLinha from "../../../../../components/table/AcoesLinha";
 import colunas from "./colunas";
 
-// Colunas que aparecem ao abrir a tela; as outras (sexo, castrado, tutores) ficam no botão "Colunas".
-const COLUNAS_INICIAIS = ["nome", "especie", "racaNome", "dataCadastro", "isAtivo"];
+// Colunas que aparecem ao abrir a tela; as outras (sexo, castrado, cadastro) ficam no botão "Colunas".
+const COLUNAS_INICIAIS = ["nome", "especie", "racaNome", "tutores", "isAtivo"];
+const COLUNAS_CELULAR = ["nome", "tutores"];
 
 const TabelaAnimais = ({
   data,
@@ -101,6 +102,7 @@ const TabelaAnimais = ({
       barra={barra}
       selecionarColunas
       colunasIniciais={COLUNAS_INICIAIS}
+      colunasCelular={COLUNAS_CELULAR}
       dataSource={data}
       columns={colunasComAcoes}
       rowKey="id"

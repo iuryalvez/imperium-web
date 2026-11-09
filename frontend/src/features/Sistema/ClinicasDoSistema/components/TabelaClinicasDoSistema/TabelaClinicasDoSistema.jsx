@@ -5,6 +5,8 @@ import TabelaPadrao from "../../../../../components/table/TabelaPadrao";
 import AcoesLinha from "../../../../../components/table/AcoesLinha";
 import colunas from './colunas';
 
+const COLUNAS_CELULAR = ["nomeClinica"];
+
 const TabelaClinicasDoSistema = ({ clinicas, paginacao, onChange, loading, loadingRowKey, onEdit, onViewDetails, onAccess, onDelete, barra }) => {
   // No celular as ações viram um menu "⋮"
   const telas = Grid.useBreakpoint();
@@ -42,6 +44,8 @@ const TabelaClinicasDoSistema = ({ clinicas, paginacao, onChange, loading, loadi
   return (
     <TabelaPadrao
       barra={barra}
+      selecionarColunas
+      colunasCelular={COLUNAS_CELULAR}
       dataSource={clinicas}
       columns={memoColunas}
       rowKey="id"

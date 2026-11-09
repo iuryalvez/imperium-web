@@ -12,10 +12,23 @@ import IconeMascara from "../atoms/IconeMascara";
  * - titulo, icone (PNG de assets/), rotulo (texto do link) e onClick (navegação).
  * - valor: número/texto em destaque (Statistic). Sem valor, o título vira o destaque.
  * - descricao: frase curta abaixo do valor/título.
+ *
+ * O card inteiro é clicável (mouse, Enter e espaço). O "Acessar →" é só a indicação visual.
  */
 const CardAtalho = ({ titulo, icone, valor, descricao, rotulo = "Acessar", onClick }) => (
   <Card
-    className="h-full shadow-sm hover:shadow-md transition-shadow"
+    hoverable
+    role="link"
+    tabIndex={0}
+    aria-label={`${rotulo}: ${titulo}`}
+    onClick={onClick}
+    onKeyDown={(e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        onClick?.();
+      }
+    }}
+    className="h-full shadow-sm hover:shadow-md transition-shadow cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-verde-claro"
     styles={{ body: { height: "100%", display: "flex", flexDirection: "column", gap: 8 } }}
   >
     {valor !== undefined ? (
@@ -29,7 +42,7 @@ const CardAtalho = ({ titulo, icone, valor, descricao, rotulo = "Acessar", onCli
       </div>
     )}
     {descricao && <p className="m-0 text-sm text-gray-500">{descricao}</p>}
-    <Button type="link" className="self-start p-0 mt-auto" onClick={onClick}>
+    <Button type="link" tabIndex={-1} className="self-start p-0 mt-auto">
       {rotulo} <ArrowRightOutlined />
     </Button>
   </Card>

@@ -88,7 +88,7 @@ const ListaConsultasCards = ({
                 <Text strong className="w-24">
                   Consulta:
                 </Text>
-                <Space>
+                <Space wrap className="flex-1 min-w-0">
                   <Tooltip
                     title={
                       hasAvaliacao
@@ -144,7 +144,7 @@ const ListaConsultasCards = ({
                 <Text strong className="w-24">
                   Avaliação:
                 </Text>
-                <Space>
+                <Space wrap className="flex-1 min-w-0">
                   <Tooltip
                     title={
                       hasDieta
@@ -205,7 +205,7 @@ const ListaConsultasCards = ({
                   <Text strong className="w-24">
                     Dieta:
                   </Text>
-                  <Space>
+                  <Space wrap className="flex-1 min-w-0">
                     {!hasDieta ? (
                       podeGerenciarAcompanhamento && <Button
                         size="small"

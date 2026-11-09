@@ -12,6 +12,7 @@ import colunas from "./colunas";
 
 // Colunas que aparecem ao abrir a tela; as outras ficam no botão "Colunas".
 const COLUNAS_INICIAIS = ["nome", "perfis", "nomeClinica", "dataCadastro"];
+const COLUNAS_CELULAR = ["nome"];
 
 // Lista ainda paginada no cliente: GET sistema/usuarios não segue o contrato de paginação (pendência conhecida).
 const TabelaUsuariosDoSistema = ({
@@ -63,6 +64,7 @@ const TabelaUsuariosDoSistema = ({
     <TabelaPadrao
       selecionarColunas
       colunasIniciais={COLUNAS_INICIAIS}
+      colunasCelular={COLUNAS_CELULAR}
       dataSource={data}
       columns={colunasComAcoes}
       rowKey={(record) => record.compositeKey || record.id}

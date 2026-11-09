@@ -2,7 +2,10 @@ import React, { useEffect } from "react";
 import { Form, Input, Select, DatePicker, Switch, Row, Col, Checkbox } from "antd";
 import { tutoresDaClinicaAPI } from "../../../../../api/clinica/tutoresDaClinicaAPI";
 import { racasDaClinicaAPI } from "../../../../../api/clinica/racasDaClinicaAPI";
+import dayjs from "dayjs";
 import SelectBuscaRemota from "../../../../../components/atoms/SelectBuscaRemota";
+import { useAuth } from "../../../../../services/AuthContext";
+import { formatarIdade } from "../../../../../utils/formatters";
 
 const opcoesEspecie = [{ value: 1, label: "Cão" }, { value: 2, label: "Gato" }];
 const opcoesSexo = [{ value: 1, label: "Macho" }, { value: 2, label: "Fêmea" }];
@@ -12,6 +15,10 @@ const FormCadastroAnimal = ({ onFinish }) => {
 
   const especieSelecionada = Form.useWatch("especie", form);
   const sobTutelaClinica = Form.useWatch("sobTutelaClinica", form);
+  const nascimento = Form.useWatch("nascimento", form);
+  const idade = formatarIdade(nascimento);
+  // "Animal sob tutela da clínica" é só para o admin do sistema (pedido do orientador)
+  const { isAdmin } = useAuth();
 
   // Limpa o campo 'racaId' sempre que a espécie mudar
   useEffect(() => {
@@ -37,17 +44,19 @@ const FormCadastroAnimal = ({ onFinish }) => {
               dependencias={[especieSelecionada]}
             />
           </Form.Item>
-          <Form.Item name="sobTutelaClinica" valuePropName="checked" style={{ marginBottom: 8 }}>
-            <Checkbox
-              onChange={(e) => {
-                if (e.target.checked) {
-                  form.setFieldsValue({ tutorIds: [] });
-                }
-              }}
-            >
-              Animal sob tutela da clínica
-            </Checkbox>
-          </Form.Item>
+          {isAdmin && (
+            <Form.Item name="sobTutelaClinica" valuePropName="checked" style={{ marginBottom: 8 }}>
+              <Checkbox
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    form.setFieldsValue({ tutorIds: [] });
+                  }
+                }}
+              >
+                Animal sob tutela da clínica
+              </Checkbox>
+            </Form.Item>
+          )}
           <Form.Item 
             name="tutorIds" 
             label="Tutor(es) Responsável(is)"
@@ -63,8 +72,18 @@ const FormCadastroAnimal = ({ onFinish }) => {
           </Form.Item>
         </Col>
         <Col xs={24} md={12}>
-          <Form.Item name="nascimento" label="Data de Nascimento" rules={[{ required: true }]}>
-            <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" placeholder="Selecione a data" />
+          <Form.Item
+            name="nascimento"
+            label="Data de Nascimento"
+            rules={[{ required: true }]}
+            extra={idade && `Idade: ${idade}`}
+          >
+            <DatePicker
+              style={{ width: "100%" }}
+              format="DD/MM/YYYY"
+              placeholder="Selecione a data"
+              disabledDate={(data) => data.isAfter(dayjs(), "day")}
+            />
           </Form.Item>
           <Form.Item name="sexo" label="Sexo" rules={[{ required: true }]}>
             <Select options={opcoesSexo} placeholder="Selecione o sexo" />

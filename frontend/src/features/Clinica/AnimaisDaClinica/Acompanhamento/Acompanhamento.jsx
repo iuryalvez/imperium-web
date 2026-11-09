@@ -106,10 +106,10 @@ const Acompanhamento = () => {
       trilha={[{ titulo: "Animais", para: "/clinica/animais" }]}
       titulo={`Acompanhamento de ${historico.nome || "animal"}`}
     >
-      {/* >= lg: ficha numa coluna lateral fixa (resumo sempre à vista) e consultas na principal.
-          Abaixo de lg: uma coluna só, ficha em cima. */}
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(300px,380px)_minmax(0,1fr)] gap-6 items-start">
-        <div className="lg:sticky lg:top-0">
+      {/* >= xl: ficha numa coluna lateral fixa (resumo sempre à vista) e consultas na principal.
+          Abaixo de xl: uma coluna só, ficha em cima (com a sidebar expandida, em lg não cabem os botões da dieta). */}
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(300px,380px)_minmax(0,1fr)] gap-6 items-start">
+        <div className="xl:sticky xl:top-0">
           <FichaGeralAnimal
             data={historico}
             avaliacaoRecente={avaliacaoMaisRecente}

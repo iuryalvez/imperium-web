@@ -12,6 +12,7 @@ import colunas from './colunas';
 
 // Colunas que aparecem ao abrir a tela; as outras ficam no botão "Colunas".
 const COLUNAS_INICIAIS = ["nome", "perfis", "dataCadastro"];
+const COLUNAS_CELULAR = ["nome"];
 
 const TabelaUsuariosDaClinica = ({
   usuarios,
@@ -67,6 +68,7 @@ const TabelaUsuariosDaClinica = ({
       barra={barra}
       selecionarColunas
       colunasIniciais={COLUNAS_INICIAIS}
+      colunasCelular={COLUNAS_CELULAR}
       dataSource={usuarios}
       columns={colunasComAcoes}
       rowKey={(record) => record.compositeKey || record.id}
