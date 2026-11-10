@@ -1,166 +1,99 @@
 using backend.Infra.Data;
 using backend.Interfaces;
 using backend.Domain.Auth.Extensions;
+using backend.Domain.Auth.Services;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
+using System.Text.Json;
 
 namespace backend.Services
 {
     public class ValidateService : IValidateService
     {
-        private readonly IConfiguration _configuration;
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<ValidateService> _logger;
 
-        public ValidateService(IConfiguration configuration, IDbContextFactory<AppDbContext> contextFactory, IHttpContextAccessor httpContextAccessor, ILogger<ValidateService> logger)
+        public ValidateService(IDbContextFactory<AppDbContext> contextFactory, ILogger<ValidateService> logger)
         {
-            _configuration = configuration;
             _contextFactory = contextFactory;
-            _httpContextAccessor = httpContextAccessor;
             _logger = logger;
         }
 
         /// <summary>
-        /// Valida o token JWT contido no cookie e retorna o ClaimsPrincipal.
+        /// Confere no banco, a cada requisição, se a sessão do token ainda vale:
+        /// usuário existente e ativo, carimbo de segurança igual ao do token (muda no logout e na troca de senha)
+        /// e, no token de vínculo, vínculo existente e ativo. Os perfis do principal passam a ser os do banco,
+        /// para que perfil removido ou acrescentado valha na requisição seguinte.
         /// </summary>
-        /// <param name="token">Token JWT extraído do cookie.</param>
-        /// <returns>ClaimsPrincipal se o token for válido; caso contrário, lança uma exceção.</returns>
-        /// <exception cref="SecurityTokenException">Lança exceção se o token for inválido.</exception>
-        public ClaimsPrincipal ValidateTokenFromCookie(string token)
-        {
-            if (string.IsNullOrEmpty(token)) throw new ArgumentNullException(nameof(token), "Token não pode ser nulo ou vazio.");
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
-
-            try
-            {
-                var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidIssuer = _configuration["Jwt:Issuer"],
-                    ValidateAudience = true,
-                    ValidAudience = _configuration["Jwt:Audience"],
-                    ValidateLifetime = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuerSigningKey = true
-                }, out SecurityToken validatedToken);
-
-                return principal;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "[ValidateService] Falha ao validar a assinatura/validade do token.");
-                throw new SecurityTokenException("Falha ao validar o token.", ex);
-            }
-        }
-
-        /// <summary>
-        /// Valida o usuário com base nas claims do token e adiciona perfil ao contexto da requisição.
-        /// </summary>
-        /// <param name="principal">ClaimsPrincipal extraído do token.</param>
-        /// <param name="httpContext">Contexto HTTP para validações adicionais.</param>
-        /// <exception cref="SecurityTokenException">Lança exceção se a validação falhar.</exception>
+        /// <exception cref="SecurityTokenException">Quando a sessão não vale mais.</exception>
         public async Task ValidateUserClaims(ClaimsPrincipal principal, HttpContext httpContext)
         {
-            if (principal == null || !principal.Identity.IsAuthenticated)
-            {
+            if (principal?.Identity is not ClaimsIdentity identidade || !identidade.IsAuthenticated)
                 throw new SecurityTokenException("Usuário não autenticado.");
-            }
 
-            var forwardedHeader = httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
-            var currentIp = !string.IsNullOrEmpty(forwardedHeader) 
-                ? forwardedHeader.Split(',')[0].Trim() 
-                : httpContext.Connection.RemoteIpAddress?.ToString();
-            var currentUserAgent = httpContext.Request.Headers["User-Agent"].ToString();
+            var usuarioId = principal.GetUsuarioId()
+                ?? throw new SecurityTokenException("Token sem identificação do usuário.");
 
-            bool isAtivo = principal.GetClaimValue<bool>("isAtivo");
-            var tokenIpClaim = principal.FindFirst("UsuarioIp")?.Value;
-            var tokenUserAgentClaim = principal.FindFirst("UsuarioAgent")?.Value;
-            var acessoLogin = principal.FindFirst("acessoLogin")?.Value;
+            var stampDoToken = principal.FindFirst(TokenService.ClaimStamp)?.Value;
+            if (string.IsNullOrEmpty(stampDoToken))
+                throw new SecurityTokenException("Token sem carimbo de segurança.");
 
-            _logger.LogInformation("[ValidateService] Validação de Claims iniciada. IP Atual: {CurrentIP}, IP Token: {TokenIP}, Agent Atual: {CurrentAgent}, Agent Token: {TokenAgent}, Acesso Login: {AcessoLogin}",
-                currentIp, tokenIpClaim, currentUserAgent, tokenUserAgentClaim, acessoLogin);
+            await using var context = await _contextFactory.CreateDbContextAsync();
 
-            if (tokenIpClaim != currentIp && !(tokenIpClaim == "::1" && currentIp == "127.0.0.1") && !(tokenIpClaim == "127.0.0.1" && currentIp == "::1"))
+            var usuario = await context.Usuarios
+                .AsNoTracking()
+                .Where(u => u.Id == usuarioId)
+                .Select(u => new { u.IsAtivo, u.IsAdmin, u.SecurityStamp })
+                .FirstOrDefaultAsync();
+
+            if (usuario == null || !usuario.IsAtivo)
+                throw new SecurityTokenException("Usuário inexistente ou inativo.");
+
+            if (!string.Equals(usuario.SecurityStamp, stampDoToken, StringComparison.Ordinal))
+                throw new SecurityTokenException("Sessão encerrada.");
+
+            // O token nunca dá mais do que o banco: quem deixou de ser admin perde o acesso de admin na hora
+            var tokenDeAdmin = principal.GetClaimValue<bool>("isAdmin");
+            if (tokenDeAdmin && !usuario.IsAdmin)
+                throw new SecurityTokenException("Usuário não é mais administrador.");
+
+            // Token de login (antes de escolher o vínculo): não há vínculo para conferir
+            if (principal.FindFirst("acessoLogin")?.Value == "true") return;
+
+            if (tokenDeAdmin)
             {
-                _logger.LogWarning("[ValidateService] Rejeitado: IP não corresponde. Token: {TokenIP}, Requisição: {CurrentIP}", tokenIpClaim, currentIp);
-                throw new SecurityTokenException("IP não corresponde ao token.");
-            }
-
-            if (tokenUserAgentClaim != currentUserAgent)
-            {
-                _logger.LogWarning("[ValidateService] Rejeitado: Navegador não corresponde.");
-                throw new SecurityTokenException("Navegador não corresponde ao token.");
-            }
-
-            if (acessoLogin == "true")
-            {
-                _logger.LogInformation("[ValidateService] Token de login básico (apenas sistema) validado com sucesso.");
+                // Admin simulando acesso: os perfis são os escolhidos na simulação
+                if (string.IsNullOrEmpty(principal.FindFirst("Perfis")?.Value))
+                    throw new SecurityTokenException("Administrador sem perfis no token de simulação.");
                 return;
             }
 
-            bool isAdmin = principal.GetClaimValue<bool>("isAdmin");
-            var upcIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var perfisClaim = principal.FindFirst("Perfis")?.Value;
+            if (!int.TryParse(principal.FindFirst(ClaimTypes.NameIdentifier)?.Value, out int vinculoId))
+                throw new SecurityTokenException("Token sem identificação do vínculo.");
 
-            _logger.LogInformation("[ValidateService] Validando token de vínculo. IsAdmin: {IsAdmin}, Perfil/VinculoId: {UpcId}, Perfis: {Perfis}", isAdmin, upcIdClaim, perfisClaim);
+            var vinculo = await context.UsuariosPerfisClinicas
+                .AsNoTracking()
+                .Where(upc => upc.Id == vinculoId && upc.UsuarioId == usuarioId)
+                .Select(upc => new { upc.Perfis })
+                .FirstOrDefaultAsync();
 
-            if (isAdmin)
+            if (vinculo == null)
+                throw new SecurityTokenException("Vínculo do usuário não encontrado.");
+
+            var perfis = vinculo.Perfis ?? new List<string>();
+
+            // Vínculo desativado depois de o token ser emitido: o token antigo deixa de valer na hora
+            if (perfis.Any(p => string.Equals(p, AuthExtension.PerfilInativo, StringComparison.OrdinalIgnoreCase)))
             {
-                if (string.IsNullOrEmpty(perfisClaim))
-                {
-                    _logger.LogWarning("[ValidateService] Administrador não possui perfis definidos no token de simulação.");
-                    throw new SecurityTokenException("Administrador sem perfis atribuídos no token de vínculo.");
-                }
-                _logger.LogInformation("[ValidateService] Administrador validado com sucesso para simulação de clínica.");
+                _logger.LogWarning("Token recusado: vínculo {VinculoId} está inativo.", vinculoId);
+                throw new SecurityTokenException("Vínculo do usuário está inativo.");
             }
-            else
-            {
-                if (!int.TryParse(upcIdClaim, out int upcId))
-                {
-                    _logger.LogWarning("[ValidateService] Id de Vínculo não numérico.");
-                    throw new SecurityTokenException("O Id contido no token não é um valor numérico válido!");
-                }
 
-                try
-                {
-                    using var _context = _contextFactory.CreateDbContext();
-                    var upc = await _context.UsuariosPerfisClinicas
-                        .Include(upc => upc.Clinica)
-                        .FirstOrDefaultAsync(upc => upc.Id == upcId);
-
-                    if (upc == null)
-                    {
-                        _logger.LogError("[ValidateService] Vínculo ID {upcId} não encontrado no banco de dados.", upcId);
-                        throw new SecurityTokenException("Vínculo do usuário não encontrado no banco de dados.");
-                    }
-
-                    // Vínculo desativado depois de o token ser emitido: o token antigo deixa de valer na hora
-                    if (upc.Perfis != null && upc.Perfis.Any(p => string.Equals(p, AuthExtension.PerfilInativo, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        _logger.LogWarning("[ValidateService] Vínculo ID {upcId} está inativo.", upcId);
-                        throw new SecurityTokenException("Vínculo do usuário está inativo.");
-                    }
-
-                    _logger.LogInformation("[ValidateService] Vínculo comum validado com sucesso. Perfis ativos: {Perfis}", string.Join(", ", upc.Perfis ?? new List<string>()));
-                }
-                catch (SecurityTokenException)
-                {
-                    throw; // vínculo inexistente ou inativo: recusa sem registrar como erro interno
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "[ValidateService] Erro ao buscar vínculo no banco de dados.");
-                    throw new SecurityTokenException("Erro interno ao validar o vínculo.");
-                }
-            }
+            foreach (var claim in identidade.FindAll("Perfis").ToList()) identidade.RemoveClaim(claim);
+            identidade.AddClaim(new Claim("Perfis", JsonSerializer.Serialize(perfis)));
         }
     }
 }

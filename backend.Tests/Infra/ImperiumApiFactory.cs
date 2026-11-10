@@ -1,8 +1,10 @@
+using backend.Domain.Auth.Interfaces;
 using backend.Infra.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Testcontainers.PostgreSql;
 using Xunit;
 
@@ -19,6 +21,13 @@ namespace backend.Tests.Infra
         public const string JwtKey = "chave-jwt-somente-para-testes-automatizados-do-imperium-0123456789";
         public const string JwtIssuer = "imperium-testes";
         public const string JwtAudience = "imperium-testes";
+        public const string FrontendUrl = "https://imperium.teste.local";
+
+        /// <summary>Limite de requisições por IP nas rotas de auth durante os testes (por janela de 60 s).</summary>
+        public const int LimiteAuth = 20;
+
+        /// <summary>E-mails "enviados" pela API durante os testes.</summary>
+        public EmailFalso Emails { get; } = new();
 
         private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:16-alpine")
             .WithDatabase("imperium_testes")
@@ -39,6 +48,9 @@ namespace backend.Tests.Infra
             DefinirConfiguracao("Jwt__ExpiresInMinutes", "60");
             DefinirConfiguracao("Jwt__RenewInMinutesLeft", "5");
             DefinirConfiguracao("CookieSecure", "false");
+            DefinirConfiguracao("FrontendUrl", FrontendUrl);
+            DefinirConfiguracao("RateLimit__Auth__PermitLimit", LimiteAuth.ToString());
+            DefinirConfiguracao("RateLimit__Auth__WindowSeconds", "60");
             DefinirConfiguracao("SwaggerAuth__Username", "usuario-teste");
             DefinirConfiguracao("SwaggerAuth__Password", "senha-teste");
 
@@ -56,6 +68,15 @@ namespace backend.Tests.Infra
         {
             // Ambiente próprio: não liga o Swagger e não depende de appsettings de dev/produção
             builder.UseEnvironment("Testing");
+
+            // Captcha e e-mail não saem para a internet nos testes
+            builder.ConfigureServices(services =>
+            {
+                services.RemoveAll<ITurnstileService>();
+                services.AddSingleton<ITurnstileService, TurnstileFalso>();
+                services.RemoveAll<IEmailService>();
+                services.AddSingleton<IEmailService>(Emails);
+            });
         }
 
         /// <summary>DbContext do banco de teste, para montar cenários e conferir o que foi gravado.</summary>

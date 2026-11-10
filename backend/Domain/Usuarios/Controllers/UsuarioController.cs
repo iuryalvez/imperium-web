@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using backend.Domain.Auth.Extensions;
+using backend.Domain.Auth.Interfaces;
 using System.Security.Claims;
 using backend.Domain.Usuarios.DTOs.Usuario;
 using backend.Domain.Usuarios.DTOs.Vinculo;
@@ -18,11 +19,14 @@ namespace backend.Domain.Usuarios.Controllers
     {
         private readonly IUsuarioService _usuarioService;
         private readonly ILogger<UsuarioController> _logger;
+        private readonly ITokenService _tokenService;
 
         public UsuarioController(IUsuarioService usuarioService,
+                                 ITokenService tokenService,
                                  ILogger<UsuarioController> logger)
         {
             _usuarioService = usuarioService;
+            _tokenService = tokenService;
             _logger = logger;
         }
 
@@ -233,14 +237,6 @@ namespace backend.Domain.Usuarios.Controllers
             return Ok(result);
         }
 
-        [HttpGet("debug-claims")]
-        [Authorize(Policy = "GerenciaSistema")]
-        public IActionResult DebugClaims()
-        {
-            var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
-            return Ok(claims);
-        }
-
         // Endpoints de PERFIL PESSOAL (TODOS USUÁRIOS)
 
         // Vale para o token de login (antes de escolher o vínculo) e para o de vínculo (dentro da clínica).
@@ -263,6 +259,12 @@ namespace backend.Domain.Usuarios.Controllers
             var result = await _usuarioService.UpdateMeuPerfilAsync(usuarioId, dto);
 
             if (!result.Succeeded) return this.Falha(result);
+
+            // Trocar a senha muda o carimbo de segurança e derruba as sessões do usuário;
+            // esta, de quem acabou de trocar, recebe um token novo e continua valendo
+            if (!string.IsNullOrWhiteSpace(dto.NovaSenha))
+                await _tokenService.ReemitirSessaoAtualAsync(HttpContext);
+
             return Ok(result);
         }
 

@@ -12,7 +12,7 @@ jest.mock("antd", () => ({
   App: { useApp: () => ({ notification: mockNotification }) },
 }));
 
-// O link do e-mail traz ?email=...&token=...
+// O link do e-mail traz ?token=...&uid=<id do usuário>
 let mockParametros = new URLSearchParams();
 const mockNavigate = jest.fn();
 jest.mock("react-router-dom", () => ({
@@ -23,30 +23,54 @@ jest.mock("react-router-dom", () => ({
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockParametros = new URLSearchParams({ email: "vera@teste.local", token: "tok-123" });
+  mockParametros = new URLSearchParams({ uid: "42", token: "tok-123" });
 });
 
-test("link com e-mail e token é válido e expõe o e-mail", () => {
+test("link com id do usuário e token é válido", () => {
   const { result } = renderHook(() => useNovaSenha());
 
   expect(result.current.isValidLink).toBe(true);
-  expect(result.current.email).toBe("vera@teste.local");
 });
 
-test("envia e-mail, token e a senha nova, avisa e vai para o login", async () => {
+test("link com id negativo (usuário do seed) é válido e envia o id", async () => {
+  mockParametros = new URLSearchParams({ uid: "-3", token: "tok-123" });
+  autenticacaoAPI.resetPassword.mockResolvedValue({});
+  const { result } = renderHook(() => useNovaSenha());
+
+  expect(result.current.isValidLink).toBe(true);
+  await act(() => result.current.onFinish({ senha: "Nova@123" }));
+
+  expect(autenticacaoAPI.resetPassword).toHaveBeenCalledWith({ userId: -3, token: "tok-123", newPassword: "Nova@123" });
+});
+
+test("link sem id é inválido", () => {
+  mockParametros = new URLSearchParams({ token: "tok-123" });
+  const { result } = renderHook(() => useNovaSenha());
+
+  expect(result.current.isValidLink).toBe(false);
+});
+
+test("link com id que não é número é inválido", () => {
+  mockParametros = new URLSearchParams({ uid: "abc", token: "tok-123" });
+  const { result } = renderHook(() => useNovaSenha());
+
+  expect(result.current.isValidLink).toBe(false);
+});
+
+test("envia id do usuário, token e a senha nova, avisa e vai para o login", async () => {
   autenticacaoAPI.resetPassword.mockResolvedValue({});
   const { result } = renderHook(() => useNovaSenha());
 
   await act(() => result.current.onFinish({ senha: "Nova@123", confirmarSenha: "Nova@123" }));
 
-  expect(autenticacaoAPI.resetPassword).toHaveBeenCalledWith({ email: "vera@teste.local", token: "tok-123", newPassword: "Nova@123" });
+  expect(autenticacaoAPI.resetPassword).toHaveBeenCalledWith({ userId: 42, token: "tok-123", newPassword: "Nova@123" });
   expect(mockNotification.success).toHaveBeenCalledWith(expect.objectContaining({ message: "Senha Redefinida" }));
   expect(mockNavigate).toHaveBeenCalledWith("/login");
   expect(result.current.loading).toBe(false);
 });
 
 test("link sem token é inválido e não chama a api", async () => {
-  mockParametros = new URLSearchParams({ email: "vera@teste.local" });
+  mockParametros = new URLSearchParams({ uid: "42" });
   const { result } = renderHook(() => useNovaSenha());
 
   await act(() => result.current.onFinish({ senha: "Nova@123" }));

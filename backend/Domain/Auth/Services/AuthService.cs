@@ -2,9 +2,8 @@ using backend.Domain.Auth.Extensions;
 using backend.Infra.Data;
 using backend.Domain.Auth.Interfaces;
 using backend.Domain.Auth.DTOs;
-using backend.Domain.Usuarios.DTOs.Usuario;
 using backend.Domain.Usuarios.DTOs.Vinculo;
-using backend.Domain.Usuarios.Interfaces;
+using backend.Domain.Usuarios.Services;
 using backend.Domain.Utils;
 using backend.Domain.Usuarios.Entities;
 
@@ -12,74 +11,104 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
+
 namespace backend.Domain.Auth.Services
 {
     public class AuthService : IAuthService
     {
+        // Uma mensagem só para e-mail inexistente, senha errada e conta bloqueada: não revela qual foi o caso
+        private const string MensagemLoginInvalido =
+            "E-mail ou senha inválidos. Após 5 tentativas seguidas, o acesso fica bloqueado por 15 minutos.";
+        private const string MensagemCaptcha = "Falha na verificação do captcha. Recarregue a página e tente novamente.";
+        private const string MensagemLinkEnviado = "Se o e-mail estiver registrado, um link será enviado.";
+        private const string MensagemLinkInvalido = "O link de recuperação é inválido ou expirou. Solicite um novo.";
+
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<AuthService> _logger;
         private readonly UserManager<Usuario> _userManager;
         private readonly ITurnstileService _turnstileService;
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailService;
+        private readonly IHostEnvironment _ambiente;
 
         public AuthService(
-            IConfiguration configuration,
             IDbContextFactory<AppDbContext> contextFactory,
-            IHttpContextAccessor httpContextAccessor,
             ILogger<AuthService> logger,
             UserManager<Usuario> userManager,
             ITurnstileService turnstileService,
             ITokenService tokenService,
-            IEmailService emailService)
+            IEmailService emailService,
+            IHostEnvironment ambiente)
         {
             _contextFactory = contextFactory;
-            _httpContextAccessor = httpContextAccessor;
             _logger = logger;
             _userManager = userManager;
             _turnstileService = turnstileService;
             _tokenService = tokenService;
             _emailService = emailService;
+            _ambiente = ambiente;
         }
 
-        public async Task<ServiceResult> LoginAsync(LoginDto model, string remoteIp, string userAgent)
+        public async Task<ServiceResult> LoginAsync(LoginDto model, string remoteIp)
         {
-            var captchaValido = await _turnstileService.ValidarTokenAsync(model.CaptchaToken, remoteIp);
-
-            if (!captchaValido)
-                return new ServiceResult { Succeeded = false, Message = "Falha na verificação do captcha. Recarregue a página e tente novamente." };
+            if (!await _turnstileService.ValidarTokenAsync(model.CaptchaToken, remoteIp))
+                return ServiceResult.Invalido(MensagemCaptcha);
 
             var usuario = await _userManager.FindByEmailAsync(model.Email);
-
-            if (usuario == null || !await _userManager.CheckPasswordAsync(usuario, model.Senha))
+            if (usuario == null)
             {
-                _logger.LogWarning("Falha de autenticação para o e-mail {Email}.", model.Email);
-                return new ServiceResult { Succeeded = false, Message = "E-mail ou senha inválidos." };
+                _logger.LogWarning("Falha de autenticação: e-mail não cadastrado.");
+                return ServiceResult.Invalido(MensagemLoginInvalido);
+            }
+
+            // Usuários criados antes do bloqueio de conta existir estão com ele desligado
+            if (!usuario.LockoutEnabled)
+                await _userManager.SetLockoutEnabledAsync(usuario, true);
+
+            if (await _userManager.IsLockedOutAsync(usuario))
+            {
+                _logger.LogWarning("Login recusado: usuário {UsuarioId} está bloqueado por excesso de tentativas.", usuario.Id);
+                return ServiceResult.Invalido(MensagemLoginInvalido);
+            }
+
+            if (!await _userManager.CheckPasswordAsync(usuario, model.Senha))
+            {
+                await _userManager.AccessFailedAsync(usuario); // conta a falha e bloqueia ao atingir o limite
+                _logger.LogWarning("Falha de autenticação para o usuário {UsuarioId}.", usuario.Id);
+                return ServiceResult.Invalido(MensagemLoginInvalido);
             }
 
             if (!usuario.EmailConfirmed)
-                return new ServiceResult { Succeeded = false, Message = "Confirme seu email antes de fazer login." };
+                return ServiceResult.Invalido("Confirme seu email antes de fazer login.");
 
-            using var context = _contextFactory.CreateDbContext();
+            if (!usuario.IsAtivo)
+                return ServiceResult.Invalido("Usuário inativo. Procure o gestor da clínica.");
 
-            // Attach the entity to the new DbContext instance before updating
-            context.Usuarios.Attach(usuario);
+            usuario.AccessFailedCount = 0;
             usuario.DataUltimoAcesso = DateTime.UtcNow;
-            await context.SaveChangesAsync();
+            await _userManager.UpdateAsync(usuario);
 
-            var tokenLogin = _tokenService.GenerateTokenLogin(usuario.Id.ToString(), remoteIp, userAgent);
-
-            return new ServiceResult
+            try
             {
-                Succeeded = true,
-                Data = tokenLogin
-            };
+                var tokenLogin = _tokenService.GenerateTokenLogin(usuario.Id.ToString(), model.RememberMe);
+                return new ServiceResult { Succeeded = true, Data = tokenLogin };
+            }
+            catch (InvalidOperationException)
+            {
+                return ServiceResult.Invalido("Nenhum vínculo disponível ou ativo no momento.");
+            }
         }
 
-        public async Task<ServiceResult> GetVinculosAsync(string userIdClaim)
+        public async Task LogoutAsync(int usuarioId)
         {
-            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int usuarioId) || usuarioId == 0)
+            var usuario = await _userManager.FindByIdAsync(usuarioId.ToString());
+            if (usuario != null)
+                await _userManager.UpdateSecurityStampAsync(usuario);
+        }
+
+        public async Task<ServiceResult> GetVinculosAsync(int usuarioId)
+        {
+            if (usuarioId <= 0)
                 return new ServiceResult { Succeeded = false, Message = "Erro ao identificar usuário." };
 
             using var context = _contextFactory.CreateDbContext();
@@ -111,27 +140,11 @@ namespace backend.Domain.Auth.Services
             return new ServiceResult { Succeeded = true, Data = vinculos };
         }
 
-        public async Task<ServiceResult> SelecionarVinculoAsync(int upcId, string userIdClaim, bool isAcessoLogin, string remoteIp, string userAgent)
+        public async Task<ServiceResult> SelecionarVinculoAsync(int upcId, int usuarioId)
         {
             using var context = _contextFactory.CreateDbContext();
-            int usuarioId;
 
-            // Resolves the true User ID depending on whether the current token is a base access token or an already established linkage token
-            if (isAcessoLogin)
-            {
-                usuarioId = int.Parse(userIdClaim);
-            }
-            else
-            {
-                var vinculoIdClaim = int.Parse(userIdClaim);
-                var vinculoAtual = await context.UsuariosPerfisClinicas.FirstOrDefaultAsync(v => v.Id == vinculoIdClaim);
-
-                if (vinculoAtual == null)
-                    return new ServiceResult { Succeeded = false, Message = "Vínculo atual não encontrado." };
-
-                usuarioId = vinculoAtual.UsuarioId;
-            }
-
+            // Só vale vínculo ativo do próprio usuário
             var vinculo = await context.UsuariosPerfisClinicas
                 .AsNoTracking()
                 .Include(v => v.Usuario)
@@ -141,7 +154,7 @@ namespace backend.Domain.Auth.Services
             if (vinculo == null)
                 return new ServiceResult { Succeeded = false, Message = "Vínculo não encontrado ou não pertence ao mesmo usuário." };
 
-            var token = _tokenService.GenerateTokenVinculo(vinculo.Id.ToString(), remoteIp, userAgent);
+            var token = _tokenService.GenerateTokenVinculo(vinculo.Id.ToString());
 
             var vinculoDto = new GetVinculoDto
             {
@@ -155,10 +168,10 @@ namespace backend.Domain.Auth.Services
             return new ServiceResult { Succeeded = true, Data = new { Token = token, Vinculo = vinculoDto } };
         }
 
-        public async Task<ServiceResult> SelecionarVinculoAdminAsync(GetVinculoAdminDto dto, string userIdClaim, string remoteIp, string userAgent, string usuarioNome)
+        public async Task<ServiceResult> SelecionarVinculoAdminAsync(GetVinculoAdminDto dto)
         {
             // Perfis simuláveis: os da clínica. INATIVO não é perfil de acesso (bloqueia o vínculo inteiro)
-            var perfisValidos = new[] { "GESTOR", "VETERINARIO", "SECRETARIO", "TECNICO" };
+            var perfisValidos = AuthExtension.PerfisDaClinica;
             if (dto.Perfis == null || !dto.Perfis.Any())
                 return new ServiceResult { Succeeded = false, Message = "Selecione pelo menos um perfil para simular.", Errors = new List<string> { "Perfis" } };
             if (dto.Perfis.Any(p => string.Equals(p, AuthExtension.PerfilInativo, StringComparison.OrdinalIgnoreCase)))
@@ -172,62 +185,51 @@ namespace backend.Domain.Auth.Services
             if (clinica == null)
                 return new ServiceResult { Succeeded = false, Message = "Clínica não encontrada." };
 
-            var token = _tokenService.GenerateTokenVinculoAdmin(dto.ClinicaId, dto.Perfis, remoteIp, userAgent);
+            var token = _tokenService.GenerateTokenVinculoAdmin(dto.ClinicaId, dto.Perfis);
 
             return new ServiceResult { Succeeded = true, Data = new { Token = token, ClinicaId = dto.ClinicaId, PerfisAtivos = dto.Perfis } };
         }
 
-        public async Task<ServiceResult> TrocarVinculoAsync(string userIdClaim, bool isAcessoLogin, bool isAdmin, string remoteIp, string userAgent)
+        public Task<ServiceResult> TrocarVinculoAsync(int usuarioId, bool isAcessoLogin)
         {
             if (isAcessoLogin)
-                return new ServiceResult { Succeeded = false, Message = "Token atual já é de login." };
+                return Task.FromResult(new ServiceResult { Succeeded = false, Message = "Token atual já é de login." });
 
-            string usuarioId;
-
-            if (isAdmin)
+            try
             {
-                usuarioId = userIdClaim;
+                // Volta ao token de login, mantendo "lembrar-me" e o início da sessão atual
+                var tokenLogin = _tokenService.GenerateTokenLogin(usuarioId.ToString());
+                return Task.FromResult(new ServiceResult { Succeeded = true, Data = tokenLogin });
             }
-            else
+            catch (InvalidOperationException)
             {
-                var vinculoId = int.Parse(userIdClaim);
-                using var context = _contextFactory.CreateDbContext();
-
-                var vinculo = await context.UsuariosPerfisClinicas
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(v => v.Id == vinculoId);
-
-                if (vinculo == null)
-                    return new ServiceResult { Succeeded = false, Message = "Vínculo não encontrado." };
-
-                usuarioId = vinculo.UsuarioId.ToString();
+                return Task.FromResult(new ServiceResult { Succeeded = false, Message = "Usuário não encontrado." });
             }
-
-            var usuario = await _userManager.FindByIdAsync(usuarioId);
-            if (usuario == null)
-                return new ServiceResult { Succeeded = false, Message = "Usuário não encontrado." };
-
-            var tokenLogin = _tokenService.GenerateTokenLogin(usuario.Id.ToString(), remoteIp, userAgent);
-
-            return new ServiceResult { Succeeded = true, Data = tokenLogin };
         }
 
-        public async Task<ServiceResult> ForgotPasswordAsync(ForgotPasswordDto model, string frontendUrl)
+        public async Task<ServiceResult> ForgotPasswordAsync(ForgotPasswordDto model, string frontendUrl, string remoteIp)
         {
+            if (!await _turnstileService.ValidarTokenAsync(model.CaptchaToken, remoteIp))
+                return ServiceResult.Invalido(MensagemCaptcha);
+
+            // A resposta é sempre a mesma: não revela se o e-mail está cadastrado
+            var resposta = new ServiceResult { Succeeded = true, Message = MensagemLinkEnviado };
+
             var usuario = await _userManager.FindByEmailAsync(model.Email);
-            if (usuario == null)
-            {
-                // Retornar sucesso falso (no controller tratamos para exibir msg genérica)
-                return new ServiceResult { Succeeded = true, Message = "Se o e-mail estiver registrado, um link será enviado." };
-            }
+            if (usuario == null || !usuario.IsAtivo || string.IsNullOrEmpty(usuario.Email))
+                return resposta;
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(usuario);
-
-            // Codifica o token para ser seguro na URL
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
-            // Monta o link para o Frontend
-            var resetLink = $"{frontendUrl}/recuperar-senha/nova-senha?token={encodedToken}&email={usuario.Email}";
+            // O link leva o id do usuário, não o e-mail (dado pessoal não fica em URL, histórico nem log de proxy)
+            var resetLink = $"{frontendUrl?.TrimEnd('/')}/recuperar-senha/nova-senha?token={encodedToken}&uid={usuario.Id}";
+
+            if (SimularEmail)
+            {
+                _logger.LogWarning("MOCK DE E-MAIL (Development sem SMTP). Link de redefinição: {ResetLink}", resetLink);
+                return resposta;
+            }
 
             var corpoEmail = $@"
                 <h2>Redefinição de Senha - Sistema IMPERIUM</h2>
@@ -236,46 +238,80 @@ namespace backend.Domain.Auth.Services
                 <p><a href='{resetLink}'>Redefinir minha senha</a></p>
                 <p>Se você não solicitou isso, pode ignorar este e-mail com segurança. O link expira em 15 minutos.</p>";
 
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-            {
-                _logger.LogWarning("====================================================================");
-                _logger.LogWarning("MOCK DE E-MAIL (Ambiente de Desenvolvimento)");
-                _logger.LogWarning("Link gerado: {ResetLink}", resetLink);
-                _logger.LogWarning("====================================================================");
-            }
-            else
-            {
-                // Em produção, dispara o e-mail real
-                await _emailService.SendEmailAsync(usuario.Email, "Redefinição de Senha - IMPERIUM", corpoEmail);
-            }
-
-            return new ServiceResult { Succeeded = true, Message = "Se o e-mail estiver registrado, um link será enviado." };
+            EnviarEmailEmSegundoPlano(usuario.Email, "Redefinição de Senha - IMPERIUM", corpoEmail);
+            return resposta;
         }
 
         public async Task<ServiceResult> ResetPasswordAsync(ResetPasswordDto model)
         {
-            var usuario = await _userManager.FindByEmailAsync(model.Email);
-            if (usuario == null)
+            var usuario = await _userManager.FindByIdAsync(model.UserId.ToString());
+            if (usuario == null || !usuario.IsAtivo)
+                return ServiceResult.Invalido(MensagemLinkInvalido);
+
+            string tokenOriginal;
+            try
             {
-                return new ServiceResult { Succeeded = false, Message = "Erro ao redefinir senha." }; // Mensagem genérica
+                tokenOriginal = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
+            }
+            catch (FormatException)
+            {
+                return ServiceResult.Invalido(MensagemLinkInvalido);
             }
 
-            // Decodifica o token seguro da URL de volta para o formato original do Identity
-            var decodedTokenBytes = WebEncoders.Base64UrlDecode(model.Token);
-            var originalToken = Encoding.UTF8.GetString(decodedTokenBytes);
+            // O Identity troca o carimbo de segurança junto com a senha: todas as sessões abertas caem
+            var result = await _userManager.ResetPasswordAsync(usuario, tokenOriginal, model.NewPassword);
 
-            var result = await _userManager.ResetPasswordAsync(usuario, originalToken, model.NewPassword);
-
-            if (result.Succeeded)
+            if (!result.Succeeded)
             {
-                return new ServiceResult { Succeeded = true, Message = "Senha redefinida com sucesso." };
+                if (result.Errors.Any(e => e.Code == "InvalidToken"))
+                    return ServiceResult.Invalido(MensagemLinkInvalido);
+
+                // Senha fora da regra: o usuário precisa saber o que corrigir
+                var erros = result.Errors.Select(UsuarioService.TraduzirErroSenhaIdentity).ToList();
+                return new ServiceResult { Succeeded = false, Message = string.Join(" ", erros), Errors = erros };
             }
 
-            return new ServiceResult
+            // Quem provou ser dono do e-mail volta a poder entrar, mesmo se estava bloqueado por tentativas
+            await _userManager.ResetAccessFailedCountAsync(usuario);
+            await _userManager.SetLockoutEndDateAsync(usuario, null);
+
+            if (!SimularEmail && !string.IsNullOrEmpty(usuario.Email))
             {
-                Succeeded = false,
-                Message = "O link de recuperação é inválido ou expirou. Solicite um novo."
-            };
+                EnviarEmailEmSegundoPlano(usuario.Email, "Sua senha foi alterada - IMPERIUM", @"
+                    <h2>Senha alterada - Sistema IMPERIUM</h2>
+                    <p>Olá,</p>
+                    <p>A senha da sua conta acabou de ser redefinida e as sessões abertas foram encerradas.</p>
+                    <p>Se não foi você, redefina a senha novamente e avise o administrador do sistema.</p>");
+            }
+
+            return new ServiceResult { Succeeded = true, Message = "Senha redefinida com sucesso." };
+        }
+
+        /// <summary>
+        /// Dispara o e-mail sem esperar o SMTP, para o tempo de resposta não revelar se o e-mail existe.
+        /// A falha de envio fica só no log.
+        /// </summary>
+        /// <summary>
+        /// Só em Development e sem SMTP configurado o e-mail vira log. Fora de Development o link nunca vai para o log.
+        /// </summary>
+        private bool SimularEmail => _ambiente.IsDevelopment() && !_emailService.Configurado;
+
+        private void EnviarEmailEmSegundoPlano(string para, string assunto, string corpo)
+        {
+            var emailService = _emailService;
+            var logger = _logger;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await emailService.SendEmailAsync(para, assunto, corpo);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Falha ao enviar e-mail em segundo plano.");
+                }
+            });
         }
     }
 }

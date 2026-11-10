@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 const { Title, Paragraph } = Typography;
 
 const NovaSenha = () => {
-  const { loading, isValidLink, email, onFinish } = useNovaSenha();
+  const { loading, isValidLink, onFinish } = useNovaSenha();
 
   if (!isValidLink) {
     return (
@@ -31,8 +31,7 @@ const NovaSenha = () => {
           Nova Senha
         </Title>
         <Paragraph className="text-center text-gray-500 mb-6">
-          Defina uma nova senha para a conta: <br />
-          <strong>{email}</strong>
+          Defina uma nova senha para a sua conta.
         </Paragraph>
 
         <Form

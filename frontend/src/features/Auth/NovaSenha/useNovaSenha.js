@@ -9,10 +9,12 @@ export const useNovaSenha = () => {
   const [loading, setLoading] = useState(false);
   const { notification } = App.useApp();
 
-  const email = searchParams.get("email");
+  // O link do e-mail traz ?token=...&uid=<id do usuário> (o e-mail não vai na URL).
+  // O id pode ser negativo (usuários do seed), só não pode faltar nem ser zero.
   const token = searchParams.get("token");
+  const userId = Number(searchParams.get("uid"));
 
-  const isValidLink = Boolean(email && token);
+  const isValidLink = Boolean(token && Number.isInteger(userId) && userId !== 0);
 
   const onFinish = async (values) => {
     if (!isValidLink) return;
@@ -20,7 +22,7 @@ export const useNovaSenha = () => {
     setLoading(true);
     try {
       await autenticacaoAPI.resetPassword({
-        email,
+        userId,
         token,
         newPassword: values.senha,
       });
@@ -29,7 +31,7 @@ export const useNovaSenha = () => {
         message: "Senha Redefinida",
         description: "Sua senha foi alterada com sucesso. Faça login para continuar.",
       });
-      
+
       navigate("/login");
     } catch (error) {
       notification.error({
@@ -44,7 +46,6 @@ export const useNovaSenha = () => {
   return {
     loading,
     isValidLink,
-    email,
     onFinish,
   };
 };

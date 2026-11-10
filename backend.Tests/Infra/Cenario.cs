@@ -1,6 +1,9 @@
 using backend.Domain.GestaoClinica.Entities;
 using backend.Domain.Usuarios.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace backend.Tests.Infra
 {
@@ -14,6 +17,9 @@ namespace backend.Tests.Infra
     }
 
     public record ClinicaDeTeste(int Id, string Nome);
+
+    /// <summary>Usuário criado pelo Identity, com senha, para os testes de login.</summary>
+    public record UsuarioComSenha(int UsuarioId, int VinculoId, string Email, string Senha);
 
     /// <summary>Usuário de clínica criado no cenário: cliente autenticado, id do vínculo, id do usuário e e-mail.</summary>
     public record UsuarioDeTeste(HttpClient Cliente, int VinculoId, int UsuarioId, string Email);
@@ -58,7 +64,7 @@ namespace backend.Tests.Infra
             contexto.UsuariosPerfisClinicas.Add(vinculo);
             await contexto.SaveChangesAsync();
 
-            var cliente = ClienteComToken(TokenDeTeste.Vinculo(vinculo.Id, usuario.Id, usuario.Nome, clinica.Id, clinica.Nome, perfis));
+            var cliente = ClienteComToken(TokenDeTeste.Vinculo(vinculo.Id, usuario.Id, usuario.Nome, clinica.Id, clinica.Nome, perfis, usuario.SecurityStamp!));
             return new UsuarioDeTeste(cliente, vinculo.Id, usuario.Id, usuario.Email!);
         }
 
@@ -70,7 +76,7 @@ namespace backend.Tests.Infra
             contexto.Usuarios.Add(admin);
             await contexto.SaveChangesAsync();
 
-            return ClienteComToken(TokenDeTeste.AdminSimulando(admin.Id, admin.Nome, clinica.Id, clinica.Nome, perfis));
+            return ClienteComToken(TokenDeTeste.AdminSimulando(admin.Id, admin.Nome, clinica.Id, clinica.Nome, perfis, admin.SecurityStamp!));
         }
 
         /// <summary>Cria um admin do sistema e devolve um cliente com o token de login (rotas api/sistema/...).</summary>
@@ -81,27 +87,67 @@ namespace backend.Tests.Infra
             contexto.Usuarios.Add(admin);
             await contexto.SaveChangesAsync();
 
-            return ClienteComToken(TokenDeTeste.AdminSistema(admin.Id, admin.Nome));
+            return ClienteComToken(TokenDeTeste.AdminSistema(admin.Id, admin.Nome, admin.SecurityStamp!));
         }
 
         /// <summary>Cliente sem token (usuário não autenticado).</summary>
         public HttpClient ClienteAnonimo() => CriarCliente();
 
-        private HttpClient ClienteComToken(string token)
+        /// <summary>Cliente com o token de login (antes de escolher vínculo) de um usuário que já existe no banco.</summary>
+        public async Task<HttpClient> ClienteDeLoginAsync(int usuarioId)
+        {
+            await using var contexto = _factory.CriarContexto();
+            var usuario = await contexto.Usuarios.AsNoTracking().FirstAsync(u => u.Id == usuarioId);
+            return ClienteComToken(TokenDeTeste.Login(usuario.Id, usuario.Nome, usuario.IsAdmin, usuario.SecurityStamp));
+        }
+
+        /// <summary>
+        /// Cria, pelo Identity, um usuário com senha (para testar login) e um vínculo na clínica com os perfis pedidos.
+        /// </summary>
+        public async Task<UsuarioComSenha> UsuarioComSenhaAsync(ClinicaDeTeste clinica, string senha, params string[] perfis)
+        {
+            var usuario = NovoUsuario(isAdmin: false);
+            usuario.EmailConfirmed = true;
+
+            using (var escopo = _factory.Services.CreateScope())
+            {
+                var userManager = escopo.ServiceProvider.GetRequiredService<UserManager<Usuario>>();
+                var criado = await userManager.CreateAsync(usuario, senha);
+                if (!criado.Succeeded)
+                    throw new InvalidOperationException(string.Join(" ", criado.Errors.Select(e => e.Description)));
+            }
+
+            await using var contexto = _factory.CriarContexto();
+            var vinculo = new UsuarioPerfilClinica { UsuarioId = usuario.Id, ClinicaId = clinica.Id, Perfis = perfis.ToList() };
+            contexto.UsuariosPerfisClinicas.Add(vinculo);
+            await contexto.SaveChangesAsync();
+
+            return new UsuarioComSenha(usuario.Id, vinculo.Id, usuario.Email!, senha);
+        }
+
+        /// <summary>Cliente que envia o cookie informado (ex.: o "auth_token=..." devolvido pelo login).</summary>
+        public HttpClient ClienteComCookie(string cookie)
         {
             var cliente = CriarCliente();
-            cliente.DefaultRequestHeaders.Add("Cookie", $"auth_token={token}");
+            cliente.DefaultRequestHeaders.Add("Cookie", cookie);
             return cliente;
         }
+
+        public HttpClient ClienteComToken(string token) => ClienteComCookie($"auth_token={token}");
 
         private HttpClient CriarCliente()
         {
             // Cookies controlados à mão: o token vai sempre no cabeçalho Cookie
             var cliente = _factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = false });
-            cliente.DefaultRequestHeaders.UserAgent.ParseAdd(TokenDeTeste.UserAgent);
-            cliente.DefaultRequestHeaders.Add("X-Forwarded-For", TokenDeTeste.Ip);
+
+            // Cada cliente simula um IP diferente (X-Real-IP, como o Nginx entrega),
+            // para o rate limit por IP de um teste não atrapalhar o outro
+            cliente.DefaultRequestHeaders.Add("X-Real-IP", IpUnico());
             return cliente;
         }
+
+        private static string IpUnico() =>
+            $"10.{Random.Shared.Next(1, 255)}.{Random.Shared.Next(0, 256)}.{Random.Shared.Next(1, 255)}";
 
         private static Usuario NovoUsuario(bool isAdmin)
         {

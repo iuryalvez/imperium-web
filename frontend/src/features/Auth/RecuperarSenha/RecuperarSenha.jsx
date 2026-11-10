@@ -3,11 +3,12 @@ import { Typography, Form, Button, Input } from "antd";
 import { UserOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import { useRecuperarSenha } from "./useRecuperarSenha";
 import { Link } from "react-router-dom";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 const { Title, Paragraph } = Typography;
 
 const RecuperarSenha = () => {
-  const { loading, onFinish } = useRecuperarSenha();
+  const { loading, captchaToken, setCaptchaToken, turnstileRef, onFinish } = useRecuperarSenha();
 
   return (
     <div className="flex-1 flex items-start justify-center py-12 px-4 w-full">
@@ -34,8 +35,19 @@ const RecuperarSenha = () => {
             <Input prefix={<UserOutlined />} placeholder="exemplo@email.com" size="large" />
           </Form.Item>
 
+          <Form.Item className="flex justify-center">
+            <Turnstile
+              ref={turnstileRef}
+              siteKey={process.env.REACT_APP_TURNSTILE_SITE_KEY}
+              onSuccess={setCaptchaToken}
+              onError={() => setCaptchaToken(null)}
+              onExpire={() => setCaptchaToken(null)}
+              options={{ theme: "light" }}
+            />
+          </Form.Item>
+
           <Form.Item className="mt-6">
-            <Button type="primary" htmlType="submit" loading={loading} block size="large">
+            <Button type="primary" htmlType="submit" loading={loading} block size="large" disabled={!captchaToken}>
               Enviar Link
             </Button>
           </Form.Item>

@@ -16,14 +16,26 @@ namespace backend.Domain.Auth.Services
             _logger = logger;
         }
 
+        public bool Configurado =>
+            !string.IsNullOrWhiteSpace(_configuration["EmailSettings:SmtpServer"])
+            && !string.IsNullOrWhiteSpace(_configuration["EmailSettings:SmtpUser"])
+            && !string.IsNullOrWhiteSpace(_configuration["EmailSettings:SmtpPass"]);
+
         public async Task SendEmailAsync(string toEmail, string subject, string body)
         {
             try
             {
                 var smtpServer = _configuration["EmailSettings:SmtpServer"];
-                var smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"]);
+                var smtpPort = int.TryParse(_configuration["EmailSettings:SmtpPort"], out var porta) ? porta : 587;
                 var smtpUser = _configuration["EmailSettings:SmtpUser"];
                 var smtpPass = _configuration["EmailSettings:SmtpPass"];
+
+                // Remetente que aparece para quem recebe. Pode ser outro endereço (ex.: o do grupo), desde que
+                // a conta do SmtpUser tenha permissão de enviar como ele; senão o Gmail troca pelo SmtpUser.
+                var remetente = _configuration["EmailSettings:FromAddress"];
+                if (string.IsNullOrWhiteSpace(remetente)) remetente = smtpUser;
+                var nomeRemetente = _configuration["EmailSettings:FromName"];
+                if (string.IsNullOrWhiteSpace(nomeRemetente)) nomeRemetente = "Suporte IMPERIUM/BRIS";
 
                 using var client = new SmtpClient(smtpServer, smtpPort)
                 {
@@ -33,7 +45,7 @@ namespace backend.Domain.Auth.Services
 
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress(smtpUser, "Suporte IMPERIUM/BRIS"),
+                    From = new MailAddress(remetente!, nomeRemetente),
                     Subject = subject,
                     Body = body,
                     IsBodyHtml = true

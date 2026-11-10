@@ -619,10 +619,10 @@ namespace backend.Domain.Usuarios.Services
             }
         }
 
-        private static string TraduzirErroSenhaIdentity(IdentityError erro) => erro.Code switch
+        public static string TraduzirErroSenhaIdentity(IdentityError erro) => erro.Code switch
         {
             "PasswordMismatch" => "A senha atual está incorreta.",
-            "PasswordTooShort" => "A nova senha deve ter pelo menos 6 caracteres.",
+            "PasswordTooShort" => "A nova senha deve ter pelo menos 8 caracteres.",
             "PasswordRequiresNonAlphanumeric" => "A nova senha deve conter pelo menos um caractere especial.",
             "PasswordRequiresDigit" => "A nova senha deve conter pelo menos um número.",
             "PasswordRequiresLower" => "A nova senha deve conter pelo menos uma letra minúscula.",

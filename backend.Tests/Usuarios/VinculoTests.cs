@@ -826,10 +826,19 @@ namespace backend.Tests.Usuarios
 
             Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
 
+            // Trocar a senha derruba as sessões antigas; quem trocou recebe um cookie novo e continua logado
+            var cookieNovo = CookieDaSessao(resposta);
+            Assert.NotNull(cookieNovo);
+            var clienteRenovado = _cenario.ClienteComCookie(cookieNovo!);
+
             // A senha antiga deixa de valer na próxima tentativa
-            var segunda = await cliente.PutAsJsonAsync("/api/sistema/perfil",
+            var segunda = await clienteRenovado.PutAsJsonAsync("/api/sistema/perfil",
                 new { senhaAtual = Senha, novaSenha = "OutraSenha@123" });
             Assert.Equal(HttpStatusCode.BadRequest, segunda.StatusCode);
+
+            // O token de antes da troca não vale mais
+            var comTokenAntigo = await cliente.GetAsync("/api/sistema/perfil");
+            Assert.Equal(HttpStatusCode.Unauthorized, comTokenAntigo.StatusCode);
         }
 
         private async Task<HttpClient> ClienteComSenhaParaPerfilAsync()
@@ -839,9 +848,7 @@ namespace backend.Tests.Usuarios
             await gestor.PostAsJsonAsync($"{RotaUsuarios}/cadastrar", NovoUsuario(email, Perfis.Veterinario));
             var usuarioId = Assert.Single((await ListarAsync(gestor, "")).Itens).Id;
 
-            var cliente = _cenario.ClienteAnonimo();
-            cliente.DefaultRequestHeaders.Add("Cookie", $"auth_token={TokenDeTeste.AdminSistema(usuarioId, "Perfil Teste")}");
-            return cliente;
+            return await _cenario.ClienteDeLoginAsync(usuarioId);
         }
 
         #endregion

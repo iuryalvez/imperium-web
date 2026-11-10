@@ -3,8 +3,6 @@ import endpoints from "../services/Endpoints"; // endpoints
 
 export const autenticacaoAPI = {
   login: async ({ email, senha, captchaToken, rememberMe }) => {
-    // console.log("---------------------------Entrou na api---------------------------");
-    // console.log("\nemail na api: ", email, "\nsenha na api: ", senha);
     try {
       const response = await api.post(endpoints.autenticacao.login, {
         email,
@@ -21,7 +19,8 @@ export const autenticacaoAPI = {
 
   logout: async () => {
     try {
-      const response = await api.get(endpoints.autenticacao.logout);
+      // POST: um site externo não consegue deslogar o usuário com um simples link
+      const response = await api.post(endpoints.autenticacao.logout);
       return response.data;
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
@@ -64,10 +63,11 @@ export const autenticacaoAPI = {
     }
   },
 
-  recuperarSenha: async (email) => {
+  recuperarSenha: async ({ email, captchaToken }) => {
     try {
       const response = await api.post(endpoints.autenticacao.recuperarSenha, {
         email,
+        captchaToken,
       });
       return response.data;
     } catch (error) {
@@ -76,10 +76,10 @@ export const autenticacaoAPI = {
     }
   },
 
-  resetPassword: async ({ email, token, newPassword }) => {
+  resetPassword: async ({ userId, token, newPassword }) => {
     try {
       const response = await api.post(endpoints.autenticacao.resetPassword, {
-        email,
+        userId,
         token,
         newPassword,
       });

@@ -37,6 +37,23 @@ namespace backend.Tests.Infra
         public static async Task<string> TextoAsync(HttpResponseMessage resposta) =>
             await resposta.Content.ReadAsStringAsync();
 
+        /// <summary>
+        /// Cookie da sessão devolvido pela resposta, no formato "auth_token=valor" (pronto para o cabeçalho Cookie).
+        /// Nulo se a resposta não definiu o cookie ou se o apagou (valor vazio).
+        /// </summary>
+        public static string? CookieDaSessao(HttpResponseMessage resposta)
+        {
+            var setCookie = CabecalhoDoCookieDaSessao(resposta);
+            var par = setCookie?.Split(';')[0];
+            return string.IsNullOrEmpty(par) || par.EndsWith('=') ? null : par;
+        }
+
+        /// <summary>O cabeçalho Set-Cookie inteiro do cookie da sessão (com HttpOnly, SameSite, Expires...), ou nulo.</summary>
+        public static string? CabecalhoDoCookieDaSessao(HttpResponseMessage resposta) =>
+            resposta.Headers.TryGetValues("Set-Cookie", out var valores)
+                ? valores.LastOrDefault(v => v.StartsWith("auth_token="))
+                : null;
+
         /// <summary>Lê <c>data.&lt;campo&gt;</c> de um ServiceResult (ex.: "tutorId", "animalId", "id").</summary>
         public static async Task<int> LerIdDoDataAsync(HttpResponseMessage resposta, string campo)
         {

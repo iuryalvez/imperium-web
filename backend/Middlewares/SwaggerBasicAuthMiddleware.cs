@@ -1,6 +1,6 @@
-using System.Configuration;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace backend.Middlewares
@@ -18,40 +18,47 @@ namespace backend.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
-            // Check if request is for swagger endpoint
-            if (context.Request.Path.StartsWithSegments("/api/docs") || context.Request.Path.StartsWithSegments("/swagger"))
-            {
-                string authHeader = context.Request.Headers["Authorization"];
-
-                if (authHeader != null && authHeader.StartsWith("Basic "))
-                {
-                    // Get credentials from header
-                    var header = AuthenticationHeaderValue.Parse(authHeader);
-                    var inBytes = Convert.FromBase64String(header.Parameter);
-                    var credentials = Encoding.UTF8.GetString(inBytes).Split(':');
-                    var username = credentials[0];
-                    var password = credentials[1];
-
-                    // Read credentials from appsettings
-                    var configUsername = _configuration["SwaggerAuth:Username"];
-                    var configPassword = _configuration["SwaggerAuth:Password"];
-
-                    // Validate credentials
-                    if (username.Equals(configUsername) && password.Equals(configPassword))
-                    {
-                        await _next(context);
-                        return;
-                    }
-                }
-
-                // Return 401 Unauthorized and request credentials
-                context.Response.Headers["WWW-Authenticate"] = "Basic";
-                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-            }
-            else
+            var ehSwagger = context.Request.Path.StartsWithSegments("/api/docs") || context.Request.Path.StartsWithSegments("/swagger");
+            if (!ehSwagger || CredenciaisValidas(context.Request.Headers.Authorization.ToString()))
             {
                 await _next(context);
+                return;
+            }
+
+            // Sem credenciais válidas (ou cabeçalho malformado): pede usuário e senha
+            context.Response.Headers["WWW-Authenticate"] = "Basic";
+            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+        }
+
+        private bool CredenciaisValidas(string authHeader)
+        {
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            var usuarioConfigurado = _configuration["SwaggerAuth:Username"];
+            var senhaConfigurada = _configuration["SwaggerAuth:Password"];
+            if (string.IsNullOrEmpty(usuarioConfigurado) || string.IsNullOrEmpty(senhaConfigurada))
+                return false;
+
+            try
+            {
+                var parametro = AuthenticationHeaderValue.Parse(authHeader).Parameter ?? string.Empty;
+                var credenciais = Encoding.UTF8.GetString(Convert.FromBase64String(parametro));
+                var separador = credenciais.IndexOf(':');
+                if (separador < 0) return false;
+
+                // Comparação em tempo constante: o tempo de resposta não ajuda a adivinhar a senha
+                var usuarioOk = Iguais(credenciais[..separador], usuarioConfigurado);
+                var senhaOk = Iguais(credenciais[(separador + 1)..], senhaConfigurada);
+                return usuarioOk & senhaOk;
+            }
+            catch (FormatException)
+            {
+                return false;
             }
         }
+
+        private static bool Iguais(string recebido, string esperado) =>
+            CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(recebido), Encoding.UTF8.GetBytes(esperado));
     }
 }

@@ -17,20 +17,36 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-test("envia o e-mail e mostra a mensagem do backend", async () => {
-  autenticacaoAPI.recuperarSenha.mockResolvedValue({ message: "Se o e-mail existir, enviamos um link." });
+// O envio só acontece depois que o captcha (Turnstile) devolve um token
+const renderComCaptcha = () => {
+  const hook = renderHook(() => useRecuperarSenha());
+  act(() => hook.result.current.setCaptchaToken("captcha-ok"));
+  return hook;
+};
+
+test("sem captcha resolvido não chama a api", async () => {
   const { result } = renderHook(() => useRecuperarSenha());
 
   await act(() => result.current.onFinish({ email: "vera@teste.local" }));
 
-  expect(autenticacaoAPI.recuperarSenha).toHaveBeenCalledWith("vera@teste.local");
+  expect(autenticacaoAPI.recuperarSenha).not.toHaveBeenCalled();
+});
+
+test("envia o e-mail com o captcha e mostra a mensagem do backend", async () => {
+  autenticacaoAPI.recuperarSenha.mockResolvedValue({ message: "Se o e-mail existir, enviamos um link." });
+  const { result } = renderComCaptcha();
+
+  await act(() => result.current.onFinish({ email: "vera@teste.local" }));
+
+  expect(autenticacaoAPI.recuperarSenha).toHaveBeenCalledWith({ email: "vera@teste.local", captchaToken: "captcha-ok" });
+  expect(result.current.captchaToken).toBeNull(); // o token do captcha vale para um envio só
   expect(mockNotification.success).toHaveBeenCalledWith({ message: "E-mail Enviado", description: "Se o e-mail existir, enviamos um link." });
   expect(result.current.loading).toBe(false);
 });
 
 test("sucesso sem mensagem usa o texto padrão (não revela se o e-mail existe)", async () => {
   autenticacaoAPI.recuperarSenha.mockResolvedValue({});
-  const { result } = renderHook(() => useRecuperarSenha());
+  const { result } = renderComCaptcha();
 
   await act(() => result.current.onFinish({ email: "ninguem@teste.local" }));
 
@@ -42,7 +58,7 @@ test("sucesso sem mensagem usa o texto padrão (não revela se o e-mail existe)"
 
 test("erro do backend mostra a mensagem dele e libera o botão", async () => {
   autenticacaoAPI.recuperarSenha.mockRejectedValue({ message: "O e-mail não é válido." });
-  const { result } = renderHook(() => useRecuperarSenha());
+  const { result } = renderComCaptcha();
 
   await act(() => result.current.onFinish({ email: "x" }));
 
@@ -53,7 +69,7 @@ test("erro do backend mostra a mensagem dele e libera o botão", async () => {
 
 test("erro sem mensagem usa o texto padrão", async () => {
   autenticacaoAPI.recuperarSenha.mockRejectedValue({});
-  const { result } = renderHook(() => useRecuperarSenha());
+  const { result } = renderComCaptcha();
 
   await act(() => result.current.onFinish({ email: "vera@teste.local" }));
 

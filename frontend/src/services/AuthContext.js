@@ -112,8 +112,6 @@ export const AuthProvider = ({ children }) => {
         }
       }
     } catch (error) {
-      console.error("Erro no login:", error);
-
       // error is already error.response.data due to API interceptor
       const mensagemErro =
         error.message ||
@@ -154,38 +152,25 @@ export const AuthProvider = ({ children }) => {
 
   const escolherVinculoAdmin = async (clinicaId, perfis) => {
     setIsLoading(true);
-    console.log("[AuthContext] Invocando escolherVinculoAdmin.");
-    console.log("-> Payload enviado para a API:", { clinicaId, perfis });
-
     try {
       const response = await autenticacaoAPI.escolherVinculoAdmin(
         clinicaId,
         perfis,
       );
-      console.log("[AuthContext] Resposta da API recebida:", response.data);
-
       if (response.status === 200) {
         abrirNotificacao(
           "success",
           "Vínculo selecionado!",
           "Simulação de clínica iniciada com sucesso.",
         );
-
-        console.log(
-          "[AuthContext] Chamando checkAuth para atualizar a sessão...",
-        );
         await checkAuth(false);
         navigate("/clinica/inicio");
       }
     } catch (error) {
-      console.error(
-        "[AuthContext] Falha ao tentar escolher vínculo admin:",
-        error,
-      );
       abrirNotificacao(
         "error",
         "Erro ao selecionar vínculo",
-        "Não foi possível selecionar o vínculo. Verifique o console.",
+        error?.Message || error?.message || "Não foi possível selecionar o vínculo.",
       );
       throw error;
     } finally {

@@ -31,6 +31,8 @@ O Imperium ainda não está em produção com clientes reais. Mesmo assim, trate
 - Depois do login, o usuário escolhe o vínculo (a clínica). A partir daí o token JWT (em cookie) carrega o `clinicaId` e os perfis daquela clínica.
 - O login usa Cloudflare Turnstile como proteção contra robôs.
 - O que cada perfil pode fazer é definido pelas policies em `backend/Program.cs` (`VisualizaTudo`, `VisualizaAtendimento`, `GerenciaClinica`, `GerenciaAnimais`, `GerenciaRacoes`, `GerenciaAcompanhamento`, `GerenciaTutores`, `GerenciaConsultas`, `GerenciaSistema`...), espelhadas no frontend em `src/utils/permissoes.js`. O frontend só esconde menu, rotas e botões; a segurança real é do backend.
+- Sessão: o token vai só no cookie HttpOnly (nome e `Path` por ambiente, `SameSite=Strict`), nunca no corpo da resposta. A cada requisição o backend confere no banco usuário ativo, carimbo de segurança (claim `stamp`), vínculo e perfis atuais; logout, troca ou redefinição de senha e desativação derrubam todas as sessões do usuário. "Lembrar-me" dura 7 dias renováveis, com teto de 30 dias desde o login.
+- Proteções das rotas de auth: Turnstile no login e no "esqueci minha senha", bloqueio da conta após 5 senhas erradas (15 min), rate limit por IP e recusa de requisições que alteram dados vindas de outra origem (`ValidaOrigemMiddleware`). O IP do cliente vem de `X-Real-IP` (`HttpContext.GetClienteIp()`).
 - O token de vínculo tem o id do vínculo no `NameIdentifier` e o id do usuário na claim `usuarioId`. Para gravar "quem fez" (consulta, avaliação, cancelamento) use sempre o id do usuário (`User.GetUsuarioId()`).
 
 ## Entidades e regras de negócio

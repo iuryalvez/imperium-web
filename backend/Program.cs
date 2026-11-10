@@ -1,4 +1,5 @@
 using System.Text;
+using System.Threading.RateLimiting;
 // Using statements para funcionalidades do ASP.NET Core, EF Core e JWT
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -27,6 +28,7 @@ using backend.Domain.SaudeAnimal.Repository;
 using backend.Domain.Auth.Interfaces;
 using backend.Domain.Auth.Services;
 using backend.Domain.Auth.Extensions;
+using backend.Domain.Auth.Controllers;
 using backend.Domain.Usuarios.Repository;
 
 
@@ -129,16 +131,22 @@ public class Program
         /// Configura o CORS para permitir que o seu frontend (rodando em outras origens/endereços)
         /// possa fazer requisições para esta API. Sem isso, o navegador bloquearia as chamadas por segurança.
         /// </summary>
+        // Origens que podem chamar a API com o cookie da sessão. Vêm de Cors:AllowedOrigins (.env);
+        // localhost só entra em desenvolvimento. A mesma lista vale para a checagem de Origin (CSRF).
+        var origensPermitidas = (builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>())
+            .Where(o => !string.IsNullOrWhiteSpace(o))
+            .Select(o => o.Trim().TrimEnd('/'))
+            .ToList();
+        if (origensPermitidas.Count == 0) origensPermitidas.Add("https://imperium.evz.ufg.br");
+        if (builder.Environment.IsDevelopment())
+            origensPermitidas.AddRange(new[] { "http://localhost", "http://localhost:3000", "http://localhost:5050" });
+        var origensPermitidasArray = origensPermitidas.Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("AllowSpecificOrigin", policyBuilder =>
             {
-                policyBuilder.WithOrigins(
-                    "https://imperium.evz.ufg.br",
-                    "http://localhost",
-                    "http://localhost:3000",
-                    "http://localhost:5050"
-                )
+                policyBuilder.WithOrigins(origensPermitidasArray)
                 .AllowAnyHeader() // Permite qualquer cabeçalho na requisição (ex: Content-Type, Authorization)
                 .AllowAnyMethod() // Permite qualquer método HTTP (GET, POST, PUT, DELETE)
                 .AllowCredentials(); // Permite o envio de cookies entre origens, essencial para autenticação baseada em cookies.
@@ -149,6 +157,32 @@ public class Program
         // ========================================================================
         // 4. CONFIGURAÇÃO DO BANCO DE DADOS (ENTITY FRAMEWORK CORE)
         // ========================================================================
+
+        #region Rate limit
+        /// <summary>
+        /// Limite de requisições por IP nas rotas públicas de autenticação (login, esqueci e redefinir senha).
+        /// Passou do limite, responde 429. Os valores vêm de RateLimit:Auth (padrão: 10 por minuto).
+        /// </summary>
+        var limiteAuth = builder.Configuration.GetValue<int?>("RateLimit:Auth:PermitLimit") ?? 10;
+        var janelaAuth = TimeSpan.FromSeconds(builder.Configuration.GetValue<int?>("RateLimit:Auth:WindowSeconds") ?? 60);
+        builder.Services.AddRateLimiter(options =>
+        {
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            options.OnRejected = async (contexto, cancelamento) =>
+            {
+                contexto.HttpContext.Response.ContentType = "application/json";
+                await contexto.HttpContext.Response.WriteAsync(
+                    "{\"message\":\"Muitas tentativas. Aguarde um minuto e tente novamente.\"}", cancelamento);
+            };
+            options.AddPolicy(AuthController.RateLimitAuth, httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(httpContext.GetClienteIp(), _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = limiteAuth,
+                    Window = janelaAuth,
+                    QueueLimit = 0,
+                }));
+        });
+        #endregion
 
         #region Banco de Dados
         /// <summary>
@@ -174,9 +208,13 @@ public class Program
         /// </summary>
         builder.Services.AddIdentityCore<Usuario>(options =>
         {
-            options.Password.RequiredLength = 6;
+            options.Password.RequiredLength = 8;
             options.SignIn.RequireConfirmedEmail = false; // Não exige confirmação de e-mail para login
-            options.Lockout.AllowedForNewUsers = false; // Desativa o bloqueio de conta para novos usuários
+
+            // Bloqueio por força bruta: 5 senhas erradas seguidas travam o login por 15 minutos
+            options.Lockout.AllowedForNewUsers = true;
+            options.Lockout.MaxFailedAccessAttempts = 5;
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
         })
         .AddEntityFrameworkStores<AppDbContext>() // Conecta o Identity ao seu banco de dados via EF Core
         .AddSignInManager() // Adiciona o gerenciador de login (ex: PasswordSignInAsync)
@@ -223,11 +261,11 @@ public class Program
             options.Events = new JwtBearerEvents
             {
                 // Este evento é disparado quando uma requisição chega.
-                // Sua função aqui é extrair o token JWT de um cookie HttpOnly chamado "auth_token".
+                // Sua função aqui é extrair o token JWT do cookie HttpOnly da sessão (nome em Cookie:Name).
                 // Isso é uma medida de segurança para proteger o token contra ataques XSS no frontend.
                 OnMessageReceived = context =>
                 {
-                    var token = context.Request.Cookies["auth_token"];
+                    var token = context.Request.Cookies[TokenService.NomeDoCookie(builder.Configuration)];
                     if (!string.IsNullOrEmpty(token))
                     {
                         context.Token = token;
@@ -243,7 +281,7 @@ public class Program
                         var ValidateService = context.HttpContext.RequestServices.GetRequiredService<IValidateService>();
                         var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
 
-                        // Validações de consistência (ex: IP, User-Agent)
+                        // Confere no banco se a sessão ainda vale (usuário ativo, carimbo de segurança, vínculo e perfis)
                         await ValidateService.ValidateUserClaims(context.Principal, context.HttpContext);
 
                         // Lógica para renovar o token se ele estiver perto de expirar
@@ -349,10 +387,18 @@ public class Program
 
         // O pipeline define a ORDEM em que uma requisição HTTP é processada. A ordem é CRÍTICA.
 
+        // Cabeçalhos de segurança em todas as respostas (primeiro do pipeline, para valer também nos erros)
+        app.UseMiddleware<backend.Middlewares.CabecalhosSegurancaMiddleware>();
+
         // Register custom middleware
         app.UseMiddleware<backend.Middlewares.SwaggerBasicAuthMiddleware>();
 
         app.UseCors("AllowSpecificOrigin"); // 1. Aplica a política de CORS
+
+        // Proteção contra CSRF: recusa requisição que altera dados vinda de outra origem
+        app.UseMiddleware<backend.Middlewares.ValidaOrigemMiddleware>(new HashSet<string>(origensPermitidasArray, StringComparer.OrdinalIgnoreCase));
+
+        app.UseRateLimiter();
 
         app.UseAuthentication(); // 2. Tenta autenticar o usuário (lê o cookie, valida o token)
         app.UseAuthorization(); // 3. Verifica se o usuário autenticado tem permissão para acessar o endpoint
