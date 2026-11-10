@@ -9,6 +9,7 @@ import {
   Input,
   Checkbox,
 } from "antd";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../../services/AuthContext";
 import { Turnstile } from "@marsidev/react-turnstile";
 import logoInf from "../../../assets/INF_UFG.png"
@@ -123,7 +124,8 @@ const Login = () => {
                 <Form.Item name="lembrar" valuePropName="checked" noStyle>
                   <Checkbox>Lembrar-me</Checkbox>
                 </Form.Item>
-                <a href="/recuperar-senha">Esqueceu sua senha?</a>
+                {/* Link do roteador: respeita o prefixo do ambiente (/dev em homologação) */}
+                <Link to="/recuperar-senha">Esqueceu sua senha?</Link>
               </div>
             </Form.Item>
 
