@@ -17,10 +17,12 @@ namespace backend.Tests.Usuarios
     {
         private const string RotaPerfil = "/api/sistema/perfil";
 
+        private readonly ImperiumApiFactory _factory;
         private readonly Cenario _cenario;
 
         public PerfilPessoalTests(ImperiumApiFactory factory)
         {
+            _factory = factory;
             _cenario = new Cenario(factory);
         }
 
@@ -50,6 +52,37 @@ namespace backend.Tests.Usuarios
             Assert.Equal(usuario.UsuarioId, perfil.Id);
             Assert.Equal(novaFormacao, perfil.Formacao);
             Assert.Equal(usuario.Email, perfil.Email); // edição parcial: o e-mail continua o mesmo
+        }
+
+        [Fact]
+        public async Task GetMeuPerfil_UsuarioComDuasClinicas_TrazTodosOsCamposEOTotalDeVinculos()
+        {
+            var clinicaA = await _cenario.CriarClinicaAsync("A");
+            var clinicaB = await _cenario.CriarClinicaAsync("B");
+            var usuario = await _cenario.UsuarioDaClinicaAsync(clinicaA, Perfis.Veterinario);
+            await using (var contexto = _factory.CriarContexto())
+            {
+                contexto.UsuariosPerfisClinicas.Add(new backend.Domain.Usuarios.Entities.UsuarioPerfilClinica
+                {
+                    UsuarioId = usuario.UsuarioId, ClinicaId = clinicaB.Id, Perfis = new List<string> { Perfis.Tecnico },
+                });
+                await contexto.SaveChangesAsync();
+            }
+            await usuario.Cliente.PutAsJsonAsync(RotaPerfil, new { formacao = "Medicina Veterinária", telefone = "62999990005", whatsapp = "62999990006" });
+
+            var perfil = (await LerAsync<ResultadoComDados<GetMeuPerfilDto>>(await usuario.Cliente.GetAsync(RotaPerfil))).Data;
+
+            await using var leitura = _factory.CriarContexto();
+            var gravado = await leitura.Usuarios.FindAsync(usuario.UsuarioId);
+            Assert.Equal(usuario.UsuarioId, perfil.Id);
+            Assert.Equal(gravado!.Nome, perfil.Nome);
+            Assert.Equal(usuario.Email, perfil.Email);
+            Assert.Equal("Medicina Veterinária", perfil.Formacao);
+            Assert.Equal("62999990005", perfil.Telefone);
+            Assert.Equal("62999990006", perfil.Whatsapp);
+            Assert.Null(perfil.Cpf);
+            Assert.InRange(perfil.DataCadastro.ToUniversalTime(), gravado.DataCadastro.AddSeconds(-1), gravado.DataCadastro.AddSeconds(1));
+            Assert.Equal(2, perfil.TotalClinicasVinculadas);
         }
 
         [Fact]

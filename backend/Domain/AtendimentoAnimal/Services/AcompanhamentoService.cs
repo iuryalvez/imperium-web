@@ -1,4 +1,4 @@
-using AutoMapper;
+using backend.Domain.SaudeAnimal.Mappers;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interfaces;
 using backend.Domain.Usuarios.Interfaces;
@@ -20,7 +20,6 @@ namespace backend.Domain.AtendimentoAnimal.Services
         private readonly IRacaoService _racaoService;
         private readonly IDietaService _dietaService;
         private readonly IAnimalService _animalService;
-        private readonly IMapper _mapper;
         private readonly ILogger<AcompanhamentoService> _logger;
 
         /// <summary>
@@ -31,7 +30,6 @@ namespace backend.Domain.AtendimentoAnimal.Services
                                      IRacaoService racaoService,
                                      IDietaService dietaService,
                                      IAnimalService animalService,
-                                     IMapper mapper,
                                      ILogger<AcompanhamentoService> logger)
         {
             _acompanhamentoRepository = acompanhamentoRepository;
@@ -39,7 +37,6 @@ namespace backend.Domain.AtendimentoAnimal.Services
             _racaoService = racaoService;
             _dietaService = dietaService;
             _animalService = animalService;
-            _mapper = mapper;
             _logger = logger;
         }
 
@@ -281,7 +278,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
 
                 _logger.LogInformation("Delegando cálculo da dieta para o DietaService.");
                 var dieta = await _dietaService.CalcularOuAtualizarDietaAsync(animal, avaliacao, racao, dto);
-                var dietaDto = _mapper.Map<GetDietaDto>(dieta);
+                var dietaDto = DietaMapper.ParaDto(dieta);
 
                 _logger.LogInformation("Dieta para o relatório {AvaliacaoId} calculada com sucesso.", dto.AvaliacaoId);
 
@@ -319,7 +316,12 @@ namespace backend.Domain.AtendimentoAnimal.Services
             {
                 // Troca de ração exige ração ativa e não oculta; manter a ração atual é sempre permitido
                 var dietaAtual = await _dietaService.GetByIdAsync(dietaId, clinicaId);
-                var resultadoRacao = await _racaoService.ObterSelecionavelAsync(dto.RacaoId, clinicaId, dietaAtual?.RacaoId);
+                if (dietaAtual == null)
+                {
+                    return ServiceResult.NaoEncontrado("Dieta não encontrada.");
+                }
+
+                var resultadoRacao = await _racaoService.ObterSelecionavelAsync(dto.RacaoId, clinicaId, dietaAtual.RacaoId);
                 if (!resultadoRacao.Succeeded)
                 {
                     return resultadoRacao;
@@ -361,9 +363,15 @@ namespace backend.Domain.AtendimentoAnimal.Services
 
             try
             {
-                await _dietaService.DeleteAsync(dietaId, clinicaId);
+                var resultado = await _dietaService.DeleteAsync(dietaId, clinicaId);
+                if (!resultado.Succeeded)
+                {
+                    _logger.LogWarning("Falha ao excluir a dieta {DietaId}. Motivo: {Motivo}", dietaId, resultado.Message);
+                    return resultado;
+                }
+
                 _logger.LogInformation("Dieta {DietaId} excluída com sucesso.", dietaId);
-                return new ServiceResult { Succeeded = true, Message = "Dieta excluída com sucesso." };
+                return resultado;
             }
             catch (Exception ex)
             {

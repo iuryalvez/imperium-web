@@ -1,4 +1,4 @@
-using AutoMapper;
+using backend.Domain.AtendimentoAnimal.Mappers;
 using backend.Domain.AtendimentoAnimal.DTOs.Animal;
 using backend.Domain.AtendimentoAnimal.DTOs.Tutor;
 using backend.Domain.AtendimentoAnimal.Entities;
@@ -15,19 +15,16 @@ namespace backend.Domain.AtendimentoAnimal.Services
     {
         private readonly ITutorRepository _tutorRepository;
         private readonly IAnimalRepository _animalRepository; // Para validar animais
-        private readonly IMapper _mapper;
         private readonly ILogger<TutorService> _logger;
         private readonly AppDbContext _context; // Para transações
 
         public TutorService(ITutorRepository tutorRepository,
                             IAnimalRepository animalRepository,
-                            IMapper mapper,
                             ILogger<TutorService> logger,
                             AppDbContext context)
         {
             _tutorRepository = tutorRepository;
             _animalRepository = animalRepository;
-            _mapper = mapper;
             _logger = logger;
             _context = context;
         }
@@ -73,8 +70,8 @@ namespace backend.Domain.AtendimentoAnimal.Services
             // 1. Chama o método de serviço intermediário para obter a entidade
             var tutor = await ObterPorIdEClinicaIdAsync(tutorId, clinicaId);
 
-            // 2. Mapeia a entidade para DTO. O AutoMapper lida com o caso de 'tutor' ser nulo.
-            return _mapper.Map<GetTutoresClinicaDto>(tutor);
+            // 2. Mapeia a entidade para DTO (nulo quando o tutor não existe na clínica).
+            return tutor == null ? null : TutorMapper.ParaDto(tutor);
         }
 
         /// <summary>
@@ -83,7 +80,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
         public async Task<PaginaResultado<GetTutoresClinicaDto>> ListarAsync(TutorFiltro filtro, int clinicaId)
         {
             var pagina = await _tutorRepository.ListarDaClinicaAsync(filtro, clinicaId);
-            return pagina.Converter(itens => _mapper.Map<IEnumerable<GetTutoresClinicaDto>>(itens));
+            return pagina.Converter(itens => itens.Select(TutorMapper.ParaDto));
         }
 
         /// <summary>
@@ -140,7 +137,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
                     return ServiceResult.Conflito("CPF já cadastrado nesta clínica.");
                 }
 
-                var tutor = _mapper.Map<Tutor>(dto);
+                var tutor = TutorMapper.ParaEntidade(dto);
                 tutor.ClinicaId = clinicaId;
                 tutor.DataCadastro = DateTime.UtcNow;
                 tutor.IsAtivo = true;
@@ -205,10 +202,8 @@ namespace backend.Domain.AtendimentoAnimal.Services
                     return ServiceResult.Conflito("CPF já cadastrado nesta clínica.");
                 }
 
-                // 1. MAPEAMENTO AUTOMÁTICO
-                // O AutoMapper aplica as alterações do DTO na entidade existente,
-                // ignorando propriedades nulas (se o Profile estiver configurado para isso).
-                _mapper.Map(dto, tutor);
+                // 1. MAPEAMENTO: aplica na entidade só o que veio preenchido no DTO (ver TutorMapper)
+                TutorMapper.Aplicar(dto, tutor);
 
                 // 2. SINCRONIZAÇÃO DE VÍNCULOS
                 if (dto.AnimalIds != null)

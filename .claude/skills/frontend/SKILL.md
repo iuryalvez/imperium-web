@@ -83,7 +83,7 @@ Há nomes legados fora do padrão (por exemplo `RacoesDaClinica/useRacoesManager
 - A lista usa `usePaginacaoServidor` (seção 9). Para recarregar depois de salvar, use `lista.recarregar`.
 - Handlers com prefixo `handle`: `handleOpenModalCadastro`, `handleEditar<Entidade>`, `handleOpenModalDetalhes`, `handleCloseModal`, `handleSubmit` e `handleToggleStatus`.
 - O `handleSubmit(values)` faz: `setIsSubmitting(true)`; se há `editing<Entidade>`, chama `editar({ ...editing, ...payload })`, senão `cadastrar(payload)`; mostra `message.success(...)`; fecha o modal; recarrega a lista; e no `finally` faz `setIsSubmitting(false)`.
-- Antes de enviar, use `sanitizeToNumbers` em CPF, CNPJ, CEP e telefone, e `sanitizePayload` nas edições. O AutoMapper do backend ignora `null` mas grava `""`, e é assim que um campo é limpo.
+- Antes de enviar, use `sanitizeToNumbers` em CPF, CNPJ, CEP e telefone, e `sanitizePayload` nas edições. O mapeamento do backend ignora `null` mas grava `""`, e é assim que um campo é limpo.
 - Erros com `message.error(error.message || "Erro ao ...")`.
 - Navegação com `useNavigate` e autenticação com `useAuth()`.
 

@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using backend.Domain.AtendimentoAnimal.DTOs.Consulta;
+using backend.Domain.AtendimentoAnimal.Enums;
 using backend.Domain.Utils.Paginacao;
 using backend.Tests.Infra;
 using Xunit;
@@ -461,6 +462,151 @@ namespace backend.Tests.Consultas
 
         #endregion
 
+        #region Campos de apoio
+
+        [Fact]
+        public async Task Listar_ConsultaPendente_TrazAnimalRacaTutorEQuemMarcou()
+        {
+            var clinica = await _cenario.CriarClinicaAsync("A");
+            var usuario = await _cenario.UsuarioDaClinicaAsync(clinica, Perfis.Gestor);
+            var gestor = usuario.Cliente;
+            var nomeRaca = $"Raça {Cenario.Unico()}";
+            var respostaRaca = await gestor.PostAsJsonAsync("/api/clinica/racas/cadastrar", new
+            {
+                nome = nomeRaca, especie = Especie.Cao,
+                pesoMinimoReferenciaMacho = 20.0, pesoMaximoReferenciaMacho = 30.0,
+                pesoMinimoReferenciaFemea = 18.0, pesoMaximoReferenciaFemea = 26.0,
+            });
+            var racaId = await LerIdDoDataAsync(respostaRaca, "id");
+            var nomeTutor = $"Tutor {Cenario.Unico()}";
+            var tutorId = await CadastrarTutorAsync(gestor, nomeTutor);
+            var nomeAnimal = $"Animal {Cenario.Unico()}";
+            var animalId = await CadastrarAnimalAsync(gestor, racaId, nome: nomeAnimal, tutorIds: new[] { tutorId });
+            var data = new DateTime(2030, 6, 1, 14, 0, 0, DateTimeKind.Utc);
+            var id = await CadastrarConsultaAsync(gestor, animalId, tutorId, data);
+
+            var item = Assert.Single((await ListarAsync(gestor, "")).Itens);
+
+            Assert.Equal(id, item.Id);
+            Assert.Equal(data, item.DataConsulta.ToUniversalTime());
+            Assert.Equal(animalId, item.AnimalId);
+            Assert.Equal(nomeAnimal, item.NomeAnimal);
+            Assert.Equal(EspecieAnimal.Cao, item.EspecieAnimal);
+            Assert.Equal(Sexo.Macho, item.SexoAnimal);
+            Assert.Equal(await AcompanhamentoDoAnimalAsync(_factory, animalId), item.AcompanhamentoId);
+            Assert.Equal(nomeRaca, item.NomeRaca);
+            Assert.Equal(20.0, item.PesoMinimoRaca); // animal macho: usa a referência de macho
+            Assert.Equal(30.0, item.PesoMaximoRaca);
+            Assert.Equal(tutorId, item.TutorId);
+            Assert.Equal(nomeTutor, item.NomeTutor);
+            Assert.Equal(usuario.UsuarioId, item.UsuarioId);
+            Assert.Equal(await NomeDoUsuarioAsync(usuario.UsuarioId), item.NomeUsuario);
+            Assert.False(item.AvaliacaoPreenchida);
+            Assert.Null(item.DietaId);
+            Assert.Equal("Pendente", item.Status);
+            Assert.Null(item.DataCancelamento);
+            Assert.Null(item.MotivoCancelamento);
+            Assert.Null(item.NomeCanceladaPor);
+        }
+
+        [Fact]
+        public async Task Listar_ConsultaComAvaliacaoEDieta_MarcaAvaliacaoPreenchidaEDietaId()
+        {
+            var a = await MontarAtendimentoAsync(_cenario);
+            var avaliacao = await SalvarAvaliacaoAsync(a.Gestor, a.ConsultaId, a.RacaoId);
+
+            var comAvaliacao = Assert.Single((await ListarAsync(a.Gestor, "")).Itens);
+            var dieta = await CriarDietaAsync(a.Gestor, avaliacao);
+            var comDieta = Assert.Single((await ListarAsync(a.Gestor, "")).Itens);
+
+            Assert.True(comAvaliacao.AvaliacaoPreenchida);
+            Assert.Null(comAvaliacao.DietaId);
+            Assert.Equal("EmAndamento", comAvaliacao.Status);
+            Assert.True(comDieta.AvaliacaoPreenchida);
+            Assert.Equal(dieta.Id, comDieta.DietaId);
+            Assert.Equal("Concluida", comDieta.Status);
+        }
+
+        [Fact]
+        public async Task Listar_ConsultaSemTutorDeRacaSemPesos_TrazTutorZeroEPesosNulos()
+        {
+            var c = await ClinicaComAnimalETutorAsync();
+            await CadastrarConsultaAsync(c.Gestor, c.AnimalId);
+
+            var item = Assert.Single((await ListarAsync(c.Gestor, "")).Itens);
+
+            Assert.Equal(0, item.TutorId);
+            Assert.Null(item.NomeTutor);
+            Assert.Null(item.PesoMinimoRaca);
+            Assert.Null(item.PesoMaximoRaca);
+        }
+
+        [Fact]
+        public async Task Listar_ConsultaCancelada_TrazQuemCancelou()
+        {
+            var clinica = await _cenario.CriarClinicaAsync("A");
+            var gestor = await _cenario.ClienteAsync(clinica, Perfis.Gestor);
+            var secretario = await _cenario.UsuarioDaClinicaAsync(clinica, Perfis.Secretario);
+            var animalId = await CadastrarAnimalAsync(gestor, await CadastrarRacaDaClinicaAsync(gestor));
+            var id = await CadastrarConsultaAsync(gestor, animalId);
+
+            await secretario.Cliente.PutAsJsonAsync($"{Rota}/{id}/cancelar", new { motivo = "Tutor desmarcou" });
+
+            var item = Assert.Single((await ListarAsync(gestor, "")).Itens);
+            Assert.Equal("Cancelada", item.Status);
+            Assert.NotNull(item.DataCancelamento);
+            Assert.Equal("Tutor desmarcou", item.MotivoCancelamento);
+            Assert.Equal(await NomeDoUsuarioAsync(secretario.UsuarioId), item.NomeCanceladaPor);
+        }
+
+        [Fact]
+        public async Task Obter_ConsultaComTutor_TrazContatoDoTutorEQuemMarcou()
+        {
+            var clinica = await _cenario.CriarClinicaAsync("A");
+            var usuario = await _cenario.UsuarioDaClinicaAsync(clinica, Perfis.Gestor);
+            var gestor = usuario.Cliente;
+            var nomeTutor = $"Tutor {Cenario.Unico()}";
+            var cpf = GeradorCpf.Novo();
+            var email = $"tutor.{Cenario.Unico()}@teste.local";
+            var respostaTutor = await gestor.PostAsJsonAsync("/api/clinica/tutores/cadastrar", new { nome = nomeTutor, cpf, email, telefone = "62999990004" });
+            var tutorId = await LerIdDoDataAsync(respostaTutor, "tutorId");
+            var nomeAnimal = $"Animal {Cenario.Unico()}";
+            var animalId = await CadastrarAnimalAsync(gestor, await CadastrarRacaDaClinicaAsync(gestor), nome: nomeAnimal, tutorIds: new[] { tutorId });
+            var id = await CadastrarConsultaAsync(gestor, animalId, tutorId);
+
+            var consulta = await ObterAsync(gestor, id);
+
+            Assert.Equal(id, consulta.Id);
+            Assert.Equal(animalId, consulta.AnimalId);
+            Assert.Equal(nomeAnimal, consulta.NomeAnimal);
+            Assert.Equal(tutorId, consulta.TutorId);
+            Assert.Equal(nomeTutor, consulta.NomeTutor);
+            Assert.Equal(cpf, consulta.CpfTutor);
+            Assert.Equal(email, consulta.EmailTutor);
+            Assert.Equal("62999990004", consulta.TelefoneTutor);
+            Assert.Equal(usuario.UsuarioId, consulta.UsuarioId);
+            Assert.Equal(await NomeDoUsuarioAsync(usuario.UsuarioId), consulta.NomeVeterinario);
+            Assert.Null(consulta.AvaliacaoId);
+            Assert.Equal("Pendente", consulta.Status);
+        }
+
+        [Fact]
+        public async Task Obter_ConsultaSemTutor_TrazCamposDoTutorNulos()
+        {
+            var c = await ClinicaComAnimalETutorAsync();
+            var id = await CadastrarConsultaAsync(c.Gestor, c.AnimalId);
+
+            var consulta = await ObterAsync(c.Gestor, id);
+
+            Assert.Null(consulta.TutorId);
+            Assert.Null(consulta.NomeTutor);
+            Assert.Null(consulta.CpfTutor);
+            Assert.Null(consulta.EmailTutor);
+            Assert.Null(consulta.TelefoneTutor);
+        }
+
+        #endregion
+
         #region Auxiliares
 
         private record ClinicaComAnimal(ClinicaDeTeste Clinica, HttpClient Gestor, int RacaId, int AnimalId, int TutorId);
@@ -482,6 +628,12 @@ namespace backend.Tests.Consultas
             var racaoId = await CadastrarRacaoDaClinicaAsync(c.Gestor);
             await RegistrarAvaliacaoComRacaoAsync(_factory, id, c.AnimalId, racaoId);
             return id;
+        }
+
+        private async Task<string> NomeDoUsuarioAsync(int usuarioId)
+        {
+            await using var contexto = _factory.CriarContexto();
+            return (await contexto.Usuarios.FindAsync(usuarioId))!.Nome;
         }
 
         private static async Task<DetalhesConsultaDto> ObterAsync(HttpClient cliente, int id)

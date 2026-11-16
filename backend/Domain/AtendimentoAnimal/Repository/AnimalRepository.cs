@@ -35,8 +35,10 @@ namespace backend.Domain.AtendimentoAnimal.Repository
         public async Task<Animal?> GetByIdAndClinicaIdWithIncludesAsync(int animalId, int clinicaId)
         {
             return await _context.Animais
-                // Inclui a coleção de vínculos com tutores na consulta
-                .Include(a => a.TutoresAnimais)
+                // Inclui os vínculos com os tutores (e o tutor, para o detalhe devolver o nome)
+                .Include(a => a.TutoresAnimais!).ThenInclude(ta => ta.Tutor)
+                // Inclui a raça para o detalhe devolver o nome dela, como na listagem
+                .Include(a => a.Raca)
                 // Inclui o acompanhamento para o detalhe devolver o acompanhamentoId
                 .Include(a => a.Acompanhamento)
                 // Garante que o animal pertence à clínica especificada

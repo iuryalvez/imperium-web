@@ -1,4 +1,4 @@
-using AutoMapper;
+using backend.Domain.SaudeAnimal.Mappers;
 using backend.Domain.Utils;
 using backend.Domain.Utils.Paginacao;
 using backend.Domain.SaudeAnimal.Entities;
@@ -30,13 +30,11 @@ public class RacaoService : IRacaoService
     private const string MsgEmUso = "Esta ração está em uso por dietas ou avaliações e não pode ser excluída. Desative-a.";
 
     private readonly IRacaoRepository _racaoRepository;
-    private readonly IMapper _mapper;
     private readonly ILogger<RacaoService> _logger;
 
-    public RacaoService(IRacaoRepository racaoRepository, IMapper mapper, ILogger<RacaoService> logger)
+    public RacaoService(IRacaoRepository racaoRepository, ILogger<RacaoService> logger)
     {
         _racaoRepository = racaoRepository;
-        _mapper = mapper;
         _logger = logger;
     }
 
@@ -82,7 +80,7 @@ public class RacaoService : IRacaoService
         var resultadoBusca = await ObterPorIdEClinicaIdAsync(racaoId, clinicaId);
         if (!resultadoBusca.Succeeded) return resultadoBusca;
 
-        var dto = _mapper.Map<GetRacoesDto>((Racao)resultadoBusca.Data);
+        var dto = RacaoMapper.ParaDto((Racao)resultadoBusca.Data);
         dto.IsOculta = await _racaoRepository.GetOcultaAsync(racaoId, clinicaId) != null;
         return new ServiceResult { Succeeded = true, Data = dto };
     }
@@ -95,7 +93,7 @@ public class RacaoService : IRacaoService
 
         return pagina.Converter(itens => itens.Select(r =>
         {
-            var dto = _mapper.Map<GetRacoesDto>(r);
+            var dto = RacaoMapper.ParaDto(r);
             dto.IsOculta = ocultas.Contains(r.Id);
             return dto;
         }));
@@ -184,20 +182,20 @@ public class RacaoService : IRacaoService
     public async Task<PaginaResultado<GetRacoesDto>> ListarSistemaAsync(RacaoFiltro filtro)
     {
         var pagina = await _racaoRepository.ListarSistemaAsync(filtro);
-        return pagina.Converter(itens => _mapper.Map<IEnumerable<GetRacoesDto>>(itens));
+        return pagina.Converter(itens => itens.Select(RacaoMapper.ParaDto));
     }
 
     public async Task<PaginaResultado<GetRacoesDto>> ListarCopiasAsync(RacaoFiltro filtro)
     {
         var pagina = await _racaoRepository.ListarCopiasAsync(filtro);
-        return pagina.Converter(itens => _mapper.Map<IEnumerable<GetRacoesDto>>(itens));
+        return pagina.Converter(itens => itens.Select(RacaoMapper.ParaDto));
     }
 
     public async Task<ServiceResult> ObterAsync(int racaoId)
     {
         var racao = await _racaoRepository.GetByIdAsync(racaoId);
         if (racao == null) return ServiceResult.NaoEncontrado("Ração não encontrada.");
-        return new ServiceResult { Succeeded = true, Data = _mapper.Map<GetRacoesDto>(racao) };
+        return new ServiceResult { Succeeded = true, Data = RacaoMapper.ParaDto(racao) };
     }
 
     public async Task<ServiceResult> CadastrarSistemaAsync(CadastrarRacaoDto dto)
@@ -234,7 +232,7 @@ public class RacaoService : IRacaoService
 
     private async Task<ServiceResult> CadastrarAsync(CadastrarRacaoDto dto, int? clinicaId)
     {
-        var racao = _mapper.Map<Racao>(dto);
+        var racao = RacaoMapper.ParaEntidade(dto);
         racao.ClinicaId = clinicaId;
         racao.IsAtivo = true;
         racao.DataCadastro = DateTime.UtcNow;
@@ -246,18 +244,18 @@ public class RacaoService : IRacaoService
         await _racaoRepository.SaveChangesAsync();
 
         _logger.LogInformation("Ração '{NomeRacao}' (ID: {RacaoId}) criada com sucesso.", racao.Nome, racao.Id);
-        return new ServiceResult { Succeeded = true, Message = "Ração cadastrada com sucesso.", Data = _mapper.Map<GetRacoesDto>(racao) };
+        return new ServiceResult { Succeeded = true, Message = "Ração cadastrada com sucesso.", Data = RacaoMapper.ParaDto(racao) };
     }
 
     private async Task<ServiceResult> AtualizarEntidadeAsync(Racao racao, AtualizarRacaoDto dto)
     {
-        _mapper.Map(dto, racao);
+        RacaoMapper.Aplicar(dto, racao);
         CalcularEnergiaMetabolizavel(racao);
         CalcularDistribuicaoEnergetica(racao);
         await _racaoRepository.SaveChangesAsync();
 
         _logger.LogInformation("Ração ID {RacaoId} atualizada com sucesso.", racao.Id);
-        return new ServiceResult { Succeeded = true, Message = "Ração atualizada com sucesso.", Data = _mapper.Map<GetRacoesDto>(racao) };
+        return new ServiceResult { Succeeded = true, Message = "Ração atualizada com sucesso.", Data = RacaoMapper.ParaDto(racao) };
     }
 
     private async Task<ServiceResult> ExcluirEntidadeAsync(Racao racao)
@@ -298,7 +296,7 @@ public class RacaoService : IRacaoService
             FibraDieteticaTotal = racaoSistema.FibraDieteticaTotal
         };
 
-        _mapper.Map(dto, copia);
+        RacaoMapper.Aplicar(dto, copia);
         copia.Id = 0; // Garante que será tratada como uma nova entidade pelo ORM.
         copia.ClinicaId = clinicaId;
         copia.IsAtivo = true;
@@ -311,7 +309,7 @@ public class RacaoService : IRacaoService
         await _racaoRepository.SaveChangesAsync();
 
         _logger.LogInformation("Cópia da ração do sistema {RacaoSistemaId} criada para a clínica {ClinicaId} com ID {RacaoId}.", racaoSistema.Id, clinicaId, copia.Id);
-        return new ServiceResult { Succeeded = true, Message = "Ração do sistema copiada para a clínica com as alterações.", Data = _mapper.Map<GetRacoesDto>(copia) };
+        return new ServiceResult { Succeeded = true, Message = "Ração do sistema copiada para a clínica com as alterações.", Data = RacaoMapper.ParaDto(copia) };
     }
 
     private static ServiceResult Falha(string mensagem) => new() { Succeeded = false, Message = mensagem };

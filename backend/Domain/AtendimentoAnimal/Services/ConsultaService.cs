@@ -1,5 +1,5 @@
 using backend.Domain.Utils.Paginacao;
-using AutoMapper;
+using backend.Domain.AtendimentoAnimal.Mappers;
 using backend.Domain.AtendimentoAnimal.DTOs.Consulta;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interfaces;
@@ -13,20 +13,17 @@ namespace backend.Domain.AtendimentoAnimal.Services
         private readonly IConsultaRepository _consultaRepository;
         private readonly IAnimalRepository _animalRepository;
         private readonly ITutorRepository _tutorRepository;
-        private readonly IMapper _mapper;
         private readonly ILogger<ConsultaService> _logger;
 
         public ConsultaService(IConsultaRepository consultaRepository,
                                IAnimalRepository animalRepository,
                                ITutorRepository tutorRepository,
-                               ILogger<ConsultaService> logger,
-                               IMapper mapper)
+                               ILogger<ConsultaService> logger)
         {
             _consultaRepository = consultaRepository;
             _animalRepository = animalRepository;
             _tutorRepository = tutorRepository;
             _logger = logger;
-            _mapper = mapper;
         }
 
         /// <summary>
@@ -99,7 +96,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
         public async Task<PaginaResultado<GetConsultaDto>> ListarAsync(ConsultaFiltro filtro, int clinicaId, int? usuarioId)
         {
             var pagina = await _consultaRepository.ListarDaClinicaAsync(filtro, clinicaId, usuarioId);
-            return pagina.Converter(itens => _mapper.Map<IEnumerable<GetConsultaDto>>(itens));
+            return pagina.Converter(itens => itens.Select(ConsultaMapper.ParaDto));
         }
 
         /// <summary>
@@ -108,7 +105,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
         public async Task<DetalhesConsultaDto?> ObterDetalhesPorIdEClinicaIdAsync(int consultaId, int clinicaId)
         {
             var consulta = await _consultaRepository.GetByIdAndClinicIdAsync(consultaId, clinicaId);
-            return _mapper.Map<DetalhesConsultaDto>(consulta);
+            return consulta == null ? null : ConsultaMapper.ParaDetalhes(consulta);
         }
 
         public async Task<ServiceResult> CreateAsync(UpsertConsultaDto dto, int clinicaId, int usuarioId)
@@ -117,7 +114,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
             var validacao = await ValidarAnimalETutorAsync(dto, clinicaId, null);
             if (!validacao.Succeeded) return validacao;
 
-            var consulta = _mapper.Map<Consulta>(dto);
+            var consulta = ConsultaMapper.ParaEntidade(dto);
             consulta.ClinicaId = clinicaId;
             consulta.UsuarioId = usuarioId;
             consulta.TutorIsCadastrado = dto.TutorId.HasValue;
@@ -125,7 +122,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
             await _consultaRepository.AddAsync(consulta);
             await _consultaRepository.SaveChangesAsync();
 
-            var resultDto = _mapper.Map<DetalhesConsultaDto>(consulta);
+            var resultDto = ConsultaMapper.ParaDetalhes(consulta);
             return new ServiceResult { Succeeded = true, Message = "Consulta agendada com sucesso.", Data = resultDto };
         }
 
@@ -142,7 +139,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
             if (!validacao.Succeeded) return validacao;
 
             // Mapeia apenas os campos do DTO para a entidade existente
-            _mapper.Map(dto, consulta);
+            ConsultaMapper.Aplicar(dto, consulta);
 
             await _consultaRepository.SaveChangesAsync();
             return new ServiceResult { Succeeded = true, Message = "Consulta atualizada com sucesso." };

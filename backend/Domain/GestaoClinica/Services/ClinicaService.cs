@@ -8,7 +8,7 @@ using backend.Domain.GestaoClinica.DTOs;
 using backend.Domain.GestaoClinica.DTOs.Dashboard;
 using backend.Domain.Usuarios.Interfaces;
 using backend.Domain.Utils;
-using AutoMapper;
+using backend.Domain.GestaoClinica.Mappers;
 
 namespace backend.Domain.GestaoClinica.Services
 {
@@ -16,22 +16,19 @@ namespace backend.Domain.GestaoClinica.Services
     {
         private readonly AppDbContext _context;
         private readonly IClinicaRepository _clinicaRepository;
-        private readonly IMapper _mapper;
 
         public ClinicaService(AppDbContext context,
-                              IClinicaRepository clinicaRepository,
-                              IMapper mapper)
+                              IClinicaRepository clinicaRepository)
         {
             _context = context;
             _clinicaRepository = clinicaRepository;
-            _mapper = mapper;
         }
 
         /// <summary>Lista paginada das clínicas (admin), mais recentes primeiro por padrão.</summary>
         public async Task<PaginaResultado<GetClinicaDto>> ListarAsync(ClinicaFiltro filtro)
         {
             var pagina = await _clinicaRepository.ListarAsync(filtro);
-            return pagina.Converter(itens => _mapper.Map<IEnumerable<GetClinicaDto>>(itens));
+            return pagina.Converter(itens => itens.Select(ClinicaMapper.ParaDto));
         }
 
         /// <summary>Opções para selects: até 20 clínicas { id, nome, isAtivo }, ativas primeiro.</summary>
@@ -43,7 +40,7 @@ namespace backend.Domain.GestaoClinica.Services
         public async Task<GetClinicaDto?> GetByIdAsync(int clinicaId)
         {
             var clinica = await _clinicaRepository.GetByIdAsync(clinicaId);
-            return _mapper.Map<GetClinicaDto>(clinica);
+            return clinica == null ? null : ClinicaMapper.ParaDto(clinica);
         }
 
         public async Task<ServiceResult> GetClinicaDashboardAsync(int clinicaId)
@@ -60,13 +57,13 @@ namespace backend.Domain.GestaoClinica.Services
 
         public async Task<ServiceResult> CreateAsync(CadastrarClinicaDto dto)
         {
-            var clinica = _mapper.Map<Clinica>(dto);
+            var clinica = ClinicaMapper.ParaEntidade(dto);
             clinica.DataCadastro = DateTime.UtcNow;
 
             await _clinicaRepository.AddAsync(clinica);
             await _clinicaRepository.SaveChangesAsync();
 
-            var resultDto = _mapper.Map<GetClinicaDto>(clinica);
+            var resultDto = ClinicaMapper.ParaDto(clinica);
             return new ServiceResult { Succeeded = true, Message = "Clínica cadastrada com sucesso.", Data = resultDto };
         }
 
@@ -79,7 +76,7 @@ namespace backend.Domain.GestaoClinica.Services
             if (!string.IsNullOrWhiteSpace(dto.Cnpj) && await _clinicaRepository.CnpjExistsForAnotherClinicAsync(dto.Cnpj, dto.Id))
                 return ServiceResult.Conflito("Este CNPJ já está em uso.");
 
-            _mapper.Map(dto, clinica);
+            ClinicaMapper.Aplicar(dto, clinica);
             await _clinicaRepository.SaveChangesAsync();
             return new ServiceResult { Succeeded = true, Message = "Clínica atualizada com sucesso." };
         }
@@ -97,9 +94,8 @@ namespace backend.Domain.GestaoClinica.Services
                 return ServiceResult.Conflito("Este CNPJ já está em uso por outra clínica.");
             }
 
-            // O AutoMapper aplica as alterações do DTO na entidade existente
-            // (Ele irá ignorar campos nulos se o DTO tiver propriedades nullable e o Profile estiver configurado)
-            _mapper.Map(dto, clinica);
+            // Aplica na entidade só o que veio preenchido no DTO (ver ClinicaMapper)
+            ClinicaMapper.Aplicar(dto, clinica);
 
             // Salva as alterações no banco de dados
             await _clinicaRepository.SaveChangesAsync();

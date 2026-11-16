@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using backend.Domain.AtendimentoAnimal.DTOs.Animal;
+using backend.Domain.AtendimentoAnimal.Enums;
 using backend.Domain.Utils.Paginacao;
 using backend.Tests.Infra;
 using Xunit;
@@ -617,6 +618,100 @@ namespace backend.Tests.Animais
             var pagina = await ListarAsync(gestor, "?ativo=false");
 
             Assert.Equal(inativo, Assert.Single(pagina.Itens).Id);
+        }
+
+        #endregion
+
+        #region Campos de apoio
+
+        [Fact]
+        public async Task Listar_AnimalComRacaETutores_TrazNomeDaRacaETutores()
+        {
+            var clinica = await _cenario.CriarClinicaAsync("A");
+            var gestor = await _cenario.ClienteAsync(clinica, Perfis.Gestor);
+            var nomeRaca = $"Raça {Cenario.Unico()}";
+            var racaId = await CadastrarRacaDaClinicaAsync(gestor, nomeRaca);
+            var nomeTutor = $"Tutor {Cenario.Unico()}";
+            var tutorId = await CadastrarTutorAsync(gestor, nomeTutor);
+            var antes = DateTime.UtcNow.AddSeconds(-5);
+
+            var id = await CadastrarAnimalAsync(gestor, racaId, nome: "Bolinha", tutorIds: new[] { tutorId });
+
+            var animal = Assert.Single((await ListarAsync(gestor, "")).Itens);
+            Assert.Equal(id, animal.Id);
+            Assert.Equal("Bolinha", animal.Nome);
+            Assert.Equal(racaId, animal.RacaId);
+            Assert.Equal(nomeRaca, animal.RacaNome);
+            Assert.Equal(EspecieAnimal.Cao, animal.Especie);
+            Assert.Equal(Sexo.Macho, animal.Sexo);
+            Assert.Equal(NascimentoPadrao, animal.Nascimento.ToUniversalTime());
+            Assert.False(animal.IsCastrado);
+            Assert.Null(animal.Peso);
+            Assert.Null(animal.CondicaoCorporal);
+            Assert.Null(animal.GrauAtividade);
+            Assert.InRange(animal.DataCadastro.ToUniversalTime(), antes, DateTime.UtcNow.AddSeconds(5));
+            Assert.Equal(new[] { tutorId }, animal.TutorIds);
+            var tutor = Assert.Single(animal.Tutores!);
+            Assert.Equal(tutorId, tutor.Id);
+            Assert.Equal(nomeTutor, tutor.Nome);
+        }
+
+        [Fact]
+        public async Task ObterPorId_AnimalComRacaETutores_TrazNomeDaRacaETutoresComoNaListagem()
+        {
+            var clinica = await _cenario.CriarClinicaAsync("A");
+            var gestor = await _cenario.ClienteAsync(clinica, Perfis.Gestor);
+            var nomeRaca = $"Raça {Cenario.Unico()}";
+            var racaId = await CadastrarRacaDaClinicaAsync(gestor, nomeRaca);
+            var nomeTutor = $"Tutor {Cenario.Unico()}";
+            var tutorId = await CadastrarTutorAsync(gestor, nomeTutor);
+            var id = await CadastrarAnimalAsync(gestor, racaId, tutorIds: new[] { tutorId });
+
+            var animal = await ObterAsync(gestor, id);
+
+            Assert.Equal(racaId, animal.RacaId);
+            Assert.Equal(nomeRaca, animal.RacaNome);
+            Assert.Equal(new[] { tutorId }, animal.TutorIds);
+            var tutor = Assert.Single(animal.Tutores!);
+            Assert.Equal(tutorId, tutor.Id);
+            Assert.Equal(nomeTutor, tutor.Nome);
+            var naLista = Assert.Single((await ListarAsync(gestor, "")).Itens);
+            Assert.Equal(naLista.RacaNome, animal.RacaNome);
+            Assert.Equal(naLista.Tutores!.Select(t => t.Nome), animal.Tutores!.Select(t => t.Nome));
+        }
+
+        [Fact]
+        public async Task ObterPorId_AnimalSemTutores_TrazListasVazias()
+        {
+            var (_, gestor, racaId) = await ClinicaComGestorERacaAsync();
+
+            var animal = await ObterAsync(gestor, await CadastrarAnimalAsync(gestor, racaId));
+
+            Assert.Empty(animal.TutorIds);
+            Assert.NotNull(animal.Tutores);
+            Assert.Empty(animal.Tutores!);
+        }
+
+        [Fact]
+        public async Task ObterPorId_DepoisDeUmaAvaliacao_TrazOEstadoRegistrado()
+        {
+            var a = await MontarAtendimentoAsync(_cenario);
+            var resposta = await a.Gestor.PutAsJsonAsync($"/api/clinica/consultas/{a.ConsultaId}/avaliacao", new
+            {
+                peso = 17.5, condicaoCorporal = 6, grauAtividade = 3, racaoId = a.RacaoId, tipoDieta = 4,
+                isGestante = true, isLactanteNumeroFilhotes = 3, semanaLactacao = 2, semanaGestacao = 5,
+            });
+            Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
+
+            var animal = await ObterAsync(a.Gestor, a.AnimalId);
+
+            Assert.Equal(17.5, animal.Peso);
+            Assert.Equal(CondicaoCorporal.PoucoAcimaDoIdeal, animal.CondicaoCorporal);
+            Assert.Equal(GrauAtividade.Ativo, animal.GrauAtividade);
+            Assert.True(animal.Gestacao);
+            Assert.Equal(3, animal.Lactacao);
+            Assert.Equal(2, animal.SemanaLactacao);
+            Assert.Equal(5, animal.SemanaGestacao);
         }
 
         #endregion

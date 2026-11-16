@@ -41,8 +41,8 @@ namespace backend.Domain.SaudeAnimal.Controllers
                 return Ok(result);
             }
 
-            // Se a criação falhar por dados inválidos, retorna 400.
-            return BadRequest(result);
+            // 400 para dados inválidos; 404 quando a dieta não existe nesta clínica
+            return this.Falha(result);
         }
 
         [HttpPut("{dietaId}")]
@@ -57,7 +57,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
                 return Ok(result);
             }
 
-            return BadRequest(result);
+            return this.Falha(result);
         }
 
         [HttpDelete("{dietaId}")]
@@ -72,7 +72,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
                 return Ok(result);
             }
 
-            return BadRequest(result);
+            return this.Falha(result);
         }
 
         [HttpPatch("{id}/iniciar")]
@@ -82,7 +82,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             var result = await _dietaService.IniciarAsync(id, clinicaId);
             if (result.Succeeded) return Ok(result);
-            return BadRequest(result);
+            return this.Falha(result);
         }
 
         [HttpPatch("{id}/concluir")]
@@ -92,7 +92,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             var result = await _dietaService.ConcluirAsync(id, clinicaId);
             if (result.Succeeded) return Ok(result);
-            return BadRequest(result);
+            return this.Falha(result);
         }
 
         [HttpPost("{id}/registros-peso")]
@@ -102,7 +102,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             var result = await _dietaService.RegistrarPesoAsync(id, dto, clinicaId);
             if (result.Succeeded) return Ok(result);
-            return BadRequest(result);
+            return this.Falha(result);
         }
 
         [HttpDelete("{id}/registros-peso/{registroId}")]
@@ -112,7 +112,7 @@ namespace backend.Domain.SaudeAnimal.Controllers
             var clinicaId = User.GetClaimValue<int>("clinicaId");
             var result = await _dietaService.RemoverRegistroPesoAsync(id, registroId, clinicaId);
             if (result.Succeeded) return Ok(result);
-            return BadRequest(result);
+            return this.Falha(result);
         }
     }
 }

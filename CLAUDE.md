@@ -26,7 +26,7 @@ Primeiro procure um exemplo vivo no código e siga o mesmo padrão. Se não houv
 
 ## Stack
 
-- Backend em `backend/`: .NET 10, EF Core 10 com PostgreSQL, AutoMapper 16 e JWT em cookie.
+- Backend em `backend/`: .NET 10, EF Core 10 com PostgreSQL, Mapperly 4 (mapeamento gerado na compilação) e JWT em cookie.
 - Frontend em `frontend/`: React 18 (Create React App), Ant Design 5, Tailwind 3 e axios.
 
 ## Conceitos do domínio

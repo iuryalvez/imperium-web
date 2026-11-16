@@ -45,12 +45,6 @@ public class Program
         #region Serviços Essenciais
 
         /// <summary>
-        /// Adiciona o AutoMapper, uma ferramenta para mapear (converter) objetos de um tipo para outro.
-        /// Ex: Converter uma entidade do banco (Animal) para um DTO (AnimalDto).
-        /// </summary>
-        builder.Services.AddAutoMapper(config => { }, typeof(Program));
-
-        /// <summary>
         /// Adiciona os serviços necessários para que a API funcione com Controllers (padrão MVC/API).
         /// </summary>
         builder.Services.AddControllers();

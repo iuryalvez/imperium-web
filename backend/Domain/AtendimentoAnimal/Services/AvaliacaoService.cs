@@ -1,6 +1,6 @@
 using backend.Domain.Auth.Extensions;
 using System.Security.Claims;
-using AutoMapper;
+using backend.Domain.AtendimentoAnimal.Mappers;
 using backend.Domain.AtendimentoAnimal.DTOs.Avaliacao;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Interfaces;
@@ -19,7 +19,6 @@ namespace backend.Domain.AtendimentoAnimal.Services
         private readonly IAnimalRepository _animalRepository; // Necessário para atualizar o animal
         private readonly AppDbContext _context; // Mantido apenas para controle de transação
         private readonly ILogger<AvaliacaoService> _logger;
-        private readonly IMapper _mapper;
         private readonly IRacaoService _racaoService;
 
         public AvaliacaoService(
@@ -27,7 +26,6 @@ namespace backend.Domain.AtendimentoAnimal.Services
             IConsultaService consultaService,
             IAnimalRepository animalRepository,
             IRacaoService racaoService,
-            IMapper mapper,
             ILogger<AvaliacaoService> logger,
             AppDbContext context,
             IHttpContextAccessor httpContextAccessor)
@@ -36,7 +34,6 @@ namespace backend.Domain.AtendimentoAnimal.Services
             _consultaService = consultaService;
             _animalRepository = animalRepository;
             _racaoService = racaoService;
-            _mapper = mapper;
             _logger = logger;
             _context = context;
             _httpContextAccessor = httpContextAccessor;
@@ -106,7 +103,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
             }
 
             var avaliacao = (Avaliacao)resultadoBusca.Data;
-            var avaliacaoDto = _mapper.Map<GetAvaliacaoDto>(avaliacao);
+            var avaliacaoDto = AvaliacaoMapper.ParaDto(avaliacao);
 
             return new ServiceResult { Succeeded = true, Data = avaliacaoDto };
         }
@@ -189,7 +186,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 }
 
                 avaliacao.UsuarioResponsavelId = GetUserId();
-                _mapper.Map(dto, avaliacao);
+                AvaliacaoMapper.Aplicar(dto, avaliacao);
                 avaliacao.Idade = animal.Idade;
 
                 if (avaliacao.Id == 0)
@@ -202,7 +199,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                var resultDto = _mapper.Map<GetAvaliacaoDto>(avaliacao);
+                var resultDto = AvaliacaoMapper.ParaDto(avaliacao);
                 return new ServiceResult { Succeeded = true, Message = "Avaliação salva e animal atualizado com sucesso.", Data = resultDto };
             }
             catch (Exception ex)
@@ -225,7 +222,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
         {
             var animal = await _animalRepository.GetByIdAndClinicIdWithDetailsAsync(animalId, clinicaId);
 
-            _mapper.Map(dadosAvaliacao, animal);
+            AvaliacaoMapper.AplicarNoAnimal(dadosAvaliacao, animal);
             animal.DataModificado = DateTime.UtcNow;
 
             _logger.LogInformation("Estado da entidade Animal {AnimalId} atualizado em memória com dados da avaliação.", animalId);

@@ -8,7 +8,7 @@ Entity Framework Core 10 (Strictness): O EF 10 proíbe o uso de valores dinâmic
 
 Identity: O pacote de integração com o banco foi corrigido para Microsoft.AspNetCore.Identity.EntityFrameworkCore.
 
-AutoMapper (v16.0.0): A assinatura de injeção de dependência mudou. O registro no Program.cs agora exige um delegate de configuração explícito: builder.Services.AddAutoMapper(config => { }, typeof(Program).Assembly);.
+Mapeamento de objetos: o AutoMapper foi substituído pelo Mapperly (Riok.Mapperly, licença Apache 2.0), porque o AutoMapper passou a exigir licença comercial a partir da versão 15. O Mapperly gera o código de mapeamento na compilação; cada entidade tem um `<Entidade>Mapper` estático em `Domain/<Dominio>/Mappers/`, sem registro no Program.cs.
 
 Swagger: O pacote Swashbuckle.AspNetCore foi atualizado para a versão 7.2.0 para manter a compatibilidade com o novo framework.
 
@@ -165,7 +165,7 @@ O sistema é dividido em camadas bem definidas, e cada camada é responsável po
 
 Controllers: Interagem com a camada de apresentação ou de API, manipulando as requisições HTTP e retornando as respostas.
 DTOs: Objetos usados para transferir dados entre camadas, sem expor as entidades diretamente.
-Mappers: Utilizados para mapear entidades para DTOs e vice-versa.
+Mappers: Utilizados para mapear entidades para DTOs e vice-versa (classes estáticas geradas pelo Mapperly).
 Interfaces: Definem contratos ou abstrações para classes concretas, facilitando a inversão de controle e a injeção de dependências.
 Repositories: Responsáveis pela persistência de dados e interações com o banco de dados.
 
@@ -308,3 +308,7 @@ For open source projects, say how it is licensed.
 
 ## Project status
 If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers. -->
+
+## Licença
+
+A licença deste projeto ainda não foi definida. A decisão cabe à coordenação do projeto (EVZ e INF da UFG). Enquanto não houver uma licença publicada, o código não pode ser reutilizado ou redistribuído sem autorização.

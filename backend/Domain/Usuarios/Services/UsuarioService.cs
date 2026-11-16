@@ -1,4 +1,4 @@
-using AutoMapper;
+using backend.Domain.Usuarios.Mappers;
 using backend.Domain.Usuarios.DTOs.Usuario;
 using backend.Domain.Usuarios.DTOs.Vinculo;
 using backend.Domain.Usuarios.DTOs.PerfilPessoal;
@@ -18,17 +18,14 @@ namespace backend.Domain.Usuarios.Services
     {
         private readonly ILogger<UsuarioService> _logger;
         private readonly IUsuarioRepository _usuarioRepository;
-        private readonly IMapper _mapper;
         private readonly AppDbContext _context; // Para transações
 
         public UsuarioService(IUsuarioRepository usuarioRepository,
                               ILogger<UsuarioService> logger,
-                              IMapper mapper,
                               AppDbContext context)
         {
             _usuarioRepository = usuarioRepository;
             _logger = logger;
-            _mapper = mapper;
             _context = context;
         }
 
@@ -38,12 +35,12 @@ namespace backend.Domain.Usuarios.Services
             {
                 var vinculos = await _usuarioRepository.GetAllVinculosSistemaAsync(); // existem usuários administradores (não possuem vínculo de fato)
 
-                var usuariosComuns = _mapper.Map<List<GetUsuariosSistemaDto>>(vinculos); // pega todos os usuários (assim não há repetição de usuários)
+                var usuariosComuns = vinculos.Select(v => UsuarioMapper.ParaLinhaDoSistema(v)).ToList(); // pega todos os usuários (assim não há repetição de usuários)
 
                 var idsUsuariosComuns = usuariosComuns.Select(u => u.Id).Distinct().ToList();
                 var adminsNaoVinculados = await _usuarioRepository.GetUnlinkedAdminsAsync(idsUsuariosComuns, currentUserId);
 
-                var usuariosAdministradores = _mapper.Map<List<GetUsuariosSistemaDto>>(adminsNaoVinculados);
+                var usuariosAdministradores = adminsNaoVinculados.Select(u => UsuarioMapper.ParaLinhaDoSistema(u)).ToList();
 
                 var resultadoFinal = usuariosComuns.Concat(usuariosAdministradores);
 
@@ -67,7 +64,7 @@ namespace backend.Domain.Usuarios.Services
         public async Task<PaginaResultado<GetUsuariosClinicaDto>> ListarUsuariosDaClinicaAsync(UsuarioClinicaFiltro filtro, int clinicaId, int? upcIdAtual)
         {
             var pagina = await _usuarioRepository.ListarVinculosDaClinicaAsync(filtro, clinicaId, upcIdAtual);
-            return pagina.Converter(itens => _mapper.Map<IEnumerable<GetUsuariosClinicaDto>>(itens));
+            return pagina.Converter(itens => itens.Select(UsuarioMapper.ParaLinhaDaClinica));
         }
 
         public async Task<ServiceResult> CadastrarUsuarioSistemaAsync(CadastrarUsuarioSistemaDto dto)
@@ -101,7 +98,7 @@ namespace backend.Domain.Usuarios.Services
 
             try
             {
-                var usuario = _mapper.Map<Usuario>(dto);
+                var usuario = UsuarioMapper.ParaEntidade(dto);
                 usuario.UserName = dto.UserName ?? dto.Email;
                 usuario.DataCadastro = DateTime.UtcNow;
                 usuario.DataUltimoAcesso = DateTime.UtcNow;
@@ -186,8 +183,8 @@ namespace backend.Domain.Usuarios.Services
 
             try
             {
-                // Usa o AutoMapper para criar a entidade Usuario a partir do DTO
-                var usuario = _mapper.Map<Usuario>(dto);
+                // Cria a entidade Usuario a partir do DTO
+                var usuario = UsuarioMapper.ParaEntidade(dto);
                 // Atribui valores padrão que não vêm do DTO
                 usuario.UserName = dto.UserName ?? dto.Email;
                 usuario.DataCadastro = DateTime.UtcNow;
@@ -457,7 +454,7 @@ namespace backend.Domain.Usuarios.Services
 
             // O status (ativo/inativo) e o tipo do usuário não mudam pela edição: status é pela rota de status
             var (eraAtivo, eraAdmin) = (usuario.IsAtivo, usuario.IsAdmin);
-            _mapper.Map(dto, usuario);
+            UsuarioMapper.Aplicar(dto, usuario);
             usuario.IsAtivo = eraAtivo;
             usuario.IsAdmin = eraAdmin;
 
@@ -502,7 +499,7 @@ namespace backend.Domain.Usuarios.Services
             // 1. Mapeia os campos que pertencem à entidade Usuario (Nome, Email, Cpf, etc.).
             //    Status e tipo do usuário não mudam pela edição: status é pela rota de status.
             var (eraAtivo, eraAdmin) = (usuario.IsAtivo, usuario.IsAdmin);
-            _mapper.Map(dto, usuario);
+            UsuarioMapper.Aplicar(dto, usuario);
             usuario.IsAtivo = eraAtivo;
             usuario.IsAdmin = eraAdmin;
 
@@ -565,7 +562,7 @@ namespace backend.Domain.Usuarios.Services
             if (usuario == null)
                 return ServiceResult.NaoEncontrado("Usuário não encontrado.");
 
-            var data = _mapper.Map<GetMeuPerfilDto>(usuario);
+            var data = UsuarioMapper.ParaMeuPerfil(usuario);
             return new ServiceResult { Succeeded = true, Data = data };
         }
 
@@ -584,7 +581,7 @@ namespace backend.Domain.Usuarios.Services
                         return ServiceResult.Conflito("E-mail já está em uso.");
                 }
 
-                _mapper.Map(dto, usuario);
+                UsuarioMapper.Aplicar(dto, usuario);
 
                 if (!string.IsNullOrWhiteSpace(dto.NovaSenha))
                 {

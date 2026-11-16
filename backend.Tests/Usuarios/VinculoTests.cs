@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using backend.Domain.Usuarios.DTOs.PerfilPessoal;
 using backend.Domain.Usuarios.DTOs.Usuario;
 using backend.Domain.Utils.Paginacao;
 using backend.Tests.Infra;
@@ -849,6 +850,88 @@ namespace backend.Tests.Usuarios
             var usuarioId = Assert.Single((await ListarAsync(gestor, "")).Itens).Id;
 
             return await _cenario.ClienteDeLoginAsync(usuarioId);
+        }
+
+        #endregion
+
+        #region Campos de apoio
+
+        [Fact]
+        public async Task ListarUsuariosSistema_LinhaDeVinculo_TrazDadosDoUsuarioEDaClinica()
+        {
+            var admin = await _cenario.ClienteAdminSistemaAsync();
+            var clinica = await _cenario.CriarClinicaAsync("A");
+            var usuario = await _cenario.UsuarioDaClinicaAsync(clinica, Perfis.Veterinario, Perfis.Secretario);
+
+            var resposta = await admin.GetAsync("/api/sistema/usuarios");
+
+            var linha = (await LerAsync<ResultadoComDados<List<GetUsuariosSistemaDto>>>(resposta)).Data.Single(u => u.UpcId == usuario.VinculoId);
+            await using var contexto = _factory.CriarContexto();
+            var gravado = await contexto.Usuarios.AsNoTracking().FirstAsync(u => u.Id == usuario.UsuarioId);
+            Assert.Equal($"link-{usuario.VinculoId}", linha.CompositeKey);
+            Assert.Equal(usuario.UsuarioId, linha.Id);
+            Assert.Equal(clinica.Id, linha.ClinicaId);
+            Assert.Equal(clinica.Nome, linha.NomeClinica);
+            Assert.Equal(usuario.Email, linha.Email);
+            Assert.Equal(usuario.Email, linha.UserName);
+            Assert.Equal(gravado.Nome, linha.Nome);
+            Assert.Equal(new[] { Perfis.Veterinario, Perfis.Secretario }, linha.Perfis);
+            Assert.False(linha.IsAdmin);
+            Assert.True(linha.IsAtivo);
+            Assert.Null(linha.Cpf);
+            Assert.Null(linha.Formacao);
+            Assert.Null(linha.Telefone);
+            Assert.Null(linha.Whatsapp);
+            Assert.InRange(linha.DataCadastro.ToUniversalTime(), gravado.DataCadastro.AddSeconds(-1), gravado.DataCadastro.AddSeconds(1));
+            Assert.NotNull(linha.DataUltimoAcesso);
+        }
+
+        [Fact]
+        public async Task ListarUsuariosSistema_OutroAdminSemVinculo_TrazLinhaDeAdmin()
+        {
+            // A lista não traz o próprio admin que está consultando, só os outros
+            var admin = await _cenario.ClienteAdminSistemaAsync();
+            var outroAdmin = await _cenario.ClienteAdminSistemaAsync();
+            var eu = (await LerAsync<ResultadoComDados<GetMeuPerfilDto>>(await outroAdmin.GetAsync("/api/sistema/perfil"))).Data;
+
+            var resposta = await admin.GetAsync("/api/sistema/usuarios");
+
+            var linha = (await LerAsync<ResultadoComDados<List<GetUsuariosSistemaDto>>>(resposta)).Data.Single(u => u.CompositeKey == $"admin-{eu.Id}");
+            Assert.Equal(eu.Id, linha.Id);
+            Assert.Equal(-1, linha.UpcId);
+            Assert.Equal(-1, linha.ClinicaId);
+            Assert.Equal("N/A", linha.NomeClinica);
+            Assert.Equal(eu.Email, linha.Email);
+            Assert.Equal(eu.Nome, linha.Nome);
+            Assert.Equal(new[] { "ADMIN" }, linha.Perfis);
+            Assert.True(linha.IsAdmin);
+            Assert.True(linha.IsAtivo);
+        }
+
+        [Fact]
+        public async Task Listar_UsuarioDaClinica_TrazDadosDoUsuarioEDoVinculo()
+        {
+            var (clinica, gestor) = await ClinicaComGestorAsync();
+            var usuario = await _cenario.UsuarioDaClinicaAsync(clinica, Perfis.Tecnico);
+
+            var linha = Assert.Single((await ListarAsync(gestor, "")).Itens);
+
+            await using var contexto = _factory.CriarContexto();
+            var gravado = await contexto.Usuarios.AsNoTracking().FirstAsync(u => u.Id == usuario.UsuarioId);
+            Assert.Equal(usuario.UsuarioId, linha.Id);
+            Assert.Equal(usuario.VinculoId, linha.UpcId);
+            Assert.Equal(clinica.Id, linha.ClinicaId);
+            Assert.Equal(usuario.Email, linha.Email);
+            Assert.Equal(usuario.Email, linha.UserName);
+            Assert.Equal(gravado.Nome, linha.Nome);
+            Assert.Equal(new[] { Perfis.Tecnico }, linha.Perfis);
+            Assert.True(linha.IsAtivoNaClinica);
+            Assert.Null(linha.Cpf);
+            Assert.Null(linha.Formacao);
+            Assert.Null(linha.Telefone);
+            Assert.Null(linha.Whatsapp);
+            Assert.InRange(linha.DataCadastro.ToUniversalTime(), gravado.DataCadastro.AddSeconds(-1), gravado.DataCadastro.AddSeconds(1));
+            Assert.InRange(linha.DataUltimoAcesso.ToUniversalTime(), gravado.DataUltimoAcesso.AddSeconds(-1), gravado.DataUltimoAcesso.AddSeconds(1));
         }
 
         #endregion

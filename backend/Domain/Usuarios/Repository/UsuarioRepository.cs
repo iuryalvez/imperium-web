@@ -37,7 +37,7 @@ public class UsuarioRepository : IUsuarioRepository
     public async Task<Usuario> GetUserWithTotalClinicsById(int userId)
     {
         return await _context.Usuarios
-            .Include(u => u.UsuariosPerfisClinicas) // Necessário para o AutoMapper calcular o .Count
+            .Include(u => u.UsuariosPerfisClinicas) // Necessário para o total de clínicas do Meu perfil
             .FirstOrDefaultAsync(u => u.Id == userId);
     }
 

@@ -1,7 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using backend.Domain.AtendimentoAnimal.DTOs.AcompanhamentoDto;
+using backend.Domain.AtendimentoAnimal.DTOs.Avaliacao;
 using backend.Domain.AtendimentoAnimal.Entities;
+using backend.Domain.SaudeAnimal.DTOs.Dieta;
 using backend.Domain.SaudeAnimal.Enums;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -71,6 +74,18 @@ namespace backend.Tests.Infra
             });
             Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
             return await LerIdDoDataAsync(resposta, "tutorId");
+        }
+
+        /// <summary>Nascimento usado em <see cref="NovoAnimal"/>.</summary>
+        public static readonly DateTime NascimentoPadrao = new(2020, 5, 10, 0, 0, 0, DateTimeKind.Utc);
+
+        /// <summary>Idade em anos completos do animal de <see cref="NovoAnimal"/>, como o backend calcula.</summary>
+        public static int IdadeEmAnos()
+        {
+            var hoje = DateTime.Today;
+            var idade = hoje.Year - NascimentoPadrao.Year;
+            if (NascimentoPadrao.Date > hoje.AddYears(-idade)) idade--;
+            return idade;
         }
 
         /// <summary>Corpo de cadastro de animal com todos os campos obrigatórios.</summary>
@@ -153,6 +168,103 @@ namespace backend.Tests.Infra
             Assert.Equal(HttpStatusCode.Created, resposta.StatusCode);
             using var json = JsonDocument.Parse(await resposta.Content.ReadAsStringAsync());
             return json.RootElement.GetProperty("id").GetInt32();
+        }
+
+        /// <summary>Clínica com GESTOR, raça, tutor, animal vinculado ao tutor, ração e uma consulta marcada.</summary>
+        public record Atendimento(ClinicaDeTeste Clinica, UsuarioDeTeste UsuarioGestor, int RacaId, int TutorId, int AnimalId, int RacaoId, string NomeRacao, int ConsultaId, DateTime DataConsulta)
+        {
+            public HttpClient Gestor => UsuarioGestor.Cliente;
+        }
+
+        /// <summary>Monta, pelas rotas reais, tudo o que uma avaliação precisa: clínica, gestor, animal com tutor, ração e consulta.</summary>
+        public static async Task<Atendimento> MontarAtendimentoAsync(Cenario cenario, string apelido = "A", int especie = Especie.Cao)
+        {
+            var clinica = await cenario.CriarClinicaAsync(apelido);
+            var usuario = await cenario.UsuarioDaClinicaAsync(clinica, Perfis.Gestor);
+            var gestor = usuario.Cliente;
+            var racaId = await CadastrarRacaDaClinicaAsync(gestor, especie: especie);
+            var tutorId = await CadastrarTutorAsync(gestor);
+            var animalId = await CadastrarAnimalAsync(gestor, racaId, especie, tutorIds: new[] { tutorId });
+            var nomeRacao = $"Ração {Cenario.Unico()}";
+            var racaoId = await CadastrarRacaoDaClinicaAsync(gestor, nomeRacao, especie);
+            var data = new DateTime(2030, 3, 15, 13, 30, 0, DateTimeKind.Utc);
+            var consultaId = await CadastrarConsultaAsync(gestor, animalId, tutorId, data);
+            return new Atendimento(clinica, usuario, racaId, tutorId, animalId, racaoId, nomeRacao, consultaId, data);
+        }
+
+        /// <summary>Corpo da avaliação (PUT consultas/{id}/avaliacao) com todos os campos preenchidos.</summary>
+        public static object NovaAvaliacao(int racaoId, double peso = 20.5, int? condicaoCorporal = 5, int? grauAtividade = 2) => new
+        {
+            peso,
+            condicaoCorporal,
+            grauAtividade,
+            racaoId,
+            descricaoDieta = "Duas refeições ao dia",
+            tipoDieta = 1,
+            isGestante = false,
+            isLactanteNumeroFilhotes = 0,
+            semanaLactacao = 0,
+            semanaGestacao = 0,
+        };
+
+        /// <summary>Salva a avaliação da consulta pela rota real e devolve o DTO da resposta.</summary>
+        public static async Task<GetAvaliacaoDto> SalvarAvaliacaoAsync(HttpClient cliente, int consultaId, int racaoId, double peso = 20.5)
+        {
+            var resposta = await cliente.PutAsJsonAsync($"/api/clinica/consultas/{consultaId}/avaliacao", NovaAvaliacao(racaoId, peso));
+            Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
+            return (await LerAsync<ResultadoComDados<GetAvaliacaoDto>>(resposta)).Data;
+        }
+
+        /// <summary>Cria (ou recalcula) a dieta da avaliação pela rota real e devolve o DTO da resposta.</summary>
+        public static async Task<GetDietaDto> CriarDietaAsync(HttpClient cliente, GetAvaliacaoDto avaliacao, object? corpo = null)
+        {
+            var resposta = await cliente.PostAsJsonAsync("/api/clinica/dietas", corpo ?? NovaDieta(avaliacao));
+            Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
+            return (await LerAsync<ResultadoComDados<GetDietaDto>>(resposta)).Data;
+        }
+
+        /// <summary>Corpo de dieta de manutenção para cão ativo (perfil 4: 130 × PC^0,75), com o peso da avaliação.</summary>
+        public static object NovaDieta(GetAvaliacaoDto avaliacao, double? pesoAtual = null) => new
+        {
+            avaliacaoId = avaliacao.Id,
+            acompanhamentoId = avaliacao.AcompanhamentoId,
+            racaoId = avaliacao.RacaoId,
+            tipoDieta = 1,
+            perfilMetabolico = 4,
+            multiplicadorEnergetico = 130.0,
+            potencia = 0.75,
+            pesoAtual = pesoAtual ?? avaliacao.Peso,
+            observacoes = "Dieta de teste",
+        };
+
+        /// <summary>Corpo de dieta de emagrecimento para cão (perfil 18), com peso alvo e nível de restrição.</summary>
+        public static object NovaDietaEmagrecimento(GetAvaliacaoDto avaliacao, double pesoAtual = 30, double pesoObjetivo = 25, int nivelRestricao = 2) => new
+        {
+            avaliacaoId = avaliacao.Id,
+            acompanhamentoId = avaliacao.AcompanhamentoId,
+            racaoId = avaliacao.RacaoId,
+            tipoDieta = 5,
+            perfilMetabolico = 18,
+            multiplicadorEnergetico = 130.0,
+            potencia = 0.75,
+            pesoAtual,
+            pesoObjetivo,
+            nivelRestricao,
+        };
+
+        /// <summary>Histórico completo do animal (GET acompanhamentos/{id}/historico-completo).</summary>
+        public static async Task<AnimalCompletoDto> HistoricoAsync(HttpClient cliente, int acompanhamentoId)
+        {
+            var resposta = await cliente.GetAsync($"/api/clinica/acompanhamentos/{acompanhamentoId}/historico-completo");
+            Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
+            return (await LerAsync<ResultadoComDados<AnimalCompletoDto>>(resposta)).Data;
+        }
+
+        /// <summary>Id do acompanhamento criado junto com o animal.</summary>
+        public static async Task<int> AcompanhamentoDoAnimalAsync(ImperiumApiFactory factory, int animalId)
+        {
+            await using var contexto = factory.CriarContexto();
+            return (await contexto.AcompanhamentosInds.AsNoTracking().FirstAsync(a => a.AnimalId == animalId)).Id;
         }
 
         /// <summary>

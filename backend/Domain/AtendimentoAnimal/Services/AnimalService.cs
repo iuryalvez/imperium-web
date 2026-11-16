@@ -1,4 +1,4 @@
-using AutoMapper;
+using backend.Domain.AtendimentoAnimal.Mappers;
 using backend.Domain.AtendimentoAnimal.DTOs.AcompanhamentoDto;
 using backend.Domain.AtendimentoAnimal.DTOs.Animal;
 using backend.Domain.AtendimentoAnimal.DTOs.Tutor;
@@ -23,7 +23,6 @@ public class AnimalService : IAnimalService
     private readonly ITutorRepository _tutorRepository;
     private readonly IRacaService _racaService;
     private readonly AppDbContext _context; // Usado exclusivamente para controle de transações.
-    private readonly IMapper _mapper;
     private readonly ILogger<AnimalService> _logger;
 
     public AnimalService(
@@ -32,7 +31,6 @@ public class AnimalService : IAnimalService
         IAcompanhamentoRepository acompanhamentoRepository,
         ITutorRepository tutorRepository,
         IRacaService racaService,
-        IMapper mapper,
         ILogger<AnimalService> logger,
         AppDbContext context)
     {
@@ -41,7 +39,6 @@ public class AnimalService : IAnimalService
         _acompanhamentoRepository = acompanhamentoRepository;
         _tutorRepository = tutorRepository;
         _racaService = racaService;
-        _mapper = mapper;
         _logger = logger;
         _context = context;
     }
@@ -93,7 +90,7 @@ public class AnimalService : IAnimalService
     public async Task<PaginaResultado<GetAnimaisClinicaDto>> ListarAsync(AnimalFiltro filtro, int clinicaId)
     {
         var pagina = await _animalRepository.ListarDaClinicaAsync(filtro, clinicaId);
-        return pagina.Converter(itens => _mapper.Map<IEnumerable<GetAnimaisClinicaDto>>(itens));
+        return pagina.Converter(itens => itens.Select(AnimalMapper.ParaDto));
     }
 
     /// <summary>Opções para selects: até 20 animais { id, nome, isAtivo }, ativos primeiro.</summary>
@@ -122,7 +119,7 @@ public class AnimalService : IAnimalService
         {
             return resultadoBusca;
         }
-        var dto = _mapper.Map<GetAnimaisClinicaDto>((Animal)resultadoBusca.Data);
+        var dto = AnimalMapper.ParaDto((Animal)resultadoBusca.Data);
         return new ServiceResult { Succeeded = true, Data = dto };
     }
 
@@ -142,7 +139,7 @@ public class AnimalService : IAnimalService
             _logger.LogWarning("Histórico do animal {AnimalId} não encontrado para a clínica {ClinicaId}.", animalId, clinicaId);
             return ServiceResult.NaoEncontrado("Animal não encontrado nesta clínica.");
         }
-        var animalDto = _mapper.Map<AnimalCompletoDto>(animalEntity);
+        var animalDto = AcompanhamentoMapper.ParaHistorico(animalEntity);
         if (!incluirDadosDoTutor)
         {
             foreach (var tutor in animalDto.Tutores ?? new List<TutorResumidoDto>())
@@ -179,7 +176,7 @@ public class AnimalService : IAnimalService
         await using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
-            var animal = _mapper.Map<Animal>(dto);
+            var animal = AnimalMapper.ParaEntidade(dto);
             animal.ClinicaId = clinicaId;
             animal.IsAtivo = true;
             animal.DataCadastro = DateTime.UtcNow;
@@ -260,7 +257,7 @@ public class AnimalService : IAnimalService
                 }
             }
 
-            _mapper.Map(dto, animal);
+            AnimalMapper.Aplicar(dto, animal);
             animal.DataModificado = DateTime.UtcNow;
 
             if (dto.TutorIds != null)

@@ -1,0 +1,5 @@
+# Mapperly (Domain/*/Mappers): campo de DTO sem mapeamento quebra o build.
+# RMG012: membro do destino sem origem. RMG020: membro da origem sem destino.
+[*.cs]
+dotnet_diagnostic.RMG012.severity = error
+dotnet_diagnostic.RMG020.severity = error

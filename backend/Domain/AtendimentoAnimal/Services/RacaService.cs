@@ -1,8 +1,8 @@
-using AutoMapper;
 using backend.Domain.AtendimentoAnimal.DTOs.Raca;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.AtendimentoAnimal.Enums;
 using backend.Domain.AtendimentoAnimal.Interfaces;
+using backend.Domain.AtendimentoAnimal.Mappers;
 using backend.Domain.Utils;
 using backend.Domain.Utils.Paginacao;
 
@@ -20,13 +20,11 @@ namespace backend.Domain.AtendimentoAnimal.Services
         private const string MsgEmUso = "Esta raça está em uso por animais e não pode ser excluída. Desative-a.";
 
         private readonly IRacaRepository _racaRepository;
-        private readonly IMapper _mapper;
         private readonly ILogger<RacaService> _logger;
 
-        public RacaService(IRacaRepository racaRepository, IMapper mapper, ILogger<RacaService> logger)
+        public RacaService(IRacaRepository racaRepository, ILogger<RacaService> logger)
         {
             _racaRepository = racaRepository;
-            _mapper = mapper;
             _logger = logger;
         }
 
@@ -40,7 +38,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
 
             return pagina.Converter(itens => itens.Select(r =>
             {
-                var dto = _mapper.Map<GetRacaDto>(r);
+                var dto = RacaMapper.ParaDto(r);
                 dto.IsOculta = ocultas.Contains(r.Id);
                 return dto;
             }));
@@ -56,7 +54,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
             var raca = await _racaRepository.GetDisponivelParaClinicaAsync(id, clinicaId);
             if (raca == null) return ServiceResult.NaoEncontrado(MsgNaoEncontrada);
 
-            var dto = _mapper.Map<GetRacaDto>(raca);
+            var dto = RacaMapper.ParaDto(raca);
             dto.IsOculta = (await _racaRepository.GetOcultaAsync(id, clinicaId)) != null;
             return new ServiceResult { Succeeded = true, Data = dto };
         }
@@ -91,7 +89,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
                     PesoMinimoReferenciaMacho = raca.PesoMinimoReferenciaMacho,
                     PesoMaximoReferenciaMacho = raca.PesoMaximoReferenciaMacho,
                 };
-                _mapper.Map(dto, copia);
+                RacaMapper.Aplicar(dto, copia);
                 copia.Id = 0; // Garante que será tratada como uma nova entidade pelo ORM.
                 copia.ClinicaId = clinicaId;
                 copia.IsAtivo = true;
@@ -103,13 +101,13 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 {
                     Succeeded = true,
                     Message = "Raça do sistema copiada para a clínica com as alterações.",
-                    Data = _mapper.Map<GetRacaDto>(copia)
+                    Data = RacaMapper.ParaDto(copia)
                 };
             }
 
-            _mapper.Map(dto, raca);
+            RacaMapper.Aplicar(dto, raca);
             await _racaRepository.SaveChangesAsync();
-            return new ServiceResult { Succeeded = true, Message = "Raça atualizada com sucesso.", Data = _mapper.Map<GetRacaDto>(raca) };
+            return new ServiceResult { Succeeded = true, Message = "Raça atualizada com sucesso.", Data = RacaMapper.ParaDto(raca) };
         }
 
         public async Task<ServiceResult> ExcluirDaClinicaAsync(int id, int clinicaId)
@@ -190,20 +188,20 @@ namespace backend.Domain.AtendimentoAnimal.Services
         public async Task<PaginaResultado<GetRacaDto>> ListarSistemaAsync(RacaFiltro filtro)
         {
             var pagina = await _racaRepository.ListarSistemaAsync(filtro);
-            return pagina.Converter(itens => _mapper.Map<IEnumerable<GetRacaDto>>(itens));
+            return pagina.Converter(itens => itens.Select(RacaMapper.ParaDto));
         }
 
         public async Task<PaginaResultado<GetRacaDto>> ListarCopiasAsync(RacaFiltro filtro)
         {
             var pagina = await _racaRepository.ListarCopiasAsync(filtro);
-            return pagina.Converter(itens => _mapper.Map<IEnumerable<GetRacaDto>>(itens));
+            return pagina.Converter(itens => itens.Select(RacaMapper.ParaDto));
         }
 
         public async Task<ServiceResult> ObterAsync(int id)
         {
             var raca = await _racaRepository.GetByIdAsync(id);
             if (raca == null) return ServiceResult.NaoEncontrado(MsgNaoEncontrada);
-            return new ServiceResult { Succeeded = true, Data = _mapper.Map<GetRacaDto>(raca) };
+            return new ServiceResult { Succeeded = true, Data = RacaMapper.ParaDto(raca) };
         }
 
         public async Task<ServiceResult> CadastrarSistemaAsync(CadastrarRacaDto dto)
@@ -218,9 +216,9 @@ namespace backend.Domain.AtendimentoAnimal.Services
             var raca = await _racaRepository.GetByIdAsync(dto.Id);
             if (raca == null) return ServiceResult.NaoEncontrado(MsgNaoEncontrada);
 
-            _mapper.Map(dto, raca);
+            RacaMapper.Aplicar(dto, raca);
             await _racaRepository.SaveChangesAsync();
-            return new ServiceResult { Succeeded = true, Message = "Raça atualizada com sucesso.", Data = _mapper.Map<GetRacaDto>(raca) };
+            return new ServiceResult { Succeeded = true, Message = "Raça atualizada com sucesso.", Data = RacaMapper.ParaDto(raca) };
         }
 
         public async Task<ServiceResult> ExcluirAsync(int id)
@@ -243,7 +241,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
 
         private async Task<ServiceResult> CadastrarAsync(CadastrarRacaDto dto, int? clinicaId)
         {
-            var raca = _mapper.Map<Raca>(dto);
+            var raca = RacaMapper.ParaEntidade(dto);
             raca.ClinicaId = clinicaId;
             raca.IsAtivo = true;
             raca.DataCadastro = DateTime.UtcNow;
@@ -252,7 +250,7 @@ namespace backend.Domain.AtendimentoAnimal.Services
             await _racaRepository.SaveChangesAsync();
 
             _logger.LogInformation("Raça com ID {RacaId} criada com sucesso.", raca.Id);
-            return new ServiceResult { Succeeded = true, Message = "Raça cadastrada com sucesso.", Data = _mapper.Map<GetRacaDto>(raca) };
+            return new ServiceResult { Succeeded = true, Message = "Raça cadastrada com sucesso.", Data = RacaMapper.ParaDto(raca) };
         }
 
         private async Task<ServiceResult> ExcluirEntidadeAsync(Raca raca)

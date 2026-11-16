@@ -7,7 +7,7 @@ description: Use sempre que for criar, alterar, revisar ou refatorar o backend d
 
 Antes de começar, leia a skill `contexto` (o que é o sistema e o que nunca pode quebrar).
 
-Stack: ASP.NET Core em .NET 10, EF Core 10 com Npgsql (PostgreSQL), AutoMapper 16, JWT em cookie e Swagger.
+Stack: ASP.NET Core em .NET 10, EF Core 10 com Npgsql (PostgreSQL), Mapperly 4 (gerador de mapeamento, licença Apache 2.0), JWT em cookie e Swagger.
 A raiz é `imperium-web/backend/` e o namespace raiz é `backend`.
 
 ## 1. Onde cada coisa fica
@@ -21,7 +21,7 @@ Dentro de um domínio, as pastas são sempre estas:
 - `Entities/` com as entidades do EF.
 - `Enums/` com os enums do domínio.
 - `Interfaces/` com `I<Entidade>Service` e `I<Entidade>Repository`.
-- `Mappers/` com `<Entidade>MappingProfile`.
+- `Mappers/` com `<Entidade>Mapper`.
 - `Repository/` com `<Entidade>Repository`.
 - `Services/` com `<Entidade>Service`, onde ficam as regras de negócio.
 - `Extensions/` ou `Attributes/` só quando o domínio precisar.
@@ -29,7 +29,7 @@ Dentro de um domínio, as pastas são sempre estas:
 Arquivos compartilhados que você vai usar com frequência:
 
 - `Domain/Utils/ServiceResult.cs`: retorno padrão dos services.
-- `Domain/Utils/MappingExtensions.cs`: `IgnorarNulosDaOrigem()` para mapas de edição.
+- `.editorconfig` (raiz do backend): faz campo de DTO sem mapeamento quebrar o build (RMG012 e RMG020 do Mapperly).
 - `Domain/Utils/Paginacao/`: `FiltroBase`, `PaginaResultado`, `OpcaoDto` e `QueryablePaginacaoExtensions`.
 - `Domain/Auth/Extensions/AuthExtension.cs`: `User.GetClaimValue<T>`, `TemPerfil` e `TemAlgumPerfil`.
 - `Domain/General/Extensions/`: `GetDisplayName()` para enums.
@@ -82,7 +82,7 @@ A requisição passa por `Controller`, depois `I<Entidade>Service`, depois `I<En
 
 ### Service
 
-- Implementa `I<Entidade>Service` e recebe repositórios, `IMapper` e `ILogger<T>`. Recebe `AppDbContext` só para transações.
+- Implementa `I<Entidade>Service` e recebe repositórios e `ILogger<T>`. O mapeamento é chamado direto na classe estática (`RacaMapper.ParaDto(raca)`), sem injeção. Recebe `AppDbContext` só para transações.
 - Retorna `ServiceResult` (`Succeeded`, `Message`, `Data`, `Errors`) nas operações de escrita. Leituras simples podem devolver o DTO.
 - Falhas de não encontrado e de conflito usam os atalhos `ServiceResult.NaoEncontrado(msg)` e `ServiceResult.Conflito(msg)`, que preenchem `Falha` (`TipoFalha`, com `[JsonIgnore]`, então não muda o JSON). É isso que o controller usa para responder 404 ou 409.
 - Validações de negócio ficam aqui, com mensagens em português: unicidade, vínculo com a clínica, item inativo ou oculto, dependentes antes de excluir.
@@ -105,12 +105,18 @@ A requisição passa por `Controller`, depois `I<Entidade>Service`, depois `I<En
 
 ### Mappers
 
-- Cada entidade tem `<Entidade>MappingProfile : Profile` em `Mappers/`. O registro é automático (`AddAutoMapper(..., typeof(Program).Assembly)`).
-- Mapas de edição terminam com `.IgnorarNulosDaOrigem();`: campo nulo no DTO mantém o valor atual. É isso que permite edição parcial sem zerar campos.
+O mapeamento usa o Mapperly (`Riok.Mapperly`), que gera o código na compilação. Não use AutoMapper: a partir da versão 15 ele exige licença comercial. Exemplo vivo: `Domain/AtendimentoAnimal/Mappers/RacaMapper.cs`.
+
+- Cada entidade tem `<Entidade>Mapper` em `Mappers/`: `[Mapper] public static partial class`, sem registro no `Program.cs` e sem injeção.
+- Nomes dos métodos: `ParaDto` (entidade para DTO de leitura), `ParaEntidade` (DTO de cadastro para entidade nova) e `Aplicar(dto, [MappingTarget] entidade)` (DTO sobre entidade existente). Outros nomes só quando o destino pede (`ParaDetalhes`, `ParaHistorico`, `ParaLinhaDoSistema`).
+- Todo método declara o rigor pelo lado do DTO: leitura com `[MapperRequiredMapping(RequiredMappingStrategy.Target)]` (todo campo do DTO precisa de origem) e escrita com `RequiredMappingStrategy.Source` (todo campo do DTO precisa de destino). Campo sem mapeamento é erro de build; resolva mapeando ou ignorando de forma explícita (`[MapperIgnoreSource]`, `[MapperIgnoreTarget]`).
+- Edição parcial: a classe leva `[Mapper(AllowNullPropertyAssignment = false)]`, e campo nulo no DTO mantém o valor atual. Quando o mapa precisa gravar nulo (salvar avaliação, editar consulta), a classe fica com `[Mapper]` simples.
+- Campo com outro nome ou vindo de uma navegação: `[MapProperty(nameof(@Raca.Clinica.NomeClinica), nameof(GetRacaDto.NomeClinica))]`. Valor calculado: `[MapPropertyFromSource(nameof(Dto.Campo), Use = nameof(Metodo))]` com um método privado na própria classe. Valor fixo ou gerado: `[MapValue(...)]`.
+- O método gerado não aceita origem nula. Se a entidade pode não existir, confira antes: `return tutor == null ? null : TutorMapper.ParaDto(tutor);`.
+- Listas: `itens.Select(RacaMapper.ParaDto)` (o `Converter` da paginação já materializa).
 - Nos DTOs de edição, `bool`, `int`, enum e `DateTime` são sempre anuláveis (`bool?`). Um `bool` não-nulo chega como `false` quando o campo não vem e sobrescreve a entidade (já aconteceu com `IsPorcentagem` da ração e `IsAtiva` da clínica).
-- Ao copiar um item do sistema para a clínica, a cópia parte dos dados do original e só depois recebe o DTO (`_mapper.Map(dto, copia)`); assim a cópia não perde o que não veio no DTO.
-- Não use `.ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null))`. Com `int?`, `bool?`, enum ou `DateTime?` nulo, o valor chega como 0, false ou MinValue e sobrescreve a entidade (bug já visto em animal e ração).
-- Campos que nunca vêm do DTO (`ClinicaId`, `IsAtivo`, `DataCadastro`, `DataDesativacao` e `Id` na edição) ficam com `.ForMember(..., opt => opt.Ignore())`.
+- Ao copiar um item do sistema para a clínica, a cópia parte dos dados do original e só depois recebe o DTO (`RacaMapper.Aplicar(dto, copia)`); assim a cópia não perde o que não veio no DTO.
+- Campos que nunca vêm do DTO (`ClinicaId`, `IsAtivo`, `DataCadastro`, `DataDesativacao`) não precisam de anotação na escrita, porque o rigor é pelo lado do DTO. O `Id` do DTO de edição fica com `[MapperIgnoreSource]`: a chave nunca é copiada.
 
 ### Entities e Enums
 
@@ -163,7 +169,7 @@ Use Raça (`RacaController`, `RacaSistemaController`, `RacaService`, `RacaReposi
 3. Crie os enums em `Enums/`, começando em 1, com `[Display(Name = "...")]` quando forem exibidos.
 4. No `AppDbContext`, adicione o `DbSet` e configure índices únicos por clínica, relacionamentos e `DeleteBehavior.Restrict` onde houver histórico.
 5. Crie os DTOs em `DTOs/<Entidade>/`: `Cadastrar`, `Editar` (com `Id`) e `Get`, sem `ClinicaId`, com mensagens de validação em português. Crie também o `<Entidade>Filtro : FiltroBase` se a lista tiver filtros próprios.
-6. Crie o mapper. O mapa de edição ignora `Id`, `ClinicaId`, `IsAtivo`, `DataCadastro` e `DataDesativacao` e termina com `.IgnorarNulosDaOrigem()`, para que a edição parcial não zere campos.
+6. Crie o `<Entidade>Mapper` (seção Mappers). O mapa de edição ignora o `Id` do DTO e a classe usa `AllowNullPropertyAssignment = false`, para que a edição parcial não zere campos.
 7. Crie as interfaces `I<Entidade>Service` e `I<Entidade>Repository` em `Interfaces/`.
 8. Crie o repository: toda consulta filtra por `ClinicaId`, leituras com `AsNoTracking()`, lista paginada com `ILike`, `Ordenar` e `PaginarAsync`, mais recentes primeiro, e o método de opções para `/opcoes`.
 9. Crie o service: valida unicidade, vínculos e itens inativos; ao desativar grava `DataDesativacao`; antes de excluir confere se está em uso; devolve `ServiceResult` com mensagens em português.
@@ -190,7 +196,7 @@ Se a tarefa pede algo que o projeto ainda não faz (upload de arquivo, envio age
 - Entidade do tenant com `ClinicaId` direto; nada de outra clínica é lido ou alterado.
 - Status por `PUT {id}/status?ativo=`; exclusão bloqueada se em uso; inativo recusado em registro novo.
 - Lista nova paginada (`FiltroBase` e `PaginaResultado`), mais recentes primeiro, e select por `/opcoes`.
-- Edição parcial não zera campos (`IgnorarNulosDaOrigem`).
+- Edição parcial não zera campos (`AllowNullPropertyAssignment = false` no mapper).
 - DI em `Program.cs` e `DbSet` no `AppDbContext`.
 - Falhas com `this.Falha(result)`: 404 não encontrado, 409 conflito, 400 regra/validação.
 - `dotnet build` com 0 erros e sem warnings novos, e `make test` passando.

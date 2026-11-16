@@ -1,4 +1,4 @@
-using AutoMapper;
+using backend.Domain.SaudeAnimal.Mappers;
 using backend.Domain.AtendimentoAnimal.Entities;
 using backend.Domain.Usuarios.Interfaces;
 using backend.Domain.Utils;
@@ -11,20 +11,20 @@ namespace backend.Domain.SaudeAnimal.Services
 {
     public class DietaService : IDietaService
     {
+        // Dieta inexistente ou de outra clínica: a resposta é a mesma (404), para não revelar que ela existe
+        private const string MsgNaoEncontrada = "Dieta não encontrada.";
+
         private readonly IDietaRepository _dietaRepository;
-        private readonly IMapper _mapper;
         private readonly ICalculoNecessidadeEnergetica _calculoService;
         private readonly ILogger<DietaService> _logger;
 
         public DietaService(IDietaRepository dietaRepository,
                             ICalculoNecessidadeEnergetica calculoService,
-                            ILogger<DietaService> logger,
-                            IMapper mapper)
+                            ILogger<DietaService> logger)
         {
             _dietaRepository = dietaRepository;
             _calculoService = calculoService;
             _logger = logger;
-            _mapper = mapper;
         }
 
         public async Task<Dieta> CalcularOuAtualizarDietaAsync(
@@ -104,7 +104,7 @@ namespace backend.Domain.SaudeAnimal.Services
                 }
 
                 _logger.LogInformation("Dieta ID {DietaId} encontrada com sucesso.", dietaId);
-                return _mapper.Map<GetDietaDto>(dieta);
+                return DietaMapper.ParaDto(dieta);
             }
             catch (Exception ex)
             {
@@ -121,7 +121,7 @@ namespace backend.Domain.SaudeAnimal.Services
                 var dietas = await _dietaRepository.GetAllByAcompanhamentoIdAsync(acompanhamentoId);
                 _logger.LogInformation("Encontradas {Count} dietas para o acompanhamento ID {AcompanhamentoId}.", dietas.Count(), acompanhamentoId);
 
-                return _mapper.Map<IEnumerable<GetDietaDto>>(dietas);
+                return dietas.Select(DietaMapper.ParaDto).ToList();
             }
             catch (Exception ex)
             {
@@ -140,7 +140,7 @@ namespace backend.Domain.SaudeAnimal.Services
                 if (dietaExistente?.Avaliacao?.Consulta?.ClinicaId != clinicaId)
                 {
                     _logger.LogWarning("Dieta {DietaId} não encontrada ou acesso negado.", dietaId);
-                    return new ServiceResult { Succeeded = false, Message = "Dieta não encontrada ou acesso negado." };
+                    return ServiceResult.NaoEncontrado(MsgNaoEncontrada);
                 }
 
                 var animal = dietaExistente.Avaliacao.Consulta.Animal;
@@ -178,7 +178,7 @@ namespace backend.Domain.SaudeAnimal.Services
                 }
 
                 // Prepara o DTO de criação para delegar ao método principal
-                var createDto = _mapper.Map<CreateDietaDto>(dto);
+                var createDto = DietaMapper.ParaCriacao(dto);
                 createDto.AvaliacaoId = avaliacao.Id;
 
                 // Sincroniza o animal em memória se houver novas propriedades no DTO
@@ -205,7 +205,7 @@ namespace backend.Domain.SaudeAnimal.Services
 
                 // Delega para o método principal (que agora atualiza a entidade corretamente)
                 var dietaAtualizada = await CalcularOuAtualizarDietaAsync(animal, avaliacao, racao, createDto);
-                var dietaDto = _mapper.Map<GetDietaDto>(dietaAtualizada);
+                var dietaDto = DietaMapper.ParaDto(dietaAtualizada);
 
                 return new ServiceResult { Succeeded = true, Message = "Dieta atualizada com sucesso.", Data = dietaDto };
             }
@@ -225,7 +225,7 @@ namespace backend.Domain.SaudeAnimal.Services
                 if (dieta?.Avaliacao?.Consulta?.ClinicaId != clinicaId)
                 {
                     _logger.LogWarning("Falha ao excluir: Dieta ID {DietaId} não encontrada ou acesso negado para a clínica ID {ClinicaId}.", dietaId, clinicaId);
-                    return new ServiceResult { Succeeded = false, Message = "Dieta não encontrada ou acesso negado." };
+                    return ServiceResult.NaoEncontrado(MsgNaoEncontrada);
                 }
 
                 _dietaRepository.Delete(dieta);
@@ -249,7 +249,7 @@ namespace backend.Domain.SaudeAnimal.Services
                 var dieta = await _dietaRepository.GetByIdWithIncludesAsync(dietaId);
                 if (dieta?.Avaliacao?.Consulta?.ClinicaId != clinicaId)
                 {
-                    return new ServiceResult { Succeeded = false, Message = "Dieta não encontrada ou acesso negado." };
+                    return ServiceResult.NaoEncontrado(MsgNaoEncontrada);
                 }
 
                 if (dieta.Status != backend.Domain.SaudeAnimal.Enums.StatusDieta.Aberta)
@@ -289,7 +289,7 @@ namespace backend.Domain.SaudeAnimal.Services
                 var dieta = await _dietaRepository.GetByIdWithIncludesAsync(dietaId);
                 if (dieta?.Avaliacao?.Consulta?.ClinicaId != clinicaId)
                 {
-                    return new ServiceResult { Succeeded = false, Message = "Dieta não encontrada ou acesso negado." };
+                    return ServiceResult.NaoEncontrado(MsgNaoEncontrada);
                 }
 
                 if (dieta.Status != backend.Domain.SaudeAnimal.Enums.StatusDieta.EmAndamento)
@@ -319,7 +319,7 @@ namespace backend.Domain.SaudeAnimal.Services
                 var dieta = await _dietaRepository.GetByIdWithIncludesAsync(dietaId);
                 if (dieta?.Avaliacao?.Consulta?.ClinicaId != clinicaId)
                 {
-                    return new ServiceResult { Succeeded = false, Message = "Dieta não encontrada ou acesso negado." };
+                    return ServiceResult.NaoEncontrado(MsgNaoEncontrada);
                 }
 
                 if (dieta.TipoDieta != TipoDieta.Emagrecimento)
@@ -361,13 +361,13 @@ namespace backend.Domain.SaudeAnimal.Services
                 var dieta = await _dietaRepository.GetByIdWithIncludesAsync(dietaId);
                 if (dieta?.Avaliacao?.Consulta?.ClinicaId != clinicaId)
                 {
-                    return new ServiceResult { Succeeded = false, Message = "Dieta não encontrada ou acesso negado." };
+                    return ServiceResult.NaoEncontrado(MsgNaoEncontrada);
                 }
 
                 var registro = dieta.RegistrosPeso.FirstOrDefault(r => r.Id == registroId);
                 if (registro == null)
                 {
-                    return new ServiceResult { Succeeded = false, Message = "Registro não encontrado." };
+                    return ServiceResult.NaoEncontrado("Registro não encontrado.");
                 }
 
                 _dietaRepository.RemoveRegistroPeso(registro);
