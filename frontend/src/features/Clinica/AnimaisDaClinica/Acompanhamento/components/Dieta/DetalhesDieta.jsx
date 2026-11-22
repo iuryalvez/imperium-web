@@ -16,7 +16,8 @@ import {
   Popconfirm,
   Tooltip,
   message,
-  Progress
+  Progress,
+  Alert
 } from "antd";
 import {
   ExperimentOutlined,
@@ -130,7 +131,9 @@ const DetalhesDieta = ({ dieta, isGato, onRegistrarPeso, onRemoverPeso }) => {
 
   // O peso alvo do emagrecimento é salvo em pesoObjetivo (pesoIdeal pode vir nulo)
   const pesoAlvo = dieta.pesoObjetivo ?? dieta.pesoIdeal ?? 0;
-  const LIMITE_PERDA_SEVERA = 2; // % por semana acima do qual a perda é considerada prejudicial
+  // % por semana acima do qual a perda é considerada prejudicial: 2% em cães (Guimarães e Tudury, 2006)
+  // e 1% em gatos (Carciofi, 2013; Gomes, 2016)
+  const LIMITE_PERDA_SEVERA = isGato ? 1 : 2;
 
   // Semanas já registradas e primeira semana livre (sugerida no formulário)
   const semanasRegistradas = (dieta.registrosPeso || []).map(r => r.semana);
@@ -290,7 +293,6 @@ const DetalhesDieta = ({ dieta, isGato, onRegistrarPeso, onRemoverPeso }) => {
               hasAdicionalGestacaoCao={dieta.hasAdicionalGestacaoCao}
               numeroFilhotes={dieta.numeroFilhotes}
               semanaLactacao={dieta.semanaLactacao}
-              semanaGestacao={dieta.semanaGestacao}
               fatorRestricao={dieta.fatorRestricao}
             />
           </div>
@@ -434,6 +436,26 @@ const DetalhesDieta = ({ dieta, isGato, onRegistrarPeso, onRemoverPeso }) => {
               </tbody>
             </table>
           </div>
+
+          {isEmagrecimento && isGato && percentualEsperado !== null && percentualEsperado > LIMITE_PERDA_SEVERA && (
+            <Alert
+              type="warning"
+              showIcon
+              className="mt-3"
+              message={`Meta de ${formatadorUmaCasa.format(percentualEsperado)}% por semana: acima do recomendado para gatos`}
+              description="Perdas acima de 1% do peso por semana podem ser prejudiciais ao gato (risco de lipidose hepática). O recomendado é 1% por semana (Carciofi, 2013; Gomes, 2016)."
+            />
+          )}
+
+          {isEmagrecimento && (
+            <Alert
+              type="info"
+              showIcon
+              className="mt-3"
+              message="Ao atingir o peso alvo"
+              description="As semanas depois do alvo mostram a energia de manutenção do peso alvo. Aumente a quantidade de ração aos poucos até esse valor e reavalie o animal (Guimarães e Tudury, 2006; Carciofi, 2013)."
+            />
+          )}
 
           {isEmagrecimento && (
             <>

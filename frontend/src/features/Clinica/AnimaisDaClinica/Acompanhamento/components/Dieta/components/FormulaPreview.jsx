@@ -12,7 +12,6 @@ const FormulaPreview = ({
   hasAdicionalGestacaoCao,
   numeroFilhotes,
   semanaLactacao,
-  semanaGestacao,
   fatorRestricao,
 }) => {
   // Parse defaults from perfilMetabolicoLabel (e.g. "Cão Inativo (95 × PC^0,75)")
@@ -36,6 +35,7 @@ const FormulaPreview = ({
     : defaultP;
 
   const pesoFormatado = pesoAtual ? `${pesoAtual}`.replace(".", ",") : "Peso";
+  const pesoAlvoFormatado = pesoObjetivo ? `${pesoObjetivo}`.replace(".", ",") : "Peso alvo";
 
   // Calcular valor numérico de p = PCa / PCm, caso tenhamos ambos.
   let pValor = "p";
@@ -86,21 +86,9 @@ const FormulaPreview = ({
       );
     }
 
-    // Gestação (4)
+    // Gestação (4): gata usa K × (PC)^P, sem fator de semana
     if (tipoDieta === 4) {
-      if (isGato) {
-        // EM + EM × (10 × S / 100), onde EM = K × (PC)^P
-        const sForm = semanaGestacao || "S";
-        return (
-          <>
-            EM + EM × (10 × {sForm} / 100)
-            <div className="text-sm mt-1 opacity-90">
-              EM = {kFinal} × ({pesoFormatado}kg)<sup>{pFinal}</sup>
-            </div>
-          </>
-        );
-      }
-      if (hasAdicionalGestacaoCao) {
+      if (!isGato && hasAdicionalGestacaoCao) {
         return (
           <>
             {kFinal} × ({pesoFormatado}kg)<sup>{pFinal}</sup> + 26 × ({pesoFormatado}kg)
@@ -122,7 +110,7 @@ const FormulaPreview = ({
           : "R";
       return (
         <>
-          [{kFinal} × ({pesoFormatado}kg)<sup>{pFinal}</sup>] × {fatorTexto}
+          [{kFinal} × ({pesoAlvoFormatado}kg)<sup>{pFinal}</sup>] × {fatorTexto}
         </>
       );
     }
@@ -162,14 +150,9 @@ const FormulaPreview = ({
           * <strong>L</strong> é o Fator de Lactação, que varia conforme a semana de lactação ({semanaLactacao || "X"}).
         </div>
       )}
-      {tipoDieta === 4 && isGato && (
+      {tipoDieta === 5 && (
         <div className="mt-2 text-xs text-center opacity-80 font-sans">
-          * <strong>S</strong> = semana de gestação
-          {semanaGestacao ? (
-            <> ({semanaGestacao}) → acréscimo de <strong>{semanaGestacao * 10}%</strong> sobre a EM</>
-          ) : (
-            <> (1 a 15) → acréscimo de 10% a 150% sobre a EM</>
-          )}
+          * Energia calculada sobre o <strong>peso alvo</strong>, fixa em todas as semanas até atingi-lo.
         </div>
       )}
     </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, Row, Col, Select, InputNumber, Alert, Collapse, List, Checkbox } from "antd";
+import { Form, Row, Col, Select, InputNumber, Alert, Checkbox } from "antd";
 import LabelComInfo from "../../../../../../../components/atoms/LabelComInfo";
 import FormulaPreview from "./FormulaPreview";
 import { useEffect } from "react";
@@ -13,7 +13,6 @@ const FormGestacao = ({ form, especie, perfis, loading }) => {
   const pesoAtualWatch = Form.useWatch("pesoAtual", form);
   const perfilMetabolicoId = Form.useWatch("perfilMetabolico", form);
   const hasAdicionalGestacaoCaoWatch = Form.useWatch("hasAdicionalGestacaoCao", form);
-  const semanaGestacaoWatch = Form.useWatch("semanaGestacao", form);
 
   const perfilSelecionado = perfisParaExibir.find((p) => p.value === perfilMetabolicoId);
   const perfilMetabolicoLabel = perfilSelecionado?.label;
@@ -33,9 +32,9 @@ const FormGestacao = ({ form, especie, perfis, loading }) => {
 
       {isGato && (
         <Alert
-          message="Recomendação NRC (2006) para Gatas (Customização Obrigatória)"
-          description="Gatas gestantes não possuem equação NRC definida. A literatura recomenda alimentação ad libitum ou acompanhamento rigoroso para um ganho de peso constante de 40 a 50% no pré-parto. Portanto, o preenchimento do K e do P é obrigatório para Gestação de Gatas."
-          type="warning"
+          message="Recomendação: 140 × PC^0,67 (FEDIAF, 2025; NRC, 2006)"
+          description="O perfil Gata em Gestação preenche K = 140 e P = 0,67. Os valores podem ser personalizados conforme a avaliação clínica."
+          type="info"
           showIcon
           className="mb-4"
         />
@@ -61,8 +60,8 @@ const FormGestacao = ({ form, especie, perfis, loading }) => {
                 tituloPopover="Tempo de Gestação"
                 conteudoPopover={
                   isCao 
-                  ? "Semanas após o acasalamento. Após a 4ª semana, as necessidades energéticas da cadela aumentam consideravelmente."
-                  : "Semanas após o acasalamento (1 a 15). Para gatas, a EM recebe um acréscimo progressivo de 10% por semana: EM + EM × (10 × semana / 100), chegando a +150% na 15ª semana."
+                  ? "Semanas após o acasalamento (1 a 9). Após a 4ª semana, as necessidades energéticas da cadela aumentam consideravelmente."
+                  : "Semanas após o acasalamento (1 a 9)."
                 }
               />
             }
@@ -76,7 +75,7 @@ const FormGestacao = ({ form, especie, perfis, loading }) => {
               placeholder="Ex: 5"
               style={{ width: "100%" }}
               min={1}
-              max={15}
+              max={9}
               step={1}
             />
           </Form.Item>
@@ -99,57 +98,19 @@ const FormGestacao = ({ form, especie, perfis, loading }) => {
               <LabelComInfo
                 label="Perfil Metabólico"
                 tituloPopover="Perfil Metabólico"
-                conteudoPopover="Permite selecionar um perfil pré-cadastrado. Para gestação inicial ou gatas, use perfis de manutenção. Para cadelas em fase final, utilize o perfil de Gestação Final."
+                conteudoPopover="Permite selecionar um perfil pré-cadastrado. O perfil Gata em Gestação preenche K e P com a recomendação (140 × PC^0,67)."
               />
             }
           >
             <Select
-              allowClear={!isGato}
+              allowClear
               loading={loading}
               options={perfisParaExibir}
               placeholder="Selecione um perfil metabólico ou fórmula..."
-              disabled={isGato}
             />
           </Form.Item>
         </Col>
       </Row>
-
-      {isGato && (
-        <Collapse
-          size="small"
-          className="mb-4 bg-white"
-          items={[
-            {
-              key: '1',
-              label: 'Perfis Metabólicos de Manutenção Conhecidos',
-              children: (
-                <div className="max-h-60 overflow-y-auto">
-                  <List
-                    size="small"
-                    dataSource={perfisParaExibir.filter(
-                      (p) =>
-                        p.tiposDieta?.includes(1) &&
-                        p.k !== null && p.p !== null &&
-                        p.especie === 2,
-                    )}
-                    renderItem={(item) => (
-                      <List.Item>
-                        <List.Item.Meta
-                          title={
-                            <span className="text-sm text-gray-700">
-                              {item.label}
-                            </span>
-                          }
-                        />
-                      </List.Item>
-                    )}
-                  />
-                </div>
-              ),
-            },
-          ]}
-        />
-      )}
 
       <FormulaPreview
         tipoDieta={4} // Gestacao
@@ -160,7 +121,6 @@ const FormGestacao = ({ form, especie, perfis, loading }) => {
         pesoAtual={pesoAtualWatch}
         perfilMetabolicoLabel={perfilMetabolicoLabel}
         hasAdicionalGestacaoCao={hasAdicionalGestacaoCaoWatch}
-        semanaGestacao={semanaGestacaoWatch}
       />
 
       <Row gutter={16} className="mt-4">

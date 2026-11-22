@@ -239,28 +239,22 @@ namespace backend.Domain.SaudeAnimal.Services
 
                 ValidarCustomizacaoPerfil(dieta, perfil, multiplicador, potencia, ref descricao);
 
+                if (dieta.SemanaGestacao.HasValue
+                    && (dieta.SemanaGestacao < 1 || dieta.SemanaGestacao > DietaPlanoHelper.SemanasGestacao))
+                {
+                    throw new InvalidOperationException($"A semana de gestação deve estar entre 1 e {DietaPlanoHelper.SemanasGestacao}.");
+                }
+
                 if (animal.Especie == EspecieAnimal.Gato)
                 {
-                    // Gatas não possuem equação NRC específica. Regra definida:
-                    // EM_final = EM + (EM × (10 × semana) / 100) → de +10% (semana 1) até +150% (semana 15)
-                    int semanaGestacao = dieta.SemanaGestacao
-                        ?? throw new InvalidOperationException("A semana de gestação é obrigatória para o cálculo de gestação de gatas.");
-
-                    if (semanaGestacao < 1 || semanaGestacao > SemanasGestacaoGata)
+                    // Gata gestante: K × PC^p (recomendação 140 × PC^0,67, preenchida pelo perfil), sem fator de semana.
+                    if (!dieta.SemanaGestacao.HasValue)
                     {
-                        throw new InvalidOperationException($"A semana de gestação da gata deve estar entre 1 e {SemanasGestacaoGata}.");
+                        throw new InvalidOperationException("A semana de gestação é obrigatória para o cálculo de gestação de gatas.");
                     }
 
-                    double emBase = multiplicador * Math.Pow(PCa, potencia);
-                    necessidadeKcal = CalcularEmGestacaoGata(emBase, semanaGestacao);
-
-                    if (!descricao.Contains("× semana"))
-                    {
-                        descricao += " + EM × (10% × semana)";
-                    }
-
-                    // Gerar previsões (do próximo até a semana 15)
-                    dieta.PrevisoesJson = GerarPrevisoesGestacaoGata(animal, PCa, semanaGestacao, dieta);
+                    necessidadeKcal = multiplicador * Math.Pow(PCa, potencia);
+                    dieta.PrevisoesJson = null;
                 }
                 else if (animal.Especie == EspecieAnimal.Cao)
                 {
@@ -467,32 +461,6 @@ namespace backend.Domain.SaudeAnimal.Services
             return JsonSerializer.Serialize(previsoes);
         }
 
-        private const int SemanasGestacaoGata = 15;
-
-        /// <summary>
-        /// EM da gata gestante: EM + (EM × (10 × semana) / 100).
-        /// Semana 1 → +10% da EM; semana 15 → +150% da EM.
-        /// </summary>
-        private static double CalcularEmGestacaoGata(double emBase, int semana)
-        {
-            return emBase + (emBase * (10.0 * semana) / 100.0);
-        }
-
-        private string GerarPrevisoesGestacaoGata(Animal animal, double peso, int semanaAtual, Dieta dieta)
-        {
-            var previsoes = new List<object>();
-            double multiplicador = dieta.MultiplicadorEnergetico ?? dieta.FatorK;
-            double potencia = dieta.Potencia ?? dieta.Expoente;
-            double emBase = multiplicador * Math.Pow(peso, potencia);
-            
-            for (int s = semanaAtual + 1; s <= SemanasGestacaoGata; s++)
-            {
-                double kcal = CalcularEmGestacaoGata(emBase, s);
-                previsoes.Add(new { semana = s, kcal = Math.Round(kcal, 3) });
-            }
-            return JsonSerializer.Serialize(previsoes);
-        }
-
         public double CalcularEmagrecimento(Animal animal, Dieta dieta)
         {
             _logger.LogInformation("Iniciando cálculo de emagrecimento para o animal ID: {AnimalId}.", animal.Id);
@@ -546,7 +514,8 @@ namespace backend.Domain.SaudeAnimal.Services
                 dieta.Expoente = potencia;
                 dieta.PerfilNutricional = descricao;
 
-                double emBase = multiplicador * Math.Pow(animal.Peso.Value, potencia);
+                // Guimarães e Tudury (2006): manutenção do peso alvo × fração do nível, fixa até atingir o alvo.
+                double emBase = multiplicador * Math.Pow(dieta.PesoObjetivo.Value, potencia);
                 var resultado = emBase * restricaoDados.fator;
                 var resultadoArredondado = Math.Round(resultado, 3);
 
@@ -572,15 +541,19 @@ namespace backend.Domain.SaudeAnimal.Services
             double pesoAlvo = dieta.PesoObjetivo.Value;
             double multiplicador = dieta.FatorK;
             double potencia = dieta.Expoente;
+            // Energia fixa: calculada sobre o peso alvo; só a projeção do peso muda a cada semana.
+            double kcalRestricao = multiplicador * Math.Pow(pesoAlvo, potencia) * fatorRestricao;
+            // Guimarães e Tudury (2006): a perda semanal é uma porcentagem do peso inicial (kg constantes por semana).
+            double perdaKgPorSemana = pesoAtual * perdaSemanalDecimal;
 
             for (int s = 1; s <= NivelRestricaoDados.DuracaoPlanoEmagrecimentoSemanas; s++)
             {
-                double pesoInicioS = pesoAtual * Math.Pow(1 - perdaSemanalDecimal, s - 1);
-                
+                double pesoInicioS = pesoAtual - perdaKgPorSemana * (s - 1);
+
                 if (pesoInicioS > pesoAlvo)
                 {
-                    double kcal = multiplicador * Math.Pow(pesoInicioS, potencia) * fatorRestricao;
-                    double pesoFimS = pesoInicioS * (1 - perdaSemanalDecimal);
+                    double kcal = kcalRestricao;
+                    double pesoFimS = pesoInicioS - perdaKgPorSemana;
                     
                     if (pesoFimS < pesoAlvo) 
                     {

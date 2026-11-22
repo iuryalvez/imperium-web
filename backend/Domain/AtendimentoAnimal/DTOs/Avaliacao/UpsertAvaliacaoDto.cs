@@ -23,6 +23,7 @@ namespace backend.Domain.AtendimentoAnimal.DTOs.Avaliacao
         public bool IsGestante { get; set; }
         public int IsLactanteNumeroFilhotes { get; set; }
         public int SemanaLactacao { get; set; }
+        [Range(0, 9, ErrorMessage = "A semana de gestação deve estar entre 1 e 9 (0 quando não gestante).")]
         public int SemanaGestacao { get; set; }
     }
 }

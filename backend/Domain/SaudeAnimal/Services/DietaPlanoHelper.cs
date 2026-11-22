@@ -1,3 +1,4 @@
+using backend.Domain.AtendimentoAnimal.Enums;
 using backend.Domain.SaudeAnimal.Entities;
 using backend.Domain.SaudeAnimal.Enums;
 
@@ -8,6 +9,28 @@ namespace backend.Domain.SaudeAnimal.Services
     /// </summary>
     public static class DietaPlanoHelper
     {
+        /// <summary>
+        /// Duração máxima da gestação considerada no plano (cadela e gata): semanas 1 a 9.
+        /// </summary>
+        public const int SemanasGestacao = 9;
+
+        /// <summary>
+        /// Valida a semana de gestação da dieta: obrigatória para gatas e, quando informada, entre 1 e SemanasGestacao.
+        /// Retorna a mensagem de erro ou null se estiver válida (ou se a dieta não for de gestação).
+        /// </summary>
+        public static string? ValidarSemanaGestacao(TipoDieta tipo, EspecieAnimal especie, int? semana)
+        {
+            if (tipo != TipoDieta.Gestacao) return null;
+
+            if (especie == EspecieAnimal.Gato && !semana.HasValue)
+                return $"Para gestação de gatas, a semana de gestação é obrigatória e deve estar entre 1 e {SemanasGestacao}.";
+
+            if (semana.HasValue && (semana < 1 || semana > SemanasGestacao))
+                return $"A semana de gestação deve estar entre 1 e {SemanasGestacao}.";
+
+            return null;
+        }
+
         /// <summary>
         /// Tipos de dieta que possuem acompanhamento semanal (projeções por semana).
         /// </summary>
@@ -27,7 +50,7 @@ namespace backend.Domain.SaudeAnimal.Services
 
         /// <summary>
         /// Semana atual do plano = semana inicial + semanas decorridas desde a DataInicio.
-        /// Para dietas concluídas, a contagem para na DataConclusao.
+        /// Para dietas concluídas, a contagem para na DataConclusao. Na gestação, limitada a SemanasGestacao.
         /// Retorna null se o plano não foi iniciado ou se o tipo não é semanal.
         /// </summary>
         public static int? CalcularSemanaAtual(Dieta dieta, DateOnly? hoje = null)
@@ -44,7 +67,8 @@ namespace backend.Domain.SaudeAnimal.Services
             var dias = referencia.DayNumber - dieta.DataInicio.Value.DayNumber;
             if (dias < 0) dias = 0;
 
-            return inicial.Value + (dias / 7);
+            var semana = inicial.Value + (dias / 7);
+            return dieta.TipoDieta == TipoDieta.Gestacao ? Math.Min(semana, SemanasGestacao) : semana;
         }
 
         /// <summary>

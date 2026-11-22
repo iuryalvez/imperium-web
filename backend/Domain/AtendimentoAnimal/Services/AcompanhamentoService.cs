@@ -7,6 +7,7 @@ using backend.Domain.SaudeAnimal.DTOs.Dieta;
 using backend.Domain.SaudeAnimal.Entities;
 using backend.Domain.SaudeAnimal.Enums;
 using backend.Domain.SaudeAnimal.Interfaces;
+using backend.Domain.SaudeAnimal.Services;
 
 namespace backend.Domain.AtendimentoAnimal.Services
 {
@@ -219,6 +220,12 @@ namespace backend.Domain.AtendimentoAnimal.Services
                 var animal = (Animal)animalResult.Data;
 
                 _logger.LogInformation("Animal {AnimalId} obtido com sucesso.", animal.Id);
+
+                var erroSemanaGestacao = DietaPlanoHelper.ValidarSemanaGestacao(dto.TipoDieta, animal.Especie, dto.SemanaGestacao);
+                if (erroSemanaGestacao != null)
+                {
+                    return new ServiceResult { Succeeded = false, Message = erroSemanaGestacao };
+                }
 
                 var resultadoAvaliacao = await _avaliacaoService.ObterPorIdEIdAcompanhamentoAsync(dto.AvaliacaoId, acompanhamentoId, clinicaId);
                 if (!resultadoAvaliacao.Succeeded)

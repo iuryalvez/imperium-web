@@ -105,10 +105,37 @@ namespace backend.Tests.Dietas
             Assert.Equal(0.60, dieta.FatorRestricao);
             Assert.Equal(1.5, dieta.PercentualPerdaSemanal);
             Assert.Equal(0.45, dieta.PerdaSemanalKg);
-            Assert.Equal(Math.Round(Math.Round(130 * Math.Pow(30, 0.75) * 0.60, 3), 2), dieta.EnergiaMetabolizavel);
+            // Energia sobre o peso alvo (25 kg), não sobre o atual
+            Assert.Equal(Math.Round(Math.Round(130 * Math.Pow(25, 0.75) * 0.60, 3), 2), dieta.EnergiaMetabolizavel);
             Assert.Contains("Restrição", dieta.PerfilNutricional);
             Assert.False(string.IsNullOrWhiteSpace(dieta.PrevisoesJson));
             Assert.Null(dieta.SemanaAtual);
+        }
+
+        [Fact]
+        public async Task Criar_GestacaoNaSemana10_RetornaBadRequestENaoAlteraOAnimal()
+        {
+            var c = await ComAvaliacaoAsync();
+
+            var resposta = await c.Gestor.PostAsJsonAsync(Rota, NovaDietaGestacao(c.Avaliacao, semanaGestacao: 10));
+
+            Assert.Equal(HttpStatusCode.BadRequest, resposta.StatusCode);
+            Assert.Contains("A semana de gestação deve estar entre 1 e 9.", await resposta.Content.ReadAsStringAsync());
+            await AssertSemDietaAsync(c.Avaliacao.Id);
+            await using var contexto = _factory.CriarContexto();
+            Assert.NotEqual(10, (await contexto.Animais.AsNoTracking().FirstAsync(a => a.Id == c.AnimalId)).SemanaGestacao);
+        }
+
+        [Fact]
+        public async Task Criar_GestacaoNaSemana9_CalculaSemPrevisoesNaCadela()
+        {
+            var c = await ComAvaliacaoAsync();
+
+            var dieta = await CriarDietaAsync(c.Gestor, c.Avaliacao, NovaDietaGestacao(c.Avaliacao, semanaGestacao: 9));
+
+            Assert.Equal(TipoDieta.Gestacao, dieta.TipoDieta);
+            Assert.Equal(9, dieta.SemanaGestacao);
+            Assert.Equal(Math.Round(Math.Round(130 * Math.Pow(20.5, 0.75), 3), 2), dieta.EnergiaMetabolizavel);
         }
 
         [Fact]
@@ -381,6 +408,23 @@ namespace backend.Tests.Dietas
             Assert.Equal(29.1, registros[1].PesoReal);
             Assert.Equal("Boa adesão", registros[1].Observacao);
             Assert.Equal(DateOnly.FromDateTime(DateTime.UtcNow), registros[1].DataRegistro);
+        }
+
+        [Fact]
+        public async Task RegistrarPeso_SoNasSemanasDeRetorno_AceitaSemanasSalteadas()
+        {
+            // Retornos quinzenais: semanas 2 e 4, sem a 1 e a 3
+            var c = await ComAvaliacaoAsync();
+            var dieta = await CriarDietaAsync(c.Gestor, c.Avaliacao, NovaDietaEmagrecimento(c.Avaliacao));
+
+            var semana2 = await c.Gestor.PostAsJsonAsync($"{Rota}/{dieta.Id}/registros-peso", new { semana = 2, pesoReal = 29.1 });
+            var semana4 = await c.Gestor.PostAsJsonAsync($"{Rota}/{dieta.Id}/registros-peso", new { semana = 4, pesoReal = 28.2 });
+
+            Assert.Equal(HttpStatusCode.OK, semana2.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, semana4.StatusCode);
+            var registros = (await DietaNoHistoricoAsync(c.Gestor, c.Avaliacao.AcompanhamentoId, dieta.Id)).RegistrosPeso;
+            Assert.Equal(new[] { 2, 4 }, registros.Select(r => r.Semana));
+            Assert.Equal(new[] { 29.1, 28.2 }, registros.Select(r => r.PesoReal));
         }
 
         [Fact]
@@ -685,6 +729,20 @@ namespace backend.Tests.Dietas
         }
 
         private record ComDieta(Atendimento Atendimento, GetAvaliacaoDto Avaliacao, GetDietaDto Dieta) : ComAvaliacao(Atendimento, Avaliacao);
+
+        /// <summary>Corpo de dieta de gestação de cadela (perfil 14), com K e P informados.</summary>
+        private static object NovaDietaGestacao(GetAvaliacaoDto avaliacao, int semanaGestacao) => new
+        {
+            avaliacaoId = avaliacao.Id,
+            acompanhamentoId = avaliacao.AcompanhamentoId,
+            racaoId = avaliacao.RacaoId,
+            tipoDieta = 4,
+            perfilMetabolico = 14,
+            multiplicadorEnergetico = 130.0,
+            potencia = 0.75,
+            pesoAtual = avaliacao.Peso,
+            semanaGestacao,
+        };
 
         /// <summary>Atendimento com a avaliação já salva (peso 20,5 kg), pronta para receber dieta.</summary>
         private async Task<ComAvaliacao> ComAvaliacaoAsync(string apelido = "A")

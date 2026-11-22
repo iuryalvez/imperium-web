@@ -6,12 +6,12 @@ import {
   Select,
   InputNumber,
   Alert,
-  Collapse,
-  List,
 } from "antd";
 import LabelComInfo from "../../../../../../../components/atoms/LabelComInfo";
 import FormulaPreview from "./FormulaPreview";
 import { useEffect } from "react";
+
+export const MAX_FILHOTES_FONTE = 8;
 
 const FormLactacao = ({ form, especie, perfis, loading }) => {
   const perfisParaExibir = perfis || [];
@@ -32,6 +32,8 @@ const FormLactacao = ({ form, especie, perfis, loading }) => {
     (p) => p.value === perfilMetabolicoId,
   );
   const perfilMetabolicoLabel = perfilSelecionado?.label;
+  // As tabelas do NRC/FEDIAF vão até 8 filhotes; acima disso o cálculo é extrapolado.
+  const foraDaFaixaDaFonte = numeroFilhotesWatch > MAX_FILHOTES_FONTE;
 
   useEffect(() => {
     if (!perfilMetabolicoId && (perfis?.length > 0)) {
@@ -46,15 +48,21 @@ const FormLactacao = ({ form, especie, perfis, loading }) => {
         Ajuste Específico de Lactação
       </h4>
 
-      {isCao && (
-        <Alert
-          message="Recomendação para Cadelas (Customização Obrigatória)"
-          description="Para cadelas em lactação, a literatura recomenda extrapolar a energia de manutenção. Portanto, é obrigatório preencher manualmente o K e o P."
-          type="info"
-          showIcon
-          className="mb-4"
-        />
-      )}
+      <Alert
+        message={
+          isGato
+            ? "Recomendação: 100 × PC^0,67 + energia da lactação"
+            : "Recomendação: 145 × PC^0,75 + energia da lactação"
+        }
+        description={
+          isGato
+            ? "O perfil Gata em Lactação preenche K = 100 e P = 0,67. Os valores podem ser personalizados conforme a avaliação clínica."
+            : "O perfil Cadela em Lactação preenche K = 145 e P = 0,75. Os valores podem ser personalizados conforme a avaliação clínica."
+        }
+        type="info"
+        showIcon
+        className="mb-4"
+      />
 
       <Row gutter={16}>
         <Col xs={24} md={12}>
@@ -106,6 +114,16 @@ const FormLactacao = ({ form, especie, perfis, loading }) => {
         </Col>
       </Row>
 
+      {foraDaFaixaDaFonte && (
+        <Alert
+          type="warning"
+          showIcon
+          className="mb-4"
+          message={`Mais de ${MAX_FILHOTES_FONTE} filhotes: fora da faixa da fonte`}
+          description="As tabelas do NRC (2006) e da FEDIAF (2025) vão até 8 filhotes. O sistema calcula com a mesma equação, mas o valor é uma estimativa e deve ser acompanhado de perto."
+        />
+      )}
+
       <Row gutter={16}>
         <Col span={24}>
           <Form.Item
@@ -119,52 +137,14 @@ const FormLactacao = ({ form, especie, perfis, loading }) => {
             }
           >
             <Select
-              allowClear={!isCao}
+              allowClear
               loading={loading}
               options={perfisParaExibir}
               placeholder="Selecione um perfil metabólico ou fórmula..."
-              disabled={isCao}
             />
           </Form.Item>
         </Col>
       </Row>
-
-      {isCao && (
-        <Collapse
-          size="small"
-          className="mb-4 bg-white"
-          items={[
-            {
-              key: "1",
-              label: "Perfis Metabólicos de Manutenção Conhecidos",
-              children: (
-                <div className="max-h-60 overflow-y-auto">
-                  <List
-                    size="small"
-                    dataSource={perfisParaExibir.filter(
-                      (p) =>
-                        p.tiposDieta?.includes(1) &&
-                        p.k !== null && p.p !== null &&
-                        p.especie === 1,
-                    )}
-                    renderItem={(item) => (
-                      <List.Item>
-                        <List.Item.Meta
-                          title={
-                            <span className="text-sm text-gray-700">
-                              {item.label}
-                            </span>
-                          }
-                        />
-                      </List.Item>
-                    )}
-                  />
-                </div>
-              ),
-            },
-          ]}
-        />
-      )}
 
       <FormulaPreview
         tipoDieta={3} // Lactação

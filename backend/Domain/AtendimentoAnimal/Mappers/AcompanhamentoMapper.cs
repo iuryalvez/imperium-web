@@ -1,5 +1,6 @@
 using backend.Domain.AtendimentoAnimal.DTOs.AcompanhamentoDto;
 using backend.Domain.AtendimentoAnimal.Entities;
+using backend.Domain.AtendimentoAnimal.Enums;
 using backend.Domain.General.Extensions;
 using backend.Domain.SaudeAnimal.DTOs.Dieta;
 using backend.Domain.SaudeAnimal.Entities;
@@ -90,7 +91,9 @@ namespace backend.Domain.AtendimentoAnimal.Mappers
         private static string RotuloDaFaseDeVida(Animal animal) => animal.FaseVida.GetDisplayName();
 
         private static string RotuloDaCondicaoCorporal(Animal animal) =>
-            animal.CondicaoCorporal?.GetDisplayName() ?? "Não informado";
+            animal.CondicaoCorporal.HasValue
+                ? CondicaoCorporalRotulo.Obter(animal.CondicaoCorporal.Value, animal.Especie)
+                : "Não informado";
 
         private static List<TutorResumidoDto> TutoresDoAnimal(Animal animal) =>
             animal.TutoresAnimais?

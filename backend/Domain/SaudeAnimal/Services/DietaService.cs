@@ -169,12 +169,10 @@ namespace backend.Domain.SaudeAnimal.Services
                     }
                 }
 
-                if (dto.TipoDieta == TipoDieta.Gestacao && animal.Especie == backend.Domain.AtendimentoAnimal.Enums.EspecieAnimal.Gato)
+                var erroSemanaGestacao = DietaPlanoHelper.ValidarSemanaGestacao(dto.TipoDieta, animal.Especie, dto.SemanaGestacao);
+                if (erroSemanaGestacao != null)
                 {
-                    if (!dto.SemanaGestacao.HasValue || dto.SemanaGestacao < 1 || dto.SemanaGestacao > 15)
-                    {
-                        return new ServiceResult { Succeeded = false, Message = "Para gestação de gatas, a semana de gestação é obrigatória e deve estar entre 1 e 15." };
-                    }
+                    return new ServiceResult { Succeeded = false, Message = erroSemanaGestacao };
                 }
 
                 // Prepara o DTO de criação para delegar ao método principal

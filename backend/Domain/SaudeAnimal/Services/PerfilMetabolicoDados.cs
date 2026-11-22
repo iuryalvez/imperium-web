@@ -25,14 +25,14 @@ namespace backend.Domain.SaudeAnimal.Services
                 // ----------------- GENÉRICOS (CUSTOMIZADOS) -----------------
                 { PerfilMetabolico.CaoEmManutencao, (null, null, "Cães em manutenção", EspecieAnimal.Cao, null) },
                 { PerfilMetabolico.GatoEmManutencao, (null, null, "Gatos em manutenção", EspecieAnimal.Gato, null) },
-                { PerfilMetabolico.CadelaEmGestacao, (null, null, "Cadelas em gestação", EspecieAnimal.Cao, Sexo.Femea) },
-                { PerfilMetabolico.GataEmGestacao, (null, null, "Gatas em gestação", EspecieAnimal.Gato, Sexo.Femea) },
+                { PerfilMetabolico.CadelaEmGestacao, (130, 0.75, "Cadelas em gestação", EspecieAnimal.Cao, Sexo.Femea) },
+                { PerfilMetabolico.GataEmGestacao, (140, 0.67, "Gatas em gestação", EspecieAnimal.Gato, Sexo.Femea) },
                 { PerfilMetabolico.CaoEmCrescimento, (null, null, "Cães em crescimento", EspecieAnimal.Cao, null) },
                 { PerfilMetabolico.GatoEmCrescimento, (null, null, "Gatos em crescimento", EspecieAnimal.Gato, null) },
                 { PerfilMetabolico.CaoEmEmagrecimento, (null, null, "Cães em emagrecimento", EspecieAnimal.Cao, null) },
                 { PerfilMetabolico.GatoEmEmagrecimento, (null, null, "Gatos em emagrecimento", EspecieAnimal.Gato, null) },
-                { PerfilMetabolico.CadelaEmLactacao, (null, null, "Cadelas em lactação", EspecieAnimal.Cao, Sexo.Femea) },
-                { PerfilMetabolico.GataEmLactacao, (null, null, "Gatas em lactação", EspecieAnimal.Gato, Sexo.Femea) },
+                { PerfilMetabolico.CadelaEmLactacao, (145, 0.75, "Cadelas em lactação", EspecieAnimal.Cao, Sexo.Femea) },
+                { PerfilMetabolico.GataEmLactacao, (100, 0.67, "Gatas em lactação", EspecieAnimal.Gato, Sexo.Femea) },
             };
 
         public static double CalcularNecessidade(PerfilMetabolico perfil, double peso)

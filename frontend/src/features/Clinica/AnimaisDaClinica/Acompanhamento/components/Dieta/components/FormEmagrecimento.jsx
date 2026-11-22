@@ -1,7 +1,11 @@
-import React from "react";
-import { Form, Row, Col, Select, InputNumber, Radio } from "antd";
+import React, { useEffect } from "react";
+import { Form, Row, Col, Select, InputNumber, Radio, Alert } from "antd";
 import LabelComInfo from "../../../../../../../components/atoms/LabelComInfo";
 import FormulaPreview from "./FormulaPreview";
+
+export const PERFIL_SUGERIDO_CAO = 8; // Cão Inativo (95 × PC^0,75)
+export const PERFIL_SUGERIDO_GATO = 2; // Gato Doméstico - Magro ou Ideal (100 × PC^0,67)
+export const LIMITE_PERDA_RECOMENDADA_GATO = 1; // % do peso inicial por semana
 
 const FormEmagrecimento = ({ form, especie, perfis, loading, niveisRestricao, pesoAtual }) => {
   const isGato = especie === 2 || String(especie).toLowerCase() === "gato";
@@ -17,6 +21,18 @@ const FormEmagrecimento = ({ form, especie, perfis, loading, niveisRestricao, pe
   
   const perfilSelecionado = perfisParaExibir.find((p) => p.value === perfilMetabolicoId);
 
+  // Perfil base sugerido: Cão Inativo (8), para a energia ficar perto da faixa observada pela AAHA,
+  // e Gato Doméstico Magro ou Ideal (2), porque a energia é calculada sobre o peso alvo (um peso ideal).
+  useEffect(() => {
+    if (!perfilMetabolicoId && perfisParaExibir.length > 0) {
+      form.setFieldValue("perfilMetabolico", isGato ? PERFIL_SUGERIDO_GATO : PERFIL_SUGERIDO_CAO);
+    }
+  }, [isGato, perfilMetabolicoId, perfisParaExibir.length, form]);
+
+  const nivelSelecionado = niveisRestricao?.find((n) => n.value === nivelRestricaoWatch);
+  const perdaAcimaDoRecomendadoGato =
+    isGato && nivelSelecionado && nivelSelecionado.percentualPerdaSemanal * 100 > LIMITE_PERDA_RECOMENDADA_GATO;
+
   return (
     <div className="bg-gray-50 p-4 rounded-md border border-gray-200 mb-4">
       <h4 className="text-sm font-semibold text-gray-700 mb-3">
@@ -31,7 +47,9 @@ const FormEmagrecimento = ({ form, especie, perfis, loading, niveisRestricao, pe
               <LabelComInfo
                 label="Perfil Metabólico Base"
                 tituloPopover="Perfil Metabólico Base"
-                conteudoPopover="Selecione o perfil metabólico de manutenção do animal. O cálculo aplicará uma restrição sobre a energia de manutenção deste perfil."
+                conteudoPopover={isGato
+                  ? "Perfil de manutenção usado como base. A sugestão é o gato magro ou ideal (100 × PC^0,67), porque a energia é calculada sobre o peso alvo. O cálculo aplica a restrição sobre essa energia."
+                  : "Perfil de manutenção usado como base. A sugestão é o cão inativo (95 × PC^0,75): com perfis mais ativos, a energia fica acima da média observada em cães que emagreceram (AAHA, 2021). O cálculo aplica a restrição sobre essa energia."}
               />
             }
             rules={[{ required: true, message: "Obrigatório" }]}
@@ -145,13 +163,22 @@ const FormEmagrecimento = ({ form, especie, perfis, loading, niveisRestricao, pe
                 <div className="inline-flex flex-col">
                   <span className="font-medium text-gray-800">{nivel.label} ({(nivel.fator * 100).toFixed(0)}% da EM Base)</span>
                   <span className="text-xs text-gray-500">
-                    Estimativa de perda: {(nivel.percentualPerdaSemanal * 100).toFixed(1)}% do peso por semana
+                    Estimativa de perda: {(nivel.percentualPerdaSemanal * 100).toFixed(1)}% do peso inicial por semana
                   </span>
                 </div>
               </Radio>
             ))}
           </Radio.Group>
         </Form.Item>
+
+        {perdaAcimaDoRecomendadoGato && (
+          <Alert
+            type="warning"
+            showIcon
+            message={`Perda acima de ${LIMITE_PERDA_RECOMENDADA_GATO}% por semana pode ser prejudicial ao gato`}
+            description="Para gatos, o recomendado é perder até 1% do peso por semana (Carciofi, 2013; Gomes, 2016). Perdas mais rápidas aumentam o risco de lipidose hepática. O nível escolhido continua permitido, a critério do veterinário."
+          />
+        )}
       </div>
 
       <FormulaPreview

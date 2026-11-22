@@ -52,11 +52,11 @@ namespace backend.Domain.SaudeAnimal.Enums
         // ==========================================
         // LACTAÇÃO
         // ==========================================
-        [Display(Name = "Gata em Lactação")]
+        [Display(Name = "Gata em Lactação (100 × PC^0,67)")]
         [TipoDietaRef(TipoDieta.Lactacao)]
         GataEmLactacao = 10,
 
-        [Display(Name = "Cadela em Lactação")]
+        [Display(Name = "Cadela em Lactação (145 × PC^0,75)")]
         [TipoDietaRef(TipoDieta.Lactacao)]
         CadelaEmLactacao = 11,
 
@@ -71,11 +71,11 @@ namespace backend.Domain.SaudeAnimal.Enums
         [TipoDietaRef(TipoDieta.Manutencao)]
         GatoEmManutencao = 13,
 
-        [Display(Name = "Cadela em Gestação")]
+        [Display(Name = "Cadela em Gestação (130 × PC^0,75)")]
         [TipoDietaRef(TipoDieta.Gestacao)]
         CadelaEmGestacao = 14,
 
-        [Display(Name = "Gata em Gestação")]
+        [Display(Name = "Gata em Gestação (140 × PC^0,67)")]
         [TipoDietaRef(TipoDieta.Gestacao)]
         GataEmGestacao = 15,
 

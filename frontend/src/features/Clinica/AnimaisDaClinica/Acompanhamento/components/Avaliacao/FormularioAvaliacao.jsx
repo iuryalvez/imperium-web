@@ -131,8 +131,9 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
         evidentes.
       </p>
       <p>
-        <strong>4 (Magro):</strong> Gordura corporal mínima. Costelas não
-        visíveis. Cintura e reentrância abdominal aparentes.
+        <strong>4 (Magro):</strong> Costelas palpáveis, com cobertura mínima
+        de gordura. Cintura perceptível atrás das costelas. Leve reentrância
+        abdominal. Bolsa de gordura abdominal mínima.
       </p>
       <p>
         <strong>5 (Ideal):</strong> Gordura corporal presente, mas não
@@ -140,24 +141,23 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
         abdominal presentes. Bolsa de gordura abdominal mínima.
       </p>
       <p>
-        <strong>6 (Sobrepeso - até 15% acima):</strong> Gordura corporal
-        moderada. Costelas palpáveis com alguma pressão. Cintura visível, mas
-        não acentuada. Reentrância e gordura abdominal aparentes, mas não
-        acentuadas.
+        <strong>6 (Sobrepeso):</strong> Costelas palpáveis, com leve excesso
+        de gordura. Cintura e bolsa de gordura abdominal perceptíveis, mas não
+        evidentes. Reentrância abdominal ausente.
       </p>
       <p>
-        <strong>7 (Sobrepeso - 16% a 30% acima):</strong> Gordura corporal
+        <strong>7 (Sobrepeso - cerca de 20% acima do ideal):</strong> Gordura corporal
         importante. Costelas palpáveis com dificuldade. Cintura pouco
         perceptível. Evidente abaulamento abdominal, com bolsa de gordura
         moderada.
       </p>
       <p>
-        <strong>8 (Obesidade Grave - 31% a 45% acima):</strong> Gordura corporal
+        <strong>8 (Obesidade Grave - cerca de 30% acima do ideal):</strong> Gordura corporal
         acentuada. Denso depósito de gordura sobre costelas e região lombar.
         Distensão abdominal proeminente, com significativo depósito de gordura.
       </p>
       <p>
-        <strong>9 (Obesidade Grave - acima de 46%):</strong> Gordura corporal
+        <strong>9 (Obesidade Grave - 40% ou mais acima do ideal):</strong> Gordura corporal
         extremamente acentuada. Depósitos de gordura maciços sobre costelas,
         proeminências ósseas, face e membros. Cintura ausente. Distensão
         abdominal acentuada, com depósitos de gordura abdominal maciços.
@@ -193,24 +193,24 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
         abdominal presentes.
       </p>
       <p>
-        <strong>6 (Sobrepeso - até 15% acima):</strong> Gordura corporal
+        <strong>6 (Sobrepeso):</strong> Gordura corporal
         moderada. Costelas palpáveis com alguma pressão. Cintura visível, mas
         não acentuada. Reentrância abdominal aparente.
       </p>
       <p>
-        <strong>7 (Sobrepeso - 16% a 30% acima):</strong> Gordura corporal
+        <strong>7 (Sobrepeso - cerca de 20% acima do ideal):</strong> Gordura corporal
         importante. Depósitos de gordura evidente sobre costelas, região lombar
         e base da cauda. Costelas palpáveis com dificuldade. Cintura e
         reentrância abdominal pouco perceptíveis ou ausentes.
       </p>
       <p>
-        <strong>8 (Obesidade - 31% a 45% acima):</strong> Gordura corporal
+        <strong>8 (Obesidade - cerca de 30% acima do ideal):</strong> Gordura corporal
         acentuada. Densos depósitos de gordura sobre costelas, região lombar e
         base da cauda. Costelas palpáveis somente com pressão acentuada. Cintura
         e reentrância abdominal ausentes, podendo existir distensão abdominal.
       </p>
       <p>
-        <strong>9 (Obesidade Grave - acima de 46%):</strong> Gordura corporal
+        <strong>9 (Obesidade Grave - 40% ou mais acima do ideal):</strong> Gordura corporal
         extremamente acentuada. Depósitos de gordura maciços sobre costelas,
         proeminências ósseas (não palpáveis), pescoço e membros. Cintura e
         reentrância abdominal ausentes. Distensão abdominal acentuada.
@@ -313,7 +313,7 @@ const FormularioAvaliacao = ({ data, initialValues, onFinish }) => {
                   <InputNumber
                     style={{ width: "100%" }}
                     min={1}
-                    max={20}
+                    max={9}
                     placeholder="Ex: 5"
                   />
                 </Form.Item>

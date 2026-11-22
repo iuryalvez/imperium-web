@@ -275,6 +275,23 @@ namespace backend.Tests.Avaliacoes
         }
 
         [Fact]
+        public async Task Salvar_SemanaDeGestacaoAcimaDe9_RetornaBadRequestENaoCria()
+        {
+            var a = await MontarAtendimentoAsync(_cenario);
+            var corpo = new
+            {
+                peso = 20.5, condicaoCorporal = 5, grauAtividade = 2, racaoId = a.RacaoId, descricaoDieta = "Duas refeições ao dia",
+                tipoDieta = 4, isGestante = true, isLactanteNumeroFilhotes = 0, semanaLactacao = 0, semanaGestacao = 10,
+            };
+
+            var resposta = await a.Gestor.PutAsJsonAsync(Rota(a.ConsultaId), corpo);
+
+            Assert.Equal(HttpStatusCode.BadRequest, resposta.StatusCode);
+            Assert.Contains("A semana de gestação deve estar entre 1 e 9", await TextoAsync(resposta));
+            await AssertSemAvaliacaoAsync(a.ConsultaId);
+        }
+
+        [Fact]
         public async Task Salvar_RacaoInativa_RetornaBadRequest()
         {
             var a = await MontarAtendimentoAsync(_cenario);
