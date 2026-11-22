@@ -30,6 +30,7 @@ Instalar pacotes ou mudar `App.test.js` exige permissão do usuário. Antes, exp
 - `Infra/ApiDeTeste.cs`: monta os cenários pelas rotas reais (`CadastrarTutorAsync`, `CadastrarAnimalAsync`, `CadastrarRacaDaClinicaAsync`, `CadastrarRacaDoSistemaAsync`, `CadastrarRacaoDaClinicaAsync`, `CadastrarRacaoDoSistemaAsync`, `CadastrarConsultaAsync`) e lê JSON (`LerAsync<T>`, `LerIdDoDataAsync`, `ResultadoComDados<T>`). `RegistrarAvaliacaoComRacaoAsync` grava uma avaliação mínima no banco para deixar uma ração "em uso". Para o fluxo de atendimento há `MontarAtendimentoAsync` (clínica, gestor, animal com tutor, ração e consulta), `SalvarAvaliacaoAsync`, `CriarDietaAsync` (com `NovaDieta` e `NovaDietaEmagrecimento`) e `HistoricoAsync`.
 - Uma pasta por entidade, com `<Entidade>Tests.cs`: `Tutores`, `Animais`, `Racas`, `Racoes`, `Consultas`, `Avaliacoes`, `Dietas`, `Acompanhamentos` (histórico completo do animal), `Sistema` (catálogo do admin), `Clinicas` (dashboard, dados da clínica e clínicas do admin) e `Usuarios` (vínculos).
 - `Unitarios/`: testes sem banco nem API, para lógica pura (hoje, o cálculo de necessidade energética, com valores do NRC 2006 calculados à parte).
+- Casos da literatura: `Unitarios/CasosLiteraturaTests.cs` (energia) e `Racoes/RacaoLiteraturaTests.cs` (EM da ração) usam exemplos resolvidos das fontes, com o ID do caso de `.claude/skills/teste-visual/casos-literatura.md` e tolerância de 1 %. Caso novo da literatura entra lá primeiro e depois vira `InlineData`; nunca ajuste o esperado para o teste passar.
 
 ### Regras para escrever testes
 

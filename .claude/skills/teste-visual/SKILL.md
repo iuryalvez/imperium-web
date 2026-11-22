@@ -1,6 +1,6 @@
 ---
 name: teste-visual
-description: Use para conferir no navegador uma tela do Imperium depois de uma mudança no frontend (ou no backend que afete uma tela), ou para entregar ao usuário um roteiro de teste manual. Explica como combinar ambiente e login e o roteiro do que conferir.
+description: Use para conferir no navegador uma tela do Imperium depois de uma mudança no frontend (ou no backend que afete uma tela), ou para entregar ao usuário um roteiro de teste manual. Explica como combinar ambiente e login, o roteiro do que conferir e os casos da literatura (exemplos do NRC, FEDIAF, WSAVA etc.) para conferir cálculo de dieta, ração e avaliação.
 ---
 
 # Teste visual do Imperium
@@ -9,6 +9,7 @@ description: Use para conferir no navegador uma tela do Imperium depois de uma m
 
 - Peça permissão antes de subir qualquer coisa. Com o sim, use `make dev-up-api` e `make dev-up-frontend`. Se o usuário já estiver com eles rodando, use os dele.
 - Combine qual banco será usado (local, com dados fictícios) e com qual usuário e perfil testar.
+- No banco local nada é real: crie quantos animais, consultas, avaliações e dietas o teste pedir, e atualize os que já existem se precisar. Uma avaliação que já tem dieta não pode ser editada, então casos novos (ECC, gestação, emagrecimento) pedem animal e consulta novos. O jeito mais rápido é a API, pela sessão aberta no navegador: `fetch` com `credentials: "include"` em `POST /api/clinica/animais/cadastrar`, `POST /api/clinica/consultas/cadastrar` e `PUT /api/clinica/consultas/{id}/avaliacao` (corpos como em `backend.Tests/Infra/ApiDeTeste.cs`). Ponha "(teste ...)" no nome. A dieta, calcule pela tela, que é o que se quer ver. Em `/dev` ou em produção, pergunte antes.
 - O login tem Cloudflare Turnstile. Quem faz o login é o usuário. Nunca peça nem digite senha.
 - Use o navegador disponível na sessão. Se não houver navegador ou o usuário preferir, entregue o roteiro abaixo para ele seguir.
 
@@ -35,6 +36,15 @@ Abra também o console e a aba de rede:
 - Requisições indo para `/api/...` (ou `/dev/api/...` em homologação), com status esperado.
 - Nenhum `clinicaId` no corpo ou na query das requisições de telas da clínica.
 
-## 3. Entrega
+## 3. Casos da literatura (cálculo de dieta, ração e avaliação)
 
-Relate item a item o que passou, o que falhou (com o passo para reproduzir) e o que não foi possível testar e por quê. Se subiu API ou frontend, pergunte se pode derrubar ao terminar.
+Quando a mudança mexer em cálculo energético, ração, formulário de dieta, avaliação ou ECC, confira também os casos de `casos-literatura.md`, nesta pasta. Eles vêm de exemplos resolvidos da literatura usada na monografia (NRC/Carciofi, Ogoshi, FEDIAF, ABINPET, Guimarães e Tudury, WSAVA e outras), cada um com fonte, página, entrada e valor esperado.
+
+- Rode os casos do tipo de dieta que mudou, mais um caso de ração. Tolerância de 1 %, porque as fontes arredondam.
+- Os casos de cálculo já rodam no `make test` (`CasosLiteraturaTests` e `RacaoLiteraturaTests`). No navegador, confira que a tela mostra o mesmo valor, a fórmula certa e os limites do formulário.
+- Se um caso que batia passar a divergir, pare e mostre ao usuário: a fonte é o gabarito. Os casos que já divergem estão em "Divergências: decisões", com a decisão de cada um e as pendências; não mude o sistema por um deles fora do que foi decidido.
+- Ao ler uma fonte nova ou mudar uma fórmula, atualize `casos-literatura.md` e o arquivo do grupo em `literatura/`.
+
+## 4. Entrega
+
+Relate item a item o que passou, o que falhou (com o passo para reproduzir) e o que não foi possível testar e por quê. Nos casos da literatura, cite o ID e o valor obtido. Se subiu API ou frontend, pergunte se pode derrubar ao terminar.
