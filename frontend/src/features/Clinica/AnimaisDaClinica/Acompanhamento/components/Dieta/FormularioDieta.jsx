@@ -10,7 +10,6 @@ import {
   Divider,
   Tag,
 } from "antd";
-import { useWatch } from "antd/es/form/Form";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import { message } from "antd";
 
@@ -38,7 +37,7 @@ const FormularioDieta = ({
   dadosAnimal,
 }) => {
   const [form] = Form.useForm();
-  const tipoDietaSelecionado = useWatch("tipoDieta", form);
+  const tipoDietaSelecionado = Form.useWatch("tipoDieta", form);
 
   const isGato =
     initialValues?.especieAnimal === 2 ||
@@ -75,9 +74,7 @@ const FormularioDieta = ({
     fetchPerfisENiveis();
   }, []);
 
-  const perfilSelecionadoId = useWatch("perfilMetabolico", form);
-  const multiplicadorEnergetico = useWatch("multiplicadorEnergetico", form);
-  const potencia = useWatch("potencia", form);
+  const perfilSelecionadoId = Form.useWatch("perfilMetabolico", form);
 
   useEffect(() => {
     if (perfilSelecionadoId && perfisMetabolicos.length > 0) {
@@ -91,37 +88,30 @@ const FormularioDieta = ({
     }
   }, [perfilSelecionadoId, perfisMetabolicos, form]);
 
-  useEffect(() => {
-    if (perfilSelecionadoId && perfisMetabolicos.length > 0) {
-      const perfil = perfisMetabolicos.find((p) => p.value === perfilSelecionadoId);
-      
-      // Se é um perfil que tem K e P fixos no backend
-      if (perfil && perfil.k !== null && perfil.p !== null && perfil.k !== undefined && perfil.p !== undefined) {
-        // Se o usuário alterou K ou P para valores diferentes do perfil base
-        if (
-          (multiplicadorEnergetico !== undefined && Math.abs(multiplicadorEnergetico - perfil.k) > 0.001) ||
-          (potencia !== undefined && Math.abs(potencia - perfil.p) > 0.001)
-        ) {
-          const tipo = form.getFieldValue("tipoDieta");
-          const isGat = initialValues?.especieAnimal === 2 || String(initialValues?.especieAnimal).toLowerCase() === "gato";
-          const especieBuscada = isGat ? 2 : 1;
-          
-          const perfilGenerico = perfisMetabolicos.find(p => 
-            p.tiposDieta?.includes(tipo) && 
-            p.k === null && 
-            p.p === null && 
-            p.especie === especieBuscada
-          );
+  // Quando o veterinário edita K ou P à mão e o valor deixa de ser o do perfil escolhido,
+  // o perfil passa para o genérico (personalizado) da espécie e do tipo de dieta.
+  // Fica no onValuesChange, e não num useEffect, porque só deve reagir à edição do usuário:
+  // ao trocar de perfil, o K e o P antigos ainda estão no formulário por um instante e
+  // não podem ser confundidos com uma personalização.
+  const handleValuesChange = (valoresAlterados, todosOsValores) => {
+    if (!("multiplicadorEnergetico" in valoresAlterados) && !("potencia" in valoresAlterados)) return;
 
-          let novoPerfilId = perfilGenerico ? perfilGenerico.value : null;
+    const perfil = perfisMetabolicos.find((p) => p.value === todosOsValores.perfilMetabolico);
+    if (!perfil || perfil.k == null || perfil.p == null) return;
 
-          if (novoPerfilId && novoPerfilId !== perfilSelecionadoId) {
-            form.setFieldValue("perfilMetabolico", novoPerfilId);
-          }
-        }
-      }
+    const { multiplicadorEnergetico: k, potencia: p } = todosOsValores;
+    const personalizado =
+      (k != null && Math.abs(k - perfil.k) > 0.001) || (p != null && Math.abs(p - perfil.p) > 0.001);
+    if (!personalizado) return;
+
+    const especieBuscada = isGato ? 2 : 1;
+    const perfilGenerico = perfisMetabolicos.find(
+      (g) => g.tiposDieta?.includes(todosOsValores.tipoDieta) && g.k === null && g.p === null && g.especie === especieBuscada,
+    );
+    if (perfilGenerico && perfilGenerico.value !== perfil.value) {
+      form.setFieldValue("perfilMetabolico", perfilGenerico.value);
     }
-  }, [multiplicadorEnergetico, potencia, perfilSelecionadoId, perfisMetabolicos, form, initialValues?.especieAnimal]);
+  };
 
   useEffect(() => {
     if (initialValues) {
@@ -287,6 +277,7 @@ const FormularioDieta = ({
       form={form}
       layout="vertical"
       onFinish={onFinish}
+      onValuesChange={handleValuesChange}
     >
       {!isEditing && (
         <Alert
