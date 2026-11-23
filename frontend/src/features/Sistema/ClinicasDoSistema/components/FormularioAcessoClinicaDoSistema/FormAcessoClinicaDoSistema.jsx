@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Form, Checkbox } from "antd";
+import { Form, Checkbox } from "antd";
 
 // Perfis que o admin pode simular. INATIVO não entra: um vínculo inativo não acessa nada da clínica
 // (o backend também recusa INATIVO na simulação).

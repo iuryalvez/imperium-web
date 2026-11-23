@@ -82,7 +82,7 @@ export const useClinicasDoSistemaManager = () => {
       handleCloseModals();
       await fetchClinicas();
     } catch (error) {
-      console.log("Erro ao salvar clínica:", error);
+      console.error("Erro ao salvar clínica:", error);
       message.error(
         error.message || "Erro ao salvar clínica.",
       );
@@ -93,12 +93,6 @@ export const useClinicasDoSistemaManager = () => {
 
   const handleSimularAcesso = async (perfis) => {
     try {
-      console.log(
-        "Simulando acesso para clínica ID:",
-        accessingClinica.id,
-        "com perfis:",
-        perfis,
-      );
       await escolherVinculoAdmin(accessingClinica.id, perfis);
       handleCloseModals();
     } catch (error) {

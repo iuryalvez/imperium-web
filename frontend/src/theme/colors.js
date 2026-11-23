@@ -30,4 +30,10 @@ export const colors = {
     real: '#1D4ED8', // azul: medição real
     alvo: '#D97706', // laranja: meta / referência
   },
+  // Trilho do seletor de condição corporal (ECC 1 a 9): extremos, atenção e faixa ideal
+  ecc: {
+    extremo: '#DC2626',
+    atencao: '#EAB308',
+    ideal: '#21BA45',
+  },
 };

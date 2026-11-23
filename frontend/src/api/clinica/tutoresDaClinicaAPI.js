@@ -31,7 +31,6 @@ export const tutoresDaClinicaAPI = {
   },
   editar: async (dadosTutorEditados) => {
     try {
-      console.log(dadosTutorEditados);
       const response = await api.put(
         endpoints.clinica.tutor.editar,
         dadosTutorEditados,

@@ -53,8 +53,6 @@ const FormularioDieta = ({
   const [niveisRestricao, setNiveisRestricao] = useState([]);
   const [loadingPerfis, setLoadingPerfis] = useState(false);
 
-  console.log("[FormularioDieta] initialValues: ", initialValues);
-
   useEffect(() => {
     const fetchPerfisENiveis = async () => {
       setLoadingPerfis(true);

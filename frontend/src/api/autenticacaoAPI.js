@@ -93,7 +93,6 @@ export const autenticacaoAPI = {
   listarVinculos: async () => {
     try {
       const response = await api.get(endpoints.autenticacao.listarVinculos);
-      // console.log("Resposta na api do listarVinculos:", response.data);
       return response.data;
     } catch (error) {
       console.error("Erro ao listar vínculos:", error);
@@ -104,7 +103,6 @@ export const autenticacaoAPI = {
   verificarAutenticacao: async () => {
     try {
       const response = await api.get(endpoints.autenticacao.checarStatus);
-      // console.log(response.data)
       return response.data;
       // response.data tem o seguinte formato:
       // {status = logado}, para usuários que só têm token de login

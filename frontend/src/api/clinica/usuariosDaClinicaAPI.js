@@ -31,7 +31,6 @@ export const usuariosDaClinicaAPI = {
   },
   editar: async (dadosUsuarioEditados) => {
     try {
-      console.log(dadosUsuarioEditados);
       const response = await api.put(
         endpoints.clinica.usuario.editar,
         dadosUsuarioEditados,

@@ -31,7 +31,6 @@ export const animaisDaClinicaAPI = {
   },
   editar: async (dadosAnimalEditados) => {
     try {
-      console.log(dadosAnimalEditados);
       const response = await api.put(
         endpoints.clinica.animal.editar,
         dadosAnimalEditados,
